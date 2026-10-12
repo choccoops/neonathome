@@ -205,7 +205,8 @@ export function makeItem(actor, data) {
   flagMethods(item);
   Object.defineProperty(item.system, "isInstalled", {
     enumerable: false,
-    get: () => actor.items.some((i) => i.system?.installedItems?.list?.includes(item.id))
+    // As CPR's InstallableSchema: in the actor's own list (cyberware in the body) or in another item.
+    get: () => !!actor.system?.installedItems?.list?.includes(item.id) || actor.items.some((i) => i.system?.installedItems?.list?.includes(item.id))
   });
   item.toObject = () => {
     const out = clone({ _id: item._id, name: item.name, type: item.type, img: item.img, system: item.system, flags: item.flags, effects: item.effects });

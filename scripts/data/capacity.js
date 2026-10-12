@@ -220,11 +220,14 @@ export function poolAccepts(pool, tags) {
  * @param {object[]} items - every item on the actor (documents or plain data)
  * @param {object} rules - normalized carry rules
  * @param {string} moduleId
+ * @param {object} [opts]
+ * @param {string[]} [opts.actorInstalled] - ids installed in the actor itself (CPR keeps cyberware
+ *   installed in the body on the actor's own installedItems list, not inside another item)
  * @returns {object} { armorClass, body, base, bonuses, capacity, used, free, over, pools, items, armors, warnings }
  */
-export function computeLoadout(items, rules, moduleId) {
+export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } = {}) {
   const byId = new Map(items.map((i) => [idOf(i), i]));
-  const installed = new Set();
+  const installed = new Set(actorInstalled);
   const installedIn = new Map();
   for (const item of items) {
     for (const id of item.system?.installedItems?.list ?? []) {
@@ -322,10 +325,10 @@ export function computeLoadout(items, rules, moduleId) {
  * Would adding this item (or changing it to this state) fit?
  * @returns {{fits: boolean, after: object}} the loadout after the change
  */
-export function wouldFit(items, change, rules, moduleId) {
+export function wouldFit(items, change, rules, moduleId, opts = {}) {
   const next = items.map((i) => (idOf(i) === change.id ? change.data : i));
   if (!items.some((i) => idOf(i) === change.id)) next.push(change.data);
-  const after = computeLoadout(next, rules, moduleId);
+  const after = computeLoadout(next, rules, moduleId, opts);
   const overPool = after.pools.some((p) => p.used > p.slots);
   return { fits: !after.over && !overPool, after };
 }

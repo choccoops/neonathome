@@ -125,12 +125,14 @@ export function baseWeight(item, rules, moduleId) {
  * Weigh everything on an actor.
  * @param {object[]} items - every item on the actor
  * @param {object} rules - normalized weight rules
- * @param {object} opts - { body: BODY stat, moduleId, vehicle: false }
+ * @param {object} opts - { body: BODY stat, moduleId, vehicle: false, cargo, actorInstalled: ids
+ *   installed in the actor itself (cyberware in the body) }
  * @returns {{current, max, base, bonus, pct, status, items: {id, unit, total, reasons}[]}}
  */
-export function computeWeight(items, rules, { body = 0, moduleId, vehicle = false, cargo = null } = {}) {
+export function computeWeight(items, rules, { body = 0, moduleId, vehicle = false, cargo = null, actorInstalled = [] } = {}) {
   const byId = new Map(items.map((i) => [idOf(i), i]));
-  const parentOf = new Map();
+  // Installed in the body: the actor is the parent.
+  const parentOf = new Map(actorInstalled.map((id) => [id, "actor"]));
   for (const item of items) for (const id of item.system?.installedItems?.list ?? []) if (!parentOf.has(id)) parentOf.set(id, idOf(item));
 
   const out = [];

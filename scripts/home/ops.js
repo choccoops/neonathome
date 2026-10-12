@@ -39,8 +39,10 @@ export const HomeOps = {
       if (idx >= 0) items[idx] = change;
       else items.push(change);
     }
-    const carry = computeLoadout(items, Settings.carry, MODULE_ID);
-    const weight = computeWeight(items, Settings.weight, { body: Number(actor.system?.stats?.body?.value) || 0, moduleId: MODULE_ID });
+    // Cyberware installed in the body is listed on the actor, not inside another item.
+    const actorInstalled = Array.from(actor.system?.installedItems?.list ?? []);
+    const carry = computeLoadout(items, Settings.carry, MODULE_ID, { actorInstalled });
+    const weight = computeWeight(items, Settings.weight, { body: Number(actor.system?.stats?.body?.value) || 0, moduleId: MODULE_ID, actorInstalled });
     return { carry, weight };
   },
 

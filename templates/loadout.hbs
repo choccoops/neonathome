@@ -129,7 +129,7 @@
         {{#each loadout.bar.segments}}<li class="cat-{{cat}}" data-tooltip="{{names}}"><i style="background-color: {{color}}; box-shadow: 0 0 6px {{color}}"></i>{{label}} <b>{{slots}}</b></li>{{/each}}
         {{#if loadout.bar.free}}<li class="cat-free"><i></i>{{localize "NEONHOME.Loadout.Free"}} <b>{{loadout.bar.free}}</b></li>{{/if}}
       </ul>
-      <p class="nah-hint">{{localize "NEONHOME.Loadout.Base" cls=loadout.armorClass n=loadout.base}}{{#each loadout.bonuses}} &middot; +{{slots}} {{name}}{{/each}}</p>
+      <p class="nah-hint">{{localize "NEONHOME.Loadout.Base" cls=loadout.armorClass n=loadout.base}}{{#each loadout.bonuses}} &middot; +{{slots}} {{name}}{{/each}}{{#each loadout.pools}} &middot; {{localize "NEONHOME.Loadout.PoolExtra" n=bar.slots name=name accepts=accepts}}{{/each}}</p>
       {{#each loadout.pools}}
       <div class="nah-pool">
         <span><i class="fa-solid fa-link"></i> {{name}} <small>{{accepts}}</small></span>
