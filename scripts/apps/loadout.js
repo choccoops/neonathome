@@ -8,6 +8,7 @@ import { canInstallUpgrade, armorEffects } from "../data/capacity.js";
 import { computeWeight } from "../data/weight.js";
 import { itemFlag } from "../data/item-flag.js";
 import { DnD } from "./home-app.js";
+import { isLifestyle } from "../data/util.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -19,8 +20,33 @@ const TYPE_ICON = {
   clothing: "fa-solid fa-shirt", drug: "fa-solid fa-pills", cyberdeck: "fa-solid fa-microchip", itemUpgrade: "fa-solid fa-puzzle-piece",
   cyberware: "fa-solid fa-robot", program: "fa-solid fa-code", vehicle: "fa-solid fa-car"
 };
-/** Most cells drawn in the carry grid before it just says "+N". */
-const MAX_CELLS = 60;
+/** Slot kinds in the order the carry bar shows them. */
+const BAR_ORDER = ["heavy", "twoHanded", "oneHanded", "ammo", "utility", "bulky"];
+
+/**
+ * A carry bar: one coloured segment per kind of thing, widths as a share of the slots (or of what's
+ * used, when that's more), with one tick per slot and a key of what's in it.
+ * @param {object[]} items - described items placed in these slots
+ */
+function slotBar(items, slots) {
+  const used = items.reduce((n, d) => n + d.cost, 0);
+  const scale = Math.max(slots, used, 1);
+  const segments = BAR_ORDER.map((cat) => {
+    const these = items.filter((d) => d.category === cat);
+    const n = these.reduce((sum, d) => sum + d.cost, 0);
+    return { cat, slots: n, pct: (n / scale) * 100, label: L(`NEONHOME.Category.${cat}`), names: these.map((d) => d.name).join(", ") };
+  }).filter((g) => g.slots > 0);
+  return {
+    used,
+    slots,
+    free: Math.max(0, slots - used),
+    over: Math.max(0, used - slots),
+    segments,
+    // where the last slot ends when the bar is overfull
+    limitPct: used > slots ? (slots / scale) * 100 : null,
+    ticks: scale
+  };
+}
 
 /** Ask how many of a stack to move. */
 async function askAmount(item) {
@@ -85,7 +111,8 @@ export const Loadout = {
     };
 
     // What's on the character: on their person, or owned but not with them.
-    const physical = actor.items.filter((i) => !["skill", "role", "criticalInjury", "netarch", "vehicle"].includes(i.type) && !CPR.isInstalled(i) && !i.system.core);
+    // Lifestyle items (Neon Hub) are monthly expenses, not things: they stay out of the Loadout.
+    const physical = actor.items.filter((i) => !["skill", "role", "criticalInjury", "netarch", "vehicle"].includes(i.type) && !CPR.isInstalled(i) && !i.system.core && !isLifestyle(i));
     const onYou = physical.filter((i) => byId.get(i.id)?.onPerson);
     const notCarried = physical.filter((i) => !byId.get(i.id)?.onPerson && i.type !== "program");
     const groups = GROUPS.map((g) => ({
@@ -146,27 +173,18 @@ export const Loadout = {
       ...fx.notes.map((n) => L(`NEONHOME.Upgrade.Note.${n.effect}`, { value: n.value ?? "" }))
     ];
 
-    // The carry grid.
-    const general = carry.items.filter((d) => d.pool === "general").sort((a, b) => b.cost - a.cost || a.name.localeCompare(b.name));
-    const cells = [];
-    for (const d of general) for (let k = 0; k < d.cost; k++) cells.push({ cat: d.category, name: d.name, start: k === 0 });
-    for (let i = cells.length; i < carry.capacity; i++) cells.push({ cat: "empty" });
-    cells.forEach((c, i) => (c.over = i >= carry.capacity));
-    const shown = cells.slice(0, MAX_CELLS);
-    const pools = carry.pools.map((p) => {
-      const pc = [];
-      for (const id of p.items) {
-        const d = byId.get(id);
-        for (let k = 0; k < d.cost; k++) pc.push({ cat: d.category, name: d.name, start: k === 0 });
-      }
-      for (let i = pc.length; i < p.slots; i++) pc.push({ cat: "empty" });
-      return { name: p.name, accepts: L(`NEONHOME.Accepts.${p.accepts}`), used: p.used, slots: p.slots, cells: pc };
-    });
+    // The carry bar, and one per bonus pool.
+    const bar = slotBar(carry.items.filter((d) => d.pool === "general"), carry.capacity);
+    const pools = carry.pools.map((p) => ({
+      name: p.name,
+      accepts: L(`NEONHOME.Accepts.${p.accepts}`),
+      bar: slotBar(p.items.map((id) => byId.get(id)), p.slots)
+    }));
 
     // The store (stash or vehicle cargo).
     let storeCtx = null;
     if (store) {
-      const items = store.doc.items.filter((i) => !["skill", "role", "criticalInjury"].includes(i.type) && !CPR.isInstalled(i));
+      const items = store.doc.items.filter((i) => !["skill", "role", "criticalInjury"].includes(i.type) && !CPR.isInstalled(i) && !isLifestyle(i));
       const cargo = store.doc === stash ? null : computeWeight(Array.from(store.doc.items), weightRules, {
         moduleId: MODULE_ID, vehicle: true, cargo: Number(store.doc.getFlag(MODULE_ID, "cargo")) || Number(store.doc.getFlag("mmutons-cyberpunk-red-weight-system", "vehicleCapacity")) || null
       });
@@ -195,8 +213,7 @@ export const Loadout = {
         free: carry.free,
         over: carry.over,
         pct: carry.capacity ? Math.min(100, Math.round((carry.used / carry.capacity) * 100)) : 100,
-        cells: shown,
-        moreCells: cells.length - shown.length,
+        bar,
         pools,
         warnings: carry.warnings.map((w) => L(`NEONHOME.Loadout.Warn.${w.key}`, { name: w.name })),
         weight: weightRules.enabled ? { current: weight.current, max: weight.max, bonus: weight.bonus, pct: Math.min(100, weight.pct), status: weight.status } : null,

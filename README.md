@@ -48,7 +48,7 @@ Players see their own characters; the GM can pick anyone from the list in the he
 ## Loadout
 
 The middle column is everything on the character: the **carry slots** they're using, shown as a
-grid coloured by kind, any bonus slots (holster, ammo bag), the **weight** bar, and each item with
+bar with a tick per slot, filled by kind with a key of what uses them and what's free, any bonus slots (holster, ammo bag), the **weight** bar, and each item with
 its slot cost, weight and an owned / carried / equipped switch. Items the sheet marks *owned* are
 not on the character (that's what *owned* means in Cyberpunk RED) and sit on their own shelf,
 uncounted, until they're carried or stored.
@@ -88,7 +88,8 @@ What things cost:
 | Ammo, utility gear | 1 |
 | Spare armor carried, not worn | 3 |
 
-Worn armor and clothing, installed cyberware and attachments cost nothing. Armor is classed by
+Worn armor and clothing, installed cyberware, attachments and Neon Hub lifestyle items (rent,
+packages, memberships) cost nothing; lifestyle items are left out of the Loadout altogether. Armor is classed by
 name (*Light Armorjack*, *Flak*, *Metalgear*...), else by its SP; the GM can set the class, the
 slot kind or the slot cost on any item (see *Item settings* below).
 

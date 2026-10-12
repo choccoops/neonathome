@@ -63,3 +63,8 @@ test("vehicle cargo uses the vehicle's capacity", () => {
   assert.equal(w.current, 10);
   assert.equal(w.max, 40);
 });
+
+test("Neon Hub lifestyle items weigh nothing", () => {
+  const kibble = it("gear", { equipped: "equipped", amount: 3 }, { "cpr-neon-hub": { lifestyle: { category: "lifestyle" } } });
+  assert.equal(computeWeight([kibble], rules, { body: 6, moduleId: M }).current, 0);
+});

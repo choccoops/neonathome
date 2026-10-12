@@ -7,7 +7,7 @@
  * Weights come from the item's Neon At Home flag, then MMuton's weight flag if that module set one,
  * then the GM's default for the item's type. Pure: no Foundry calls.
  */
-import { num, round1, idOf, int } from "./util.js";
+import { num, round1, idOf, int, isLifestyle } from "./util.js";
 import { itemFlag } from "./item-flag.js";
 import { classFromName, classFromSP } from "./capacity.js";
 
@@ -112,7 +112,7 @@ export function defaultWeight(item, rules) {
 
 /** One unit of the item, before what being equipped or installed does to it. */
 export function baseWeight(item, rules, moduleId) {
-  if (NON_PHYSICAL.has(item.type)) return 0;
+  if (NON_PHYSICAL.has(item.type) || isLifestyle(item)) return 0;
   const own = itemFlag(item, moduleId).weight;
   if (own !== null) return own;
   return mmutonWeight(item) ?? defaultWeight(item, rules);
@@ -142,7 +142,7 @@ export function computeWeight(items, rules, { body = 0, moduleId, vehicle = fals
     let unit = baseWeight(item, rules, moduleId);
     const installedIn = parentOf.get(id);
 
-    if (NON_PHYSICAL.has(item.type)) unit = 0;
+    if (NON_PHYSICAL.has(item.type) || isLifestyle(item)) unit = 0;
     else if (vehicle && vehicleFitting(item)) {
       // A vehicle's own plating and mounted upgrades aren't cargo; mounted weapons weigh like equipped ones.
       const mounted = item.type === "weapon";
