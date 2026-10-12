@@ -44,7 +44,7 @@ export const Loadout = {
   template: `${TEMPLATE_PATH}/loadout.hbs`,
 
   async prepare(app, actor) {
-    const st = (app.state.loadout ??= { armor: null, store: null });
+    const st = (app.uiState.loadout ??= { armor: null, store: null });
     const { carry, weight } = HomeOps.measure(actor);
     const rules = Settings.carry;
     const weightRules = Settings.weight;
@@ -217,11 +217,11 @@ export const Loadout = {
     DnD.sources(el);
     DnD.targets(el, (data, target) => Loadout.onDrop(app, data, target));
     el.querySelector("select[name=store]")?.addEventListener("change", (ev) => {
-      app.state.loadout.store = ev.target.value;
+      app.uiState.loadout.store = ev.target.value;
       app.render();
     });
     el.querySelector("select[name=armor]")?.addEventListener("change", (ev) => {
-      app.state.loadout.armor = ev.target.value;
+      app.uiState.loadout.armor = ev.target.value;
       app.render();
     });
     const filter = el.querySelector("input[name=storeFilter]");
@@ -258,7 +258,7 @@ export const Loadout = {
         if (fromActor && CPR.isEquippable(item)) return app.act(() => HomeOps.equip(actor, item.id, "owned"));
         return;
       case "store": {
-        const to = app.state.loadout.store;
+        const to = app.uiState.loadout.store;
         if (!to || data.owner === to) return;
         return Loadout.stow(app, item, to);
       }
@@ -286,7 +286,7 @@ export const Loadout = {
   },
 
   async install(app, upgrade, from) {
-    const armorId = app.state.loadout?.armor;
+    const armorId = app.uiState.loadout?.armor;
     if (!armorId) return ui.notifications.warn(L("NEONHOME.Upgrade.PickArmor"));
     return app.act(() => HomeOps.installArmorUpgrade(app.actor, armorId, upgrade.id, from));
   },
@@ -298,7 +298,7 @@ export const Loadout = {
     },
     loadoutStow(event, target) {
       const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
-      if (item) return Loadout.stow(this, item, this.state.loadout?.store);
+      if (item) return Loadout.stow(this, item, this.uiState.loadout?.store);
     },
     loadoutRetrieve(event, target) {
       const el = target.closest("[data-item-id]");
@@ -309,13 +309,13 @@ export const Loadout = {
       return this.act(() => HomeOps.ensureStash(this.actor));
     },
     loadoutOpenStore() {
-      const doc = docFrom(this.state.loadout?.store);
+      const doc = docFrom(this.uiState.loadout?.store);
       if (doc?.testUserPermission(game.user, "OBSERVER")) doc.sheet.render(true);
     },
     loadoutSelectArmor(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
       if (!id) return;
-      this.state.loadout.armor = id;
+      this.uiState.loadout.armor = id;
       this.render();
     },
     loadoutInstall(event, target) {
@@ -325,7 +325,7 @@ export const Loadout = {
     },
     loadoutUninstall(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
-      return this.act(() => HomeOps.removeArmorUpgrade(this.actor, this.state.loadout.armor, id));
+      return this.act(() => HomeOps.removeArmorUpgrade(this.actor, this.uiState.loadout.armor, id));
     }
   }
 };

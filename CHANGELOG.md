@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- **Fixed: the Home window didn't open** from the Token Controls button, the character sheet or the Actors sidebar. The window kept its tab state in a property Foundry's application class already reserves, which stopped it from being created.
+
 ## 1.0.0
 
 First release: a home suite for each Cyberpunk RED character, opened from the character sheet.
