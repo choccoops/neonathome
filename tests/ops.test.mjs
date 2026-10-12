@@ -67,6 +67,7 @@ test("carry slots are a hard limit: a pop-up stops it, the GM can carry it anywa
   await assert.rejects(() => HomeOps.retrieve(actor, more.uuid, "r2"), RuleBlock);
   assert.equal(dialogs.shown.length, 1, "the pop-up said why");
   assert.equal(dialogs.shown[0].buttons.length, 1, "players can't override");
+  assert.ok(dialogs.shown[0].content.includes("Rifle r2"), "it names the item");
   assert.ok(more.items.get("r2"), "nothing moved");
   // Equipping something owned past the slots is stopped the same way.
   await HomeOps.retrieve(actor, more.uuid, "r2", null, "owned");
@@ -79,6 +80,24 @@ test("carry slots are a hard limit: a pop-up stops it, the GM can carry it anywa
   assert.equal(dialogs.shown.at(-1).buttons.length, 2);
   assert.equal(more.items.get("r3"), undefined);
   assert.ok(HomeOps.measure(actor).carry.over);
+});
+
+test("the pop-up says when a bonus pool has room but won't take the item", async () => {
+  asUser(false);
+  const { actor } = setup();
+  const [bag] = await actor.createEmbeddedDocuments("Item", [{ name: "Gear bag", type: "itemUpgrade", system: { type: "armor", size: 1 }, flags: { [M]: { item: { upgrade: { pools: [{ slots: 2, accepts: "utility" }] } } } } }]);
+  actor.items.get("jack0000000000aa").system.installedItems.list.push(bag.id);
+  // No loose gear, so the bag stays empty. 15 slots: pistol 2 + rifle 3 + ammo 1 + three more rifles = 15.
+  await actor.deleteEmbeddedDocuments("Item", ["scope00000000aaa", "fixed00000000aaa"]);
+  await actor.createEmbeddedDocuments("Item", [rifle("x1"), rifle("x2"), rifle("x3")]);
+  assert.equal(HomeOps.measure(actor).carry.used, 15);
+  const locker = makeActor({ name: "Locker", type: "container" }, [rifle("x4")]);
+  await HomeOps.updateHome(actor, { stash: locker.uuid });
+  dialogs.shown.length = 0;
+  dialogs.next = "ok";
+  await assert.rejects(() => HomeOps.retrieve(actor, locker.uuid, "x4"), RuleBlock);
+  assert.match(dialogs.shown[0].content, /Gear bag has \d free, but only for Gear \/ utility/);
+  asUser(true);
 });
 
 test("installing an upgrade from the stash isn't stopped by full slots", async () => {

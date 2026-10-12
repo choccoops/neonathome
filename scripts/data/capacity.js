@@ -322,6 +322,20 @@ export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } =
 }
 
 /**
+ * Bonus slots that still have room but won't take this item (a Gear bag offered a pistol), so the
+ * carry pop-up can say why they didn't help.
+ * @param {object} carry - computeLoadout() result that includes the item
+ * @returns {{name, free, accepts}[]}
+ */
+export function poolsThatWontTake(carry, itemId) {
+  const d = carry.items.find((x) => x.id === itemId);
+  if (!d) return [];
+  return carry.pools
+    .filter((p) => p.slots - p.used > 0 && !poolAccepts(p, d.tags))
+    .map((p) => ({ name: p.name, free: p.slots - p.used, accepts: p.accepts }));
+}
+
+/**
  * Would adding this item (or changing it to this state) fit?
  * @returns {{fits: boolean, after: object}} the loadout after the change
  */

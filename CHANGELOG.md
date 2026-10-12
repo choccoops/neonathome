@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3
+
+- **The "No room to carry it" pop-up explains bonus slots that didn't help.** When a bonus pool still has room but only takes other things (a Gear bag offered a pistol, a holster offered a rifle), the pop-up now says so, e.g. "Gear bag has 2 free, but only for Gear / utility."
+
 ## 1.2.2
 
 - **Fixed: cyberware installed in the body took carry slots and weight.** Cyberpunk RED lists cyberware installed in the body on the character itself rather than inside another item, and the Loadout didn't look there, so each piece counted as a hidden 1-slot, 0.5-unit item. It also filled gear-only bonus slots like the Gear bag. Installed cyberware is now free, and any weight-limit bonus it gives applies.

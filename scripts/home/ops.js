@@ -5,7 +5,7 @@ import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeStore, docFrom } from "./store.js";
 import { normalizeHome, freeBay } from "../data/home.js";
-import { computeLoadout, canInstallUpgrade, armorEffects } from "../data/capacity.js";
+import { computeLoadout, canInstallUpgrade, armorEffects, poolsThatWontTake } from "../data/capacity.js";
 import { computeWeight, encumbrance } from "../data/weight.js";
 import { normalizePsyche, psycheState, tierOf, catharsisGain, absorbLoss, TIERS } from "../data/syndromes.js";
 import { canAttach, canDetach } from "../data/attachments.js";
@@ -64,12 +64,15 @@ export const HomeOps = {
    * arrived on the character (bought, looted) it only tells them they're over.
    * @returns {Promise<boolean>} true when the GM chose to go over
    */
-  async carryPopup(actor, itemName, after, { arriving = false } = {}) {
+  async carryPopup(actor, item, after, { arriving = false } = {}) {
     const c = after.carry;
     const pool = c.pools.find((p) => p.used > p.slots);
+    // Bonus slots with room that only take other things (a Gear bag for a pistol): say so.
+    const closed = poolsThatWontTake(c, item.id);
     const body = arriving ? "NEONHOME.Loadout.Blocked.Arrived" : "NEONHOME.Loadout.Blocked.Body";
-    const content = `<p>${L(body, { name: esc(actor.name), item: esc(itemName), used: c.used, capacity: c.capacity })}</p>`
+    const content = `<p>${L(body, { name: esc(actor.name), item: esc(item.name), used: c.used, capacity: c.capacity })}</p>`
       + (pool ? `<p>${L("NEONHOME.Loadout.Blocked.Pool", { pool: esc(pool.name), used: pool.used, slots: pool.slots })}</p>` : "")
+      + closed.map((p) => `<p>${L("NEONHOME.Loadout.Blocked.WrongPool", { pool: esc(p.name), free: p.free, accepts: L(`NEONHOME.Accepts.${p.accepts}`) })}</p>`).join("")
       + `<p class="hint">${L("NEONHOME.Loadout.Blocked.Hint")}</p>`;
     const buttons = [{ action: "ok", label: L("NEONHOME.Loadout.Blocked.Ok"), icon: "fa-solid fa-check", default: true }];
     if (game.user.isGM && !arriving) buttons.push({ action: "override", label: L("NEONHOME.Loadout.Blocked.Override"), icon: "fa-solid fa-triangle-exclamation" });
@@ -92,7 +95,7 @@ export const HomeOps = {
     const { worse, before, after } = this.carryCheck(actor, change);
     const carryMode = Settings.get("enforceCarry");
     if (worse && carryMode === "block") {
-      if (!(await this.carryPopup(actor, itemName, after))) throw new RuleBlock("");
+      if (!(await this.carryPopup(actor, { name: itemName, id: change._id }, after))) throw new RuleBlock("");
     } else if (worse && carryMode === "warn") {
       ui.notifications.warn(L("NEONHOME.Loadout.OverSlots", { used: after.carry.used, capacity: after.carry.capacity }));
     }

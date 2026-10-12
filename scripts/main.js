@@ -143,7 +143,7 @@ Hooks.on("preUpdateItem", (item, changes, options, userId) => {
     ui.notifications.warn(L("NEONHOME.Loadout.OverSlots", { used: after.carry.used, capacity: after.carry.capacity }));
     return;
   }
-  HomeOps.carryPopup(actor, item.name, after).then((override) => {
+  HomeOps.carryPopup(actor, { name: item.name, id: item.id }, after).then((override) => {
     if (override) item.update(changes, { ...options, [MODULE_ID]: { [CHECKED]: true } });
   });
   return false;
@@ -157,7 +157,7 @@ Hooks.on("preCreateItem", (item, data, options, userId) => {
   const change = item.toObject();
   change._id ??= "arriving000000a";
   const { worse, after } = HomeOps.carryCheck(actor, change);
-  if (worse) HomeOps.carryPopup(actor, item.name, after, { arriving: true });
+  if (worse) HomeOps.carryPopup(actor, { name: item.name, id: change._id }, after, { arriving: true });
 });
 
 /** Humanity before an update, passed along to every client with the update. */

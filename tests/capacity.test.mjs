@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_CARRY_RULES, normalizeCarryRules, classFromName, classFromSP, describeArmor, describeCarry, computeLoadout,
-  canInstallUpgrade, armorEffects, wouldFit
+  canInstallUpgrade, armorEffects, wouldFit, poolsThatWontTake
 } from "../scripts/data/capacity.js";
 
 const M = "cpr-neon-at-home";
@@ -195,4 +195,19 @@ test("cyberware installed in the body (the actor's own list) takes no slots and 
   const l = computeLoadout([jack, bag, link], rules, M, { actorInstalled: ["neural"] });
   assert.equal(l.used, 0);
   assert.equal(l.pools[0].used, 0);
+});
+
+test("a gear-only bonus pool doesn't take a pistol, and the pop-up can say why", () => {
+  const bag = upgrade("Gear bag", { upgrade: { pools: [{ slots: 2, accepts: "utility" }] } });
+  const jack = armor("Medium Armorjack (Body)", { sp: 12, list: [bag._id] });
+  const rifles = Array.from({ length: 7 }, (_, i) => weapon(`R${i}`, { weaponType: "assaultRifle", handsReq: 2 }));
+  const pistol = weapon("Heavy Pistol");
+  const l = computeLoadout([jack, bag, ...rifles, pistol], rules, M);
+  assert.equal(l.used, 23);
+  assert.equal(l.pools[0].used, 0, "the pistol didn't go in the gear bag");
+  assert.deepEqual(poolsThatWontTake(l, pistol._id), [{ name: "Gear bag", free: 2, accepts: "utility" }]);
+  const agent = gear("Agent");
+  const l2 = computeLoadout([jack, bag, ...rifles, agent], rules, M);
+  assert.equal(l2.pools[0].used, 1, "gear goes in the bag");
+  assert.deepEqual(poolsThatWontTake(l2, agent._id), []);
 });

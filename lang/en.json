@@ -147,6 +147,7 @@
         "Body": "<b>{item}</b> won't fit: it would put {name} at <b>{used}</b> of {capacity} carry slots.",
         "Arrived": "<b>{item}</b> has been added, and {name} is now at <b>{used}</b> of {capacity} carry slots. Store something, or set it to owned (not on them).",
         "Pool": "{pool} is full ({used} of {slots}).",
+        "WrongPool": "{pool} has {free} free, but only for {accepts}.",
         "Hint": "Store something at home or in a vehicle, mark it as owned (not on you), or wear armor or carry gear with more slots.",
         "Ok": "OK",
         "Override": "Carry it anyway (GM)"
