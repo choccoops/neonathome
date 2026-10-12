@@ -13,7 +13,7 @@
       <select name="flag.category">{{#each categories}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
     </div>
     <div class="form-group">
-      <label>{{localize "NEONHOME.Config.Slots"}}</label>
+      <label>{{#if isCyberwareItem}}{{localize "NEONHOME.Config.SlotsLoose"}}{{else}}{{localize "NEONHOME.Config.Slots"}}{{/if}}</label>
       <input type="number" name="flag.slots" value="{{flag.slots}}" min="0" max="99" placeholder="{{localize 'NEONHOME.Config.FromRules'}}">
     </div>
     <div class="form-group">

@@ -71,6 +71,8 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
       // Carry slots: carry gear, and the Subdermal Pocket (the only cyberware that holds things).
       isCarryGear: ["gear", "clothing"].includes(item.type) || isSubdermalPocket(item),
       isCyberware: isSubdermalPocket(item),
+      // cyberware only takes slots when carried loose; installed it's free
+      isCyberwareItem: item.type === "cyberware",
       carryPools: pools(flag.carry.pools),
       isArmorUpgrade: isUpgrade && item.system.type === "armor",
       isAttachment: isUpgrade && item.system.type !== "armor",

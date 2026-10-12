@@ -483,6 +483,7 @@
       "Category": "Counts as",
       "Auto": "Automatic ({value})",
       "Slots": "Slot cost",
+      "SlotsLoose": "Slot cost when carried loose (not installed)",
       "FromRules": "from the rules",
       "Weight": "Weight (units)",
       "CapacityBonus": "Adds to weight limit",

@@ -115,6 +115,12 @@ test("item and rules config windows render", async () => {
     assert.ok(html.includes(actor.items.get(id).name));
     assert.ok(!/NEONHOME\./.test(html), `raw keys in item config for ${id}`);
   }
+  // Bonus carry slots can only be set on a Subdermal Pocket, not on other cyberware.
+  const pocketHtml = render("item-config.hbs", await new ItemConfig(actor.items.get("pocket000000000a"))._prepareContext());
+  const linkHtml = render("item-config.hbs", await new ItemConfig(actor.items.get("neuralink000000a"))._prepareContext());
+  assert.ok(pocketHtml.includes('name="flag.carry.pools.0.slots"'));
+  assert.ok(!linkHtml.includes("flag.carry"), "no carry-slot pools on unrelated cyberware");
+  assert.ok(linkHtml.includes("Slot cost when carried loose"), "and its own slot cost says when it applies");
   const rules = new RulesConfig();
   const html = render("rules-config.hbs", await rules._prepareContext());
   assert.ok(html.includes("Metal Gear"));
