@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2
+
+- **Fixed: cyberware installed in the body took carry slots and weight.** Cyberpunk RED lists cyberware installed in the body on the character itself rather than inside another item, and the Loadout didn't look there, so each piece counted as a hidden 1-slot, 0.5-unit item. It also filled gear-only bonus slots like the Gear bag. Installed cyberware is now free, and any weight-limit bonus it gives applies.
+- The carry summary names the bonus slots that only take certain things, e.g. "+2 Gear bag (Gear / utility only)".
+
 ## 1.2.1
 
 - **Carry bar colours always show.** Used slots are filled in their kind's colour (set on the bar itself, so no other stylesheet can grey them out), brighter, against a darker empty track.

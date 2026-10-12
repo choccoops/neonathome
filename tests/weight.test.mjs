@@ -82,3 +82,10 @@ test("encumbrance: over the limit halves MOVE, over double makes it 1", () => {
   assert.equal(encumberedMove(7, "one"), 1);
   assert.equal(encumberedMove(7, "none"), 7);
 });
+
+test("cyberware installed in the body weighs nothing and can raise the limit", () => {
+  const arm = it("cyberware", { installedItems: { list: [] } }, { [M]: { item: { capacityBonus: 4 } } });
+  const w = computeWeight([arm], rules, { body: 6, moduleId: M, actorInstalled: [arm._id] });
+  assert.equal(w.current, 0);
+  assert.equal(w.max, 22);
+});

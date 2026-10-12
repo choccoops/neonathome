@@ -185,3 +185,14 @@ test("Neon Hub lifestyle items take no slots, even equipped", () => {
   assert.equal(l.used, 1);
   assert.equal(l.items.find((d) => d.id === "kib").onPerson, false);
 });
+
+test("cyberware installed in the body (the actor's own list) takes no slots and doesn't fill gear pools", () => {
+  const link = { _id: "neural", name: "Neural Link", type: "cyberware", system: { installedItems: { list: [] } }, flags: {} };
+  const bag = upgrade("Gear bag", { upgrade: { pools: [{ slots: 2, accepts: "utility" }] } });
+  const jack = armor("Medium Armorjack (Body)", { sp: 12, list: [bag._id] });
+  const without = computeLoadout([jack, bag, link], rules, M);
+  assert.equal(without.pools[0].used, 1, "seen as loose gear when the actor's list is ignored");
+  const l = computeLoadout([jack, bag, link], rules, M, { actorInstalled: ["neural"] });
+  assert.equal(l.used, 0);
+  assert.equal(l.pools[0].used, 0);
+});

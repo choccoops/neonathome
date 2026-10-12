@@ -40,6 +40,8 @@ test("Loadout renders carry slots, the doll, upgrades and the stash", async () =
   assert.ok(html.includes("Militech Avenger"));
   assert.ok(html.includes("Medtech Bag"), "owned items are listed as not on you");
   assert.ok(!html.includes("Kibble"), "lifestyle items stay out of the Loadout");
+  assert.ok(!html.includes("Neural Link"), "cyberware in the body isn't listed");
+  assert.equal(l.pools[0].bar.used, 1, "...and doesn't fill the ammo bag either");
   // the carry bar: 7 used of 21, by kind, 14 free
   assert.equal(l.bar.free, 14);
   assert.deepEqual(l.bar.segments.map((g) => [g.cat, g.slots]), [["twoHanded", 3], ["oneHanded", 2], ["utility", 2]]);

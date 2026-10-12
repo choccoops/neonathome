@@ -34,7 +34,7 @@ function card(v, actor) {
   let cargo = null;
   if (weightRules.enabled) {
     const cap = Number(v.doc.getFlag(MODULE_ID, "cargo")) || Number(v.doc.getFlag("mmutons-cyberpunk-red-weight-system", "vehicleCapacity")) || null;
-    const w = computeWeight(Array.from(v.doc.items), weightRules, { moduleId: MODULE_ID, vehicle: true, cargo: cap });
+    const w = computeWeight(Array.from(v.doc.items), weightRules, { moduleId: MODULE_ID, vehicle: true, cargo: cap, actorInstalled: Array.from(v.doc.system?.installedItems?.list ?? []) });
     cargo = { current: w.current, max: w.max, pct: Math.min(100, w.pct), status: w.status };
   }
   return {

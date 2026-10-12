@@ -191,7 +191,7 @@ export const Loadout = {
     if (store) {
       const items = store.doc.items.filter((i) => !["skill", "role", "criticalInjury"].includes(i.type) && !CPR.isInstalled(i) && !isLifestyle(i));
       const cargo = store.doc === stash ? null : computeWeight(Array.from(store.doc.items), weightRules, {
-        moduleId: MODULE_ID, vehicle: true, cargo: Number(store.doc.getFlag(MODULE_ID, "cargo")) || Number(store.doc.getFlag("mmutons-cyberpunk-red-weight-system", "vehicleCapacity")) || null
+        moduleId: MODULE_ID, vehicle: true, actorInstalled: Array.from(store.doc.system?.installedItems?.list ?? []), cargo: Number(store.doc.getFlag(MODULE_ID, "cargo")) || Number(store.doc.getFlag("mmutons-cyberpunk-red-weight-system", "vehicleCapacity")) || null
       });
       storeCtx = {
         uuid: store.uuid,

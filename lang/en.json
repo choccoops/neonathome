@@ -112,6 +112,7 @@
       "Unarmored": "Unarmored",
       "CarrySlots": "Carry slots",
       "SlotsFree": "{n} free",
+      "PoolExtra": "+{n} {name} ({accepts} only)",
       "SlotsOver": "{n} over",
       "Free": "Free",
       "Base": "{cls}: {n} slots",
