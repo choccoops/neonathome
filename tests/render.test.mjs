@@ -32,8 +32,8 @@ test("Loadout renders carry slots, the doll, upgrades and the stash", async () =
   const l = ctx.loadout;
   assert.equal(l.armorClass, "Medium Armorjack");
   assert.equal(l.capacity, 21);
-  // pistol 2 + rifle 3 + agent 1 + the loose Smartgun Link 1 = 7 general; the rounds go in the ammo bag
-  assert.equal(l.used, 7);
+  // rifle 3 + agent 1 + the loose Smartgun Link 1 = 5 general; the rounds go in the ammo bag, the pistol in the pocket
+  assert.equal(l.used, 5);
   assert.equal(l.pools[0].bar.used, 1);
   assert.ok(l.weight.max === 18);
   assert.ok(html.includes("Medium Armorjack (Body)"));
@@ -42,10 +42,15 @@ test("Loadout renders carry slots, the doll, upgrades and the stash", async () =
   assert.ok(!html.includes("Kibble"), "lifestyle items stay out of the Loadout");
   assert.ok(!html.includes("Neural Link"), "cyberware in the body isn't listed");
   assert.equal(l.pools[0].bar.used, 1, "...and doesn't fill the ammo bag either");
-  // the carry bar: 7 used of 21, by kind, 14 free
-  assert.equal(l.bar.free, 14);
-  assert.deepEqual(l.bar.segments.map((g) => [g.cat, g.slots]), [["twoHanded", 3], ["oneHanded", 2], ["utility", 2]]);
-  assert.ok(html.includes("14 free"));
+  // the Subdermal Pocket's slots: the pistol moves into it from the general slots
+  const pocket = l.pools.find((p) => p.name === "Subdermal Pocket");
+  assert.equal(pocket.bar.slots, 2);
+  assert.equal(pocket.bar.used, 2);
+  assert.ok(html.includes("+2 Subdermal Pocket (Gear / utility or one-handed weapons only)"));
+  // the carry bar: 5 used of 21, by kind, 16 free
+  assert.equal(l.bar.free, 16);
+  assert.deepEqual(l.bar.segments.map((g) => [g.cat, g.slots]), [["twoHanded", 3], ["utility", 2]]);
+  assert.ok(html.includes("16 free"));
   assert.ok(html.includes("Plate Padding"), "stash upgrades are offered");
   assert.ok(l.effects.some((e) => e.includes("DEX")), "Improved Flexibility offsets the DEX penalty");
   assert.equal(l.store.rows.length, 3);

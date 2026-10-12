@@ -44,7 +44,7 @@
   {{#if isCarryGear}}
   <fieldset>
     <legend>{{localize "NEONHOME.Config.CarryGear"}}</legend>
-    <p class="hint">{{localize "NEONHOME.Config.CarryGearHint"}}</p>
+    <p class="hint">{{#if isCyberware}}{{localize "NEONHOME.Config.CyberwareSlotsHint"}}{{else}}{{localize "NEONHOME.Config.CarryGearHint"}}{{/if}}</p>
     {{#each carryPools}}
     <div class="form-group nah-pool-row">
       <label>{{localize "NEONHOME.Config.Pool" n=i}}</label>

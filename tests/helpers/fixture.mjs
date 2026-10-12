@@ -37,7 +37,7 @@ export function buildFixture() {
       stats: { body: { value: 6 }, emp: { value: 1, max: 6 }, luck: { value: 3, max: 6 } },
       derivedStats: { hp: { value: 18, max: 40 }, seriouslyWounded: 20, currentWoundState: "seriouslyWounded", deathSave: { penalty: 1 }, humanity: { value: 14, max: 60 } },
       // cyberware in the body is on the actor's own list
-    installedItems: { list: ["neuralink000000a"] },
+    installedItems: { list: ["neuralink000000a", "pocket000000000a"] },
     externalData: { currentArmorBody: { id: "bodyArmor000000a", value: 11, max: 12 }, currentArmorHead: { id: "", value: 0, max: 0 }, currentArmorShield: { id: "", value: 0, max: 0 } }
     },
     flags: {
@@ -65,6 +65,7 @@ export function buildFixture() {
     { _id: "smartLink000000a", name: "Smartgun Link", type: "itemUpgrade", system: { type: "weapon", size: 1, modifiers: mods() } },
     { _id: "rifle0000000000a", name: "Tsunami Arms Helix", type: "weapon", system: { equipped: "carried", weaponType: "assaultRifle", handsReq: 2, installedItems: { list: [], slots: 3 } } },
     { _id: "agent0000000000a", name: "Agent", type: "gear", system: { equipped: "carried", amount: 1 } },
+    { _id: "pocket000000000a", name: "Subdermal Pocket", type: "cyberware", system: { type: "cyberwareExternal", installedItems: { list: [] } } },
     { _id: "neuralink000000a", name: "Neural Link", type: "cyberware", system: { type: "neuralWare", installedItems: { list: [], slots: 5 } } },
     { _id: "kibble000000000a", name: "Kibble", type: "gear", system: { equipped: "equipped", amount: 1 }, flags: { "cpr-neon-hub": { lifestyle: { category: "lifestyle", tier: 1 } } } },
     { _id: "medkit000000000a", name: "Medtech Bag", type: "gear", system: { equipped: "owned", amount: 1 } },

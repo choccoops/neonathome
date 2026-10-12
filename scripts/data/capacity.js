@@ -10,7 +10,7 @@
  * or plain data with { id|_id, name, type, img, system, flags }.
  */
 import { int, idOf, isLifestyle } from "./util.js";
-import { ARMOR_CLASSES, normalizeItemFlag, itemFlag } from "./item-flag.js";
+import { ARMOR_CLASSES, ACCEPT_TAGS, normalizeItemFlag, itemFlag } from "./item-flag.js";
 
 /** The spreadsheet's numbers; the GM can change them in the module settings. */
 export const DEFAULT_CARRY_RULES = {
@@ -205,10 +205,24 @@ export function describeCarry(item, moduleId, rules, ctx = {}) {
   };
 }
 
+/**
+ * Cyberware that gives carry slots without the GM setting any, by name: each installed Subdermal
+ * Pocket holds a little gear or a one-handed weapon. A GM's carry slots on the item replace these.
+ */
+export const CYBERWARE_POOLS = [
+  { re: /\bsubdermal\s+pocket\b/i, pools: [{ slots: 2, accepts: "pocket", label: "" }] }
+];
+
+/** The carry pools an installed piece of cyberware gives. */
+export function cyberwarePools(item, flag) {
+  if (flag.carry.pools.length) return flag.carry.pools;
+  return CYBERWARE_POOLS.find((c) => c.re.test(String(item.name ?? "")))?.pools ?? [];
+}
+
 /** Does a pool take an item with these tags? */
 export function poolAccepts(pool, tags) {
   if (pool.accepts === "any") return true;
-  return tags.includes(pool.accepts);
+  return (ACCEPT_TAGS[pool.accepts] ?? [pool.accepts]).some((t) => tags.includes(t));
 }
 
 /* ------------------------------------------ */
@@ -276,6 +290,19 @@ export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } =
   for (const a of armors) {
     if (!a.worn) continue;
     for (const u of a.upgrades) u.flag.upgrade.pools.forEach((p, i) => addPool(p, u, `${u.id}-${i}`));
+  }
+
+  // Installed cyberware with carry slots (a Subdermal Pocket): each one installed adds its own.
+  const named = new Map();
+  for (const item of items) {
+    if (item.type !== "cyberware" || !installed.has(idOf(item))) continue;
+    const list = cyberwarePools(item, normalizeItemFlag(item.flags?.[moduleId]?.item));
+    if (!list.length) continue;
+    // Number repeats: Subdermal Pocket, Subdermal Pocket 2...
+    const n = (named.get(item.name) ?? 0) + 1;
+    named.set(item.name, n);
+    const name = n > 1 ? `${item.name} ${n}` : item.name;
+    list.forEach((p, i) => addPool(p, { name, id: idOf(item) }, `${idOf(item)}-${i}`));
   }
 
   function addPool(p, source, id) {

@@ -1,7 +1,9 @@
 # Changelog
 
-## 1.2.3
+## 1.3.0
 
+- **Subdermal Pockets give carry slots.** Each Subdermal Pocket installed as cyberware adds 2 bonus slots that take gear/utility or a one-handed weapon, shown in the Loadout like a Gear bag (two pockets: two bars, numbered). It's found by name, so the core item works as is; an uninstalled pocket gives nothing.
+- **Any cyberware can give carry slots.** The GM's item settings now offer bonus carry slots on cyberware too (they count while it's installed, and replace a pocket's default).
 - **The "No room to carry it" pop-up explains bonus slots that didn't help.** When a bonus pool still has room but only takes other things (a Gear bag offered a pistol, a holster offered a rifle), the pop-up now says so, e.g. "Gear bag has 2 free, but only for Gear / utility."
 
 ## 1.2.2
