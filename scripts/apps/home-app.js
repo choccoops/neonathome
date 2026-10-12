@@ -58,7 +58,23 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @param {Actor|string|null} actor - a character or its uuid (default: the user's own)
    * @param {object} [opts] - { tab }
    */
-  static async open(actor = null, { tab } = {}) {
+  static open(actor = null, { tab } = {}) {
+    // A second click while the window is still opening waits for the first instead of racing it.
+    if (this.#opening) return this.#opening;
+    this.#opening = this.#open(actor, { tab })
+      .catch((err) => {
+        console.error(`${MODULE_ID} | could not open the home window`, err);
+        ui.notifications.error(L("NEONHOME.Error.Open"));
+      })
+      .finally(() => {
+        this.#opening = null;
+      });
+    return this.#opening;
+  }
+
+  static #opening = null;
+
+  static async #open(actor, { tab }) {
     if (typeof actor === "string") actor = await fromUuid(actor);
     if (actor?.isToken) actor = actor.baseActor ?? actor;
     const chars = HomeStore.characters();

@@ -4,14 +4,27 @@
     <div class="nah-ekg wound-{{bio.hp.stateKey}}" aria-hidden="true">
       <svg viewBox="0 0 600 60" preserveAspectRatio="none"><polyline points="0,30 80,30 95,30 105,12 115,48 125,30 200,30 215,30 222,4 232,56 242,30 330,30 345,30 352,18 362,42 372,30 460,30 475,30 482,6 492,54 502,30 600,30"/></svg>
     </div>
-    <div class="nah-scan">
-      <svg class="nah-scan-figure nah-figure" viewBox="0 0 200 350" aria-hidden="true">
-        <path class="nah-zone nah-zone-body {{#if bio.bodyHurt}}is-hurt{{/if}}" d="M107 58L107 76C112 83 124 85 136 88C150 92 156 101 157 113L162 188C163 199 151 203 149 193L144 128C143 121 137 120 136 128L134 192C136 201 135 208 134 216L130 330C130 341 113 343 112 332L105 224C104 216 100 214 100 214C100 214 96 216 95 224L88 332C87 343 70 341 70 330L66 216C65 208 64 201 66 192L64 128C63 120 57 121 56 128L51 193C49 203 37 199 38 188L43 113C44 101 50 92 64 88C76 85 88 83 93 76L93 58Z"/>
-        <ellipse class="nah-fig-mask" cx="100" cy="38" rx="21" ry="26"/>
-        <ellipse class="nah-zone nah-zone-head {{#if bio.headHurt}}is-hurt{{/if}}" cx="100" cy="38" rx="21" ry="26"/>
-        <g class="nah-fig-grid"><path d="M58 104h84M60 150h80M66 196h68"/></g>
-        <line class="nah-scanline" x1="30" x2="170" y1="0" y2="0"/>
-      </svg>
+    <div class="nah-scan trauma-{{bio.trauma.level}}">
+      <div class="nah-scan-body">
+        <svg class="nah-scan-figure nah-figure" viewBox="0 0 200 350" aria-hidden="true">
+          <path class="nah-zone nah-zone-body hurt-{{bio.bodyHurt}}" d="M107 58L107 76C112 83 124 85 136 88C150 92 156 101 157 113L162 188C163 199 151 203 149 193L144 128C143 121 137 120 136 128L134 192C136 201 135 208 134 216L130 330C130 341 113 343 112 332L105 224C104 216 100 214 100 214C100 214 96 216 95 224L88 332C87 343 70 341 70 330L66 216C65 208 64 201 66 192L64 128C63 120 57 121 56 128L51 193C49 203 37 199 38 188L43 113C44 101 50 92 64 88C76 85 88 83 93 76L93 58Z"/>
+          <ellipse class="nah-fig-mask" cx="100" cy="38" rx="21" ry="26"/>
+          <ellipse class="nah-zone nah-zone-head hurt-{{bio.headHurt}}" cx="100" cy="38" rx="21" ry="26"/>
+          {{#each bio.trauma.severed}}
+          <g class="nah-severed"><rect x="{{x}}" y="{{y}}" width="{{w}}" height="{{h}}" rx="6"/><line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"/></g>
+          {{/each}}
+          <g class="nah-fig-grid"><path d="M58 104h84M60 150h80M66 196h68"/></g>
+          <line class="nah-scanline" x1="30" x2="170" y1="0" y2="0"/>
+        </svg>
+        {{#each bio.trauma.marks}}
+        <button type="button" class="nah-mark stack-{{stack}} {{#if kind}}is-{{kind}}{{/if}}" style="left:{{left}}%;top:{{top}}%" data-item-id="{{first}}" data-action="bioOpenInjury" data-tooltip="{{tip}}" aria-label="{{count}}">{{#if multi}}<span>&times;{{count}}</span>{{/if}}</button>
+        {{/each}}
+      </div>
+      <div class="nah-trauma trauma-{{bio.trauma.level}}">
+        <span>{{localize "NEONHOME.Bio.Trauma.Label"}}</span>
+        <b>{{bio.trauma.label}}</b>
+        {{#if bio.trauma.total}}<small>{{localize "NEONHOME.Bio.Trauma.Count" n=bio.trauma.total}}{{#if bio.trauma.deathSaves}} &middot; <i class="fa-solid fa-skull"></i> {{bio.trauma.deathSaves}}{{/if}}</small>{{/if}}
+      </div>
       <div class="nah-scan-tag nah-scan-tag-head {{#if bio.headHurt}}is-hurt{{/if}}">
         <span>{{localize "NEONHOME.Location.head"}}</span>
         {{#with bio.armor.head}}<b>SP {{value}}/{{max}}</b>{{else}}<b>SP &mdash;</b>{{/with}}
@@ -43,7 +56,7 @@
       <h3 class="nah-kicker">{{localize "NEONHOME.Bio.Injuries"}}</h3>
       {{#each bio.injuries}}
       <article class="nah-injury loc-{{location}}" data-item-id="{{id}}">
-        <header data-action="bioOpenInjury"><img src="{{img}}" alt=""><b>{{name}}</b><span class="nah-chip">{{locLabel}}</span></header>
+        <header><img src="{{img}}" alt="" data-action="bioOpenInjury"><b data-action="bioOpenInjury">{{name}}</b>{{#if side}}<button type="button" class="nah-chip nah-side" data-action="bioFlipSide" data-tooltip="{{localize 'NEONHOME.Bio.FlipSide'}}"><i class="fa-solid fa-arrows-left-right"></i> {{sideLabel}}</button>{{/if}}<span class="nah-chip">{{locLabel}}</span></header>
         <p><i class="fa-solid fa-kit-medical"></i> {{quick}}</p>
         <p><i class="fa-solid fa-bed-pulse"></i> {{treat}}</p>
         {{#if deathSave}}<p class="nah-warn"><i class="fa-solid fa-skull"></i> {{localize "NEONHOME.Bio.DeathSaveUp"}}</p>{{/if}}

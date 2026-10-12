@@ -65,6 +65,9 @@ export function buildFixture() {
     { _id: "agent0000000000a", name: "Agent", type: "gear", system: { equipped: "carried", amount: 1 } },
     { _id: "medkit000000000a", name: "Medtech Bag", type: "gear", system: { equipped: "owned", amount: 1 } },
     { _id: "bike0000000000aa", name: "Superbike", type: "vehicle", system: { sdp: 35, seats: 2, speedCombat: 30, speedNarrative: "150 MPH", installedItems: { list: [], slots: 3 } } },
+    { _id: "crit00000000000b", name: "Broken Ribs", type: "criticalInjury", system: { location: "body", quickFix: { type: "paramedic", dvParamedic: 13 }, treatment: { type: "paramedicSurgery", dvParamedic: 15, dvSurgery: 13 }, deathSaveIncrease: false }, flags: { [M]: { side: "R" } } },
+    { _id: "crit00000000000c", name: "Dismembered Hand", type: "criticalInjury", system: { location: "body", quickFix: { type: "notApplicable" }, treatment: { type: "surgery", dvSurgery: 17 }, deathSaveIncrease: true }, flags: { [M]: { side: "L" } } },
+    { _id: "crit00000000000d", name: "Concussion", type: "criticalInjury", system: { location: "head", quickFix: { type: "firstAidParamedic", dvFirstAid: 13, dvParamedic: 13 }, treatment: { type: "quickFix" }, deathSaveIncrease: false } },
     { _id: "crit00000000000a", name: "Broken Ribs", type: "criticalInjury", system: { location: "body", quickFix: { type: "paramedic", dvParamedic: 13 }, treatment: { type: "paramedicSurgery", dvParamedic: 15, dvSurgery: 13 }, deathSaveIncrease: false } }
   ]);
   // Vex is driving.

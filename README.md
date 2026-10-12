@@ -143,9 +143,14 @@ vehicle's own `flags.cpr-neon-at-home.cargo`, or MMuton's per-vehicle capacity).
 
 ## Biomonitor
 
-The left side is the body: a heartbeat that speeds up as wounds get worse, a scan with armor SP
-and where the critical injuries are, the HP bar with the Seriously Wounded mark, and each
-injury's quick fix and treatment.
+The left side is the body: a heartbeat that speeds up as wounds get worse, the HP bar with the
+Seriously Wounded mark, armor SP, and a **trauma map**. Each critical injury is marked where it
+is on the figure (eyes, ears, jaw, throat, skull, lungs, ribs, spine, arms, hands, legs); markers
+grow and redden as injuries stack at one spot, lost limbs are blacked out, and lost eyes and ears
+are crossed out. Paired parts take a side, which the injury list can flip. The trauma level
+(Stable, Injured, Critical, Failing) comes from how many injuries there are and how many raise
+the Death Save, and the scan reddens and flickers as it climbs. Each injury lists its quick fix
+and treatment.
 
 The right side is the mind: Humanity against its maximum (with 30, 20 and 10 marked), EMP, and
 the **Syndromes & Inspiration** homebrew (the GM can turn it off):
