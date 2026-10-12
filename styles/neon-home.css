@@ -338,23 +338,52 @@
 .neon-home .nah-cap-head strong em,
 .neon-home .nah-weight b em,
 .neon-home .nah-hp-head strong em { font-style: normal; font-size: 14px; color: var(--nah-dim); }
-.neon-home .nah-is-over .nah-cap-head strong { color: var(--nah-red); }
-.neon-home .nah-cells { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0; }
-.neon-home .nah-cell { width: 18px; height: 18px; border: 1px solid var(--nah-line-2); background: rgba(216, 219, 236, 0.03); transform: skewX(-12deg); }
-.neon-home .nah-cells-small .nah-cell { width: 13px; height: 13px; }
-.neon-home .nah-cell:not(.cat-empty):not(.start) { margin-left: -2px; }
-.neon-home .nah-cell.cat-heavy { background: var(--nah-pink); border-color: var(--nah-pink); }
-.neon-home .nah-cell.cat-twoHanded { background: var(--nah-orange); border-color: var(--nah-orange); }
-.neon-home .nah-cell.cat-oneHanded { background: var(--nah-yellow); border-color: var(--nah-yellow); }
-.neon-home .nah-cell.cat-ammo { background: var(--nah-cyan); border-color: var(--nah-cyan); }
-.neon-home .nah-cell.cat-utility { background: var(--nah-violet); border-color: var(--nah-violet); }
-.neon-home .nah-cell.cat-bulky { background: var(--nah-green); border-color: var(--nah-green); }
-.neon-home .nah-cell.over { background: repeating-linear-gradient(45deg, var(--nah-red) 0 3px, transparent 3px 6px) !important; border-color: var(--nah-red) !important; }
-.neon-home .nah-more { font-family: var(--nah-display); font-size: 11px; color: var(--nah-dim); align-self: center; }
-.neon-home .nah-pool { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; margin-top: 4px; font-size: 12px; }
+.neon-home .nah-cap-count { display: grid; justify-items: end; line-height: 1; }
+.neon-home .nah-cap-count small { margin-top: 3px; font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--nah-green); }
+.neon-home .nah-capacity.is-over .nah-cap-head strong,
+.neon-home .nah-over-text { color: var(--nah-red); }
+
+/* the carry bar: a track with one tick per slot, filled by kind */
+.neon-home .nah-slotbar {
+  --tick: calc(100% / var(--ticks, 10));
+  position: relative;
+  height: 18px;
+  margin: 8px 0 6px;
+  border: 1px solid var(--nah-line-2);
+  background: rgba(216, 219, 236, 0.04);
+  transform: skewX(-12deg);
+}
+.neon-home .nah-slotbar-fill { position: absolute; inset: 0; display: flex; }
+.neon-home .nah-slotbar-fill > span { height: 100%; box-shadow: 0 0 10px currentColor; }
+.neon-home .nah-slotbar-fill > span + span { border-left: 1px solid var(--nah-bg); }
+/* slot dividers drawn over the fill */
+.neon-home .nah-slotbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(var(--tick) - 2px), var(--nah-bg) calc(var(--tick) - 2px) var(--tick));
+  pointer-events: none;
+}
+.neon-home .nah-slotbar.is-over { border-color: var(--nah-red); box-shadow: 0 0 12px rgba(255, 75, 75, 0.45); }
+.neon-home .nah-slotbar-limit { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 6px #fff; z-index: 1; }
+
+/* kind colours, shared by the bar and its key */
+.neon-home .cat-heavy { --cat: var(--nah-pink); }
+.neon-home .cat-twoHanded { --cat: var(--nah-orange); }
+.neon-home .cat-oneHanded { --cat: var(--nah-yellow); }
+.neon-home .cat-ammo { --cat: var(--nah-cyan); }
+.neon-home .cat-utility { --cat: var(--nah-violet); }
+.neon-home .cat-bulky { --cat: var(--nah-green); }
+.neon-home .nah-slotbar-fill > span { background: var(--cat); color: var(--cat); }
+.neon-home .nah-slot-key { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-slot-key li { display: flex; align-items: center; gap: 5px; }
+.neon-home .nah-slot-key i { width: 10px; height: 10px; background: var(--cat, transparent); box-shadow: 0 0 6px var(--cat, transparent); transform: skewX(-12deg); }
+.neon-home .nah-slot-key .cat-free i { border: 1px solid var(--nah-line-2); box-shadow: none; }
+.neon-home .nah-slot-key b { font-family: var(--nah-display); font-weight: 400; color: var(--nah-text); }
+.neon-home .nah-pool .nah-slotbar { height: 12px; margin: 0; }
+.neon-home .nah-pool { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 1.2fr) auto; align-items: center; gap: 8px; margin-top: 4px; font-size: 12px; }
 .neon-home .nah-pool > span i { color: var(--nah-green); }
 .neon-home .nah-pool small { color: var(--nah-dim); }
-.neon-home .nah-pool .nah-cells { margin: 0; }
 .neon-home .nah-pool b { font-family: var(--nah-display); font-weight: 400; }
 .neon-home .nah-weight { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; }
 .neon-home .nah-weight > span { font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--nah-dim); }
@@ -362,6 +391,7 @@
 .neon-home .nah-weight.status-heavy .nah-meter > b { background: var(--nah-orange); box-shadow: 0 0 8px var(--nah-orange); }
 .neon-home .nah-weight.status-over .nah-meter > b { background: var(--nah-red); box-shadow: 0 0 8px var(--nah-red); }
 .neon-home .nah-weight.status-over > b { color: var(--nah-red); }
+.neon-home .nah-encumbered { margin: 6px 0 0; padding: 4px 8px; font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--nah-red); border-left: 2px solid var(--nah-red); background: rgba(255, 75, 75, 0.1); }
 
 /* storage */
 .neon-home .nah-store-bar { display: flex; gap: 4px; margin-bottom: 6px; }

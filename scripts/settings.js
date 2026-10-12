@@ -31,7 +31,7 @@ export const Settings = {
       config: true,
       type: String,
       choices: { off: "NEONHOME.Settings.Enforce.off", warn: "NEONHOME.Settings.Enforce.warn", block: "NEONHOME.Settings.Enforce.block" },
-      default: "warn",
+      default: "block",
       onChange: changed
     });
     reg("enforceWeight", {
@@ -88,6 +88,22 @@ export const Settings = {
       config: true,
       type: Boolean,
       default: true
+    });
+    reg("cltEncumbered", {
+      name: "NEONHOME.Settings.CltEncumbered.Name",
+      hint: "NEONHOME.Settings.CltEncumbered.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      default: "Encumbered"
+    });
+    reg("cltOverloaded", {
+      name: "NEONHOME.Settings.CltOverloaded.Name",
+      hint: "NEONHOME.Settings.CltOverloaded.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      default: "Overloaded"
     });
     reg("tab", { scope: "client", config: false, type: String, default: "loadout" });
   },

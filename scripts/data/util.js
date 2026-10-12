@@ -40,3 +40,9 @@ export function excerpt(html, max = 180) {
     .trim();
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
 }
+
+/**
+ * A Neon Hub lifestyle item (housing, a lifestyle package, a membership, transit...): a CPR gear
+ * item that's really a monthly expense, so it is never carried, stored or weighed.
+ */
+export const isLifestyle = (item) => !!item?.flags?.["cpr-neon-hub"]?.lifestyle;

@@ -1,4 +1,7 @@
-import { MODULE_ID } from "./constants.js";
+import { MODULE_ID, CHECKED } from "./constants.js";
+
+/** Operation options for writes Neon At Home has already checked against the carry rules. */
+const checked = (extra = {}) => ({ ...extra, [MODULE_ID]: { [CHECKED]: true } });
 
 const { getProperty, hasProperty, deepClone } = foundry.utils;
 
@@ -58,7 +61,7 @@ export const CPR = {
         if (this.isEquippable(inner)) updates.push({ _id: inner.id, "system.equipped": state });
       }
     }
-    await actor.updateEmbeddedDocuments("Item", updates);
+    await actor.updateEmbeddedDocuments("Item", updates, checked());
   },
 
   /** Hands an actor has free (CPR counts equipped weapons' hands against 2 + bonuses). */
@@ -111,7 +114,8 @@ export const CPR = {
     // Untrack worn armor before it leaves.
     if (item.type === "armor" && item.system.equipped === "equipped") await this.setEquipped(source, item, "owned");
 
-    const [created] = await target.createEmbeddedDocuments("Item", [data]);
+    // createInstalled: CPR's own default, which passing options would otherwise drop.
+    const [created] = await target.createEmbeddedDocuments("Item", [data], checked({ createInstalled: true }));
     if (split) {
       await item.update({ "system.amount": total - qty });
       return created ?? null;

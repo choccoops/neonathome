@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeWeightRules, computeWeight, baseWeight } from "../scripts/data/weight.js";
+import { normalizeWeightRules, computeWeight, baseWeight, encumbrance, encumberedMove } from "../scripts/data/weight.js";
 
 const M = "cpr-neon-at-home";
 const rules = normalizeWeightRules({});
@@ -62,4 +62,23 @@ test("vehicle cargo uses the vehicle's capacity", () => {
   const w = computeWeight([crate], rules, { moduleId: M, vehicle: true, cargo: 40 });
   assert.equal(w.current, 10);
   assert.equal(w.max, 40);
+});
+
+test("Neon Hub lifestyle items weigh nothing", () => {
+  const kibble = it("gear", { equipped: "equipped", amount: 3 }, { "cpr-neon-hub": { lifestyle: { category: "lifestyle" } } });
+  assert.equal(computeWeight([kibble], rules, { body: 6, moduleId: M }).current, 0);
+});
+
+test("encumbrance: over the limit halves MOVE, over double makes it 1", () => {
+  assert.equal(encumbrance({ current: 18, max: 18 }, rules), "none");
+  assert.equal(encumbrance({ current: 18.1, max: 18 }, rules), "half");
+  assert.equal(encumbrance({ current: 36, max: 18 }, rules), "half");
+  assert.equal(encumbrance({ current: 36.5, max: 18 }, rules), "one");
+  assert.equal(encumbrance({ current: 50, max: 18 }, normalizeWeightRules({ encumbrance: false })), "none");
+  assert.equal(encumbrance({ current: 50, max: 18 }, normalizeWeightRules({ enabled: false })), "none");
+  assert.equal(encumberedMove(7, "half"), 3);
+  assert.equal(encumberedMove(8, "half"), 4);
+  assert.equal(encumberedMove(1, "half"), 1);
+  assert.equal(encumberedMove(7, "one"), 1);
+  assert.equal(encumberedMove(7, "none"), 7);
 });

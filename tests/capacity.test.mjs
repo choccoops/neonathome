@@ -177,3 +177,11 @@ test("armor effects: penalty relief, stealth, war paint pair", () => {
   assert.equal(fx2.changes.find((c) => c.key === "system.stats.dex.value"), undefined);
   assert.equal(fx2.changes.find((c) => c.key === "bonuses.wardrobeAndStyle"), undefined);
 });
+
+test("Neon Hub lifestyle items take no slots, even equipped", () => {
+  const kibble = { _id: "kib", name: "Kibble", type: "gear", system: { equipped: "equipped", amount: 1 }, flags: { "cpr-neon-hub": { lifestyle: { category: "lifestyle" } } } };
+  const flat = { _id: "apt", name: "Cube Apartment", type: "gear", system: { equipped: "equipped", amount: 1 }, flags: { "cpr-neon-hub": { lifestyle: { category: "housing" } } } };
+  const l = computeLoadout([kibble, flat, gear("Agent")], rules, M);
+  assert.equal(l.used, 1);
+  assert.equal(l.items.find((d) => d.id === "kib").onPerson, false);
+});

@@ -63,6 +63,7 @@ export function buildFixture() {
     { _id: "smartLink000000a", name: "Smartgun Link", type: "itemUpgrade", system: { type: "weapon", size: 1, modifiers: mods() } },
     { _id: "rifle0000000000a", name: "Tsunami Arms Helix", type: "weapon", system: { equipped: "carried", weaponType: "assaultRifle", handsReq: 2, installedItems: { list: [], slots: 3 } } },
     { _id: "agent0000000000a", name: "Agent", type: "gear", system: { equipped: "carried", amount: 1 } },
+    { _id: "kibble000000000a", name: "Kibble", type: "gear", system: { equipped: "equipped", amount: 1 }, flags: { "cpr-neon-hub": { lifestyle: { category: "lifestyle", tier: 1 } } } },
     { _id: "medkit000000000a", name: "Medtech Bag", type: "gear", system: { equipped: "owned", amount: 1 } },
     { _id: "bike0000000000aa", name: "Superbike", type: "vehicle", system: { sdp: 35, seats: 2, speedCombat: 30, speedNarrative: "150 MPH", installedItems: { list: [], slots: 3 } } },
     { _id: "crit00000000000b", name: "Broken Ribs", type: "criticalInjury", system: { location: "body", quickFix: { type: "paramedic", dvParamedic: 13 }, treatment: { type: "paramedicSurgery", dvParamedic: 15, dvSurgery: 13 }, deathSaveIncrease: false }, flags: { [M]: { side: "R" } } },

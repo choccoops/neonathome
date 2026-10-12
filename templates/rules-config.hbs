@@ -39,6 +39,7 @@
     <div class="form-group"><label>{{localize "NEONHOME.Rules.Custom"}}</label><input type="number" name="weight.custom" value="{{weight.custom}}" min="0" step="1"></div>
     <div class="form-group"><label>{{localize "NEONHOME.Rules.Equipped"}}</label><select name="weight.equipped">{{#each weight.fractions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
     <div class="form-group"><label class="checkbox"><input type="checkbox" name="weight.includeUpgrades" {{checked weight.includeUpgrades}}> {{localize "NEONHOME.Rules.IncludeUpgrades"}}</label></div>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="weight.encumbrance" {{checked weight.encumbrance}}> {{localize "NEONHOME.Rules.Encumbrance"}}</label></div>
     <div class="form-group"><label class="checkbox"><input type="checkbox" name="weight.ownedCounts" {{checked weight.ownedCounts}}> {{localize "NEONHOME.Rules.OwnedCounts"}}</label></div>
     <div class="form-group"><label>{{localize "NEONHOME.Rules.VehicleCargo"}}</label><input type="number" name="weight.vehicleCargo" value="{{weight.vehicleCargo}}" min="0" step="5"></div>
     <h4>{{localize "NEONHOME.Rules.DefaultWeights"}}</h4>

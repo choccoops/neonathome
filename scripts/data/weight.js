@@ -7,7 +7,7 @@
  * Weights come from the item's Neon At Home flag, then MMuton's weight flag if that module set one,
  * then the GM's default for the item's type. Pure: no Foundry calls.
  */
-import { num, round1, idOf, int } from "./util.js";
+import { num, round1, idOf, int, isLifestyle } from "./util.js";
 import { itemFlag } from "./item-flag.js";
 import { classFromName, classFromSP } from "./capacity.js";
 
@@ -29,6 +29,8 @@ export const DEFAULT_WEIGHT_RULES = {
   includeUpgrades: true,
   // owned (not carried) items weigh nothing: they aren't on the character
   ownedCounts: false,
+  // over the limit MOVE is halved; over double it, MOVE is 1
+  encumbrance: true,
   vehicleCargo: 50,
   weapons: {
     lightMelee: 0.5, medMelee: 1, heavyMelee: 2, vHeavyMelee: 3, medPistol: 1, heavyPistol: 1, vHeavyPistol: 1.5,
@@ -59,6 +61,7 @@ export function normalizeWeightRules(raw = {}) {
     equipped: EQUIPPED_FRACTIONS.includes(Number(r.equipped)) ? Number(r.equipped) : d.equipped,
     includeUpgrades: r.includeUpgrades === undefined ? d.includeUpgrades : !!r.includeUpgrades,
     ownedCounts: r.ownedCounts === undefined ? d.ownedCounts : !!r.ownedCounts,
+    encumbrance: r.encumbrance === undefined ? d.encumbrance : !!r.encumbrance,
     vehicleCargo: num(r.vehicleCargo, d.vehicleCargo, 0, 99999),
     weapons: table(r.weapons, d.weapons),
     armor: table(r.armor, d.armor),
@@ -112,7 +115,7 @@ export function defaultWeight(item, rules) {
 
 /** One unit of the item, before what being equipped or installed does to it. */
 export function baseWeight(item, rules, moduleId) {
-  if (NON_PHYSICAL.has(item.type)) return 0;
+  if (NON_PHYSICAL.has(item.type) || isLifestyle(item)) return 0;
   const own = itemFlag(item, moduleId).weight;
   if (own !== null) return own;
   return mmutonWeight(item) ?? defaultWeight(item, rules);
@@ -142,7 +145,7 @@ export function computeWeight(items, rules, { body = 0, moduleId, vehicle = fals
     let unit = baseWeight(item, rules, moduleId);
     const installedIn = parentOf.get(id);
 
-    if (NON_PHYSICAL.has(item.type)) unit = 0;
+    if (NON_PHYSICAL.has(item.type) || isLifestyle(item)) unit = 0;
     else if (vehicle && vehicleFitting(item)) {
       // A vehicle's own plating and mounted upgrades aren't cargo; mounted weapons weigh like equipped ones.
       const mounted = item.type === "weapon";
@@ -203,4 +206,25 @@ export function computeWeight(items, rules, { body = 0, moduleId, vehicle = fals
     status: pct > 100 ? "over" : pct >= 75 ? "heavy" : "ok",
     items: out.map((e) => ({ ...e, unit: round1(e.unit), total: round1(e.total) }))
   };
+}
+
+/**
+ * Encumbrance from a weighing: "none", "half" (over the limit: MOVE halved) or "one" (over double
+ * the limit: MOVE 1, and the GM may call for checks).
+ * @param {{current: number, max: number}} weight - from computeWeight
+ */
+export function encumbrance(weight, rules) {
+  if (!rules.enabled || !rules.encumbrance) return "none";
+  const { current, max } = weight;
+  if (current > max * 2) return "one";
+  if (current > max) return "half";
+  return "none";
+}
+
+/** MOVE under encumbrance: halved rounded down (at least 1), or 1. */
+export function encumberedMove(move, level) {
+  const m = Math.max(0, Math.floor(Number(move) || 0));
+  if (level === "one") return Math.min(m, 1);
+  if (level === "half") return Math.min(m, Math.max(1, Math.floor(m / 2)));
+  return m;
 }

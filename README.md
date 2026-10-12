@@ -48,7 +48,7 @@ Players see their own characters; the GM can pick anyone from the list in the he
 ## Loadout
 
 The middle column is everything on the character: the **carry slots** they're using, shown as a
-grid coloured by kind, any bonus slots (holster, ammo bag), the **weight** bar, and each item with
+bar with a tick per slot, filled by kind with a key of what uses them and what's free, any bonus slots (holster, ammo bag), the **weight** bar, and each item with
 its slot cost, weight and an owned / carried / equipped switch. Items the sheet marks *owned* are
 not on the character (that's what *owned* means in Cyberpunk RED) and sit on their own shelf,
 uncounted, until they're carried or stored.
@@ -88,7 +88,8 @@ What things cost:
 | Ammo, utility gear | 1 |
 | Spare armor carried, not worn | 3 |
 
-Worn armor and clothing, installed cyberware and attachments cost nothing. Armor is classed by
+Worn armor and clothing, installed cyberware, attachments and Neon Hub lifestyle items (rent,
+packages, memberships) cost nothing; lifestyle items are left out of the Loadout altogether. Armor is classed by
 name (*Light Armorjack*, *Flak*, *Metalgear*...), else by its SP; the GM can set the class, the
 slot kind or the slot cost on any item (see *Item settings* below).
 
@@ -97,8 +98,12 @@ The **Neon At Home: Carry Gear** compendium has the External Gear sheet's items:
 (3 slots for a two-handed weapon, no armor), **Carryall Bag** (+10 slots), and the **Trench Coat**
 and **Armored Trench Coat**. Only one holster and one sling count at a time.
 
-The GM decides whether going over slots or weight is shown, warned about, or blocked for players
-(module settings).
+**Carry slots are a hard limit.** Carrying or equipping something that would go past them, in the
+Loadout or with the character sheet's equip toggle, is stopped with a pop-up saying what doesn't
+fit; the GM's pop-up has *Carry it anyway*. Things arriving on the character (bought, looted,
+dropped on the sheet) are never refused, so nothing paid for is lost: the pop-up just says they're
+over. Storing things or marking them owned is always allowed. The GM can relax the limit to a
+warning, or switch it off, in the module settings.
 
 ### Armor upgrades
 
@@ -121,6 +126,25 @@ and armor weigh a third, worn clothes and installed cyberware nothing, attachmen
 weapon they're on, and cyberware (or worn gear) set to *add to weight limit* raises it. Each item
 can have its own weight; otherwise Neon At Home uses MMuton's weight if that module set one, then
 a default for the item's type. All of it is in **Carry & Weight Rules** in the module settings.
+
+**Encumbrance.** Over the weight limit, MOVE is **halved** (rounded down, at least 1); over double
+the limit, MOVE is **1** and the GM may call for checks depending on the situation. It's a status
+effect, **Encumbered** or **Overloaded**, shown on the token, that comes and goes with the load and
+is applied after other effects such as cyberlegs, so walking and running speed follow it. The
+player and the GM are told in chat when it starts, worsens or ends. The GM can turn it off in the
+Weight rules, and choose whether going over weight is only shown, warned about, or blocked for
+players.
+
+Both statuses are also in the token HUD, so the GM can place one by hand (it carries the MOVE
+penalty too); a status placed by hand is left alone by the automatic check.
+
+**Condition Lab & Triggler.** In Condition Lab, add conditions named **Encumbered** and
+**Overloaded** (the names are module settings; the icons are `modules/cpr-neon-at-home/assets/
+encumbered.svg` and `overloaded.svg`). Neon At Home then applies and removes those conditions
+through CLT instead of its own statuses, so their macros, chat output and Triggler triggers run,
+and it adds the MOVE penalty to whatever the condition already does. Without CLT, or without
+those conditions, it uses its own statuses. If CLT is set to remove Foundry's default status
+effects, the two statuses won't be in the token HUD, but they still show on the token.
 
 ## Vehicle Bay
 
@@ -205,7 +229,8 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - **Carry & Weight Rules**: the carry slots per armor class, upgrade slots, slot costs, the weight
   limit and default weights, and your own Syndromes. Each table shows the spreadsheet's numbers
   and can be put back to them.
-- **Carry slots** and **Weight limit**: show only, warn, or block players.
+- **Carry slots**: a hard limit with a pop-up (the default; the GM can override), a warning, or off.
+- **Weight limit**: show only, warn, or block players (encumbrance applies either way).
 - **Apply armor upgrade bonuses**, **Vehicle bays without a home**, **Players can make custom
   attachments**, **Syndromes & Inspiration**, **Catharsis takes Humanity Loss first**.
 

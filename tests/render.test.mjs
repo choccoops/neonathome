@@ -34,11 +34,16 @@ test("Loadout renders carry slots, the doll, upgrades and the stash", async () =
   assert.equal(l.capacity, 21);
   // pistol 2 + rifle 3 + agent 1 + the loose Smartgun Link 1 = 7 general; the rounds go in the ammo bag
   assert.equal(l.used, 7);
-  assert.equal(l.pools[0].used, 1);
+  assert.equal(l.pools[0].bar.used, 1);
   assert.ok(l.weight.max === 18);
   assert.ok(html.includes("Medium Armorjack (Body)"));
   assert.ok(html.includes("Militech Avenger"));
   assert.ok(html.includes("Medtech Bag"), "owned items are listed as not on you");
+  assert.ok(!html.includes("Kibble"), "lifestyle items stay out of the Loadout");
+  // the carry bar: 7 used of 21, by kind, 14 free
+  assert.equal(l.bar.free, 14);
+  assert.deepEqual(l.bar.segments.map((g) => [g.cat, g.slots]), [["twoHanded", 3], ["oneHanded", 2], ["utility", 2]]);
+  assert.ok(html.includes("14 free"));
   assert.ok(html.includes("Plate Padding"), "stash upgrades are offered");
   assert.ok(l.effects.some((e) => e.includes("DEX")), "Improved Flexibility offsets the DEX penalty");
   assert.equal(l.store.rows.length, 3);

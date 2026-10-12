@@ -19,5 +19,15 @@ export const STASH_FLAG = "stashOf";
 /** ActiveEffect flag marking the effect Neon At Home keeps in step with worn armor upgrades. */
 export const EFFECT_FLAG = "loadoutEffect";
 
+/** ActiveEffect flag marking the encumbrance effect (its value: "half" or "one"). */
+export const ENCUMBRANCE_FLAG = "encumbrance";
+/** Status effects for encumbrance, by level. Their changes halve MOVE or set it to 1. */
+export const ENCUMBRANCE_STATUS = { half: "neonhome-encumbered", one: "neonhome-overloaded" };
+/** Condition Lab & Triggler's module id. */
+export const CLT_ID = "condition-lab-triggler";
+
+/** Document operation option: Neon At Home already checked the carry rules for this change. */
+export const CHECKED = "checked";
+
 /** The sub-features of the home suite, in tab order. New ones register here (see apps/features.js). */
 export const FEATURE_ORDER = ["loadout", "bay", "biomonitor", "bench"];

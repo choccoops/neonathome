@@ -9,7 +9,7 @@
  * Everything here is pure (no Foundry calls) so it can be unit tested. Items are read as documents
  * or plain data with { id|_id, name, type, img, system, flags }.
  */
-import { int, idOf } from "./util.js";
+import { int, idOf, isLifestyle } from "./util.js";
 import { ARMOR_CLASSES, normalizeItemFlag, itemFlag } from "./item-flag.js";
 
 /** The spreadsheet's numbers; the GM can change them in the module settings. */
@@ -120,7 +120,7 @@ export function describeArmor(item, moduleId, rules) {
 
 /** Is the item on the character's person (as opposed to owned but left somewhere)? */
 export function onPerson(item, rules) {
-  if (NON_PHYSICAL.has(item.type)) return false;
+  if (NON_PHYSICAL.has(item.type) || isLifestyle(item)) return false;
   if (!EQUIPPABLE.has(item.type)) return true;
   const eq = item.system?.equipped ?? "owned";
   return eq !== "owned" || rules.ownedCounts;
@@ -139,7 +139,7 @@ export function isCarryGear(flag) {
 export function defaultCategory(item, ctx = {}) {
   const s = item.system ?? {};
   const id = idOf(item);
-  if (NON_PHYSICAL.has(item.type)) return "none";
+  if (NON_PHYSICAL.has(item.type) || isLifestyle(item)) return "none";
   if (item.type === "ammo") return int(s.amount) > 0 ? "ammo" : "none";
   if (ctx.installed?.has(id)) return "none";
   switch (item.type) {

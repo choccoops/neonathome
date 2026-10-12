@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+- **Carry slots are a hard limit.** Carrying or equipping something that would go past a character's carry slots is stopped with a pop-up saying what doesn't fit and why, in the Loadout and with the Cyberpunk RED sheet's equip toggle. The GM's pop-up can carry it anyway. Things arriving on a character (bought, looted, dropped on the sheet) aren't refused, so nothing paid for is lost; the pop-up says they're over. Fitting an upgrade or attachment from the stash isn't stopped by full slots, since it costs nothing once installed. The setting still offers warn or off.
+- **Encumbrance.** Over the weight limit MOVE is halved (rounded down, at least 1); over double the limit MOVE is 1 and the GM may call for checks. It's applied after other effects, the player and GM are told in chat when it changes, the Loadout shows it under the weight bar, and the GM can turn it off in the Weight rules.
+- **Encumbered and Overloaded status effects**, with their own icons, shown on the token and in the token HUD (placing one by hand applies the MOVE penalty too, and the automatic check leaves it alone).
+- **Condition Lab & Triggler.** If Condition Lab has conditions named Encumbered and Overloaded (names set in the module settings), Neon At Home applies and removes them through CLT, so their macros, chat and Triggler triggers run, and adds the MOVE penalty to them.
+- **Lifestyle items are left out of the Loadout.** Neon Hub's lifestyle items (Kibble, apartments, memberships, transit...) are monthly expenses, not things you carry: they no longer take carry slots, weigh nothing, and don't appear on you, on the shelf or in storage, even when equipped.
+- **Clearer carry bar.** One bar with a tick per slot, filled in colour by kind (weapons, ammo, gear...), with a key of how many slots each kind uses, how many are free, and how many over (with a mark where the slots end). Bonus slots (holster, ammo bag) get the same smaller bar.
+
 ## 1.1.0
 
 - **Trauma map on the Biomonitor.** Each critical injury is marked where it is on the body: eyes, ears, jaw, throat, skull and brain, lungs, ribs, spine, arms, hands and legs. Homebrew injuries with similar names land in the right place; anything else goes to the head or torso. Markers pulse, and grow and redden as injuries stack at one spot (with a ×2, ×3 count). Hover one for the injuries there and their quick fix; click it to open the injury.
