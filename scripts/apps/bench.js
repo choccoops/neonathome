@@ -95,7 +95,7 @@ export const Bench = {
   template: `${TEMPLATE_PATH}/bench.hbs`,
 
   async prepare(app, actor) {
-    const st = (app.state.bench ??= { weapon: null });
+    const st = (app.uiState.bench ??= { weapon: null });
     const weapons = actor.items.filter((i) => i.type === "weapon" && i.system.installedItems).sort((a, b) => a.name.localeCompare(b.name));
     if (!weapons.some((w) => w.id === st.weapon)) st.weapon = weapons.find((w) => w.system.equipped === "equipped")?.id ?? weapons[0]?.id ?? null;
     const weapon = actor.items.get(st.weapon) ?? null;
@@ -169,7 +169,7 @@ export const Bench = {
     DnD.sources(el);
     DnD.targets(el, (data, target) => {
       if (!data.neonHome || !data.itemId) return;
-      const weaponId = app.state.bench?.weapon;
+      const weaponId = app.uiState.bench?.weapon;
       if (target.dataset.drop === "bench" && data.kind === "attachment") return app.act(() => HomeOps.attach(app.actor, weaponId, data.itemId, data.owner));
       if (target.dataset.drop === "drawer" && data.kind === "installed") return app.act(() => HomeOps.detach(app.actor, weaponId, data.itemId));
     });
@@ -177,16 +177,16 @@ export const Bench = {
 
   actions: {
     benchSelect(event, target) {
-      this.state.bench.weapon = target.closest("[data-item-id]").dataset.itemId;
+      this.uiState.bench.weapon = target.closest("[data-item-id]").dataset.itemId;
       this.render();
     },
     benchAttach(event, target) {
       const el = target.closest("[data-item-id]");
-      return this.act(() => HomeOps.attach(this.actor, this.state.bench.weapon, el.dataset.itemId, el.dataset.owner));
+      return this.act(() => HomeOps.attach(this.actor, this.uiState.bench.weapon, el.dataset.itemId, el.dataset.owner));
     },
     benchDetach(event, target) {
       const id = target.closest("[data-item-id]").dataset.itemId;
-      return this.act(() => HomeOps.detach(this.actor, this.state.bench.weapon, id, { stow: target.dataset.stow === "1" }));
+      return this.act(() => HomeOps.detach(this.actor, this.uiState.bench.weapon, id, { stow: target.dataset.stow === "1" }));
     },
     async benchCraft() {
       const data = await craftDialog();

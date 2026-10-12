@@ -21,8 +21,8 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
     super(foundry.utils.mergeObject({ id: `${MODULE_ID}-home`, actions: featureActions() }, options, { inplace: false }));
     this.actorId = null;
     this.tab = Settings.get("tab") || "loadout";
-    /** Per-feature UI state (selected weapon, selected armor, filters), kept across renders. */
-    this.state = {};
+    /** Per-feature UI state (selected weapon, armor, store), kept across renders. Not "state": ApplicationV2 has a read-only one. */
+    this.uiState = {};
     this.busy = false;
   }
 
@@ -156,7 +156,7 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
       picker.dataset.bound = "1";
       picker.addEventListener("change", (ev) => {
         this.actorId = ev.target.value || null;
-        this.state = {};
+        this.uiState = {};
         this.render({ force: true });
       });
     }

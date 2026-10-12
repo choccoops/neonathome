@@ -72,10 +72,25 @@ globalThis.fromUuidSync = (uuid) => registry.get(uuid) ?? null;
 globalThis.fromUuid = async (uuid) => registry.get(uuid) ?? null;
 globalThis.ChatMessage = { create: async () => null, getSpeaker: () => ({}) };
 
+/**
+ * Foundry v12's ApplicationV2, as far as subclasses can trip over it: these are getters with no
+ * setter, so a subclass assigning to one (this.state = ...) throws, as it does in Foundry.
+ */
 class ApplicationV2 {
+  #state = 0;
+  #element = null;
   constructor(options = {}) {
     this.options = options;
   }
+  get element() { return this.#element; }
+  get form() { return null; }
+  get id() { return this.options.id; }
+  get minimized() { return false; }
+  get rendered() { return this.#state === 2; }
+  get state() { return this.#state; }
+  get classList() { return new Set(); }
+  get hasFrame() { return true; }
+  get title() { return ""; }
   render() {
     return this;
   }
