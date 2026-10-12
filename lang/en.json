@@ -510,6 +510,7 @@
       "NoGM": "This needs a GM online.",
       "Timeout": "The GM didn't answer in time.",
       "NotFound": "That item or actor is gone.",
+      "Tab": "This tab couldn't be shown. The details are in the console (F12).",
       "NotYours": "That isn't part of your character's home.",
       "NoStash": "No home stash.",
       "NoPermission": "You can't open that.",

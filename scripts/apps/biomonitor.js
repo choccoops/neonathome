@@ -55,10 +55,11 @@ async function syndromeDialog(defaultTier) {
     content,
     classes: ["neon-home-dialog"],
     rejectClose: false,
-    // v12 passes only the event (its target is the dialog); v13 passes the dialog too.
-    render: (event, dialog) => {
-      const app = dialog ?? event?.target;
-      const form = app.element.querySelector("form") ?? app.element;
+    // v12 passes the dialog's HTML element, v13 the dialog itself; the event's target is the dialog.
+    render: (event, arg) => {
+      const root = arg instanceof HTMLElement ? arg : arg?.element ?? event?.target?.element;
+      if (!root) return;
+      const form = root.querySelector("form") ?? root;
       const key = form.querySelector("[name=key]");
       const sync = () => {
         const k = key.value;

@@ -41,6 +41,7 @@
   <section class="nah-feature nah-feature-{{tab}}">
     {{#if actor}}
       {{#if featureTemplate}}{{> (lookup this "featureTemplate") }}{{/if}}
+      {{#if featureError}}<p class="nah-empty nah-error"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "NEONHOME.Error.Tab"}}<br><small>{{featureError}}</small></p>{{/if}}
     {{else}}
       <p class="nah-empty">{{localize "NEONHOME.NoCharacter"}}</p>
     {{/if}}
