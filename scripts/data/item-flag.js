@@ -12,7 +12,13 @@ export const CATEGORIES = ["heavy", "twoHanded", "oneHanded", "ammo", "utility",
 export const ARMOR_CLASSES = ["unarmored", "light", "medium", "heavy", "flak", "metalgear", "acpa"];
 
 /** What a bonus carry pool takes. "any" takes everything. */
-export const POOL_ACCEPTS = ["any", "ammo", "pistolAmmo", "utility", "pistol", "twoHanded", "oneHanded", "heavy", "weapon"];
+export const POOL_ACCEPTS = ["any", "ammo", "pistolAmmo", "utility", "pistol", "twoHanded", "oneHanded", "heavy", "weapon", "pocket"];
+
+/** Accept keys that take more than one kind of thing. Every other key takes the tag of its name. */
+export const ACCEPT_TAGS = {
+  // a Subdermal Pocket: gear, or a one-handed weapon
+  pocket: ["utility", "oneHanded"]
+};
 
 /** Where an armor upgrade fits. */
 export const UPGRADE_LOCATIONS = ["body", "head", "both", "shield", "any"];

@@ -10,7 +10,7 @@
  * or plain data with { id|_id, name, type, img, system, flags }.
  */
 import { int, idOf, isLifestyle } from "./util.js";
-import { ARMOR_CLASSES, normalizeItemFlag, itemFlag } from "./item-flag.js";
+import { ARMOR_CLASSES, ACCEPT_TAGS, normalizeItemFlag, itemFlag } from "./item-flag.js";
 
 /** The spreadsheet's numbers; the GM can change them in the module settings. */
 export const DEFAULT_CARRY_RULES = {
@@ -205,10 +205,25 @@ export function describeCarry(item, moduleId, rules, ctx = {}) {
   };
 }
 
+/** The one piece of cyberware that holds things: the Subdermal Pocket (found by name). */
+export const isSubdermalPocket = (item) => item?.type === "cyberware" && /\bsubdermal\s+pocket\b/i.test(String(item.name ?? ""));
+
+/** What an installed Subdermal Pocket holds by default: 2 slots for gear or a one-handed weapon. */
+export const POCKET_POOLS = [{ slots: 2, accepts: "pocket", label: "" }];
+
+/**
+ * The carry pools an installed piece of cyberware gives. Only the Subdermal Pocket gives any; the
+ * GM can change a pocket's slots in its item settings. Other cyberware never does.
+ */
+export function cyberwarePools(item, flag) {
+  if (!isSubdermalPocket(item)) return [];
+  return flag.carry.pools.length ? flag.carry.pools : POCKET_POOLS;
+}
+
 /** Does a pool take an item with these tags? */
 export function poolAccepts(pool, tags) {
   if (pool.accepts === "any") return true;
-  return tags.includes(pool.accepts);
+  return (ACCEPT_TAGS[pool.accepts] ?? [pool.accepts]).some((t) => tags.includes(t));
 }
 
 /* ------------------------------------------ */
@@ -278,6 +293,19 @@ export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } =
     for (const u of a.upgrades) u.flag.upgrade.pools.forEach((p, i) => addPool(p, u, `${u.id}-${i}`));
   }
 
+  // Installed Subdermal Pockets: each one installed adds its own slots.
+  const named = new Map();
+  for (const item of items) {
+    if (item.type !== "cyberware" || !installed.has(idOf(item))) continue;
+    const list = cyberwarePools(item, normalizeItemFlag(item.flags?.[moduleId]?.item));
+    if (!list.length) continue;
+    // Number repeats: Subdermal Pocket, Subdermal Pocket 2...
+    const n = (named.get(item.name) ?? 0) + 1;
+    named.set(item.name, n);
+    const name = n > 1 ? `${item.name} ${n}` : item.name;
+    list.forEach((p, i) => addPool(p, { name, id: idOf(item) }, `${idOf(item)}-${i}`));
+  }
+
   function addPool(p, source, id) {
     if (p.accepts === "any") bonuses.push({ name: source.name, slots: p.slots, id: source.id });
     else pools.push({ id, name: p.label || source.name, source: source.id, accepts: p.accepts, slots: p.slots, used: 0, items: [] });
@@ -319,6 +347,20 @@ export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } =
     installedIn,
     warnings
   };
+}
+
+/**
+ * Bonus slots that still have room but won't take this item (a Gear bag offered a pistol), so the
+ * carry pop-up can say why they didn't help.
+ * @param {object} carry - computeLoadout() result that includes the item
+ * @returns {{name, free, accepts}[]}
+ */
+export function poolsThatWontTake(carry, itemId) {
+  const d = carry.items.find((x) => x.id === itemId);
+  if (!d) return [];
+  return carry.pools
+    .filter((p) => p.slots - p.used > 0 && !poolAccepts(p, d.tags))
+    .map((p) => ({ name: p.name, free: p.slots - p.used, accepts: p.accepts }));
 }
 
 /**

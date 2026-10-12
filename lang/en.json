@@ -96,7 +96,8 @@
       "twoHanded": "Two-handed weapons",
       "oneHanded": "One-handed weapons",
       "heavy": "Heavy weapons",
-      "weapon": "Any weapon"
+      "weapon": "Any weapon",
+      "pocket": "Gear / utility or one-handed weapons"
     },
     "Severity": {
       "mild": "Mild",
@@ -147,6 +148,7 @@
         "Body": "<b>{item}</b> won't fit: it would put {name} at <b>{used}</b> of {capacity} carry slots.",
         "Arrived": "<b>{item}</b> has been added, and {name} is now at <b>{used}</b> of {capacity} carry slots. Store something, or set it to owned (not on them).",
         "Pool": "{pool} is full ({used} of {slots}).",
+        "WrongPool": "{pool} has {free} free, but only for {accepts}.",
         "Hint": "Store something at home or in a vehicle, mark it as owned (not on you), or wear armor or carry gear with more slots.",
         "Ok": "OK",
         "Override": "Carry it anyway (GM)"
@@ -481,6 +483,7 @@
       "Category": "Counts as",
       "Auto": "Automatic ({value})",
       "Slots": "Slot cost",
+      "SlotsLoose": "Slot cost when carried loose (not installed)",
       "FromRules": "from the rules",
       "Weight": "Weight (units)",
       "CapacityBonus": "Adds to weight limit",
@@ -489,6 +492,7 @@
       "ArmorClass": "Armor class",
       "ArmorClassHint": "Sets carry slots (when worn on the body) and upgrade slots.",
       "CarryGear": "Carry gear (holster, sling, bag)",
+      "CyberwareSlotsHint": "While installed, this Subdermal Pocket adds these carry slots. Leave them empty for the default: 2 for gear or a one-handed weapon.",
       "CarryGearHint": "When equipped, adds carry slots. \"Anything\" adds to the general slots; the others are slots only for that.",
       "Pool": "Slots #{n}",
       "PoolLabel": "Label (optional)",

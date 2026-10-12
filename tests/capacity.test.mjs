@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_CARRY_RULES, normalizeCarryRules, classFromName, classFromSP, describeArmor, describeCarry, computeLoadout,
-  canInstallUpgrade, armorEffects, wouldFit
+  canInstallUpgrade, armorEffects, wouldFit, poolsThatWontTake
 } from "../scripts/data/capacity.js";
 
 const M = "cpr-neon-at-home";
@@ -195,4 +195,46 @@ test("cyberware installed in the body (the actor's own list) takes no slots and 
   const l = computeLoadout([jack, bag, link], rules, M, { actorInstalled: ["neural"] });
   assert.equal(l.used, 0);
   assert.equal(l.pools[0].used, 0);
+});
+
+test("a gear-only bonus pool doesn't take a pistol, and the pop-up can say why", () => {
+  const bag = upgrade("Gear bag", { upgrade: { pools: [{ slots: 2, accepts: "utility" }] } });
+  const jack = armor("Medium Armorjack (Body)", { sp: 12, list: [bag._id] });
+  const rifles = Array.from({ length: 7 }, (_, i) => weapon(`R${i}`, { weaponType: "assaultRifle", handsReq: 2 }));
+  const pistol = weapon("Heavy Pistol");
+  const l = computeLoadout([jack, bag, ...rifles, pistol], rules, M);
+  assert.equal(l.used, 23);
+  assert.equal(l.pools[0].used, 0, "the pistol didn't go in the gear bag");
+  assert.deepEqual(poolsThatWontTake(l, pistol._id), [{ name: "Gear bag", free: 2, accepts: "utility" }]);
+  const agent = gear("Agent");
+  const l2 = computeLoadout([jack, bag, ...rifles, agent], rules, M);
+  assert.equal(l2.pools[0].used, 1, "gear goes in the bag");
+  assert.deepEqual(poolsThatWontTake(l2, agent._id), []);
+});
+
+test("each installed Subdermal Pocket adds 2 slots for gear or a one-handed weapon", () => {
+  const pocket = (id) => ({ _id: id, name: "Subdermal Pocket", type: "cyberware", system: { type: "cyberwareExternal", installedItems: { list: [] } }, flags: {} });
+  const p1 = pocket("pk1");
+  const p2 = pocket("pk2");
+  const loose = pocket("pk3");
+  const pistol = weapon("Pistol");
+  const knife = weapon("Knife", { weaponType: "lightMelee" });
+  const rifle = weapon("Rifle", { weaponType: "assaultRifle", handsReq: 2 });
+  const agent = gear("Agent");
+  const l = computeLoadout([p1, p2, loose, pistol, knife, rifle, agent], rules, M, { actorInstalled: ["pk1", "pk2"] });
+  assert.deepEqual(l.pools.map((p) => [p.name, p.slots, p.accepts]), [["Subdermal Pocket", 2, "pocket"], ["Subdermal Pocket 2", 2, "pocket"]]);
+  // pistol (2) and knife (2) fill the pockets; the rifle can't go in one; the agent (1) and the loose pocket (1) go general
+  assert.equal(l.pools.reduce((n, p) => n + p.used, 0), 4);
+  assert.equal(l.items.find((d) => d.id === rifle._id).pool, "general");
+  assert.equal(l.used, 5);
+  // not installed: no slots
+  assert.equal(computeLoadout([loose, pistol], rules, M).pools.length, 0);
+  // the GM can change a pocket's slots
+  const big = { ...pocket("pk4"), flags: { [M]: { item: { carry: { pools: [{ slots: 4, accepts: "utility" }] } } } } };
+  assert.deepEqual(computeLoadout([big], rules, M, { actorInstalled: ["pk4"] }).pools.map((p) => [p.slots, p.accepts]), [[4, "utility"]]);
+  // no other cyberware gives slots, even with slots set on it
+  const arm = { _id: "arm", name: "Cyberarm", type: "cyberware", system: { installedItems: { list: [] } }, flags: { [M]: { item: { carry: { pools: [{ slots: 4, accepts: "any" }] } } } } };
+  const l2 = computeLoadout([arm], rules, M, { actorInstalled: ["arm"] });
+  assert.equal(l2.pools.length, 0);
+  assert.equal(l2.capacity, 10);
 });

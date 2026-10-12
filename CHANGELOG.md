@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+- **Subdermal Pockets give carry slots.** Each Subdermal Pocket installed as cyberware adds 2 bonus slots that take gear/utility or a one-handed weapon, shown in the Loadout like a Gear bag (two pockets: two bars, numbered). It's found by name, so the core item works as is; an uninstalled pocket gives nothing.
+- Only the Subdermal Pocket does this; no other cyberware gives carry slots. The GM can change a pocket's slots in its item settings.
+- **The "No room to carry it" pop-up explains bonus slots that didn't help.** When a bonus pool still has room but only takes other things (a Gear bag offered a pistol, a holster offered a rifle), the pop-up now says so, e.g. "Gear bag has 2 free, but only for Gear / utility."
+
 ## 1.2.2
 
 - **Fixed: cyberware installed in the body took carry slots and weight.** Cyberpunk RED lists cyberware installed in the body on the character itself rather than inside another item, and the Loadout didn't look there, so each piece counted as a hidden 1-slot, 0.5-unit item. It also filled gear-only bonus slots like the Gear bag. Installed cyberware is now free, and any weight-limit bonus it gives applies.

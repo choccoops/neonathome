@@ -98,6 +98,10 @@ The **Neon At Home: Carry Gear** compendium has the External Gear sheet's items:
 (3 slots for a two-handed weapon, no armor), **Carryall Bag** (+10 slots), and the **Trench Coat**
 and **Armored Trench Coat**. Only one holster and one sling count at a time.
 
+Each **Subdermal Pocket** installed as cyberware adds 2 bonus slots for gear or a one-handed
+weapon, shown like a Gear bag; two pockets give two. No other cyberware gives slots. The GM can
+change a pocket's slots in its item settings.
+
 **Carry slots are a hard limit.** Carrying or equipping something that would go past them, in the
 Loadout or with the character sheet's equip toggle, is stopped with a pop-up saying what doesn't
 fit; the GM's pop-up has *Carry it anyway*. Things arriving on the character (bought, looted,

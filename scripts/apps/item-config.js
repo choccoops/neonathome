@@ -1,6 +1,6 @@
 import { MODULE_ID, TEMPLATE_PATH, ITEM_FLAG } from "../constants.js";
 import { CATEGORIES, ARMOR_CLASSES, POOL_ACCEPTS, UPGRADE_LOCATIONS, UPGRADE_EFFECTS, normalizeItemFlag } from "../data/item-flag.js";
-import { describeCarry, describeArmor } from "../data/capacity.js";
+import { describeCarry, describeArmor, isSubdermalPocket } from "../data/capacity.js";
 import { baseWeight } from "../data/weight.js";
 import { Settings } from "../settings.js";
 
@@ -68,7 +68,11 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
       isArmor: item.type === "armor",
       armorClasses: item.type === "armor" ? [{ value: "", label: L("NEONHOME.Config.Auto", { value: L(`NEONHOME.Class.${describeArmor(plain, MODULE_ID, rules).cls}`) }), selected: !flag.armorClass },
         ...opt(ARMOR_CLASSES, flag.armorClass, (v) => L(`NEONHOME.Class.${v}`))] : [],
-      isCarryGear: ["gear", "clothing"].includes(item.type),
+      // Carry slots: carry gear, and the Subdermal Pocket (the only cyberware that holds things).
+      isCarryGear: ["gear", "clothing"].includes(item.type) || isSubdermalPocket(item),
+      isCyberware: isSubdermalPocket(item),
+      // cyberware only takes slots when carried loose; installed it's free
+      isCyberwareItem: item.type === "cyberware",
       carryPools: pools(flag.carry.pools),
       isArmorUpgrade: isUpgrade && item.system.type === "armor",
       isAttachment: isUpgrade && item.system.type !== "armor",
