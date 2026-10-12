@@ -491,7 +491,7 @@
       "ArmorClass": "Armor class",
       "ArmorClassHint": "Sets carry slots (when worn on the body) and upgrade slots.",
       "CarryGear": "Carry gear (holster, sling, bag)",
-      "CyberwareSlotsHint": "While installed, adds these carry slots. Leave them empty for the default: a Subdermal Pocket gives 2 for gear or a one-handed weapon.",
+      "CyberwareSlotsHint": "While installed, this Subdermal Pocket adds these carry slots. Leave them empty for the default: 2 for gear or a one-handed weapon.",
       "CarryGearHint": "When equipped, adds carry slots. \"Anything\" adds to the general slots; the others are slots only for that.",
       "Pool": "Slots #{n}",
       "PoolLabel": "Label (optional)",

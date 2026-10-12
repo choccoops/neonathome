@@ -205,18 +205,19 @@ export function describeCarry(item, moduleId, rules, ctx = {}) {
   };
 }
 
-/**
- * Cyberware that gives carry slots without the GM setting any, by name: each installed Subdermal
- * Pocket holds a little gear or a one-handed weapon. A GM's carry slots on the item replace these.
- */
-export const CYBERWARE_POOLS = [
-  { re: /\bsubdermal\s+pocket\b/i, pools: [{ slots: 2, accepts: "pocket", label: "" }] }
-];
+/** The one piece of cyberware that holds things: the Subdermal Pocket (found by name). */
+export const isSubdermalPocket = (item) => item?.type === "cyberware" && /\bsubdermal\s+pocket\b/i.test(String(item.name ?? ""));
 
-/** The carry pools an installed piece of cyberware gives. */
+/** What an installed Subdermal Pocket holds by default: 2 slots for gear or a one-handed weapon. */
+export const POCKET_POOLS = [{ slots: 2, accepts: "pocket", label: "" }];
+
+/**
+ * The carry pools an installed piece of cyberware gives. Only the Subdermal Pocket gives any; the
+ * GM can change a pocket's slots in its item settings. Other cyberware never does.
+ */
 export function cyberwarePools(item, flag) {
-  if (flag.carry.pools.length) return flag.carry.pools;
-  return CYBERWARE_POOLS.find((c) => c.re.test(String(item.name ?? "")))?.pools ?? [];
+  if (!isSubdermalPocket(item)) return [];
+  return flag.carry.pools.length ? flag.carry.pools : POCKET_POOLS;
 }
 
 /** Does a pool take an item with these tags? */
@@ -292,7 +293,7 @@ export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } =
     for (const u of a.upgrades) u.flag.upgrade.pools.forEach((p, i) => addPool(p, u, `${u.id}-${i}`));
   }
 
-  // Installed cyberware with carry slots (a Subdermal Pocket): each one installed adds its own.
+  // Installed Subdermal Pockets: each one installed adds its own slots.
   const named = new Map();
   for (const item of items) {
     if (item.type !== "cyberware" || !installed.has(idOf(item))) continue;

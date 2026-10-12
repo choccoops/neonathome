@@ -229,7 +229,12 @@ test("each installed Subdermal Pocket adds 2 slots for gear or a one-handed weap
   assert.equal(l.used, 5);
   // not installed: no slots
   assert.equal(computeLoadout([loose, pistol], rules, M).pools.length, 0);
-  // the GM's slots on the item replace the default
+  // the GM can change a pocket's slots
   const big = { ...pocket("pk4"), flags: { [M]: { item: { carry: { pools: [{ slots: 4, accepts: "utility" }] } } } } };
   assert.deepEqual(computeLoadout([big], rules, M, { actorInstalled: ["pk4"] }).pools.map((p) => [p.slots, p.accepts]), [[4, "utility"]]);
+  // no other cyberware gives slots, even with slots set on it
+  const arm = { _id: "arm", name: "Cyberarm", type: "cyberware", system: { installedItems: { list: [] } }, flags: { [M]: { item: { carry: { pools: [{ slots: 4, accepts: "any" }] } } } } };
+  const l2 = computeLoadout([arm], rules, M, { actorInstalled: ["arm"] });
+  assert.equal(l2.pools.length, 0);
+  assert.equal(l2.capacity, 10);
 });
