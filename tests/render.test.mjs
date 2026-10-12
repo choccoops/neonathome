@@ -68,6 +68,16 @@ test("Biomonitor shows HP, injuries, the tier and Syndromes", async () => {
   assert.ok(html.includes("Broken Ribs"));
   assert.ok(html.includes("Paramedic DV15"));
   assert.ok(html.includes("Glitch Hunger"));
+  // trauma map: two broken ribs stack on the right, the left hand is gone, a concussion on the brain
+  const t = ctx.bio.trauma;
+  assert.equal(t.total, 4);
+  assert.equal(t.level, "critical");
+  const ribs = t.marks.find((m) => m.count === 2);
+  assert.ok(ribs && ribs.stack === 2 && ribs.multi);
+  assert.equal(t.severed.length, 1);
+  assert.ok(html.includes('class="nah-severed"'));
+  assert.ok(html.includes("is-severed"));
+  assert.ok(html.includes("Right"), "sided injuries show their side");
   assert.ok(!/NEONHOME\./.test(html));
 });
 

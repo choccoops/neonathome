@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- **Trauma map on the Biomonitor.** Each critical injury is marked where it is on the body: eyes, ears, jaw, throat, skull and brain, lungs, ribs, spine, arms, hands and legs. Homebrew injuries with similar names land in the right place; anything else goes to the head or torso. Markers pulse, and grow and redden as injuries stack at one spot (with a ×2, ×3 count). Hover one for the injuries there and their quick fix; click it to open the injury.
+- **Lost limbs show.** A dismembered arm, hand or leg is blacked out and cut on the figure; a lost eye or ear is marked with an ✕.
+- **Left and right.** Injuries to paired parts spread across both sides; the arrows button in the injury list moves one to the other side.
+- **Trauma level** (Stable, Injured, Critical, Failing) from how many injuries there are and how many raise the Death Save. Critical and Failing redden the scan and make the figure flicker. Head and body light up more strongly as their injuries stack.
+- **Opening the window:** a second click while the window is still opening no longer starts it again, and if opening fails it says so (with the details in the console).
+
 ## 1.0.2
 
 - **Fixed: Add Syndrome didn't open its window** on Foundry v12 (it read the dialog the v13 way).

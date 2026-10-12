@@ -1,10 +1,11 @@
-import { TEMPLATE_PATH } from "../constants.js";
+import { MODULE_ID, TEMPLATE_PATH } from "../constants.js";
 import { Compat } from "../compat.js";
 import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeStore } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
 import { SYNDROMES, SEVERITIES, TIERS, psycheState } from "../data/syndromes.js";
+import { traumaMap } from "../data/injuries.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -103,7 +104,16 @@ export const Biomonitor = {
       const item = a.id ? actor.items.get(a.id) : null;
       return item ? { name: item.name, value: Number(a.value) || 0, max: Number(a.max) || 0, pct: pct(Number(a.value) || 0, Number(a.max) || 0) } : null;
     };
-    const injuries = actor.items.filter((i) => i.type === "criticalInjury").map(injury);
+    const injuryItems = actor.items.filter((i) => i.type === "criticalInjury");
+    const trauma = traumaMap(injuryItems, MODULE_ID);
+    const sideOf = new Map(trauma.marks.flatMap((m) => m.injuries.map((i) => [i.id, m.side])));
+    const injuries = injuryItems.map((item) => {
+      const d = injury(item);
+      const side = sideOf.get(item.id);
+      return { ...d, side, sideLabel: side ? L(`NEONHOME.Bio.Side.${side}`) : "" };
+    });
+    const byId = new Map(injuries.map((i) => [i.id, i]));
+    const stack = (n) => Math.min(3, n);
     const hum = CPR.humanity(actor);
     const emp = CPR.emp(actor);
     const scale = Math.max(hum.max, 1);
@@ -121,10 +131,31 @@ export const Biomonitor = {
         deathPenalty,
         armor: { head: armor("currentArmorHead"), body: armor("currentArmorBody"), shield: armor("currentArmorShield") },
         injuries,
-        headHurt: injuries.some((i) => i.location === "head"),
-        bodyHurt: injuries.some((i) => i.location === "body"),
-        headInjuries: injuries.filter((i) => i.location === "head").length,
-        bodyInjuries: injuries.filter((i) => i.location === "body").length,
+        headHurt: stack(trauma.head),
+        bodyHurt: stack(trauma.body),
+        headInjuries: trauma.head,
+        bodyInjuries: trauma.body,
+        trauma: {
+          level: trauma.level,
+          label: L(`NEONHOME.Bio.Trauma.${trauma.level}`),
+          total: trauma.total,
+          deathSaves: trauma.deathSaves,
+          // one marker per spot, positioned as a share of the figure
+          marks: trauma.marks.map((m) => ({
+            left: Math.round((m.x / 200) * 1000) / 10,
+            top: Math.round((m.y / 350) * 1000) / 10,
+            stack: stack(m.count),
+            count: m.count,
+            multi: m.count > 1,
+            kind: m.kind,
+            first: m.injuries[0].id,
+            tip: [
+              `<b>${esc(L(`NEONHOME.Bio.Place.${m.anchor}`))}${m.side ? ` (${esc(L(`NEONHOME.Bio.Side.${m.side}`))})` : ""}</b>`,
+              ...m.injuries.map((i) => `${esc(i.name)} · ${esc(byId.get(i.id)?.quick ?? "")}`)
+            ].join("<br>")
+          })),
+          severed: trauma.severed.map((sv) => ({ ...sv, x1: sv.cut[0], y1: sv.cut[1], x2: sv.cut[2], y2: sv.cut[3] }))
+        },
         humanity: {
           ...hum,
           pct: pct(Math.max(0, hum.value), scale),
@@ -247,6 +278,14 @@ export const Biomonitor = {
     },
     bioSpend(event, target) {
       return this.act(() => HomeOps.spendInspiration(this.actor, target.dataset.use));
+    },
+    /** Move an injury on a paired body part (arm, eye, ribs...) to the other side. */
+    bioFlipSide(event, target) {
+      const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
+      if (!item) return;
+      const side = traumaMap(this.actor.items.filter((i) => i.type === "criticalInjury"), MODULE_ID)
+        .marks.find((m) => m.injuries.some((i) => i.id === item.id))?.side;
+      return this.act(() => item.setFlag(MODULE_ID, "side", side === "L" ? "R" : "L"));
     },
     bioOpenInjury(event, target) {
       this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId)?.sheet.render(true);
