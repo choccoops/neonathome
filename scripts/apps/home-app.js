@@ -89,7 +89,8 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (home.stash) related.add(home.stash);
     for (const v of home.vehicles) related.add(v.uuid.split(".Item.")[0]);
     const uuid = doc.documentName === "Item" ? doc.parent?.uuid : doc.uuid;
-    if (related.has(uuid)) app.render();
+    // While an action runs, it re-renders when it's done: don't render twice.
+    if (related.has(uuid) && !app.busy) app.render();
   }
 
   get actor() {
@@ -142,7 +143,16 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
       },
       featureTemplate: f?.template ?? null
     };
-    if (f && actor) Object.assign(context, await f.prepare(this, actor, context));
+    if (f && actor) {
+      // A tab that fails shows why instead of leaving the window blank.
+      try {
+        Object.assign(context, await f.prepare(this, actor, context));
+      } catch (err) {
+        console.error(`${MODULE_ID} | the ${tab} tab failed to prepare`, err);
+        context.featureTemplate = null;
+        context.featureError = err?.message ?? String(err);
+      }
+    }
     return context;
   }
 
@@ -150,7 +160,7 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
   async _onRender(context, options) {
     await super._onRender(context, options);
     const root = this.element;
-    root.classList.toggle("is-busy", this.busy);
+    root.classList.remove("is-busy");
     const picker = root.querySelector("select.nah-picker");
     if (picker && !picker.dataset.bound) {
       picker.dataset.bound = "1";
@@ -176,8 +186,11 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       return await HomeOps.run(fn);
     } finally {
+      // Whatever happened, the window must come back to life.
       this.busy = false;
-      if (this.rendered) this.render();
+      this.element?.classList.remove("is-busy");
+      this.element?.querySelector(".nah-root")?.classList.remove("is-busy");
+      if (this.rendered) this.render().catch((err) => console.error(`${MODULE_ID} | render failed`, err));
     }
   }
 

@@ -28,33 +28,32 @@
   <div class="nah-col nah-col-doll nah-scroll">
     <h3 class="nah-kicker">{{localize "NEONHOME.Loadout.Wearing"}} <span>{{loadout.armorClass}}</span></h3>
     <div class="nah-doll">
-      <svg class="nah-doll-figure" viewBox="0 0 200 360" aria-hidden="true">
+      <svg class="nah-figure" viewBox="0 0 200 350" aria-hidden="true">
         <defs>
-          <linearGradient id="nahDollFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0.16"/><stop offset="1" stop-color="currentColor" stop-opacity="0.02"/></linearGradient>
+          <linearGradient id="nahDollFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0.22"/><stop offset="1" stop-color="currentColor" stop-opacity="0.04"/></linearGradient>
         </defs>
-        <g fill="url(#nahDollFill)" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
-          <path d="M100 14c15 0 25 11 25 27 0 17-10 31-25 31S75 58 75 41c0-16 10-27 25-27z"/>
-          <path d="M88 74h24l4 12 30 9c9 3 14 10 15 19l8 72c1 6-3 10-8 10s-8-3-9-8l-9-60-3 0 2 58 6 118c0 7-5 11-11 11s-10-4-11-10l-11-98h-4l-11 98c-1 6-5 10-11 10s-11-4-11-11l6-118 2-58-3 0-9 60c-1 5-4 8-9 8s-9-4-8-10l8-72c1-9 6-16 15-19l30-9z"/>
-        </g>
-        <g stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="2 4" fill="none">
-          <path d="M60 96h80M66 140h68M74 186h52"/>
-        </g>
+        <path class="nah-fig-body" d="M107 58L107 76C112 83 124 85 136 88C150 92 156 101 157 113L162 188C163 199 151 203 149 193L144 128C143 121 137 120 136 128L134 192C136 201 135 208 134 216L130 330C130 341 113 343 112 332L105 224C104 216 100 214 100 214C100 214 96 216 95 224L88 332C87 343 70 341 70 330L66 216C65 208 64 201 66 192L64 128C63 120 57 121 56 128L51 193C49 203 37 199 38 188L43 113C44 101 50 92 64 88C76 85 88 83 93 76L93 58Z" fill="url(#nahDollFill)"/>
+        <ellipse class="nah-fig-mask" cx="100" cy="38" rx="21" ry="26"/>
+        <ellipse class="nah-fig-head" cx="100" cy="38" rx="21" ry="26" fill="url(#nahDollFill)"/>
+        <g class="nah-fig-grid"><path d="M58 104h84M60 150h80M66 196h68"/></g>
       </svg>
-      <div class="nah-socket nah-socket-head {{#if loadout.doll.head.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.head}}data-item-id="{{loadout.doll.head.id}}" data-action="loadoutSelectArmor"{{/if}}>
-        <span class="nah-socket-label">{{localize "NEONHOME.Location.head"}}</span>
-        {{#with loadout.doll.head}}<b>{{name}}</b><small>SP {{sp}}{{#if ablation}} (&minus;{{ablation}}){{/if}} &middot; {{cls}}{{#if upgradeSlots}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{upgradesUsed}}/{{upgradeSlots}}{{/if}}</small>{{else}}<em>{{localize "NEONHOME.Loadout.Empty"}}</em>{{/with}}
-      </div>
-      <div class="nah-socket nah-socket-body {{#if loadout.doll.body.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.body}}data-item-id="{{loadout.doll.body.id}}" data-action="loadoutSelectArmor"{{/if}}>
-        <span class="nah-socket-label">{{localize "NEONHOME.Location.body"}}</span>
-        {{#with loadout.doll.body}}<b>{{name}}</b><small>SP {{sp}}{{#if ablation}} (&minus;{{ablation}}){{/if}} &middot; {{cls}}{{#if penalty}} &middot; &minus;{{penalty}} REF/DEX/MOVE{{/if}}{{#if upgradeSlots}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{upgradesUsed}}/{{upgradeSlots}}{{/if}}</small>{{else}}<em>{{localize "NEONHOME.Loadout.Unarmored"}}</em>{{/with}}
-      </div>
-      <div class="nah-socket nah-socket-shield {{#if loadout.doll.shield.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.shield}}data-item-id="{{loadout.doll.shield.id}}" data-action="loadoutSelectArmor"{{/if}}>
-        <span class="nah-socket-label">{{localize "NEONHOME.Location.shield"}}</span>
-        {{#with loadout.doll.shield}}<b>{{name}}</b><small>HP {{sp}}</small>{{else}}<em>&mdash;</em>{{/with}}
-      </div>
-      <div class="nah-socket nah-socket-hands" data-drop="equip">
-        <span class="nah-socket-label">{{localize "NEONHOME.Loadout.Hands"}}</span>
-        {{#each loadout.doll.hands}}<b data-item-id="{{id}}" data-action="openItem"><i class="fa-solid fa-hand-fist"></i> {{name}}</b>{{else}}<em>{{localize "NEONHOME.Loadout.EmptyHands"}}</em>{{/each}}
+      <div class="nah-doll-slots">
+        <div class="nah-socket {{#if loadout.doll.head.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.head}}data-item-id="{{loadout.doll.head.id}}" data-action="loadoutSelectArmor"{{/if}}>
+          <span class="nah-socket-label">{{localize "NEONHOME.Location.head"}}</span>
+          {{#with loadout.doll.head}}<b>{{name}}</b><small>SP {{sp}}{{#if ablation}} (&minus;{{ablation}}){{/if}} &middot; {{cls}}{{#if upgradeSlots}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{upgradesUsed}}/{{upgradeSlots}}{{/if}}</small>{{else}}<em>{{localize "NEONHOME.Loadout.Empty"}}</em>{{/with}}
+        </div>
+        <div class="nah-socket {{#if loadout.doll.body.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.body}}data-item-id="{{loadout.doll.body.id}}" data-action="loadoutSelectArmor"{{/if}}>
+          <span class="nah-socket-label">{{localize "NEONHOME.Location.body"}}</span>
+          {{#with loadout.doll.body}}<b>{{name}}</b><small>SP {{sp}}{{#if ablation}} (&minus;{{ablation}}){{/if}} &middot; {{cls}}{{#if penalty}} &middot; &minus;{{penalty}} REF/DEX/MOVE{{/if}}{{#if upgradeSlots}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{upgradesUsed}}/{{upgradeSlots}}{{/if}}</small>{{else}}<em>{{localize "NEONHOME.Loadout.Unarmored"}}</em>{{/with}}
+        </div>
+        <div class="nah-socket {{#if loadout.doll.shield.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.shield}}data-item-id="{{loadout.doll.shield.id}}" data-action="loadoutSelectArmor"{{/if}}>
+          <span class="nah-socket-label">{{localize "NEONHOME.Location.shield"}}</span>
+          {{#with loadout.doll.shield}}<b>{{name}}</b><small>HP {{sp}}</small>{{else}}<em>&mdash;</em>{{/with}}
+        </div>
+        <div class="nah-socket" data-drop="equip">
+          <span class="nah-socket-label">{{localize "NEONHOME.Loadout.Hands"}}</span>
+          {{#each loadout.doll.hands}}<b data-item-id="{{id}}" data-action="openItem"><i class="fa-solid fa-hand-fist"></i> {{name}}</b>{{else}}<em>{{localize "NEONHOME.Loadout.EmptyHands"}}</em>{{/each}}
+        </div>
       </div>
     </div>
     {{#if loadout.doll.worn.length}}

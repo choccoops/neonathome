@@ -186,7 +186,9 @@
 .neon-home [data-drop].drag-over { outline: 2px solid var(--nah-yellow) !important; background-color: rgba(243, 230, 0, 0.06); }
 .neon-home [data-drag] { cursor: grab; }
 .neon-home [data-drag].is-dragging { opacity: 0.4; }
+.neon-home.is-busy,
 .neon-home .is-busy { cursor: progress; }
+.neon-home.is-busy button,
 .neon-home .is-busy button { pointer-events: none; }
 .neon-home [data-action] { cursor: pointer; }
 
@@ -282,33 +284,37 @@
 .neon-home .nah-col-doll { border-right: 1px solid var(--nah-line); }
 .neon-home .nah-col-store { border-left: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.45); }
 
-/* the paper doll */
-.neon-home .nah-doll { position: relative; height: 330px; color: var(--nah-cyan); }
-.neon-home .nah-doll-figure { position: absolute; left: 50%; top: 4px; height: 320px; transform: translateX(-50%); filter: drop-shadow(0 0 6px rgba(5, 217, 232, 0.35)); opacity: 0.85; }
+/* the paper doll: the figure, and the gear slots beside it */
+.neon-home .nah-doll { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 24px; align-items: start; margin-bottom: 6px; color: var(--nah-cyan); }
+.neon-home .nah-figure { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 6px rgba(5, 217, 232, 0.35)); }
+.neon-home .nah-fig-body,
+.neon-home .nah-fig-head { stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.neon-home .nah-fig-mask { fill: var(--nah-bg); stroke: none; }
+.neon-home .nah-fig-grid path { fill: none; stroke: currentColor; stroke-opacity: 0.3; stroke-dasharray: 2 4; }
+.neon-home .nah-doll-slots { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .neon-home .nah-socket {
-  position: absolute;
-  width: 150px;
+  position: relative;
   display: grid;
   gap: 1px;
+  min-width: 0;
   padding: 5px 8px;
   color: var(--nah-text);
   border: 1px solid var(--nah-line-2);
-  background: rgba(7, 7, 11, 0.88);
-  clip-path: var(--nah-notch-card);
+  background: linear-gradient(225deg, var(--nah-line-2) 0 7px, transparent 7px), rgba(7, 7, 11, 0.88);
   font-size: 12px;
   transition: border-color 120ms, box-shadow 120ms;
 }
+/* leader line and node toward the figure */
+.neon-home .nah-socket::before { content: ""; position: absolute; right: 100%; top: 50%; width: 18px; border-top: 1px dashed rgba(5, 217, 232, 0.55); }
+.neon-home .nah-socket::after { content: ""; position: absolute; right: calc(100% + 16px); top: calc(50% - 3px); width: 6px; height: 6px; border-radius: 50%; background: var(--nah-cyan); box-shadow: 0 0 6px var(--nah-cyan); }
 .neon-home .nah-socket:hover { border-color: var(--nah-cyan); }
-.neon-home .nah-socket.selected { border-color: var(--nah-pink); box-shadow: inset 0 0 0 1px var(--nah-pink); }
+.neon-home .nah-socket.selected { border-color: var(--nah-pink); box-shadow: inset 0 0 0 1px var(--nah-pink); background: linear-gradient(225deg, var(--nah-pink) 0 7px, transparent 7px), rgba(26, 7, 18, 0.9); }
+.neon-home .nah-socket.selected::after { background: var(--nah-pink); box-shadow: 0 0 6px var(--nah-pink); }
+.neon-home .nah-socket.selected::before { border-top-color: rgba(255, 42, 109, 0.7); }
 .neon-home .nah-socket-label { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--nah-pink); }
 .neon-home .nah-socket b { font-family: var(--nah-display); font-weight: 400; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .neon-home .nah-socket small { font-size: 10px; color: var(--nah-dim); }
 .neon-home .nah-socket em { font-size: 11px; color: var(--nah-dim); }
-.neon-home .nah-socket-head { left: 0; top: 4px; }
-.neon-home .nah-socket-body { right: 0; top: 98px; width: 176px; }
-.neon-home .nah-socket-shield { left: 0; top: 168px; width: 128px; }
-.neon-home .nah-socket-hands { right: 0; top: 232px; width: 160px; }
-.neon-home .nah-socket-hands b { font-size: 11px; }
 .neon-home .nah-worn { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .neon-home .nah-worn li { display: flex; align-items: center; gap: 4px; padding: 2px 6px 2px 2px; font-size: 11px; border: 1px solid var(--nah-line); background: var(--nah-bg-2); }
 .neon-home .nah-worn li.is-gear { border-color: rgba(57, 255, 136, 0.45); }
@@ -437,21 +443,26 @@
 @keyframes nah-ekg { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .neon-home .nah-ekg svg, .neon-home .nah-scanline { animation: none !important; } }
 
-.neon-home .nah-scan { position: relative; height: 300px; color: var(--nah-cyan); border: 1px solid var(--nah-line); background: radial-gradient(ellipse at 50% 40%, rgba(5, 217, 232, 0.08), transparent 70%), var(--nah-bg); }
-.neon-home .nah-scan-figure { position: absolute; left: 50%; top: 8px; height: 284px; transform: translateX(-50%); overflow: visible; }
-.neon-home .nah-zone { fill: rgba(5, 217, 232, 0.12); stroke: var(--nah-cyan); stroke-width: 1.2; }
+.neon-home .nah-scan { position: relative; height: 300px; overflow: hidden; color: var(--nah-cyan); border: 1px solid var(--nah-line); background: radial-gradient(ellipse at 50% 40%, rgba(5, 217, 232, 0.08), transparent 70%), var(--nah-bg); }
+.neon-home .nah-scan-figure { position: absolute; left: 50%; top: 10px; width: auto; height: 280px; transform: translateX(-50%); }
+.neon-home .nah-zone { fill: rgba(5, 217, 232, 0.12); stroke: var(--nah-cyan); stroke-width: 1.4; stroke-linejoin: round; }
 .neon-home .nah-zone.is-hurt { fill: rgba(255, 42, 109, 0.35); stroke: var(--nah-pink); animation: nah-pulse 1.4s ease-in-out infinite; }
 @keyframes nah-pulse { 50% { fill: rgba(255, 42, 109, 0.12); } }
 .neon-home .nah-scanline { stroke: var(--nah-cyan); stroke-opacity: 0.6; stroke-width: 2; animation: nah-scan 4s ease-in-out infinite; }
 @keyframes nah-scan { 0%, 100% { transform: translateY(10px); } 50% { transform: translateY(350px); } }
-.neon-home .nah-scan-tag { position: absolute; display: grid; padding: 4px 8px; font-size: 11px; border: 1px solid var(--nah-line-2); background: rgba(7, 7, 11, 0.88); clip-path: var(--nah-notch-card); }
+.neon-home .nah-scan-tag::before { content: ""; position: absolute; top: 50%; width: 28px; border-top: 1px dashed rgba(5, 217, 232, 0.5); }
+.neon-home .nah-scan-tag-head::before,
+.neon-home .nah-scan-tag-shield::before { left: 100%; }
+.neon-home .nah-scan-tag-body::before { right: 100%; }
+.neon-home .nah-scan-tag.is-hurt::before { border-top-color: rgba(255, 42, 109, 0.7); }
+.neon-home .nah-scan-tag { position: absolute; overflow: visible; display: grid; padding: 4px 8px; font-size: 11px; border: 1px solid var(--nah-line-2); background: linear-gradient(225deg, var(--nah-line-2) 0 7px, transparent 7px), rgba(7, 7, 11, 0.88); }
 .neon-home .nah-scan-tag span { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--nah-dim); }
 .neon-home .nah-scan-tag b { font-family: var(--nah-display); font-weight: 400; font-size: 14px; color: #fff; }
 .neon-home .nah-scan-tag em { font-style: normal; color: var(--nah-pink); }
 .neon-home .nah-scan-tag.is-hurt { border-color: var(--nah-pink); }
-.neon-home .nah-scan-tag-head { left: 10px; top: 16px; }
-.neon-home .nah-scan-tag-body { right: 10px; top: 110px; }
-.neon-home .nah-scan-tag-shield { left: 10px; top: 190px; }
+.neon-home .nah-scan-tag-head { left: 12px; top: 24px; }
+.neon-home .nah-scan-tag-body { right: 12px; top: 96px; }
+.neon-home .nah-scan-tag-shield { left: 12px; top: 150px; }
 .neon-home .nah-hp,
 .neon-home .nah-hum { margin-top: 10px; }
 .neon-home .nah-hp-head { display: flex; align-items: baseline; gap: 10px; }
