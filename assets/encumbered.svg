@@ -1,8 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Neon At Home: encumbered (over the weight limit, MOVE halved) -->
-  <g fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M24 18a8 8 0 0 1 16 0"/>
-    <path d="M14 24h36l6 28H8z" fill="#ff8a1f" fill-opacity="0.85"/>
-    <path d="M32 31v12M26 38l6 6 6-6"/>
-  </g>
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Neon At Home: Encumbered (over the weight limit, MOVE halved). Sized like CPR's status icons. -->
+  <path d="M176 128a80 80 0 0 1 160 0h-44a36 36 0 0 0-72 0z" fill="#fff"/>
+  <path d="M96 156h320l64 324H32z" fill="#ff8a1f" stroke="#fff" stroke-width="22" stroke-linejoin="round"/>
+  <path d="M256 228v150M190 318l66 66 66-66" fill="none" stroke="#fff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

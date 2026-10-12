@@ -22,6 +22,11 @@ const TYPE_ICON = {
 };
 /** Slot kinds in the order the carry bar shows them. */
 const BAR_ORDER = ["heavy", "twoHanded", "oneHanded", "ammo", "utility", "bulky"];
+/**
+ * Each kind's colour. Set on the elements themselves (not through stylesheet classes), so no other
+ * stylesheet in the world can turn the bar grey.
+ */
+const BAR_COLORS = { heavy: "#ff2a6d", twoHanded: "#ff8a1f", oneHanded: "#f3e600", ammo: "#05d9e8", utility: "#b26bff", bulky: "#39ff88" };
 
 /**
  * A carry bar: one coloured segment per kind of thing, widths as a share of the slots (or of what's
@@ -34,7 +39,7 @@ function slotBar(items, slots) {
   const segments = BAR_ORDER.map((cat) => {
     const these = items.filter((d) => d.category === cat);
     const n = these.reduce((sum, d) => sum + d.cost, 0);
-    return { cat, slots: n, pct: (n / scale) * 100, label: L(`NEONHOME.Category.${cat}`), names: these.map((d) => d.name).join(", ") };
+    return { cat, color: BAR_COLORS[cat], slots: n, pct: (n / scale) * 100, label: L(`NEONHOME.Category.${cat}`), names: these.map((d) => d.name).join(", ") };
   }).filter((g) => g.slots > 0);
   return {
     used,

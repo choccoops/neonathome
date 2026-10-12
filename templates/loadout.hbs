@@ -1,6 +1,6 @@
 {{#*inline "nahBar"}}
 <div class="nah-slotbar {{#if over}}is-over{{/if}}" style="--ticks: {{ticks}}" role="meter" aria-valuemin="0" aria-valuemax="{{slots}}" aria-valuenow="{{used}}">
-  <div class="nah-slotbar-fill">{{#each segments}}<span class="cat-{{cat}}" style="width: {{pct}}%" data-tooltip="{{label}}: {{slots}} &mdash; {{names}}"></span>{{/each}}</div>
+  <div class="nah-slotbar-fill">{{#each segments}}<span class="cat-{{cat}}" style="width: {{pct}}%; background-color: {{color}}; color: {{color}}" data-tooltip="{{label}}: {{slots}} &mdash; {{names}}"></span>{{/each}}</div>
   {{#if limitPct}}<i class="nah-slotbar-limit" style="left: {{limitPct}}%"></i>{{/if}}
 </div>
 {{/inline}}
@@ -126,7 +126,7 @@
       {{#if loadout.enabled}}
       {{> nahBar loadout.bar}}
       <ul class="nah-slot-key">
-        {{#each loadout.bar.segments}}<li class="cat-{{cat}}" data-tooltip="{{names}}"><i></i>{{label}} <b>{{slots}}</b></li>{{/each}}
+        {{#each loadout.bar.segments}}<li class="cat-{{cat}}" data-tooltip="{{names}}"><i style="background-color: {{color}}; box-shadow: 0 0 6px {{color}}"></i>{{label}} <b>{{slots}}</b></li>{{/each}}
         {{#if loadout.bar.free}}<li class="cat-free"><i></i>{{localize "NEONHOME.Loadout.Free"}} <b>{{loadout.bar.free}}</b></li>{{/if}}
       </ul>
       <p class="nah-hint">{{localize "NEONHOME.Loadout.Base" cls=loadout.armorClass n=loadout.base}}{{#each loadout.bonuses}} &middot; +{{slots}} {{name}}{{/each}}</p>
