@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- **Carry bar colours always show.** Used slots are filled in their kind's colour (set on the bar itself, so no other stylesheet can grey them out), brighter, against a darker empty track.
+- **Encumbered and Overloaded icons are full size on tokens.** They're now 512×512 like Cyberpunk RED's own status icons, filling the frame; before, without a set size, they drew small. If you made Condition Lab conditions with these icons, they pick up the new ones automatically.
+
 ## 1.2.0
 
 - **Carry slots are a hard limit.** Carrying or equipping something that would go past a character's carry slots is stopped with a pop-up saying what doesn't fit and why, in the Loadout and with the Cyberpunk RED sheet's equip toggle. The GM's pop-up can carry it anyway. Things arriving on a character (bought, looted, dropped on the sheet) aren't refused, so nothing paid for is lost; the pop-up says they're over. Fitting an upgrade or attachment from the stash isn't stopped by full slots, since it costs nothing once installed. The setting still offers warn or off.
