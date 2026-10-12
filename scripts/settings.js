@@ -31,7 +31,7 @@ export const Settings = {
       config: true,
       type: String,
       choices: { off: "NEONHOME.Settings.Enforce.off", warn: "NEONHOME.Settings.Enforce.warn", block: "NEONHOME.Settings.Enforce.block" },
-      default: "warn",
+      default: "block",
       onChange: changed
     });
     reg("enforceWeight", {

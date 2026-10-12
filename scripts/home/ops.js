@@ -1,4 +1,4 @@
-import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, SYSTEM_ID } from "../constants.js";
+import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, SYSTEM_ID } from "../constants.js";
 import { Compat } from "../compat.js";
 import { HomeSocket } from "../socket.js";
 import { CPR } from "../cpr.js";
@@ -6,7 +6,7 @@ import { Settings } from "../settings.js";
 import { HomeStore, docFrom } from "./store.js";
 import { normalizeHome, freeBay } from "../data/home.js";
 import { computeLoadout, canInstallUpgrade, armorEffects } from "../data/capacity.js";
-import { computeWeight } from "../data/weight.js";
+import { computeWeight, encumbrance } from "../data/weight.js";
 import { normalizePsyche, psycheState, tierOf, catharsisGain, absorbLoss, TIERS } from "../data/syndromes.js";
 import { canAttach, canDetach } from "../data/attachments.js";
 
@@ -45,26 +45,61 @@ export const HomeOps = {
   },
 
   /**
-   * Check the GM's carry and weight rules for a change. Blocks (throws RuleBlock) or warns.
-   * Only checks when the change makes things worse.
+   * Would this change put the character further over their carry slots?
+   * @returns {{worse: boolean, before, after}} before/after from measure()
    */
-  enforce(actor, change) {
+  carryCheck(actor, change) {
     const before = this.measure(actor);
     const after = this.measure(actor, change);
-    const problems = [];
-    const carryMode = Settings.get("enforceCarry");
     const overPools = (c) => c.pools.reduce((n, p) => n + Math.max(0, p.used - p.slots), 0);
-    const carryOver = (c) => Math.max(0, c.used - c.capacity) + overPools(c);
-    if (Settings.carry.enabled && carryMode !== "off" && carryOver(after.carry) > carryOver(before.carry)) {
-      problems.push({ mode: carryMode, msg: L("NEONHOME.Loadout.OverSlots", { used: after.carry.used, capacity: after.carry.capacity }) });
+    const over = (c) => Math.max(0, c.used - c.capacity) + overPools(c);
+    const worse = Settings.carry.enabled && over(after.carry) > over(before.carry);
+    return { worse, before, after };
+  },
+
+  /**
+   * The carry-slot pop-up: what doesn't fit and why. The GM can carry it anyway. For things that
+   * arrived on the character (bought, looted) it only tells them they're over.
+   * @returns {Promise<boolean>} true when the GM chose to go over
+   */
+  async carryPopup(actor, itemName, after, { arriving = false } = {}) {
+    const c = after.carry;
+    const pool = c.pools.find((p) => p.used > p.slots);
+    const body = arriving ? "NEONHOME.Loadout.Blocked.Arrived" : "NEONHOME.Loadout.Blocked.Body";
+    const content = `<p>${L(body, { name: esc(actor.name), item: esc(itemName), used: c.used, capacity: c.capacity })}</p>`
+      + (pool ? `<p>${L("NEONHOME.Loadout.Blocked.Pool", { pool: esc(pool.name), used: pool.used, slots: pool.slots })}</p>` : "")
+      + `<p class="hint">${L("NEONHOME.Loadout.Blocked.Hint")}</p>`;
+    const buttons = [{ action: "ok", label: L("NEONHOME.Loadout.Blocked.Ok"), icon: "fa-solid fa-check", default: true }];
+    if (game.user.isGM && !arriving) buttons.push({ action: "override", label: L("NEONHOME.Loadout.Blocked.Override"), icon: "fa-solid fa-triangle-exclamation" });
+    const choice = await Compat.DialogV2.wait({
+      window: { title: L("NEONHOME.Loadout.Blocked.Title"), icon: "fa-solid fa-table-cells" },
+      content,
+      buttons,
+      classes: ["neon-home-dialog"],
+      rejectClose: false
+    });
+    return game.user.isGM && choice === "override";
+  },
+
+  /**
+   * Check the GM's rules for a change onto the character. Carry slots are a hard limit (a pop-up
+   * stops it; the GM may override) unless the GM set them to warn or off; weight warns or blocks.
+   * Only checks changes that make things worse. Throws RuleBlock when stopped.
+   */
+  async enforce(actor, change, itemName = change?.name ?? "") {
+    const { worse, before, after } = this.carryCheck(actor, change);
+    const carryMode = Settings.get("enforceCarry");
+    if (worse && carryMode === "block") {
+      if (!(await this.carryPopup(actor, itemName, after))) throw new RuleBlock("");
+    } else if (worse && carryMode === "warn") {
+      ui.notifications.warn(L("NEONHOME.Loadout.OverSlots", { used: after.carry.used, capacity: after.carry.capacity }));
     }
     const weightMode = Settings.get("enforceWeight");
     if (Settings.weight.enabled && weightMode !== "off" && after.weight.current > after.weight.max && after.weight.current > before.weight.current) {
-      problems.push({ mode: weightMode, msg: L("NEONHOME.Loadout.OverWeight", { current: after.weight.current, max: after.weight.max }) });
+      const msg = L("NEONHOME.Loadout.OverWeight", { current: after.weight.current, max: after.weight.max });
+      if (weightMode === "block" && !game.user.isGM) throw new RuleBlock(msg);
+      ui.notifications.warn(msg);
     }
-    const block = problems.find((p) => p.mode === "block");
-    if (block && !game.user.isGM) throw new RuleBlock(block.msg);
-    for (const p of problems) ui.notifications.warn(p.msg);
   },
 
   /** Plain data for an item as it would be after an update. */
@@ -80,7 +115,10 @@ export const HomeOps = {
     try {
       return await fn();
     } catch (err) {
-      if (err instanceof RuleBlock) ui.notifications.warn(err.message);
+      // A rule block with no message has already said why (the carry-slot pop-up).
+      if (err instanceof RuleBlock) {
+        if (err.message) ui.notifications.warn(err.message);
+      }
       else {
         console.error(`${MODULE_ID} |`, err);
         ui.notifications.error(err.message ?? String(err));
@@ -100,7 +138,7 @@ export const HomeOps = {
     if (state === "equipped" && item.type === "weapon" && item.system.equipped !== "equipped" && !CPR.canHold(actor, item)) {
       ui.notifications.warn(L("NEONHOME.Loadout.TooManyHands", { name: item.name }));
     }
-    if (state !== "owned") this.enforce(actor, this._changed(item, { "system.equipped": state }));
+    if (state !== "owned") await this.enforce(actor, this._changed(item, { "system.equipped": state }), item.name);
     await CPR.setEquipped(actor, item, state);
     await this.syncLoadoutEffect(actor);
   },
@@ -119,21 +157,22 @@ export const HomeOps = {
    * @param {string} fromUuid - actor the item is on
    * @param {string} itemId
    * @param {string} toUuid - actor it goes to
-   * @param {object} [opts] - { amount, equipped }
+   * @param {object} [opts] - { amount, equipped, check: false to skip the carry rules (an upgrade
+   *   brought over only to be installed, which then costs nothing) }
    */
-  async transfer(actor, fromUuid, itemId, toUuid, { amount = null, equipped = null } = {}) {
+  async transfer(actor, fromUuid, itemId, toUuid, { amount = null, equipped = null, check = true } = {}) {
     const from = docFrom(fromUuid);
     const to = docFrom(toUuid);
     const item = from?.items?.get(itemId);
     if (!from || !to || !item) throw new Error(L("NEONHOME.Error.NotFound"));
     // Coming onto the character: check the rules as it would arrive.
-    if (to === actor) {
+    if (to === actor && check) {
       const arriving = item.toObject();
       arriving._id = "incoming0000000";
       if (CPR.isEquippable(item)) arriving.system.equipped = equipped ?? "carried";
       if (amount !== null && arriving.system.amount !== undefined) arriving.system.amount = amount;
       if (arriving.system.installedItems) arriving.system.installedItems.list = [];
-      this.enforce(actor, arriving);
+      await this.enforce(actor, arriving, item.name);
     }
     const payload = { actor: actor.uuid, from: fromUuid, to: toUuid, item: itemId, amount, equipped };
     const direct = game.user.isGM || (from.isOwner && to.isOwner);
@@ -228,7 +267,7 @@ export const HomeOps = {
     const check = canInstallUpgrade(info, upgrade, MODULE_ID);
     if (!check.ok) throw new RuleBlock(L(`NEONHOME.Upgrade.Reason.${check.reason}`, { name: upgrade.name }));
     if (upgrade.parent !== actor) {
-      const newId = await this.transfer(actor, fromUuid, upgradeId, actor.uuid, { amount: 1 });
+      const newId = await this.transfer(actor, fromUuid, upgradeId, actor.uuid, { amount: 1, check: false });
       upgrade = actor.items.get(newId);
       if (!upgrade) throw new Error(L("NEONHOME.Error.NotFound"));
     }
@@ -284,6 +323,38 @@ export const HomeOps = {
     if (!same) await existing.update({ changes: data.changes, [`flags.${SYSTEM_ID}.changes.cats`]: cats });
   },
 
+  /**
+   * Keep the encumbrance effect in step with the character's weight: over the limit MOVE is
+   * halved, over double it MOVE is 1 (see the applyActiveEffect hook in main.js). Tells the player
+   * and the GM in chat when it changes.
+   */
+  async syncEncumbrance(actor) {
+    if (!actor?.isOwner || actor.type !== "character") return;
+    const rules = Settings.weight;
+    const level = encumbrance(this.measure(actor).weight, rules);
+    const existing = actor.effects.find((e) => e.getFlag(MODULE_ID, ENCUMBRANCE_FLAG));
+    const was = existing?.getFlag(MODULE_ID, ENCUMBRANCE_FLAG) ?? "none";
+    if (level === was) return;
+    if (level === "none") {
+      await existing.delete();
+    } else {
+      const data = {
+        name: L(`NEONHOME.Encumbrance.${level}.Name`),
+        img: "icons/svg/anchor.svg",
+        // CUSTOM: the hook works out the new MOVE from whatever MOVE is by then.
+        changes: [{ key: "system.stats.move.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${MODULE_ID}.${level}`, priority: 100 }],
+        flags: { [MODULE_ID]: { [ENCUMBRANCE_FLAG]: level }, [SYSTEM_ID]: { changes: { cats: { 0: "stat" } } } }
+      };
+      if (existing) await existing.update({ name: data.name, changes: data.changes, [`flags.${MODULE_ID}.${ENCUMBRANCE_FLAG}`]: level });
+      else await actor.createEmbeddedDocuments("ActiveEffect", [data]);
+    }
+    await ChatMessage.create({
+      content: this._card("fa-solid fa-weight-hanging", L(`NEONHOME.Encumbrance.${level}.Card`, { name: esc(actor.name) })),
+      whisper: this._owners(actor),
+      speaker: ChatMessage.getSpeaker({ actor })
+    });
+  },
+
   /* ---------------------------------------- */
   /*  Weaponbench                             */
   /* ---------------------------------------- */
@@ -296,7 +367,7 @@ export const HomeOps = {
     const check = canAttach(weapon, upgrade, { free, installedElsewhere: upgrade.parent === actor && CPR.isInstalled(upgrade) });
     if (!check.ok) throw new RuleBlock(L(`NEONHOME.Bench.Reason.${check.reason}`, { name: upgrade.name }));
     if (upgrade.parent !== actor) {
-      const newId = await this.transfer(actor, fromUuid, upgradeId, actor.uuid, { amount: 1 });
+      const newId = await this.transfer(actor, fromUuid, upgradeId, actor.uuid, { amount: 1, check: false });
       upgrade = actor.items.get(newId);
       if (!upgrade) throw new Error(L("NEONHOME.Error.NotFound"));
     }

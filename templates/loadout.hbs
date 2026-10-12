@@ -147,6 +147,7 @@
         <div class="nah-meter"><b style="width:{{pct}}%"></b></div>
         <b>{{current}}<em>/{{max}}u</em></b>
       </div>
+      {{#if encumbrance}}<p class="nah-encumbered"><i class="fa-solid fa-person-walking-luggage"></i> {{localize encumbrance}}</p>{{/if}}
       {{/with}}
     </section>
 

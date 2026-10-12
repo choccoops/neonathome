@@ -5,7 +5,7 @@ import { Settings } from "../settings.js";
 import { HomeStore, docFrom } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
 import { canInstallUpgrade, armorEffects } from "../data/capacity.js";
-import { computeWeight } from "../data/weight.js";
+import { computeWeight, encumbrance } from "../data/weight.js";
 import { itemFlag } from "../data/item-flag.js";
 import { DnD } from "./home-app.js";
 import { isLifestyle } from "../data/util.js";
@@ -216,7 +216,10 @@ export const Loadout = {
         bar,
         pools,
         warnings: carry.warnings.map((w) => L(`NEONHOME.Loadout.Warn.${w.key}`, { name: w.name })),
-        weight: weightRules.enabled ? { current: weight.current, max: weight.max, bonus: weight.bonus, pct: Math.min(100, weight.pct), status: weight.status } : null,
+        weight: weightRules.enabled ? {
+          current: weight.current, max: weight.max, bonus: weight.bonus, pct: Math.min(100, weight.pct), status: weight.status,
+          encumbrance: { half: "NEONHOME.Loadout.Encumbered", one: "NEONHOME.Loadout.Overloaded" }[encumbrance(weight, weightRules)] ?? null
+        } : null,
         doll: { head: wornAt("head"), body: wornAt("body"), shield: wornAt("shield"), hands, worn: wornGear },
         armorPanel,
         effects,

@@ -16,7 +16,7 @@
       },
       "EnforceCarry": {
         "Name": "Carry slots",
-        "Hint": "What happens when a change would put a character over their carry slots."
+        "Hint": "Block: carrying or equipping something past a character's carry slots is stopped with a pop-up, in the Loadout and on the character sheet (the GM can override). Things arriving on a character (bought, looted) aren't refused, only flagged."
       },
       "EnforceWeight": {
         "Name": "Weight limit",
@@ -133,12 +133,36 @@
       "Amount": "Amount (1 to {max})",
       "Move": "Move",
       "OverSlots": "Over carry slots: {used} of {capacity}.",
+      "Blocked": {
+        "Title": "No room to carry it",
+        "Body": "<b>{item}</b> won't fit: it would put {name} at <b>{used}</b> of {capacity} carry slots.",
+        "Arrived": "<b>{item}</b> has been added, and {name} is now at <b>{used}</b> of {capacity} carry slots. Store something, or set it to owned (not on them).",
+        "Pool": "{pool} is full ({used} of {slots}).",
+        "Hint": "Store something at home or in a vehicle, mark it as owned (not on you), or wear armor or carry gear with more slots.",
+        "Ok": "OK",
+        "Override": "Carry it anyway (GM)"
+      },
+      "Encumbered": "Encumbered: MOVE halved",
+      "Overloaded": "Overloaded: MOVE 1, and the GM may call for checks",
       "OverWeight": "Over the weight limit: {current} of {max} units.",
       "TooManyHands": "Not enough free hands for {name}.",
       "Effects": "Armor effects",
       "EffectChange": "{label} +{value} (worn armor upgrades)",
       "EffectName": "Neon At Home: armor fit",
       "EffectsOff": "The GM has armor upgrade bonuses switched off: apply these at the table."
+    },
+    "Encumbrance": {
+      "half": {
+        "Name": "Neon At Home: encumbered",
+        "Card": "<b>{name}</b> is carrying more than they can: <b>MOVE is halved</b> until they lighten the load."
+      },
+      "one": {
+        "Name": "Neon At Home: overloaded",
+        "Card": "<b>{name}</b> is carrying more than double what they can: <b>MOVE is 1</b>, and the GM may call for checks depending on the situation."
+      },
+      "none": {
+        "Card": "<b>{name}</b> is no longer weighed down: MOVE is back to normal."
+      }
     },
     "Upgrade": {
       "Title": "Armor upgrades",
@@ -507,6 +531,7 @@
         "1": "their full weight"
       },
       "IncludeUpgrades": "Attachments add their weight to the item they're on",
+      "Encumbrance": "Encumbrance: over the limit MOVE is halved, over double it MOVE is 1",
       "VehicleCargo": "Vehicle cargo limit (default)",
       "DefaultWeights": "Default weights",
       "AmmoPerRound": "Ammo (per round)",

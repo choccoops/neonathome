@@ -60,14 +60,42 @@ class Collection extends Map {
   }
 }
 
+/** Dialogs: tests set the button the "user" clicks; every dialog shown is recorded. */
+export const dialogs = {
+  next: null,
+  shown: [],
+  answer(options) {
+    this.shown.push(options);
+    const a = this.next;
+    this.next = null;
+    return a;
+  }
+};
+
 /** uuid -> document */
 export const registry = new Map();
 const settingsStore = new Map();
 
 globalThis.Handlebars = Handlebars;
-globalThis.CONST = { ACTIVE_EFFECT_MODES: { ADD: 2 } };
+globalThis.CONST = { ACTIVE_EFFECT_MODES: { CUSTOM: 0, MULTIPLY: 1, ADD: 2, OVERRIDE: 5 } };
 globalThis.ui = { notifications: { info() {}, warn() {}, error() {} } };
-globalThis.Hooks = { on() {}, once() {}, callAll() {} };
+/** Hooks: registered handlers are kept so tests can call them. */
+const hooks = new Map();
+globalThis.Hooks = {
+  on(name, fn) {
+    if (!hooks.has(name)) hooks.set(name, []);
+    hooks.get(name).push(fn);
+  },
+  once() {},
+  callAll() {}
+};
+/** Call every handler for a hook; returns false if any did (as Foundry's Hooks.call does). */
+export function callHook(name, ...args) {
+  let result = true;
+  for (const fn of hooks.get(name) ?? []) if (fn(...args) === false) result = false;
+  return result;
+}
+globalThis.Actor = class Actor {};
 globalThis.fromUuidSync = (uuid) => registry.get(uuid) ?? null;
 globalThis.fromUuid = async (uuid) => registry.get(uuid) ?? null;
 globalThis.ChatMessage = { create: async () => null, getSpeaker: () => ({}) };
@@ -117,7 +145,7 @@ globalThis.foundry = {
     }
   },
   applications: {
-    api: { ApplicationV2, HandlebarsApplicationMixin: (Base) => class extends Base {}, DialogV2: {} },
+    api: { ApplicationV2, HandlebarsApplicationMixin: (Base) => class extends Base {}, DialogV2: { wait: async (o) => dialogs.answer(o), prompt: async (o) => dialogs.answer(o), confirm: async (o) => dialogs.answer(o) } },
     ux: {},
     handlebars: {}
   }
@@ -220,7 +248,7 @@ export function asUser(isGM) {
 }
 
 export function makeActor(data, items = []) {
-  const actor = { flags: {}, img: "icons/svg/mystery-man.svg", system: {}, ...clone(data) };
+  const actor = Object.assign(Object.create(globalThis.Actor.prototype), { flags: {}, img: "icons/svg/mystery-man.svg", system: {}, ...clone(data) });
   actor._id ??= randomID();
   actor.id = actor._id;
   actor.documentName = "Actor";

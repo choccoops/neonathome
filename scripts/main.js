@@ -1,4 +1,4 @@
-import { MODULE_ID, SYSTEM_ID, TEMPLATE_PATH } from "./constants.js";
+import { MODULE_ID, SYSTEM_ID, TEMPLATE_PATH, CHECKED } from "./constants.js";
 import { Compat } from "./compat.js";
 import { HomeSocket } from "./socket.js";
 import { Settings } from "./settings.js";
@@ -15,6 +15,7 @@ import { ItemConfig } from "./apps/item-config.js";
 import { RulesConfig } from "./apps/rules-config.js";
 import { isVasVehicle } from "./data/vehicles.js";
 import { psycheState } from "./data/syndromes.js";
+import { encumberedMove } from "./data/weight.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -73,23 +74,87 @@ Hooks.once("ready", () => {
 Hooks.on(`${MODULE_ID}.rulesChanged`, () => HomeApp.refresh());
 
 const pending = new Map();
-/** Re-sync the armor-fit effect once a burst of item changes settles. */
+/** Re-sync the armor-fit and encumbrance effects once a burst of changes settles. */
 function queueEffectSync(actor) {
   if (!actor || actor.type !== "character" || !actor.isOwner) return;
   clearTimeout(pending.get(actor.id));
-  pending.set(actor.id, setTimeout(() => {
+  pending.set(actor.id, setTimeout(async () => {
     pending.delete(actor.id);
-    HomeOps.syncLoadoutEffect(actor).catch((err) => console.warn(`${MODULE_ID} | armor effect sync failed`, err));
+    try {
+      await HomeOps.syncLoadoutEffect(actor);
+      await HomeOps.syncEncumbrance(actor);
+    } catch (err) {
+      console.warn(`${MODULE_ID} | effect sync failed for ${actor.name}`, err);
+    }
   }, 250));
 }
 
 const onItem = (item, userId) => {
   HomeApp.refreshFor(item);
-  if (userId === game.user.id && item.parent instanceof Actor && ["armor", "itemUpgrade"].includes(item.type)) queueEffectSync(item.parent);
+  if (userId === game.user.id && item.parent instanceof Actor) queueEffectSync(item.parent);
 };
 Hooks.on("createItem", (item, options, userId) => onItem(item, userId));
 Hooks.on("updateItem", (item, changes, options, userId) => onItem(item, userId));
 Hooks.on("deleteItem", (item, options, userId) => onItem(item, userId));
+
+// The GM brings everyone up to date when the rules change, and once at the start.
+const syncAll = () => {
+  if (!HomeOps.isLeadGM) return;
+  for (const actor of game.actors) if (actor.type === "character") queueEffectSync(actor);
+};
+Hooks.on(`${MODULE_ID}.rulesChanged`, syncAll);
+Hooks.once("ready", syncAll);
+
+/**
+ * Encumbrance on MOVE (an ActiveEffect change in CUSTOM mode whose value names the level). It runs
+ * after other effects (priority 100), so cyberlegs and the like count before it's halved.
+ */
+Hooks.on("applyActiveEffect", (actor, change) => {
+  if (change.key !== "system.stats.move.value") return;
+  const level = { [`${MODULE_ID}.half`]: "half", [`${MODULE_ID}.one`]: "one" }[change.value];
+  if (!level) return;
+  const move = Number(foundry.utils.getProperty(actor, change.key)) || 0;
+  foundry.utils.setProperty(actor, change.key, encumberedMove(move, level));
+});
+
+/**
+ * Carry slots are a hard limit everywhere, including the Cyberpunk RED sheet's equip toggle: a
+ * change that would carry something past them is stopped with the pop-up (the GM can go ahead).
+ * Neon At Home's own writes are checked before they're made and marked so.
+ */
+Hooks.on("preUpdateItem", (item, changes, options, userId) => {
+  if (options?.[MODULE_ID]?.[CHECKED] || userId !== game.user.id) return;
+  const actor = item.parent;
+  if (!(actor instanceof Actor) || actor.type !== "character") return;
+  const equipped = foundry.utils.getProperty(changes, "system.equipped");
+  if (equipped === undefined || equipped === item.system.equipped || equipped === "owned") return;
+  const mode = Settings.get("enforceCarry");
+  if (mode === "off") return;
+  const change = item.toObject();
+  change._id = item.id;
+  foundry.utils.setProperty(change, "system.equipped", equipped);
+  const { worse, after } = HomeOps.carryCheck(actor, change);
+  if (!worse) return;
+  if (mode === "warn") {
+    ui.notifications.warn(L("NEONHOME.Loadout.OverSlots", { used: after.carry.used, capacity: after.carry.capacity }));
+    return;
+  }
+  HomeOps.carryPopup(actor, item.name, after).then((override) => {
+    if (override) item.update(changes, { ...options, [MODULE_ID]: { [CHECKED]: true } });
+  });
+  return false;
+});
+
+/** Things arriving on a character (bought, looted, dropped on the sheet) aren't refused, but warned about. */
+Hooks.on("preCreateItem", (item, data, options, userId) => {
+  if (options?.[MODULE_ID]?.[CHECKED] || userId !== game.user.id) return;
+  const actor = item.parent;
+  if (!(actor instanceof Actor) || actor.type !== "character" || Settings.get("enforceCarry") === "off") return;
+  const change = item.toObject();
+  change._id ??= "arriving000000a";
+  const { worse, after } = HomeOps.carryCheck(actor, change);
+  if (worse) HomeOps.carryPopup(actor, item.name, after, { arriving: true });
+});
 
 /** Humanity before an update, passed along to every client with the update. */
 Hooks.on("preUpdateActor", (actor, changes, options) => {

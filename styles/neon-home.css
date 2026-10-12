@@ -391,6 +391,7 @@
 .neon-home .nah-weight.status-heavy .nah-meter > b { background: var(--nah-orange); box-shadow: 0 0 8px var(--nah-orange); }
 .neon-home .nah-weight.status-over .nah-meter > b { background: var(--nah-red); box-shadow: 0 0 8px var(--nah-red); }
 .neon-home .nah-weight.status-over > b { color: var(--nah-red); }
+.neon-home .nah-encumbered { margin: 6px 0 0; padding: 4px 8px; font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--nah-red); border-left: 2px solid var(--nah-red); background: rgba(255, 75, 75, 0.1); }
 
 /* storage */
 .neon-home .nah-store-bar { display: flex; gap: 4px; margin-bottom: 6px; }
