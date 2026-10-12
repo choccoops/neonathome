@@ -43,6 +43,14 @@
         "Name": "Syndromes & Inspiration",
         "Hint": "The Biomonitor tracks Empathy tiers, Syndromes, Catharsis and Inspiration from the Syndromes & Inspiration homebrew."
       },
+      "CltEncumbered": {
+        "Name": "Condition Lab: Encumbered condition",
+        "Hint": "With Condition Lab & Triggler, a condition of this name is applied when a character goes over the weight limit (its macros, chat and triggers run), with the MOVE penalty added. Without one, Neon At Home's own Encumbered status is used."
+      },
+      "CltOverloaded": {
+        "Name": "Condition Lab: Overloaded condition",
+        "Hint": "The same, for over double the weight limit."
+      },
       "CatharsisAbsorbs": {
         "Name": "Catharsis takes Humanity Loss first",
         "Hint": "When a character with Catharsis loses Humanity, the buffer takes it first and only the rest comes off true Humanity."
@@ -153,11 +161,13 @@
     },
     "Encumbrance": {
       "half": {
-        "Name": "Neon At Home: encumbered",
+        "Status": "Encumbered",
+        "Name": "Encumbered",
         "Card": "<b>{name}</b> is carrying more than they can: <b>MOVE is halved</b> until they lighten the load."
       },
       "one": {
-        "Name": "Neon At Home: overloaded",
+        "Status": "Overloaded",
+        "Name": "Overloaded",
         "Card": "<b>{name}</b> is carrying more than double what they can: <b>MOVE is 1</b>, and the GM may call for checks depending on the situation."
       },
       "none": {

@@ -28,6 +28,10 @@ registerFeature(Bench);
 Hooks.once("init", () => {
   Settings.register(RulesConfig);
 
+  // Encumbered and Overloaded as status effects: on the token, in the token HUD, and (registered
+  // before Condition Lab & Triggler reads the list at ready) among CLT's core effects.
+  CONFIG.statusEffects.push(HomeOps.encumbranceStatus("half"), HomeOps.encumbranceStatus("one"));
+
   game.modules.get(MODULE_ID).api = {
     /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, biomonitor, bench. */
     open: (actor = null, tab = null) => HomeApp.open(actor, { tab }),

@@ -1,4 +1,4 @@
-import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, SYSTEM_ID } from "../constants.js";
+import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, SYSTEM_ID } from "../constants.js";
 import { Compat } from "../compat.js";
 import { HomeSocket } from "../socket.js";
 import { CPR } from "../cpr.js";
@@ -323,36 +323,102 @@ export const HomeOps = {
     if (!same) await existing.update({ changes: data.changes, [`flags.${SYSTEM_ID}.changes.cats`]: cats });
   },
 
+  /** The MOVE change for an encumbrance level (resolved by the applyActiveEffect hook in main.js). */
+  encumbranceChange(level) {
+    // CUSTOM: the hook works out the new MOVE from whatever MOVE is by then; priority 100 runs it last.
+    return { key: "system.stats.move.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${MODULE_ID}.${level}`, priority: 100 };
+  },
+
+  /** The status effect for an encumbrance level, as registered in CONFIG.statusEffects. */
+  encumbranceStatus(level) {
+    return {
+      id: ENCUMBRANCE_STATUS[level],
+      name: `NEONHOME.Encumbrance.${level}.Status`,
+      img: `modules/${MODULE_ID}/assets/${level === "one" ? "overloaded" : "encumbered"}.svg`,
+      changes: [this.encumbranceChange(level)]
+    };
+  },
+
   /**
-   * Keep the encumbrance effect in step with the character's weight: over the limit MOVE is
-   * halved, over double it MOVE is 1 (see the applyActiveEffect hook in main.js). Tells the player
-   * and the GM in chat when it changes.
+   * The Condition Lab & Triggler condition for a level, when that module is running and the GM has
+   * made a condition with the name set in Neon At Home's settings.
+   * @returns {{name: string, id: string}|null}
+   */
+  cltCondition(level) {
+    if (!game.modules.get(CLT_ID)?.active || !game.clt?.supported) return null;
+    const name = String(Settings.get(level === "one" ? "cltOverloaded" : "cltEncumbered") ?? "").trim();
+    if (!name) return null;
+    try {
+      const c = game.clt.getCondition(name);
+      const cond = Array.isArray(c) ? c[0] : c;
+      return cond ? { name: cond.name, id: cond.id } : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** Is this effect an encumbrance status someone placed by hand (token HUD, Condition Lab)? */
+  _manualEncumbrance(effect) {
+    if (effect.getFlag(MODULE_ID, ENCUMBRANCE_FLAG)) return false;
+    const statuses = [...(effect.statuses ?? [])];
+    if (statuses.some((s) => Object.values(ENCUMBRANCE_STATUS).includes(s))) return true;
+    const clt = effect.getFlag?.(CLT_ID, "conditionId");
+    return !!clt && ["half", "one"].some((level) => this.cltCondition(level)?.id === clt);
+  },
+
+  /**
+   * Keep encumbrance in step with the character's weight: over the limit MOVE is halved, over
+   * double it MOVE is 1. It's a status effect (Encumbered / Overloaded) shown on the token, or the
+   * GM's Condition Lab & Triggler condition of that name, so CLT's macros, chat and triggers run.
+   * A status placed by hand is the GM's call and is left alone. Tells the player and GM in chat.
    */
   async syncEncumbrance(actor) {
     if (!actor?.isOwner || actor.type !== "character") return;
-    const rules = Settings.weight;
-    const level = encumbrance(this.measure(actor).weight, rules);
-    const existing = actor.effects.find((e) => e.getFlag(MODULE_ID, ENCUMBRANCE_FLAG));
-    const was = existing?.getFlag(MODULE_ID, ENCUMBRANCE_FLAG) ?? "none";
+    const level = encumbrance(this.measure(actor).weight, Settings.weight);
+    const ours = actor.effects.find((e) => e.getFlag(MODULE_ID, ENCUMBRANCE_FLAG));
+    const was = ours?.getFlag(MODULE_ID, ENCUMBRANCE_FLAG) ?? "none";
     if (level === was) return;
-    if (level === "none") {
-      await existing.delete();
-    } else {
-      const data = {
-        name: L(`NEONHOME.Encumbrance.${level}.Name`),
-        img: "icons/svg/anchor.svg",
-        // CUSTOM: the hook works out the new MOVE from whatever MOVE is by then.
-        changes: [{ key: "system.stats.move.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${MODULE_ID}.${level}`, priority: 100 }],
-        flags: { [MODULE_ID]: { [ENCUMBRANCE_FLAG]: level }, [SYSTEM_ID]: { changes: { cats: { 0: "stat" } } } }
-      };
-      if (existing) await existing.update({ name: data.name, changes: data.changes, [`flags.${MODULE_ID}.${ENCUMBRANCE_FLAG}`]: level });
-      else await actor.createEmbeddedDocuments("ActiveEffect", [data]);
-    }
+    if (ours) await this._removeEncumbrance(actor, ours);
+    const manual = actor.effects.some((e) => this._manualEncumbrance(e));
+    if (level !== "none" && !manual) await this._applyEncumbrance(actor, level);
     await ChatMessage.create({
       content: this._card("fa-solid fa-weight-hanging", L(`NEONHOME.Encumbrance.${level}.Card`, { name: esc(actor.name) })),
       whisper: this._owners(actor),
       speaker: ChatMessage.getSpeaker({ actor })
     });
+  },
+
+  async _applyEncumbrance(actor, level) {
+    const change = this.encumbranceChange(level);
+    const clt = this.cltCondition(level);
+    if (clt) {
+      await game.clt.addCondition(clt.name, actor);
+      const effect = actor.effects.find((e) => e.getFlag(CLT_ID, "conditionId") === clt.id && !e.getFlag(MODULE_ID, ENCUMBRANCE_FLAG));
+      if (effect) {
+        // The GM's condition may not change MOVE itself: add the penalty, and mark it as ours.
+        const has = effect.changes.some((c) => c.key === change.key && c.value === change.value);
+        await effect.update({ changes: has ? effect.changes : [...effect.changes, change], [`flags.${MODULE_ID}.${ENCUMBRANCE_FLAG}`]: level });
+        return;
+      }
+    }
+    const status = this.encumbranceStatus(level);
+    await actor.createEmbeddedDocuments("ActiveEffect", [{
+      name: L(status.name),
+      img: status.img,
+      statuses: [status.id],
+      changes: status.changes,
+      flags: { [MODULE_ID]: { [ENCUMBRANCE_FLAG]: level }, [SYSTEM_ID]: { changes: { cats: { 0: "stat" } } } }
+    }]);
+  },
+
+  async _removeEncumbrance(actor, effect) {
+    const cltId = effect.getFlag(CLT_ID, "conditionId");
+    // Through CLT when it put it there, so its "on removal" macros and triggers run too.
+    if (cltId && game.clt?.removeCondition && game.modules.get(CLT_ID)?.active) {
+      await game.clt.removeCondition(effect.name, actor, { warn: false });
+      if (!actor.effects.has(effect.id)) return;
+    }
+    await effect.delete();
   },
 
   /* ---------------------------------------- */

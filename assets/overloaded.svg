@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Neon At Home: overloaded (over double the weight limit, MOVE 1) -->
+  <g fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M24 18a8 8 0 0 1 16 0"/>
+    <path d="M14 24h36l6 28H8z" fill="#ff2a6d" fill-opacity="0.9"/>
+    <path d="M32 31v9"/>
+    <circle cx="32" cy="46" r="1.2" fill="#ffffff"/>
+  </g>
+</svg>

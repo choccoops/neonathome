@@ -93,6 +93,8 @@ test("installing an upgrade from the stash isn't stopped by full slots", async (
   asUser(true);
 });
 
+const crate = (name, weight = 20) => ({ name, type: "gear", system: { equipped: "carried", amount: 1 }, flags: { [M]: { item: { weight } } } });
+
 test("encumbrance: over the weight limit, then over double, then back", async () => {
   asUser(true);
   const { actor } = setup();
@@ -100,16 +102,62 @@ test("encumbrance: over the weight limit, then over double, then back", async ()
   await HomeOps.syncEncumbrance(actor);
   assert.equal(effect(), undefined);
   // BODY 6: limit 18. A 20-unit crate puts them over; a second over double.
-  await actor.createEmbeddedDocuments("Item", [{ name: "Crate", type: "gear", system: { equipped: "carried", amount: 1 }, flags: { [M]: { item: { weight: 20 } } } }]);
+  await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
   await HomeOps.syncEncumbrance(actor);
   assert.equal(effect().getFlag(M, "encumbrance"), "half");
+  assert.deepEqual(effect().statuses, ["neonhome-encumbered"], "shown as the Encumbered status");
   assert.deepEqual(effect().changes.map((c) => [c.key, c.mode, c.value]), [["system.stats.move.value", 0, `${M}.half`]]);
-  await actor.createEmbeddedDocuments("Item", [{ name: "Crate 2", type: "gear", system: { equipped: "carried", amount: 1 }, flags: { [M]: { item: { weight: 20 } } } }]);
+  await actor.createEmbeddedDocuments("Item", [crate("Crate 2")]);
   await HomeOps.syncEncumbrance(actor);
   assert.equal(effect().getFlag(M, "encumbrance"), "one");
+  assert.deepEqual(effect().statuses, ["neonhome-overloaded"]);
+  assert.equal(actor.effects.size, 1, "the old status went");
   for (const i of actor.items.filter((x) => x.name.startsWith("Crate"))) i.system.equipped = "owned";
   await HomeOps.syncEncumbrance(actor);
   assert.equal(effect(), undefined);
+});
+
+test("a status placed by hand (token HUD) is the GM's call: no second one is added", async () => {
+  const { actor } = setup();
+  const [manual] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name: "Encumbered", statuses: ["neonhome-encumbered"], changes: [HomeOps.encumbranceChange("half")], flags: {} }]);
+  await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+  await HomeOps.syncEncumbrance(actor);
+  assert.equal(actor.effects.size, 1);
+  assert.ok(actor.effects.get(manual.id));
+});
+
+test("with Condition Lab & Triggler, its condition is applied and removed, with the MOVE penalty added", async () => {
+  const { actor } = setup();
+  const CLT = "condition-lab-triggler";
+  const calls = [];
+  game.modules.set(CLT, { active: true });
+  game.clt = {
+    supported: true,
+    getCondition: (name) => ({ Encumbered: { name: "Encumbered", id: "cltEnc" }, Overloaded: { name: "Overloaded", id: "cltOver" } })[name],
+    async addCondition(name, a) {
+      calls.push(["add", name]);
+      const id = this.getCondition(name).id;
+      await a.createEmbeddedDocuments("ActiveEffect", [{ name, statuses: [id], changes: [{ key: "bonuses.allActions", mode: 2, value: "-1" }], flags: { [CLT]: { conditionId: id } } }]);
+    },
+    async removeCondition(name, a) {
+      calls.push(["remove", name]);
+      for (const e of a.effects.filter((x) => x.name === name)) await e.delete();
+    }
+  };
+  try {
+    await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+    await HomeOps.syncEncumbrance(actor);
+    const e = actor.effects.find((x) => x.getFlag(M, "encumbrance"));
+    assert.equal(e.getFlag(CLT, "conditionId"), "cltEnc");
+    assert.deepEqual(e.changes.map((c) => c.key), ["bonuses.allActions", "system.stats.move.value"], "the GM's own changes are kept");
+    await actor.createEmbeddedDocuments("Item", [crate("Crate 2")]);
+    await HomeOps.syncEncumbrance(actor);
+    assert.deepEqual(calls, [["add", "Encumbered"], ["remove", "Encumbered"], ["add", "Overloaded"]]);
+    assert.equal(actor.effects.size, 1);
+  } finally {
+    game.modules.delete(CLT);
+    delete game.clt;
+  }
 });
 
 test("armor upgrades install from the stash, sync the effect and come out", async () => {

@@ -128,11 +128,23 @@ can have its own weight; otherwise Neon At Home uses MMuton's weight if that mod
 a default for the item's type. All of it is in **Carry & Weight Rules** in the module settings.
 
 **Encumbrance.** Over the weight limit, MOVE is **halved** (rounded down, at least 1); over double
-the limit, MOVE is **1** and the GM may call for checks depending on the situation. It's an effect
-on the character (*Neon At Home: encumbered* or *overloaded*) that comes and goes with the load,
-applied after other effects such as cyberlegs, so walking and running speed follow it. The player
-and the GM are told in chat when it starts, worsens or ends. The GM can turn it off in the Weight
-rules, and choose whether going over weight is only shown, warned about, or blocked for players.
+the limit, MOVE is **1** and the GM may call for checks depending on the situation. It's a status
+effect, **Encumbered** or **Overloaded**, shown on the token, that comes and goes with the load and
+is applied after other effects such as cyberlegs, so walking and running speed follow it. The
+player and the GM are told in chat when it starts, worsens or ends. The GM can turn it off in the
+Weight rules, and choose whether going over weight is only shown, warned about, or blocked for
+players.
+
+Both statuses are also in the token HUD, so the GM can place one by hand (it carries the MOVE
+penalty too); a status placed by hand is left alone by the automatic check.
+
+**Condition Lab & Triggler.** In Condition Lab, add conditions named **Encumbered** and
+**Overloaded** (the names are module settings; the icons are `modules/cpr-neon-at-home/assets/
+encumbered.svg` and `overloaded.svg`). Neon At Home then applies and removes those conditions
+through CLT instead of its own statuses, so their macros, chat output and Triggler triggers run,
+and it adds the MOVE penalty to whatever the condition already does. Without CLT, or without
+those conditions, it uses its own statuses. If CLT is set to remove Foundry's default status
+effects, the two statuses won't be in the token HUD, but they still show on the token.
 
 ## Vehicle Bay
 
