@@ -1,0 +1,82 @@
+<div class="nah-config-wrap">
+<nav class="nah-tabs nah-config-tabs">
+  <button type="button" class="{{#if tab.carry}}active{{/if}}" data-action="rulesTab" data-tab="carry"><i class="fa-solid fa-table-cells"></i> {{localize "NEONHOME.Rules.Tab.carry"}}</button>
+  <button type="button" class="{{#if tab.weight}}active{{/if}}" data-action="rulesTab" data-tab="weight"><i class="fa-solid fa-weight-hanging"></i> {{localize "NEONHOME.Rules.Tab.weight"}}</button>
+  <button type="button" class="{{#if tab.syndromes}}active{{/if}}" data-action="rulesTab" data-tab="syndromes"><i class="fa-solid fa-brain"></i> {{localize "NEONHOME.Rules.Tab.syndromes"}}</button>
+</nav>
+<div class="nah-config-body">
+  {{!-- Every tab's fields stay in the form (hidden ones too), so saving keeps them all. --}}
+  <section class="nah-config-tab" {{#unless tab.carry}}hidden{{/unless}}>
+    <p class="hint">{{localize "NEONHOME.Rules.CarryIntro"}}</p>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="carry.enabled" {{checked carry.enabled}}> {{localize "NEONHOME.Rules.CarryEnabled"}}</label></div>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="carry.ownedCounts" {{checked carry.ownedCounts}}> {{localize "NEONHOME.Rules.OwnedCounts"}}</label></div>
+    <table class="nah-table">
+      <thead><tr><th>{{localize "NEONHOME.Rules.ArmorClass"}}</th><th>{{localize "NEONHOME.Rules.CarrySlots"}}</th><th>{{localize "NEONHOME.Rules.UpgradeSlots"}}</th><th>{{localize "NEONHOME.Rules.Sheet"}}</th></tr></thead>
+      <tbody>
+        {{#each carry.classes}}
+        <tr><th>{{label}}</th>
+          <td><input type="number" name="carry.classes.{{key}}.carry" value="{{carry}}" min="0" max="999"></td>
+          <td><input type="number" name="carry.classes.{{key}}.upgrades" value="{{upgrades}}" min="0" max="99"></td>
+          <td class="nah-hint">{{sheet.carry}} / {{sheet.upgrades}}</td></tr>
+        {{/each}}
+        <tr><th>{{localize "NEONHOME.Class.shield"}}</th><td class="nah-hint">&mdash;</td><td><input type="number" name="carry.shieldUpgrades" value="{{carry.shieldUpgrades}}" min="0" max="99"></td><td class="nah-hint">&mdash; / 4</td></tr>
+      </tbody>
+    </table>
+    <table class="nah-table">
+      <thead><tr><th>{{localize "NEONHOME.Rules.Kind"}}</th><th>{{localize "NEONHOME.Rules.SlotCost"}}</th><th>{{localize "NEONHOME.Rules.Sheet"}}</th></tr></thead>
+      <tbody>
+        {{#each carry.costs}}<tr><th>{{label}}</th><td><input type="number" name="carry.costs.{{key}}" value="{{value}}" min="0" max="99"></td><td class="nah-hint">{{sheet}}</td></tr>{{/each}}
+      </tbody>
+    </table>
+    <button type="button" class="nah-mini" data-action="rulesReset" data-which="carry"><i class="fa-solid fa-rotate-left"></i> {{localize "NEONHOME.Rules.ResetCarry"}}</button>
+  </section>
+
+  <section class="nah-config-tab" {{#unless tab.weight}}hidden{{/unless}}>
+    <p class="hint">{{localize "NEONHOME.Rules.WeightIntro"}}</p>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="weight.enabled" {{checked weight.enabled}}> {{localize "NEONHOME.Rules.WeightEnabled"}}</label></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Rules.Method.Label"}}</label><select name="weight.method">{{#each weight.methods}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Rules.Multiplier"}}</label><input type="number" name="weight.multiplier" value="{{weight.multiplier}}" min="0" max="50" step="0.5"></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Rules.Custom"}}</label><input type="number" name="weight.custom" value="{{weight.custom}}" min="0" step="1"></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Rules.Equipped"}}</label><select name="weight.equipped">{{#each weight.fractions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="weight.includeUpgrades" {{checked weight.includeUpgrades}}> {{localize "NEONHOME.Rules.IncludeUpgrades"}}</label></div>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="weight.ownedCounts" {{checked weight.ownedCounts}}> {{localize "NEONHOME.Rules.OwnedCounts"}}</label></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Rules.VehicleCargo"}}</label><input type="number" name="weight.vehicleCargo" value="{{weight.vehicleCargo}}" min="0" step="5"></div>
+    <h4>{{localize "NEONHOME.Rules.DefaultWeights"}}</h4>
+    <div class="nah-weight-grid">
+      <table class="nah-table"><thead><tr><th colspan="2">{{localize "TYPES.Item.weapon"}}</th></tr></thead><tbody>
+        {{#each weight.weapons}}<tr><th>{{label}}</th><td><input type="number" name="weight.weapons.{{key}}" value="{{value}}" min="0" step="0.01"></td></tr>{{/each}}
+      </tbody></table>
+      <div>
+        <table class="nah-table"><thead><tr><th colspan="2">{{localize "TYPES.Item.armor"}}</th></tr></thead><tbody>
+          {{#each weight.armor}}<tr><th>{{label}}</th><td><input type="number" name="weight.armor.{{key}}" value="{{value}}" min="0" step="0.01"></td></tr>{{/each}}
+        </tbody></table>
+        <table class="nah-table"><thead><tr><th colspan="2">{{localize "NEONHOME.Rules.AmmoPerRound"}}</th></tr></thead><tbody>
+          {{#each weight.ammo}}<tr><th>{{label}}</th><td><input type="number" name="weight.ammo.{{key}}" value="{{value}}" min="0" step="0.01"></td></tr>{{/each}}
+        </tbody></table>
+        <table class="nah-table"><thead><tr><th colspan="2">{{localize "NEONHOME.Rules.Other"}}</th></tr></thead><tbody>
+          {{#each weight.items}}<tr><th>{{label}}</th><td><input type="number" name="weight.items.{{key}}" value="{{value}}" min="0" step="0.01"></td></tr>{{/each}}
+        </tbody></table>
+      </div>
+    </div>
+    <button type="button" class="nah-mini" data-action="rulesReset" data-which="weight"><i class="fa-solid fa-rotate-left"></i> {{localize "NEONHOME.Rules.ResetWeight"}}</button>
+  </section>
+
+  <section class="nah-config-tab" {{#unless tab.syndromes}}hidden{{/unless}}>
+    <p class="hint">{{localize "NEONHOME.Rules.SyndromesIntro"}}</p>
+    {{#each syndromes}}
+    <fieldset class="nah-syn-edit">
+      <legend>#{{i}}</legend>
+      <div class="form-group"><label>{{localize "NEONHOME.Bio.Name"}}</label><input type="text" name="syndromes.{{i}}.name" value="{{name}}"></div>
+      <div class="form-group"><label>{{localize "NEONHOME.Bio.Severity"}}</label><select name="syndromes.{{i}}.severity">{{#each severities}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+      <div class="form-group stacked"><label>{{localize "NEONHOME.Bio.Summary"}}</label><textarea name="syndromes.{{i}}.summary" rows="2">{{summary}}</textarea></div>
+      <div class="form-group stacked"><label>{{localize "NEONHOME.Bio.Stressor"}}</label><textarea name="syndromes.{{i}}.stressor" rows="3">{{stressor}}</textarea></div>
+      <button type="button" class="nah-mini" data-action="rulesRemoveSyndrome" data-index="{{i}}"><i class="fa-solid fa-trash"></i> {{localize "NEONHOME.Rules.RemoveSyndrome"}}</button>
+    </fieldset>
+    {{/each}}
+    <button type="button" class="nah-mini" data-action="rulesAddSyndrome"><i class="fa-solid fa-plus"></i> {{localize "NEONHOME.Rules.AddSyndrome"}}</button>
+  </section>
+</div>
+<footer class="form-footer">
+  <button type="submit"><i class="fa-solid fa-floppy-disk"></i> {{localize "NEONHOME.Config.Save"}}</button>
+</footer>
+</div>

@@ -1,0 +1,48 @@
+<div class="nah-root {{#if busy}}is-busy{{/if}}">
+  <header class="nah-header">
+    <div class="nah-portrait" data-action="openSheet" data-tooltip="{{localize 'NEONHOME.OpenSheet'}}">
+      {{#if actor}}<img src="{{actor.img}}" alt="">{{else}}<i class="fa-solid fa-house-chimney-window"></i>{{/if}}
+    </div>
+    <div class="nah-title">
+      <h1>{{#if actor}}{{actor.name}}{{else}}{{localize "NEONHOME.Title"}}{{/if}}</h1>
+      <p>
+        <span><i class="fa-solid fa-house-chimney-window"></i> {{homeName}}</span>
+        <span><i class="fa-solid fa-box-archive"></i> {{#if hasStash}}{{localize "NEONHOME.Stash.Count" n=stashCount}}{{else}}{{localize "NEONHOME.Stash.None"}}{{/if}}</span>
+        <span><i class="fa-solid fa-warehouse"></i> {{localize "NEONHOME.Bay.Count" n=bays}}</span>
+      </p>
+    </div>
+    {{#if actor}}
+    <div class="nah-vitals">
+      <div class="nah-vital nah-vital-hp" data-tooltip="{{localize 'NEONHOME.Bio.HP'}}">
+        <span><i class="fa-solid fa-heart-pulse"></i> {{vitals.hp}}/{{vitals.hpMax}}</span>
+        <div class="nah-meter"><b style="width:{{vitals.hpPct}}%"></b></div>
+      </div>
+      <div class="nah-vital nah-vital-hum" data-tooltip="{{localize 'NEONHOME.Bio.Humanity'}}">
+        <span><i class="fa-solid fa-brain"></i> {{vitals.hum}}/{{vitals.humMax}}</span>
+        <div class="nah-meter"><b style="width:{{vitals.humPct}}%"></b></div>
+      </div>
+    </div>
+    {{/if}}
+    {{#if characters.length}}
+    <select name="actor" class="nah-picker" aria-label="{{localize 'NEONHOME.PickCharacter'}}">
+      {{#each characters}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+    </select>
+    {{/if}}
+  </header>
+
+  <nav class="nah-tabs" role="tablist">
+    {{#each tabs}}
+    <button type="button" role="tab" class="{{#if active}}active{{/if}}" data-action="view" data-tab="{{id}}" aria-selected="{{#if active}}true{{else}}false{{/if}}">
+      <i class="{{icon}}"></i> <span>{{label}}</span>
+    </button>
+    {{/each}}
+  </nav>
+
+  <section class="nah-feature nah-feature-{{tab}}">
+    {{#if actor}}
+      {{#if featureTemplate}}{{> (lookup this "featureTemplate") }}{{/if}}
+    {{else}}
+      <p class="nah-empty">{{localize "NEONHOME.NoCharacter"}}</p>
+    {{/if}}
+  </section>
+</div>

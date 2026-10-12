@@ -1,0 +1,147 @@
+{
+  "_id": "bJITboSuKSAVziR7",
+  "_key": "!items!bJITboSuKSAVziR7",
+  "name": "AI Armor Interface (ACPA)",
+  "type": "itemUpgrade",
+  "img": "icons/svg/upgrade.svg",
+  "folder": "4mc0Yu1aEZFg1pnp",
+  "sort": 2000,
+  "system": {
+    "description": {
+      "value": "<p>Installed in an ACPA, this takes a Cyberware option slot instead of an armor upgrade slot.</p><p>Acts as an internal agent. Gives a +2 to Concentration checks.</p><p>Removes DEX and REF penalties from armor when making attack rolls. Can target one person or piece of cover using voice commands, giving +1 to attack rolls against the target until the end of your turn. Can only swap targets once per round.</p><p>Shuts down upon Head SP reaching 0.</p>"
+    },
+    "favorite": false,
+    "source": {
+      "book": "Homebrew: Armor & Carrying 2.0",
+      "page": 0
+    },
+    "revealed": true,
+    "usage": "installed",
+    "isElectronic": true,
+    "providesHardening": false,
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    },
+    "brand": "",
+    "price": {
+      "market": 5000
+    },
+    "installLocation": "mall",
+    "size": 0,
+    "type": "armor",
+    "handsReq": 0,
+    "modifiers": {
+      "Wardrobe & Style": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "attackmod": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "bodySp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "cool": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "damage": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "headSp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "magazine": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "rof": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "sdp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "seats": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "shieldHp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "slots": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "speedCombat": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "secondaryWeapon": {
+        "configured": false
+      }
+    },
+    "installedItems": {
+      "allowed": false,
+      "allowedTypes": [
+        "itemUpgrade"
+      ],
+      "list": [],
+      "usedSlots": 0,
+      "slots": 0
+    }
+  },
+  "effects": [],
+  "flags": {
+    "cpr-neon-at-home": {
+      "item": {
+        "upgrade": {
+          "key": "aiInterfaceAcpa",
+          "location": "head",
+          "classes": [
+            "acpa"
+          ],
+          "effects": [
+            "aiInterface"
+          ],
+          "requires": "",
+          "pair": false,
+          "pools": []
+        }
+      }
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

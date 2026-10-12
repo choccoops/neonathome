@@ -1,0 +1,10 @@
+node_modules/
+*.zip
+RELEASE_NOTES.md
+.DS_Store
+Thumbs.db
+# Compiled compendium packs: built from packs/_source by `npm run build:packs`
+packs/*
+!packs/_source/
+preview/
+.claude/

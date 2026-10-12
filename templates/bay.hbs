@@ -1,0 +1,104 @@
+{{#*inline "nahVehicle"}}
+<article class="nah-vehicle {{#if active}}is-active{{/if}} {{#if missing}}is-missing{{/if}}" data-vehicle="{{uuid}}" {{#unless missing}}data-drag data-kind="vehicle"{{/unless}}>
+  <header>
+    <img src="{{img}}" alt="" {{#if canOpen}}data-action="bayOpen"{{/if}}>
+    <div>
+      <h4 {{#if canOpen}}data-action="bayOpen"{{/if}}>{{name}}</h4>
+      <small>{{#if isItem}}{{localize "NEONHOME.Bay.ItemVehicle"}}{{else}}{{#if vas}}{{localize "NEONHOME.Bay.VasVehicle"}}{{else}}{{localize "NEONHOME.Bay.ActorVehicle"}}{{/if}}{{/if}}</small>
+    </div>
+    {{#if active}}<span class="nah-badge nah-badge-live"><i class="fa-solid fa-key"></i> {{localize "NEONHOME.Bay.Active"}}</span>{{/if}}
+  </header>
+  {{#unless missing}}
+  {{#if isActor}}
+  <div class="nah-meter nah-meter-{{hpState}}" data-tooltip="{{localize 'NEONHOME.Bay.HP'}} {{hp.value}}/{{hp.max}}"><b style="width:{{hpPct}}%"></b></div>
+  {{/if}}
+  <dl class="nah-vstats">
+    {{#each stats}}<div><dt><i class="{{icon}}"></i> {{label}}</dt><dd>{{value}}</dd></div>{{/each}}
+  </dl>
+  {{#if seats.length}}
+  <ul class="nah-seats">
+    {{#each seats}}
+    <li>
+      <span class="nah-seat-name">{{#if gunner}}<i class="fa-solid fa-crosshairs"></i> {{/if}}{{name}}</span>
+      <span class="nah-seat-people">
+        {{#each occupants}}<img src="{{img}}" alt="" data-tooltip="{{name}}">{{/each}}
+        {{#each emptyList}}<i class="nah-seat-empty"></i>{{/each}}
+      </span>
+      {{#if weapons}}<small><i class="fa-solid fa-gun"></i> {{weapons}}</small>{{/if}}
+      {{#if glass}}<small><i class="fa-solid fa-square-full"></i> {{glass.value}}/{{glass.max}}</small>{{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{/if}}
+  {{#if upgrades.length}}
+  <div class="nah-tags">{{#each upgrades}}<span><img src="{{img}}" alt=""> {{name}}</span>{{/each}}</div>
+  {{/if}}
+  {{#if injuries.length}}<p class="nah-warn"><i class="fa-solid fa-car-burst"></i> {{#each injuries}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>{{/if}}
+  {{#if cargo}}
+  <div class="nah-weight status-{{cargo.status}}">
+    <span><i class="fa-solid fa-truck-ramp-box"></i> {{localize "NEONHOME.Bay.Cargo"}}</span>
+    <div class="nah-meter"><b style="width:{{cargo.pct}}%"></b></div>
+    <b>{{cargo.current}}<em>/{{cargo.max}}u</em></b>
+  </div>
+  {{/if}}
+  {{/unless}}
+  <footer>
+    {{#unless missing}}
+    <button type="button" data-action="bayActive" class="{{#if active}}on{{/if}}"><i class="fa-solid fa-key"></i> {{#if active}}{{localize "NEONHOME.Bay.Unset"}}{{else}}{{localize "NEONHOME.Bay.SetActive"}}{{/if}}</button>
+    {{#if canOpen}}<button type="button" data-action="bayOpen"><i class="fa-solid fa-up-right-from-square"></i> {{localize "NEONHOME.Bay.Open"}}</button>{{/if}}
+    {{/unless}}
+    {{#if inBay}}
+    <button type="button" class="nah-icon-btn" data-action="bayStreet" data-tooltip="{{localize 'NEONHOME.Bay.ToStreet'}}"><i class="fa-solid fa-road"></i></button>
+    {{else}}
+    <button type="button" class="nah-icon-btn" data-action="bayPark" data-tooltip="{{localize 'NEONHOME.Bay.Park'}}"><i class="fa-solid fa-square-parking"></i></button>
+    {{/if}}
+    {{#unless isItem}}<button type="button" class="nah-icon-btn is-danger" data-action="bayRemove" data-tooltip="{{localize 'NEONHOME.Bay.Remove'}}"><i class="fa-solid fa-xmark"></i></button>{{/unless}}
+  </footer>
+</article>
+{{/inline}}
+
+<div class="nah-bay nah-scroll">
+  <section class="nah-bay-head">
+    <div>
+      <h3 class="nah-kicker">{{localize "NEONHOME.Bay.Garage"}} <span>{{bay.homeName}}</span></h3>
+      <p class="nah-hint">{{localize "NEONHOME.Bay.Summary" used=bay.used slots=bay.slots source=bay.source}}{{#if bay.active}} &middot; <i class="fa-solid fa-key"></i> {{bay.active}}{{/if}}</p>
+    </div>
+    {{#if isGM}}
+    <label class="nah-inline">{{localize "NEONHOME.Bay.Override"}}
+      <input type="number" name="bayOverride" min="0" max="99" value="{{bay.override}}" placeholder="{{localize 'NEONHOME.Bay.Auto'}}">
+    </label>
+    {{/if}}
+    {{#if bay.candidates.length}}
+    <div class="nah-bay-add">
+      <select name="vehicle" aria-label="{{localize 'NEONHOME.Bay.AddPick'}}">{{#each bay.candidates}}<option value="{{uuid}}">{{name}}</option>{{/each}}</select>
+      <button type="button" data-action="bayAdd"><i class="fa-solid fa-plus"></i> {{localize "NEONHOME.Bay.Add"}}</button>
+    </div>
+    {{/if}}
+  </section>
+  {{#unless bay.vasActive}}<p class="nah-note"><i class="fa-solid fa-circle-info"></i> {{localize "NEONHOME.Bay.NoVas"}}</p>{{/unless}}
+  {{#if bay.moved}}<p class="nah-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "NEONHOME.Bay.Moved" n=bay.moved}}</p>{{/if}}
+
+  <div class="nah-bays">
+    {{#each bay.bays}}
+    <div class="nah-bay-slot {{#unless vehicle}}is-empty{{/unless}}" data-drop="bay" data-bay="{{index}}">
+      <span class="nah-bay-number">{{number}}</span>
+      {{#if vehicle}}{{#with vehicle}}{{> nahVehicle inBay=true}}{{/with}}{{else}}
+      <div class="nah-bay-empty"><i class="fa-solid fa-square-parking"></i><span>{{localize "NEONHOME.Bay.EmptyBay"}}</span></div>
+      {{/if}}
+    </div>
+    {{else}}
+    <div class="nah-callout">
+      <p>{{localize "NEONHOME.Bay.NoBays"}}</p>
+      {{#unless bay.hubActive}}<p class="nah-hint">{{localize "NEONHOME.Bay.NoHub"}}</p>{{/unless}}
+    </div>
+    {{/each}}
+  </div>
+
+  <section class="nah-street" data-drop="street">
+    <h3 class="nah-kicker">{{localize "NEONHOME.Bay.Street"}}</h3>
+    <p class="nah-hint">{{localize "NEONHOME.Bay.StreetHint"}}</p>
+    <div class="nah-street-row">
+      {{#each bay.street}}{{> nahVehicle inBay=false}}{{else}}<p class="nah-hint nah-dropzone">{{localize "NEONHOME.Bay.StreetEmpty"}}</p>{{/each}}
+    </div>
+  </section>
+</div>

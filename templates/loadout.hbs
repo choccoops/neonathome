@@ -1,0 +1,206 @@
+{{#*inline "nahRow"}}
+<li class="nah-row" data-item-id="{{id}}" data-owner="{{owner}}" data-drag data-kind="item" data-name="{{name}}">
+  <img class="nah-row-img" src="{{img}}" alt="" data-action="openItem">
+  <div class="nah-row-main">
+    <b class="nah-row-name" data-action="openItem">{{name}}{{#if amount}} <em>&times;{{amount}}</em>{{/if}}</b>
+    <small>
+      <i class="{{icon}}"></i> {{typeLabel}}
+      {{#if category}}&middot; {{category}}{{/if}}
+      {{#if attachments}}&middot; <i class="fa-solid fa-puzzle-piece"></i> {{attachments}}{{/if}}
+      {{#if pool}}&middot; <span class="nah-pooled"><i class="fa-solid fa-link"></i> {{pool}}</span>{{/if}}
+    </small>
+  </div>
+  {{#if cost}}<span class="nah-chip nah-chip-slots" data-tooltip="{{localize 'NEONHOME.Loadout.SlotsTip'}}">{{cost}}<i class="fa-solid fa-table-cells"></i></span>{{/if}}
+  {{#if weight}}<span class="nah-chip" data-tooltip="{{localize 'NEONHOME.Loadout.WeightTip'}}">{{weight}}u</span>{{/if}}
+  {{#if equippable}}
+  <div class="nah-seg" role="group">
+    <button type="button" class="{{#if state.owned}}on{{/if}}" data-action="loadoutEquip" data-state="owned" data-tooltip="{{localize 'NEONHOME.State.owned'}}"><i class="fa-solid fa-house"></i></button>
+    <button type="button" class="{{#if state.carried}}on{{/if}}" data-action="loadoutEquip" data-state="carried" data-tooltip="{{localize 'NEONHOME.State.carried'}}"><i class="fa-solid fa-suitcase"></i></button>
+    <button type="button" class="{{#if state.equipped}}on{{/if}}" data-action="loadoutEquip" data-state="equipped" data-tooltip="{{localize 'NEONHOME.State.equipped'}}"><i class="fa-solid fa-hand-fist"></i></button>
+  </div>
+  {{/if}}
+  {{#if canStow}}<button type="button" class="nah-icon-btn" data-action="loadoutStow" data-tooltip="{{localize 'NEONHOME.Loadout.Stow'}}"><i class="fa-solid fa-box-archive"></i></button>{{/if}}
+</li>
+{{/inline}}
+
+<div class="nah-loadout">
+  {{!-- ================= THE BODY ================= --}}
+  <div class="nah-col nah-col-doll nah-scroll">
+    <h3 class="nah-kicker">{{localize "NEONHOME.Loadout.Wearing"}} <span>{{loadout.armorClass}}</span></h3>
+    <div class="nah-doll">
+      <svg class="nah-doll-figure" viewBox="0 0 200 360" aria-hidden="true">
+        <defs>
+          <linearGradient id="nahDollFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0.16"/><stop offset="1" stop-color="currentColor" stop-opacity="0.02"/></linearGradient>
+        </defs>
+        <g fill="url(#nahDollFill)" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+          <path d="M100 14c15 0 25 11 25 27 0 17-10 31-25 31S75 58 75 41c0-16 10-27 25-27z"/>
+          <path d="M88 74h24l4 12 30 9c9 3 14 10 15 19l8 72c1 6-3 10-8 10s-8-3-9-8l-9-60-3 0 2 58 6 118c0 7-5 11-11 11s-10-4-11-10l-11-98h-4l-11 98c-1 6-5 10-11 10s-11-4-11-11l6-118 2-58-3 0-9 60c-1 5-4 8-9 8s-9-4-8-10l8-72c1-9 6-16 15-19l30-9z"/>
+        </g>
+        <g stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="2 4" fill="none">
+          <path d="M60 96h80M66 140h68M74 186h52"/>
+        </g>
+      </svg>
+      <div class="nah-socket nah-socket-head {{#if loadout.doll.head.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.head}}data-item-id="{{loadout.doll.head.id}}" data-action="loadoutSelectArmor"{{/if}}>
+        <span class="nah-socket-label">{{localize "NEONHOME.Location.head"}}</span>
+        {{#with loadout.doll.head}}<b>{{name}}</b><small>SP {{sp}}{{#if ablation}} (&minus;{{ablation}}){{/if}} &middot; {{cls}}{{#if upgradeSlots}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{upgradesUsed}}/{{upgradeSlots}}{{/if}}</small>{{else}}<em>{{localize "NEONHOME.Loadout.Empty"}}</em>{{/with}}
+      </div>
+      <div class="nah-socket nah-socket-body {{#if loadout.doll.body.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.body}}data-item-id="{{loadout.doll.body.id}}" data-action="loadoutSelectArmor"{{/if}}>
+        <span class="nah-socket-label">{{localize "NEONHOME.Location.body"}}</span>
+        {{#with loadout.doll.body}}<b>{{name}}</b><small>SP {{sp}}{{#if ablation}} (&minus;{{ablation}}){{/if}} &middot; {{cls}}{{#if penalty}} &middot; &minus;{{penalty}} REF/DEX/MOVE{{/if}}{{#if upgradeSlots}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{upgradesUsed}}/{{upgradeSlots}}{{/if}}</small>{{else}}<em>{{localize "NEONHOME.Loadout.Unarmored"}}</em>{{/with}}
+      </div>
+      <div class="nah-socket nah-socket-shield {{#if loadout.doll.shield.selected}}selected{{/if}}" data-drop="equip" {{#if loadout.doll.shield}}data-item-id="{{loadout.doll.shield.id}}" data-action="loadoutSelectArmor"{{/if}}>
+        <span class="nah-socket-label">{{localize "NEONHOME.Location.shield"}}</span>
+        {{#with loadout.doll.shield}}<b>{{name}}</b><small>HP {{sp}}</small>{{else}}<em>&mdash;</em>{{/with}}
+      </div>
+      <div class="nah-socket nah-socket-hands" data-drop="equip">
+        <span class="nah-socket-label">{{localize "NEONHOME.Loadout.Hands"}}</span>
+        {{#each loadout.doll.hands}}<b data-item-id="{{id}}" data-action="openItem"><i class="fa-solid fa-hand-fist"></i> {{name}}</b>{{else}}<em>{{localize "NEONHOME.Loadout.EmptyHands"}}</em>{{/each}}
+      </div>
+    </div>
+    {{#if loadout.doll.worn.length}}
+    <ul class="nah-worn">
+      {{#each loadout.doll.worn}}<li data-item-id="{{id}}" data-action="openItem" class="{{#if gear}}is-gear{{/if}}"><img src="{{img}}" alt=""> {{name}}</li>{{/each}}
+    </ul>
+    {{/if}}
+
+    {{#with loadout.armorPanel}}
+    <section class="nah-panel nah-upgrades">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Upgrade.Title"}}
+        <select name="armor" aria-label="{{localize 'NEONHOME.Upgrade.PickArmor'}}">
+          {{#each choices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}{{#if worn}} &#9679;{{/if}}</option>{{/each}}
+        </select>
+      </h3>
+      <p class="nah-hint">{{cls}} &middot; {{location}} &middot; {{localize "NEONHOME.Upgrade.SlotsUsed" used=upgradesUsed slots=upgradeSlots}}{{#unless worn}} &middot; <span class="nah-warn">{{localize "NEONHOME.Upgrade.NotWorn"}}</span>{{/unless}}</p>
+      <div class="nah-sockets" data-drop="upgrade">
+        {{#each sockets}}<span class="nah-plug {{#if filled}}filled{{/if}} {{#if start}}start{{/if}}" {{#if name}}data-tooltip="{{name}}"{{/if}}>{{#if start}}{{#if img}}<img src="{{img}}" alt="">{{/if}}{{/if}}</span>{{else}}<em class="nah-hint">{{localize "NEONHOME.Upgrade.NoSlots"}}</em>{{/each}}
+      </div>
+      {{#if installed.length}}
+      <ul class="nah-mini-list">
+        {{#each installed}}
+        <li data-item-id="{{id}}">
+          <img src="{{img}}" alt=""><span data-action="openItem">{{name}}</span><small>{{size}}</small>
+          {{#unless fixed}}<button type="button" class="nah-icon-btn" data-action="loadoutUninstall" data-tooltip="{{localize 'NEONHOME.Upgrade.Remove'}}"><i class="fa-solid fa-eject"></i></button>{{/unless}}
+        </li>
+        {{/each}}
+      </ul>
+      {{/if}}
+      {{#if available.length}}
+      <h4>{{localize "NEONHOME.Upgrade.Available"}}</h4>
+      <ul class="nah-mini-list">
+        {{#each available}}
+        <li data-item-id="{{id}}" data-owner="{{owner}}" data-drag data-kind="upgrade" class="{{#unless ok}}is-blocked{{/unless}}">
+          <img src="{{img}}" alt=""><span data-action="openItem">{{name}}</span><small>{{size}} &middot; {{location}} &middot; {{from}}</small>
+          <button type="button" class="nah-icon-btn" data-action="loadoutInstall" {{#unless ok}}disabled data-tooltip="{{reason}}"{{else}}data-tooltip="{{localize 'NEONHOME.Upgrade.Install'}}"{{/unless}}><i class="fa-solid fa-plug-circle-plus"></i></button>
+        </li>
+        {{/each}}
+      </ul>
+      {{else}}<p class="nah-hint">{{localize "NEONHOME.Upgrade.NoneAvailable"}}</p>{{/if}}
+    </section>
+    {{/with}}
+
+    {{#if loadout.effects.length}}
+    <section class="nah-panel nah-effects">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Loadout.Effects"}}</h3>
+      <ul>{{#each loadout.effects}}<li><i class="fa-solid fa-bolt"></i> {{this}}</li>{{/each}}</ul>
+      {{#unless loadout.effectsOn}}<p class="nah-hint">{{localize "NEONHOME.Loadout.EffectsOff"}}</p>{{/unless}}
+    </section>
+    {{/if}}
+  </div>
+
+  {{!-- ================= WHAT THEY CARRY ================= --}}
+  <div class="nah-col nah-col-carry nah-scroll">
+    <section class="nah-capacity {{#if loadout.over}}is-over{{/if}}">
+      <div class="nah-cap-head">
+        <h3 class="nah-kicker">{{localize "NEONHOME.Loadout.CarrySlots"}}</h3>
+        <strong>{{loadout.used}}<em>/{{loadout.capacity}}</em></strong>
+      </div>
+      {{#if loadout.enabled}}
+      <div class="nah-cells">
+        {{#each loadout.cells}}<i class="nah-cell cat-{{cat}} {{#if start}}start{{/if}} {{#if over}}over{{/if}}" {{#if name}}data-tooltip="{{name}}"{{/if}}></i>{{/each}}
+        {{#if loadout.moreCells}}<span class="nah-more">+{{loadout.moreCells}}</span>{{/if}}
+      </div>
+      <p class="nah-hint">{{localize "NEONHOME.Loadout.Base" cls=loadout.armorClass n=loadout.base}}{{#each loadout.bonuses}} &middot; +{{slots}} {{name}}{{/each}}</p>
+      {{#each loadout.pools}}
+      <div class="nah-pool">
+        <span><i class="fa-solid fa-link"></i> {{name}} <small>{{accepts}}</small></span>
+        <div class="nah-cells nah-cells-small">{{#each cells}}<i class="nah-cell cat-{{cat}} {{#if start}}start{{/if}}" {{#if name}}data-tooltip="{{name}}"{{/if}}></i>{{/each}}</div>
+        <b>{{used}}/{{slots}}</b>
+      </div>
+      {{/each}}
+      {{#each loadout.warnings}}<p class="nah-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
+      {{else}}
+      <p class="nah-hint">{{localize "NEONHOME.Loadout.CarryOff"}}</p>
+      {{/if}}
+      {{#with loadout.weight}}
+      <div class="nah-weight status-{{status}}">
+        <span><i class="fa-solid fa-weight-hanging"></i> {{localize "NEONHOME.Loadout.Weight"}}</span>
+        <div class="nah-meter"><b style="width:{{pct}}%"></b></div>
+        <b>{{current}}<em>/{{max}}u</em></b>
+      </div>
+      {{/with}}
+    </section>
+
+    <section class="nah-panel nah-person" data-drop="person">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Loadout.OnYou"}}</h3>
+      {{#each loadout.groups}}
+      <h4>{{label}}</h4>
+      <ul class="nah-rows">{{#each rows}}{{> nahRow}}{{/each}}</ul>
+      {{else}}
+      <p class="nah-hint nah-dropzone">{{localize "NEONHOME.Loadout.NothingOnYou"}}</p>
+      {{/each}}
+    </section>
+
+    <section class="nah-panel nah-shelf" data-drop="owned">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Loadout.NotCarried"}}</h3>
+      <p class="nah-hint">{{localize "NEONHOME.Loadout.NotCarriedHint"}}</p>
+      {{#if loadout.notCarried.length}}
+      <ul class="nah-rows">{{#each loadout.notCarried}}{{> nahRow}}{{/each}}</ul>
+      {{/if}}
+    </section>
+  </div>
+
+  {{!-- ================= HOME STORAGE ================= --}}
+  <div class="nah-col nah-col-store nah-scroll" data-drop="store">
+    <h3 class="nah-kicker">{{localize "NEONHOME.Stash.Title"}}</h3>
+    {{#if loadout.stores.length}}
+    <div class="nah-store-bar">
+      <select name="store" aria-label="{{localize 'NEONHOME.Stash.Pick'}}">
+        {{#each loadout.stores}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+      </select>
+      {{#if loadout.store.canOpen}}<button type="button" class="nah-icon-btn" data-action="loadoutOpenStore" data-tooltip="{{localize 'NEONHOME.Stash.Open'}}"><i class="fa-solid fa-up-right-from-square"></i></button>{{/if}}
+    </div>
+    {{/if}}
+    {{#unless loadout.hasStash}}
+    <div class="nah-callout">
+      <p>{{localize "NEONHOME.Stash.Intro"}}</p>
+      <button type="button" class="nah-cta" data-action="loadoutCreateStash"><i class="fa-solid fa-box-archive"></i> {{localize "NEONHOME.Stash.Create"}}</button>
+      {{#if isGM}}<p class="nah-hint">{{localize "NEONHOME.Stash.LinkHint"}}</p>{{/if}}
+    </div>
+    {{/unless}}
+    {{#with loadout.store}}
+    {{#if cargo}}
+    <div class="nah-weight status-{{cargo.status}}">
+      <span><i class="fa-solid fa-truck-ramp-box"></i> {{localize "NEONHOME.Bay.Cargo"}}</span>
+      <div class="nah-meter"><b style="width:{{cargo.pct}}%"></b></div>
+      <b>{{cargo.current}}<em>/{{cargo.max}}u</em></b>
+    </div>
+    {{/if}}
+    <input type="search" name="storeFilter" placeholder="{{localize 'NEONHOME.Stash.Search'}}" aria-label="{{localize 'NEONHOME.Stash.Search'}}">
+    <ul class="nah-rows nah-store-list">
+      {{#each rows}}
+      <li class="nah-row" data-item-id="{{id}}" data-owner="{{owner}}" data-drag data-kind="item" data-name="{{name}}">
+        <img class="nah-row-img" src="{{img}}" alt="" data-action="openItem">
+        <div class="nah-row-main">
+          <b class="nah-row-name" data-action="openItem">{{name}}{{#if amount}} <em>&times;{{amount}}</em>{{/if}}</b>
+          <small><i class="{{icon}}"></i> {{typeLabel}}</small>
+        </div>
+        <button type="button" class="nah-icon-btn" data-action="loadoutRetrieve" data-state="carried" data-tooltip="{{localize 'NEONHOME.Loadout.Take'}}"><i class="fa-solid fa-suitcase"></i></button>
+        {{#if equippable}}<button type="button" class="nah-icon-btn" data-action="loadoutRetrieve" data-state="equipped" data-tooltip="{{localize 'NEONHOME.Loadout.TakeEquip'}}"><i class="fa-solid fa-hand-fist"></i></button>{{/if}}
+      </li>
+      {{else}}
+      <li class="nah-hint nah-dropzone">{{localize "NEONHOME.Stash.Empty"}}</li>
+      {{/each}}
+    </ul>
+    {{/with}}
+  </div>
+</div>

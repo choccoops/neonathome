@@ -1,0 +1,150 @@
+{
+  "_id": "IomLr0uktqpXjTBr",
+  "_key": "!items!IomLr0uktqpXjTBr",
+  "name": "Fireproof Padding",
+  "type": "itemUpgrade",
+  "img": "icons/svg/upgrade.svg",
+  "folder": "EU7K6wIyoG71gphY",
+  "sort": 1200,
+  "system": {
+    "description": {
+      "value": "<p>If installed on both Head and Body: cannot be set on fire.</p>"
+    },
+    "favorite": false,
+    "source": {
+      "book": "Homebrew: Armor & Carrying 2.0",
+      "page": 0
+    },
+    "revealed": true,
+    "usage": "installed",
+    "isElectronic": false,
+    "providesHardening": false,
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    },
+    "brand": "",
+    "price": {
+      "market": 500
+    },
+    "installLocation": "mall",
+    "size": 1,
+    "type": "armor",
+    "handsReq": 0,
+    "modifiers": {
+      "Wardrobe & Style": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "attackmod": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "bodySp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "cool": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "damage": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "headSp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "magazine": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "rof": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "sdp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "seats": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "shieldHp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "slots": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "speedCombat": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "secondaryWeapon": {
+        "configured": false
+      }
+    },
+    "installedItems": {
+      "allowed": false,
+      "allowedTypes": [
+        "itemUpgrade"
+      ],
+      "list": [],
+      "usedSlots": 0,
+      "slots": 0
+    }
+  },
+  "effects": [],
+  "flags": {
+    "cpr-neon-at-home": {
+      "item": {
+        "upgrade": {
+          "key": "fireproofPadding",
+          "location": "both",
+          "classes": [
+            "medium",
+            "heavy",
+            "flak",
+            "metalgear"
+          ],
+          "effects": [
+            "fireproof"
+          ],
+          "requires": "",
+          "pair": true,
+          "pools": []
+        }
+      }
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

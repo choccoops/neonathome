@@ -1,0 +1,94 @@
+{
+  "id": "cpr-neon-at-home",
+  "title": "Neon At Home: Loadout, Vehicle Bay, Biomonitor & Weaponbench for Cyberpunk RED",
+  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Vehicle Bay with bays from the character's home; a Biomonitor for HP, injuries, Humanity, Empathy tiers and Syndromes; and a Weaponbench for attachments.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Neon At Home contributors"
+    }
+  ],
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "cyberpunk-red-core",
+        "type": "system",
+        "compatibility": {
+          "minimum": "0.92",
+          "verified": "0.92.4"
+        }
+      }
+    ],
+    "recommends": [
+      {
+        "id": "cpr-neon-hub",
+        "type": "module",
+        "reason": "Vehicle bays come from the parking of the character's Neon Hub home or household."
+      },
+      {
+        "id": "mmutons-cyberpunk-red-vas",
+        "type": "module",
+        "reason": "Vehicle actors on MMuton's Vehicle Actor Sheet show their crew seats, mounted weapons and upgrades in the Vehicle Bay."
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/neon-home.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "packs": [
+    {
+      "name": "armor-upgrades",
+      "label": "Neon At Home: Armor Upgrades",
+      "path": "packs/armor-upgrades",
+      "type": "Item",
+      "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "carry-gear",
+      "label": "Neon At Home: Carry Gear",
+      "path": "packs/carry-gear",
+      "type": "Item",
+      "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Neon At Home",
+      "sorting": "m",
+      "color": "#ff2a6d",
+      "packs": [
+        "armor-upgrades",
+        "carry-gear"
+      ]
+    }
+  ],
+  "socket": true,
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "license": "MIT",
+  "readme": "README.md",
+  "changelog": "CHANGELOG.md"
+}

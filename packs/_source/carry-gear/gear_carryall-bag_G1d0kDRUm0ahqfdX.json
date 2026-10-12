@@ -1,0 +1,67 @@
+{
+  "_id": "G1d0kDRUm0ahqfdX",
+  "_key": "!items!G1d0kDRUm0ahqfdX",
+  "name": "Carryall Bag",
+  "type": "gear",
+  "img": "icons/svg/chest.svg",
+  "folder": null,
+  "sort": 500,
+  "system": {
+    "description": {
+      "value": "<p>Adds 10 carry slots.</p><p>If being searched for some reason, the bag will be checked.</p>"
+    },
+    "favorite": false,
+    "source": {
+      "book": "Homebrew: Armor & Carrying 2.0",
+      "page": 0
+    },
+    "revealed": true,
+    "usage": "equipped",
+    "isElectronic": false,
+    "providesHardening": false,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    },
+    "brand": "",
+    "amount": 1,
+    "price": {
+      "market": 100
+    },
+    "installedItems": {
+      "allowed": false,
+      "allowedTypes": [
+        "itemUpgrade"
+      ],
+      "list": [],
+      "usedSlots": 0,
+      "slots": 0
+    }
+  },
+  "effects": [],
+  "flags": {
+    "cpr-neon-at-home": {
+      "item": {
+        "category": "none",
+        "carry": {
+          "pools": [
+            {
+              "slots": 10,
+              "accepts": "any",
+              "label": "Carryall Bag"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,107 @@
+<div class="nah-config-wrap">
+<div class="nah-config-body">
+  <header class="nah-config-head">
+    <img src="{{item.img}}" alt="">
+    <div><h2>{{item.name}}</h2><p class="nah-hint">{{item.type}}</p></div>
+  </header>
+
+  {{#if physical}}
+  <fieldset>
+    <legend>{{localize "NEONHOME.Config.Carry"}}</legend>
+    <div class="form-group">
+      <label>{{localize "NEONHOME.Config.Category"}}</label>
+      <select name="flag.category">{{#each categories}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    </div>
+    <div class="form-group">
+      <label>{{localize "NEONHOME.Config.Slots"}}</label>
+      <input type="number" name="flag.slots" value="{{flag.slots}}" min="0" max="99" placeholder="{{localize 'NEONHOME.Config.FromRules'}}">
+    </div>
+    <div class="form-group">
+      <label>{{localize "NEONHOME.Config.Weight"}}</label>
+      <input type="number" name="flag.weight" value="{{flag.weight}}" min="0" step="0.01" placeholder="{{autoWeight}}">
+    </div>
+    {{#if canCapacity}}
+    <div class="form-group">
+      <label>{{localize "NEONHOME.Config.CapacityBonus"}}</label>
+      <input type="number" name="flag.capacityBonus" value="{{flag.capacityBonus}}" min="0" step="0.5">
+      <p class="hint">{{localize "NEONHOME.Config.CapacityBonusHint"}}</p>
+    </div>
+    {{/if}}
+  </fieldset>
+  {{/if}}
+
+  {{#if isArmor}}
+  <fieldset>
+    <legend>{{localize "NEONHOME.Config.Armor"}}</legend>
+    <div class="form-group">
+      <label>{{localize "NEONHOME.Config.ArmorClass"}}</label>
+      <select name="flag.armorClass">{{#each armorClasses}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <p class="hint">{{localize "NEONHOME.Config.ArmorClassHint"}}</p>
+    </div>
+  </fieldset>
+  {{/if}}
+
+  {{#if isCarryGear}}
+  <fieldset>
+    <legend>{{localize "NEONHOME.Config.CarryGear"}}</legend>
+    <p class="hint">{{localize "NEONHOME.Config.CarryGearHint"}}</p>
+    {{#each carryPools}}
+    <div class="form-group nah-pool-row">
+      <label>{{localize "NEONHOME.Config.Pool" n=i}}</label>
+      <div class="form-fields">
+        <input type="number" name="flag.carry.pools.{{i}}.slots" value="{{slots}}" min="0" max="99" placeholder="0">
+        <select name="flag.carry.pools.{{i}}.accepts">{{#each accepts}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <input type="text" name="flag.carry.pools.{{i}}.label" value="{{label}}" placeholder="{{localize 'NEONHOME.Config.PoolLabel'}}">
+      </div>
+    </div>
+    {{/each}}
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="flag.carry.noArmor" {{checked flag.carry.noArmor}}> {{localize "NEONHOME.Config.NoArmor"}}</label></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.Group"}}</label><input type="text" name="flag.carry.group" value="{{flag.carry.group}}" placeholder="holster"></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.Conceals"}}</label><input type="number" name="flag.carry.conceals" value="{{flag.carry.conceals}}" min="0" max="9"></div>
+  </fieldset>
+  {{/if}}
+
+  {{#if isArmorUpgrade}}
+  <fieldset>
+    <legend>{{localize "NEONHOME.Config.ArmorUpgrade"}}</legend>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.Key"}}</label><input type="text" name="flag.upgrade.key" value="{{flag.upgrade.key}}"><p class="hint">{{localize "NEONHOME.Config.KeyHint"}}</p></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.Location"}}</label><select name="flag.upgrade.location">{{#each locations}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+    <div class="form-group stacked">
+      <label>{{localize "NEONHOME.Config.Classes"}}</label>
+      <div class="nah-checks">{{#each upgradeClasses}}<label class="checkbox"><input type="checkbox" name="flag.upgrade.classes.{{value}}" {{checked checked}}> {{label}}</label>{{/each}}</div>
+      <p class="hint">{{localize "NEONHOME.Config.ClassesHint"}}</p>
+    </div>
+    <div class="form-group stacked">
+      <label>{{localize "NEONHOME.Config.Effects"}}</label>
+      <div class="nah-checks">{{#each upgradeEffects}}<label class="checkbox"><input type="checkbox" name="flag.upgrade.effects.{{value}}" {{checked checked}}> {{label}}</label>{{/each}}</div>
+    </div>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.Requires"}}</label><input type="text" name="flag.upgrade.requires" value="{{flag.upgrade.requires}}"></div>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="flag.upgrade.pair" {{checked flag.upgrade.pair}}> {{localize "NEONHOME.Config.Pair"}}</label></div>
+    {{#each upgradePools}}
+    <div class="form-group nah-pool-row">
+      <label>{{localize "NEONHOME.Config.Pool" n=i}}</label>
+      <div class="form-fields">
+        <input type="number" name="flag.upgrade.pools.{{i}}.slots" value="{{slots}}" min="0" max="99" placeholder="0">
+        <select name="flag.upgrade.pools.{{i}}.accepts">{{#each accepts}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <input type="text" name="flag.upgrade.pools.{{i}}.label" value="{{label}}" placeholder="{{localize 'NEONHOME.Config.PoolLabel'}}">
+      </div>
+    </div>
+    {{/each}}
+  </fieldset>
+  {{/if}}
+
+  {{#if isAttachment}}
+  <fieldset>
+    <legend>{{localize "NEONHOME.Config.Attachment"}}</legend>
+    <div class="form-group stacked">
+      <label>{{localize "NEONHOME.Bench.Benefits"}}</label>
+      <textarea name="flag.attachment.benefits" rows="4" placeholder="{{localize 'NEONHOME.Bench.BenefitsHint'}}">{{flag.attachment.benefits}}</textarea>
+    </div>
+    <div class="form-group"><label class="checkbox"><input type="checkbox" name="flag.attachment.fixed" {{checked flag.attachment.fixed}}> {{localize "NEONHOME.Bench.FixedLabel"}}</label></div>
+  </fieldset>
+  {{/if}}
+</div>
+<footer class="form-footer">
+  <button type="submit"><i class="fa-solid fa-floppy-disk"></i> {{localize "NEONHOME.Config.Save"}}</button>
+</footer>
+</div>

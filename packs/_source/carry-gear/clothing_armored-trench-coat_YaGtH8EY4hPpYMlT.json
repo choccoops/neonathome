@@ -1,0 +1,63 @@
+{
+  "_id": "YaGtH8EY4hPpYMlT",
+  "_key": "!items!YaGtH8EY4hPpYMlT",
+  "name": "Armored Trench Coat",
+  "type": "clothing",
+  "img": "icons/svg/shield.svg",
+  "folder": null,
+  "sort": 300,
+  "system": {
+    "description": {
+      "value": "<p>Can be used to conceal one non-concealable weapon. Does not count for carry amount.</p><p>Adds 4 SP to armor. Can be removed with an action. If destroyed loses all benefits but the penalty is also removed. -2 to REF/DEX/MOVE (apply the SP and penalty at the table).</p><p>If being searched for some reason, the weapon will be immediately discovered along with any armor you might be wearing underneath.</p>"
+    },
+    "favorite": false,
+    "source": {
+      "book": "Homebrew: Armor & Carrying 2.0",
+      "page": 0
+    },
+    "revealed": true,
+    "usage": "equipped",
+    "isElectronic": false,
+    "providesHardening": false,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    },
+    "brand": "",
+    "amount": 1,
+    "price": {
+      "market": 0
+    },
+    "installedItems": {
+      "allowed": false,
+      "allowedTypes": [
+        "itemUpgrade"
+      ],
+      "list": [],
+      "usedSlots": 0,
+      "slots": 0
+    },
+    "type": "jacket",
+    "style": "genericChic"
+  },
+  "effects": [],
+  "flags": {
+    "cpr-neon-at-home": {
+      "item": {
+        "category": "none",
+        "carry": {
+          "conceals": 1
+        }
+      }
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,188 @@
+import { MODULE_ID } from "./constants.js";
+
+const { getProperty, hasProperty, deepClone } = foundry.utils;
+
+const EQUIPPABLE = ["armor", "clothing", "cyberdeck", "drug", "gear", "weapon"];
+const STACKABLE = ["ammo", "clothing", "drug", "gear"];
+
+/**
+ * The Cyberpunk RED - CORE behaviour Neon At Home relies on, verified against the v0.92.4 source:
+ * equip states, armor tracking, installing upgrades, moving items between actors with their
+ * installed items, and the Humanity ledger. Each checks before use so a system update that renames
+ * something degrades instead of throwing.
+ */
+export const CPR = {
+  EQUIPPABLE,
+
+  isEquippable(item) {
+    return EQUIPPABLE.includes(item?.type);
+  },
+
+  isStackable(item) {
+    return STACKABLE.includes(item?.type) || item?.type === "ammo";
+  },
+
+  /** Is the item installed in another item or in the actor (cyberware, attachments, loaded ammo)? */
+  isInstalled(item) {
+    try {
+      return !!item?.system?.isInstalled;
+    } catch {
+      return false;
+    }
+  },
+
+  /** Armor's tracking slot: "body", "head" or "shield". */
+  armorLocation(item) {
+    const s = item.system ?? {};
+    if (s.isShield) return "shield";
+    if (s.isHeadLocation && !s.isBodyLocation) return "head";
+    return "body";
+  },
+
+  /**
+   * Change an item's equip state the way the CPR character sheet does: auto-track armor when it's
+   * equipped, untrack it when it comes off, and carry installed items along.
+   */
+  async setEquipped(actor, item, state) {
+    if (!this.isEquippable(item) || item.system.equipped === state) return;
+    if (item.type === "armor" && typeof actor.updateTrackedArmor === "function") {
+      const loc = this.armorLocation(item);
+      if (state === "equipped") await actor.updateTrackedArmor(loc, item.id);
+      else if (item.system.equipped === "equipped" && getProperty(actor, `system.externalData.currentArmor${loc[0].toUpperCase()}${loc.slice(1)}.id`) === item.id) {
+        await actor.updateTrackedArmor(loc);
+      }
+    }
+    const updates = [{ _id: item.id, "system.equipped": state }];
+    if (typeof item.recursiveGetAllInstalledItems === "function" && item.system.installedItems?.list?.length) {
+      for (const inner of item.recursiveGetAllInstalledItems()) {
+        if (this.isEquippable(inner)) updates.push({ _id: inner.id, "system.equipped": state });
+      }
+    }
+    await actor.updateEmbeddedDocuments("Item", updates);
+  },
+
+  /** Hands an actor has free (CPR counts equipped weapons' hands against 2 + bonuses). */
+  canHold(actor, weapon) {
+    if (typeof actor.canHoldWeapon !== "function") return true;
+    try {
+      return actor.canHoldWeapon(weapon);
+    } catch {
+      return true;
+    }
+  },
+
+  /** Install items into a container item through CPR (it checks types and slots). */
+  async install(container, items) {
+    if (typeof container.installItems !== "function") throw new Error("This item can't take upgrades.");
+    return container.installItems(items);
+  },
+
+  async uninstall(container, items) {
+    if (typeof container.uninstallItems !== "function") throw new Error("This item can't take upgrades.");
+    return container.uninstallItems(items, { recursive: false, unloadAmmo: true });
+  },
+
+  /**
+   * Move an item (and everything installed in it) from one actor to another, as CPR does when an
+   * item is dragged between sheets. Stacks can be split by amount.
+   * @returns {Promise<Item|null>} the created item
+   */
+  async transfer(item, target, { amount = null, equipped = null } = {}) {
+    const source = item.parent;
+    if (!source || source === target) return null;
+    if (this.isInstalled(item)) throw new Error(game.i18n.format("NEONHOME.Error.Installed", { name: item.name }));
+    if (item.system?.core) throw new Error(game.i18n.format("NEONHOME.Error.Core", { name: item.name }));
+
+    const data = item.toObject();
+    delete data._id;
+    const total = Number(item.system.amount ?? 1);
+    const qty = amount === null ? total : Math.max(1, Math.min(total, Math.floor(amount)));
+    const split = this.isStackable(item) && hasProperty(data, "system.amount") && qty < total;
+    if (hasProperty(data, "system.amount")) data.system.amount = qty;
+    if (this.isEquippable(item) && equipped) data.system.equipped = equipped;
+    const tree = item.system.installedItems?.list?.length && typeof item.createInstalledObjectData === "function";
+    if (tree && !split) {
+      data.flags ??= {};
+      data.flags.cprInstallTree = item.createInstalledObjectData();
+    } else if (data.system.installedItems) {
+      data.system.installedItems.list = [];
+      data.system.installedItems.usedSlots = 0;
+    }
+    // Untrack worn armor before it leaves.
+    if (item.type === "armor" && item.system.equipped === "equipped") await this.setEquipped(source, item, "owned");
+
+    const [created] = await target.createEmbeddedDocuments("Item", [data]);
+    if (split) {
+      await item.update({ "system.amount": total - qty });
+      return created ?? null;
+    }
+    const deleteIds = [item.id];
+    if (tree && typeof item.recursiveGetAllInstalledItems === "function") {
+      for (const inner of item.recursiveGetAllInstalledItems()) {
+        if (inner.type !== "ammo" || Number(inner.system.amount) === 0) deleteIds.push(inner.id);
+      }
+    }
+    await source.deleteEmbeddedDocuments("Item", deleteIds, { unloadAmmo: false, deleteInstalled: true });
+    return created ?? null;
+  },
+
+  /* ---------------------------------------- */
+  /*  Body                                    */
+  /* ---------------------------------------- */
+
+  hp(actor) {
+    const hp = getProperty(actor, "system.derivedStats.hp") ?? {};
+    return { value: Number(hp.value) || 0, max: Number(hp.max) || 0 };
+  },
+
+  humanity(actor) {
+    const h = getProperty(actor, "system.derivedStats.humanity") ?? {};
+    return { value: Number(h.value) || 0, max: Number(h.max) || 0 };
+  },
+
+  emp(actor) {
+    const e = getProperty(actor, "system.stats.emp") ?? {};
+    return { value: Number(e.value) || 0, max: Number(e.max ?? e.value) || 0 };
+  },
+
+  /**
+   * Change Humanity, record it in the CPR Humanity ledger, then let CPR re-sync EMP.
+   * @param {number} delta - positive restores (up to maximum), negative takes away
+   */
+  async changeHumanity(actor, delta, reason) {
+    if (!hasProperty(actor, "system.derivedStats.humanity.value")) return 0;
+    const { value, max } = this.humanity(actor);
+    const next = delta > 0 ? Math.min(max, value + delta) : value + delta;
+    const applied = next - value;
+    if (!applied) return 0;
+    const update = { "system.derivedStats.humanity.value": next };
+    const ledger = getProperty(actor, "system.derivedStats.humanity.transactions");
+    if (Array.isArray(ledger)) {
+      const key = applied > 0 ? "CPR.ledger.increaseSentence" : "CPR.ledger.decreaseSentence";
+      const sentence = game.i18n.has(key)
+        ? game.i18n.format(key, { property: "humanity", amount: Math.abs(applied), total: next })
+        : `humanity ${applied > 0 ? "increased" : "decreased"} by ${Math.abs(applied)} to ${next}`;
+      update["system.derivedStats.humanity.transactions"] = [...deepClone(ledger), [sentence, `${reason} - ${game.user.name}`]];
+    }
+    await actor.update(update, { [MODULE_ID]: { humanity: true } });
+    if (typeof actor.setMaxHumanity === "function") {
+      try {
+        await actor.setMaxHumanity();
+      } catch (err) {
+        console.warn(`${MODULE_ID} | setMaxHumanity failed for ${actor.name}`, err);
+      }
+    }
+    return applied;
+  },
+
+  /** LUCK value and max. */
+  luck(actor) {
+    const l = getProperty(actor, "system.stats.luck") ?? {};
+    return { value: Number(l.value) || 0, max: Number(l.max ?? l.value) || 0 };
+  },
+
+  /** Is this a CPR container actor (shop, loot box, stash)? */
+  isContainerActor(actor) {
+    return actor?.type === "container";
+  }
+};

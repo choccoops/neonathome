@@ -1,0 +1,664 @@
+/* ==========================================================================
+   Neon At Home: the home suite, its config windows, dialogs and chat cards.
+   Neon Hub's Night City chrome: black chrome, notched corners, "//" kickers,
+   letter-spaced Tektur. Everything is scoped under .neon-home.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Neon Home Tektur";
+  src: url("../fonts/Tektur-Regular.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+.neon-home,
+.neon-home-dialog,
+.neon-home-chat {
+  --nah-bg: #07070b;
+  --nah-bg-2: #0d0d15;
+  --nah-bg-3: #14141f;
+  --nah-line: #26263a;
+  --nah-line-2: #36364f;
+  --nah-text: #d8dbec;
+  --nah-dim: #6e7290;
+  --nah-pink: #ff2a6d;
+  --nah-cyan: #05d9e8;
+  --nah-yellow: #f3e600;
+  --nah-green: #39ff88;
+  --nah-orange: #ff8a1f;
+  --nah-violet: #9d4dff;
+  --nah-red: #ff4b4b;
+  --nah-display: "Neon Home Tektur", "Signika", sans-serif;
+  --nah-notch: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  --nah-notch-card: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  --nah-notch-panel: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+/* ---------- window frame ---------- */
+.neon-home.application {
+  min-width: 760px;
+  min-height: 520px;
+  border: 1px solid var(--nah-line-2);
+  border-radius: 0;
+  background: var(--nah-bg);
+  color: var(--nah-text);
+  box-shadow: 0 0 0 1px #000, 0 0 30px rgba(255, 42, 109, 0.16), 0 14px 42px rgba(0, 0, 0, 0.7);
+}
+.neon-home.nah-config.application { min-width: 460px; min-height: 0; }
+.neon-home.application > .window-header,
+.neon-home-dialog.application > .window-header {
+  background: linear-gradient(90deg, #1a0712, #0d0d16 55%, #061419);
+  border-bottom: 1px solid var(--nah-pink);
+  color: var(--nah-text);
+  font-family: var(--nah-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.neon-home.application > .window-header .window-icon,
+.neon-home-dialog.application > .window-header .window-icon { color: var(--nah-pink); }
+.neon-home.application > .window-header button { color: var(--nah-dim); }
+.neon-home.application > .window-header button:hover { color: var(--nah-cyan); text-shadow: 0 0 8px var(--nah-cyan); }
+.neon-home .window-content {
+  padding: 0;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, rgba(5, 217, 232, 0.025) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 85% -10%, rgba(255, 42, 109, 0.09), transparent 60%),
+    radial-gradient(ellipse at 5% 110%, rgba(5, 217, 232, 0.06), transparent 55%),
+    var(--nah-bg);
+  color: var(--nah-text);
+  font-family: "Signika", sans-serif;
+  container-type: inline-size;
+}
+.neon-home * { box-sizing: border-box; }
+.neon-home :is(h1, h2, h3, h4, p) { margin: 0; border: 0; }
+.neon-home img { border: 0; }
+
+/* ---------- controls ---------- */
+.neon-home button,
+.neon-home-dialog .window-content button {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 5px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+  border: 1px solid var(--nah-line-2);
+  border-radius: 0;
+  background: var(--nah-bg-3);
+  color: var(--nah-text);
+  font-family: var(--nah-display);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: none;
+  cursor: pointer;
+  clip-path: var(--nah-notch);
+}
+.neon-home button:hover:not(:disabled),
+.neon-home-dialog .window-content button:hover:not(:disabled) { border-color: var(--nah-cyan); color: var(--nah-cyan); background: rgba(5, 217, 232, 0.08); }
+.neon-home button:disabled { opacity: 0.4; cursor: not-allowed; }
+.neon-home button.on { border-color: var(--nah-pink); color: #fff; background: rgba(255, 42, 109, 0.2); }
+.neon-home button.nah-cta,
+.neon-home-dialog .window-content .form-footer button[data-action="ok"],
+.neon-home .form-footer button[type="submit"] {
+  padding: 8px 16px;
+  background: var(--nah-pink);
+  border-color: var(--nah-pink);
+  color: #0b0006;
+  font-size: 12px;
+}
+.neon-home button.nah-cta:hover:not(:disabled),
+.neon-home-dialog .window-content .form-footer button[data-action="ok"]:hover,
+.neon-home .form-footer button[type="submit"]:hover { background: var(--nah-yellow); border-color: var(--nah-yellow); color: #0b0b00; }
+.neon-home button.nah-icon-btn {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  justify-content: center;
+  color: var(--nah-dim);
+  background: var(--nah-bg-2);
+  border-color: var(--nah-line);
+  font-size: 11px;
+  clip-path: none;
+}
+.neon-home button.nah-icon-btn.is-danger:hover:not(:disabled) { color: var(--nah-pink); border-color: var(--nah-pink); background: rgba(255, 42, 109, 0.1); }
+.neon-home button.nah-mini { padding: 3px 8px; font-size: 10px; }
+.neon-home :is(input, select, textarea),
+.neon-home-dialog :is(input[type=text], input[type=number], select, textarea) {
+  margin: 0;
+  border: 1px solid var(--nah-line-2);
+  border-radius: 0;
+  background: var(--nah-bg-2);
+  color: var(--nah-text);
+  font-family: "Signika", sans-serif;
+  font-size: 13px;
+  box-shadow: none;
+}
+.neon-home :is(input[type=text], input[type=number], input[type=search], select) { height: 28px; padding: 0 6px; }
+.neon-home :is(input, select, textarea):focus,
+.neon-home-dialog :is(input, select, textarea):focus { outline: none; border-color: var(--nah-cyan); box-shadow: 0 0 0 1px var(--nah-cyan); }
+.neon-home select option,
+.neon-home-dialog select option { background: var(--nah-bg-2); color: var(--nah-text); }
+.neon-home input[type=checkbox],
+.neon-home-dialog input[type=checkbox] { accent-color: var(--nah-pink); }
+.neon-home :focus-visible { outline: 2px solid var(--nah-cyan); outline-offset: 1px; }
+
+/* ---------- shared bits ---------- */
+.neon-home .nah-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-family: var(--nah-display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--nah-yellow);
+}
+.neon-home .nah-kicker::before { content: "//"; color: var(--nah-pink); }
+.neon-home .nah-kicker > span { color: var(--nah-text); letter-spacing: 0.1em; }
+.neon-home .nah-kicker > :is(select, button) { margin-left: auto; }
+.neon-home .nah-kicker > select { max-width: 55%; height: 24px; font-size: 12px; text-transform: none; letter-spacing: 0; }
+.neon-home h4 { margin: 10px 0 4px; font-family: var(--nah-display); font-size: 10px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-hint { margin: 0; font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-warn { margin: 4px 0 0; font-size: 12px; color: var(--nah-orange); }
+.neon-home .nah-note { margin: 0 0 10px; padding: 6px 10px; font-size: 12px; color: var(--nah-dim); border-left: 2px solid var(--nah-cyan); background: rgba(5, 217, 232, 0.05); }
+.neon-home .nah-alert { margin: 0 0 8px; padding: 8px 12px; font-size: 13px; border-left: 3px solid var(--nah-pink); background: rgba(255, 42, 109, 0.12); clip-path: var(--nah-notch-card); }
+.neon-home .nah-empty { padding: 60px 20px; text-align: center; color: var(--nah-dim); font-family: var(--nah-display); letter-spacing: 0.16em; text-transform: uppercase; }
+.neon-home .nah-panel { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.72); clip-path: var(--nah-notch-card); }
+.neon-home .nah-callout { padding: 14px; border: 1px dashed var(--nah-line-2); display: grid; gap: 8px; justify-items: start; font-size: 13px; }
+.neon-home .nah-chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; font-size: 11px; color: var(--nah-dim); border: 1px solid var(--nah-line-2); white-space: nowrap; }
+.neon-home .nah-chip-slots { color: var(--nah-cyan); border-color: rgba(5, 217, 232, 0.4); }
+.neon-home .nah-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--nah-orange); border: 1px solid currentColor; }
+.neon-home .nah-badge-danger { color: var(--nah-pink); box-shadow: 0 0 10px rgba(255, 42, 109, 0.4); }
+.neon-home .nah-badge-live { color: var(--nah-green); }
+.neon-home .nah-meter { position: relative; height: 6px; background: rgba(216, 219, 236, 0.1); overflow: hidden; }
+.neon-home .nah-meter > b { display: block; height: 100%; background: var(--nah-cyan); box-shadow: 0 0 8px var(--nah-cyan); transition: width 300ms; }
+.neon-home .nah-meter-hurt > b { background: var(--nah-orange); box-shadow: 0 0 8px var(--nah-orange); }
+.neon-home .nah-meter-critical > b { background: var(--nah-pink); box-shadow: 0 0 8px var(--nah-pink); }
+.neon-home .nah-dropzone { padding: 12px; border: 1px dashed var(--nah-line-2); text-align: center; }
+.neon-home .is-dragging [data-drop] { outline: 1px dashed rgba(243, 230, 0, 0.5); outline-offset: -2px; }
+.neon-home [data-drop].drag-over { outline: 2px solid var(--nah-yellow) !important; background-color: rgba(243, 230, 0, 0.06); }
+.neon-home [data-drag] { cursor: grab; }
+.neon-home [data-drag].is-dragging { opacity: 0.4; }
+.neon-home .is-busy { cursor: progress; }
+.neon-home .is-busy button { pointer-events: none; }
+.neon-home [data-action] { cursor: pointer; }
+
+/* ---------- shell ---------- */
+.neon-home .nah-root { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.neon-home .nah-header { display: flex; align-items: center; gap: 14px; padding: 12px 16px 8px; }
+.neon-home .nah-portrait {
+  flex: 0 0 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--nah-pink);
+  color: var(--nah-pink);
+  font-size: 26px;
+  overflow: hidden;
+  clip-path: var(--nah-notch);
+  box-shadow: inset 0 0 18px rgba(255, 42, 109, 0.35);
+}
+.neon-home .nah-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.neon-home .nah-title { flex: 1; min-width: 0; }
+.neon-home .nah-title h1 {
+  font-family: var(--nah-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.05;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: -2px 0 rgba(5, 217, 232, 0.35), 0 0 14px rgba(255, 42, 109, 0.7);
+  overflow-wrap: anywhere;
+}
+.neon-home .nah-title p { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 5px; font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-title p::before { content: "//"; color: var(--nah-pink); }
+.neon-home .nah-title p i { color: var(--nah-cyan); }
+.neon-home .nah-vitals { flex: 0 0 170px; display: grid; gap: 6px; }
+.neon-home .nah-vital span { display: block; margin-bottom: 2px; font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.1em; }
+.neon-home .nah-vital-hp i { color: var(--nah-pink); }
+.neon-home .nah-vital-hp .nah-meter > b { background: var(--nah-pink); box-shadow: 0 0 8px var(--nah-pink); }
+.neon-home .nah-vital-hum i { color: var(--nah-cyan); }
+.neon-home .nah-picker { flex: 0 0 180px; }
+.neon-home .nah-tabs { display: flex; gap: 2px; padding: 0 16px; border-bottom: 1px solid var(--nah-line); }
+.neon-home .nah-tabs > button {
+  padding: 8px 14px 7px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--nah-dim);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  clip-path: none;
+}
+.neon-home .nah-tabs > button:hover:not(:disabled) { background: none; color: var(--nah-text); }
+.neon-home .nah-tabs > button.active { color: #fff; border-bottom-color: var(--nah-pink); text-shadow: 0 0 10px rgba(255, 42, 109, 0.6); }
+.neon-home .nah-tabs > button.active i { color: var(--nah-pink); }
+.neon-home .nah-feature { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.neon-home .nah-feature > * { flex: 1; min-height: 0; }
+.neon-home .nah-scroll { overflow-y: auto; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--nah-line-2) transparent; }
+.neon-home .nah-col { padding: 12px 14px; min-height: 0; }
+
+/* ---------- rows (items) ---------- */
+.neon-home .nah-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid var(--nah-line);
+  background: rgba(13, 13, 21, 0.85);
+  clip-path: var(--nah-notch-card);
+}
+.neon-home .nah-row:hover { border-color: var(--nah-line-2); background: rgba(20, 20, 31, 0.95); }
+.neon-home .nah-row-img { flex: 0 0 28px; width: 28px; height: 28px; object-fit: contain; background: var(--nah-bg); }
+.neon-home .nah-row-main { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-row-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-row-name em { font-style: normal; color: var(--nah-cyan); font-weight: 400; }
+.neon-home .nah-row small { font-size: 11px; color: var(--nah-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-pooled { color: var(--nah-green); }
+.neon-home .nah-seg { display: flex; flex: 0 0 auto; }
+.neon-home .nah-seg button { width: 24px; height: 24px; padding: 0; justify-content: center; clip-path: none; background: var(--nah-bg-2); color: var(--nah-dim); border-color: var(--nah-line); }
+.neon-home .nah-seg button + button { margin-left: -1px; }
+.neon-home .nah-seg button.on { color: #0b0006; background: var(--nah-cyan); border-color: var(--nah-cyan); }
+.neon-home .nah-mini-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-mini-list li { display: flex; align-items: center; gap: 6px; padding: 3px 4px; font-size: 12px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.8); }
+.neon-home .nah-mini-list li img { width: 22px; height: 22px; object-fit: contain; }
+.neon-home .nah-mini-list li > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.neon-home .nah-mini-list li small { color: var(--nah-dim); font-size: 10px; white-space: nowrap; }
+.neon-home .is-blocked { opacity: 0.55; }
+
+/* ==========================================================================
+   Loadout
+   ========================================================================== */
+.neon-home .nah-loadout { display: grid; grid-template-columns: 320px minmax(0, 1fr) 330px; height: 100%; min-height: 0; }
+.neon-home .nah-col-doll { border-right: 1px solid var(--nah-line); }
+.neon-home .nah-col-store { border-left: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.45); }
+
+/* the paper doll */
+.neon-home .nah-doll { position: relative; height: 330px; color: var(--nah-cyan); }
+.neon-home .nah-doll-figure { position: absolute; left: 50%; top: 4px; height: 320px; transform: translateX(-50%); filter: drop-shadow(0 0 6px rgba(5, 217, 232, 0.35)); opacity: 0.85; }
+.neon-home .nah-socket {
+  position: absolute;
+  width: 150px;
+  display: grid;
+  gap: 1px;
+  padding: 5px 8px;
+  color: var(--nah-text);
+  border: 1px solid var(--nah-line-2);
+  background: rgba(7, 7, 11, 0.88);
+  clip-path: var(--nah-notch-card);
+  font-size: 12px;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.neon-home .nah-socket:hover { border-color: var(--nah-cyan); }
+.neon-home .nah-socket.selected { border-color: var(--nah-pink); box-shadow: inset 0 0 0 1px var(--nah-pink); }
+.neon-home .nah-socket-label { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--nah-pink); }
+.neon-home .nah-socket b { font-family: var(--nah-display); font-weight: 400; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-socket small { font-size: 10px; color: var(--nah-dim); }
+.neon-home .nah-socket em { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-socket-head { left: 0; top: 4px; }
+.neon-home .nah-socket-body { right: 0; top: 98px; width: 176px; }
+.neon-home .nah-socket-shield { left: 0; top: 168px; width: 128px; }
+.neon-home .nah-socket-hands { right: 0; top: 232px; width: 160px; }
+.neon-home .nah-socket-hands b { font-size: 11px; }
+.neon-home .nah-worn { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.neon-home .nah-worn li { display: flex; align-items: center; gap: 4px; padding: 2px 6px 2px 2px; font-size: 11px; border: 1px solid var(--nah-line); background: var(--nah-bg-2); }
+.neon-home .nah-worn li.is-gear { border-color: rgba(57, 255, 136, 0.45); }
+.neon-home .nah-worn img { width: 18px; height: 18px; object-fit: contain; }
+
+/* armor upgrade sockets */
+.neon-home .nah-sockets { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; margin-top: 6px; border: 1px solid var(--nah-line); background: repeating-linear-gradient(90deg, rgba(5, 217, 232, 0.04) 0 1px, transparent 1px 12px), var(--nah-bg); }
+.neon-home .nah-plug { width: 24px; height: 24px; display: grid; place-items: center; border: 1px dashed var(--nah-line-2); transform: skewX(-10deg); }
+.neon-home .nah-plug.filled { border: 1px solid var(--nah-cyan); background: rgba(5, 217, 232, 0.16); box-shadow: 0 0 6px rgba(5, 217, 232, 0.35); }
+.neon-home .nah-plug.filled:not(.start) { margin-left: -5px; border-left-color: transparent; }
+.neon-home .nah-plug img { width: 18px; height: 18px; transform: skewX(10deg); }
+.neon-home .nah-effects ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 12px; }
+.neon-home .nah-effects li i { color: var(--nah-yellow); margin-right: 4px; }
+
+/* carry slots */
+.neon-home .nah-capacity { padding: 10px 12px; border: 1px solid rgba(255, 42, 109, 0.45); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-panel); position: relative; }
+.neon-home .nah-capacity::after { content: ""; position: absolute; top: 0; right: 0; width: 22px; height: 22px; background: linear-gradient(225deg, var(--nah-pink) 0 8px, transparent 8px); }
+.neon-home .nah-capacity.is-over { border-color: var(--nah-red); box-shadow: inset 0 0 22px rgba(255, 75, 75, 0.25); }
+.neon-home .nah-cap-head { display: flex; align-items: baseline; justify-content: space-between; }
+.neon-home .nah-cap-head strong { font-family: var(--nah-display); font-weight: 400; font-size: 26px; color: #fff; text-shadow: 0 0 12px rgba(255, 42, 109, 0.6); }
+.neon-home .nah-cap-head strong em,
+.neon-home .nah-weight b em,
+.neon-home .nah-hp-head strong em { font-style: normal; font-size: 14px; color: var(--nah-dim); }
+.neon-home .nah-is-over .nah-cap-head strong { color: var(--nah-red); }
+.neon-home .nah-cells { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0; }
+.neon-home .nah-cell { width: 18px; height: 18px; border: 1px solid var(--nah-line-2); background: rgba(216, 219, 236, 0.03); transform: skewX(-12deg); }
+.neon-home .nah-cells-small .nah-cell { width: 13px; height: 13px; }
+.neon-home .nah-cell:not(.cat-empty):not(.start) { margin-left: -2px; }
+.neon-home .nah-cell.cat-heavy { background: var(--nah-pink); border-color: var(--nah-pink); }
+.neon-home .nah-cell.cat-twoHanded { background: var(--nah-orange); border-color: var(--nah-orange); }
+.neon-home .nah-cell.cat-oneHanded { background: var(--nah-yellow); border-color: var(--nah-yellow); }
+.neon-home .nah-cell.cat-ammo { background: var(--nah-cyan); border-color: var(--nah-cyan); }
+.neon-home .nah-cell.cat-utility { background: var(--nah-violet); border-color: var(--nah-violet); }
+.neon-home .nah-cell.cat-bulky { background: var(--nah-green); border-color: var(--nah-green); }
+.neon-home .nah-cell.over { background: repeating-linear-gradient(45deg, var(--nah-red) 0 3px, transparent 3px 6px) !important; border-color: var(--nah-red) !important; }
+.neon-home .nah-more { font-family: var(--nah-display); font-size: 11px; color: var(--nah-dim); align-self: center; }
+.neon-home .nah-pool { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; margin-top: 4px; font-size: 12px; }
+.neon-home .nah-pool > span i { color: var(--nah-green); }
+.neon-home .nah-pool small { color: var(--nah-dim); }
+.neon-home .nah-pool .nah-cells { margin: 0; }
+.neon-home .nah-pool b { font-family: var(--nah-display); font-weight: 400; }
+.neon-home .nah-weight { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; }
+.neon-home .nah-weight > span { font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-weight > b { font-family: var(--nah-display); font-weight: 400; font-size: 14px; }
+.neon-home .nah-weight.status-heavy .nah-meter > b { background: var(--nah-orange); box-shadow: 0 0 8px var(--nah-orange); }
+.neon-home .nah-weight.status-over .nah-meter > b { background: var(--nah-red); box-shadow: 0 0 8px var(--nah-red); }
+.neon-home .nah-weight.status-over > b { color: var(--nah-red); }
+
+/* storage */
+.neon-home .nah-store-bar { display: flex; gap: 4px; margin-bottom: 6px; }
+.neon-home .nah-store-bar select { flex: 1; min-width: 0; }
+.neon-home .nah-col-store input[type=search] { width: 100%; margin: 6px 0; }
+
+/* ==========================================================================
+   Vehicle Bay
+   ========================================================================== */
+.neon-home .nah-bay { padding: 12px 16px; }
+.neon-home .nah-bay-head { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 10px 18px; margin-bottom: 10px; }
+.neon-home .nah-bay-head > div:first-child { flex: 1; min-width: 220px; }
+.neon-home .nah-inline { display: flex; align-items: center; gap: 6px; font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-inline input { width: 64px; }
+.neon-home .nah-bay-add { display: flex; gap: 4px; }
+.neon-home .nah-bay-add select { max-width: 200px; }
+.neon-home .nah-bays { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.neon-home .nah-bay-slot {
+  position: relative;
+  min-height: 210px;
+  padding: 26px 10px 10px;
+  border: 1px solid var(--nah-line);
+  background:
+    linear-gradient(90deg, rgba(243, 230, 0, 0.55) 0 3px, transparent 3px calc(100% - 3px), rgba(243, 230, 0, 0.55) calc(100% - 3px)),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0 10px, transparent 10px 20px),
+    linear-gradient(180deg, #0b0b12, #07070b);
+}
+.neon-home .nah-bay-number { position: absolute; top: 4px; left: 12px; font-family: var(--nah-display); font-size: 16px; letter-spacing: 0.2em; color: rgba(243, 230, 0, 0.75); }
+.neon-home .nah-bay-empty { height: 100%; min-height: 160px; display: grid; place-content: center; justify-items: center; gap: 8px; color: var(--nah-dim); font-size: 12px; text-align: center; }
+.neon-home .nah-bay-empty i { font-size: 44px; color: rgba(110, 114, 144, 0.35); }
+.neon-home .nah-vehicle {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--nah-line-2);
+  background: rgba(13, 13, 21, 0.94);
+  clip-path: var(--nah-notch-card);
+}
+.neon-home .nah-vehicle.is-active { border-color: var(--nah-green); box-shadow: inset 0 0 0 1px rgba(57, 255, 136, 0.35), 0 0 18px rgba(57, 255, 136, 0.12); }
+.neon-home .nah-vehicle.is-missing { opacity: 0.6; }
+.neon-home .nah-vehicle > header { display: flex; align-items: center; gap: 10px; }
+.neon-home .nah-vehicle > header img { width: 56px; height: 56px; object-fit: cover; border: 1px solid var(--nah-line-2); clip-path: var(--nah-notch); }
+.neon-home .nah-vehicle > header > div { flex: 1; min-width: 0; }
+.neon-home .nah-vehicle h4 { margin: 0; font-size: 15px; letter-spacing: 0.08em; color: #fff; text-transform: uppercase; }
+.neon-home .nah-vehicle > header small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-vstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 0; background: var(--nah-line); border: 1px solid var(--nah-line); }
+.neon-home .nah-vstats > div { padding: 4px 6px; background: var(--nah-bg-2); }
+.neon-home .nah-vstats dt { font-family: var(--nah-display); font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--nah-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-vstats dd { margin: 0; font-family: var(--nah-display); font-size: 14px; }
+.neon-home .nah-seats { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-seats li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 12px; }
+.neon-home .nah-seat-name { min-width: 80px; color: var(--nah-dim); }
+.neon-home .nah-seat-name i { color: var(--nah-pink); }
+.neon-home .nah-seat-people { display: flex; gap: 2px; }
+.neon-home .nah-seat-people img { width: 20px; height: 20px; object-fit: cover; object-position: top; border: 1px solid var(--nah-cyan); }
+.neon-home .nah-seat-empty { display: inline-block; width: 20px; height: 20px; border: 1px dashed var(--nah-line-2); }
+.neon-home .nah-seats small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.neon-home .nah-tags span { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px 1px 2px; font-size: 11px; border: 1px solid var(--nah-line); background: var(--nah-bg); }
+.neon-home .nah-tags img { width: 16px; height: 16px; }
+.neon-home .nah-vehicle > footer { display: flex; flex-wrap: wrap; gap: 4px; }
+.neon-home .nah-vehicle > footer .nah-icon-btn:first-of-type { margin-left: auto; }
+.neon-home .nah-street { margin-top: 16px; padding: 10px 12px; border: 1px solid var(--nah-line); background: repeating-linear-gradient(90deg, transparent 0 60px, rgba(243, 230, 0, 0.12) 60px 90px) bottom / 100% 3px no-repeat, rgba(13, 13, 21, 0.6); }
+.neon-home .nah-street-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 8px; }
+
+/* ==========================================================================
+   Biomonitor
+   ========================================================================== */
+.neon-home .nah-bio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; padding: 12px 16px; align-content: start; }
+.neon-home .nah-ekg { height: 46px; margin-bottom: 6px; border: 1px solid var(--nah-line); background: repeating-linear-gradient(90deg, rgba(57, 255, 136, 0.06) 0 1px, transparent 1px 20px), repeating-linear-gradient(0deg, rgba(57, 255, 136, 0.06) 0 1px, transparent 1px 12px), #030806; overflow: hidden; }
+.neon-home .nah-ekg svg { width: 200%; height: 100%; animation: nah-ekg 3.2s linear infinite; }
+.neon-home .nah-ekg polyline { fill: none; stroke: var(--nah-green); stroke-width: 2; filter: drop-shadow(0 0 3px var(--nah-green)); vector-effect: non-scaling-stroke; }
+.neon-home .nah-ekg.wound-seriouslyWounded polyline { stroke: var(--nah-orange); filter: drop-shadow(0 0 3px var(--nah-orange)); }
+.neon-home .nah-ekg.wound-seriouslyWounded svg { animation-duration: 1.8s; }
+.neon-home .nah-ekg.wound-mortallyWounded polyline,
+.neon-home .nah-ekg.wound-dead polyline { stroke: var(--nah-pink); filter: drop-shadow(0 0 4px var(--nah-pink)); }
+.neon-home .nah-ekg.wound-mortallyWounded svg { animation-duration: 1s; }
+.neon-home .nah-ekg.wound-dead svg { animation: none; }
+@keyframes nah-ekg { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .neon-home .nah-ekg svg, .neon-home .nah-scanline { animation: none !important; } }
+
+.neon-home .nah-scan { position: relative; height: 300px; color: var(--nah-cyan); border: 1px solid var(--nah-line); background: radial-gradient(ellipse at 50% 40%, rgba(5, 217, 232, 0.08), transparent 70%), var(--nah-bg); }
+.neon-home .nah-scan-figure { position: absolute; left: 50%; top: 8px; height: 284px; transform: translateX(-50%); overflow: visible; }
+.neon-home .nah-zone { fill: rgba(5, 217, 232, 0.12); stroke: var(--nah-cyan); stroke-width: 1.2; }
+.neon-home .nah-zone.is-hurt { fill: rgba(255, 42, 109, 0.35); stroke: var(--nah-pink); animation: nah-pulse 1.4s ease-in-out infinite; }
+@keyframes nah-pulse { 50% { fill: rgba(255, 42, 109, 0.12); } }
+.neon-home .nah-scanline { stroke: var(--nah-cyan); stroke-opacity: 0.6; stroke-width: 2; animation: nah-scan 4s ease-in-out infinite; }
+@keyframes nah-scan { 0%, 100% { transform: translateY(10px); } 50% { transform: translateY(350px); } }
+.neon-home .nah-scan-tag { position: absolute; display: grid; padding: 4px 8px; font-size: 11px; border: 1px solid var(--nah-line-2); background: rgba(7, 7, 11, 0.88); clip-path: var(--nah-notch-card); }
+.neon-home .nah-scan-tag span { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-scan-tag b { font-family: var(--nah-display); font-weight: 400; font-size: 14px; color: #fff; }
+.neon-home .nah-scan-tag em { font-style: normal; color: var(--nah-pink); }
+.neon-home .nah-scan-tag.is-hurt { border-color: var(--nah-pink); }
+.neon-home .nah-scan-tag-head { left: 10px; top: 16px; }
+.neon-home .nah-scan-tag-body { right: 10px; top: 110px; }
+.neon-home .nah-scan-tag-shield { left: 10px; top: 190px; }
+.neon-home .nah-hp,
+.neon-home .nah-hum { margin-top: 10px; }
+.neon-home .nah-hp-head { display: flex; align-items: baseline; gap: 10px; }
+.neon-home .nah-hp-head .nah-kicker { margin: 0; }
+.neon-home .nah-hp-head strong { margin-left: auto; font-family: var(--nah-display); font-weight: 400; font-size: 24px; color: #fff; }
+.neon-home .nah-hp-bar,
+.neon-home .nah-hum-bar { position: relative; height: 14px; margin: 6px 0 4px; border: 1px solid var(--nah-line-2); background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(7, 7, 11, 0.9) 9px 11px), rgba(216, 219, 236, 0.06); }
+.neon-home .nah-hp-bar > b,
+.neon-home .nah-hum-bar > b { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #b3003c, var(--nah-pink)); box-shadow: 0 0 10px var(--nah-pink); transition: width 300ms; }
+.neon-home .nah-hum-bar > b { background: linear-gradient(90deg, #00707a, var(--nah-cyan)); box-shadow: 0 0 10px var(--nah-cyan); }
+.neon-home .nah-hum-bar > s { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, rgba(57, 255, 136, 0.65) 0 4px, rgba(57, 255, 136, 0.25) 4px 8px); text-decoration: none; }
+.neon-home .nah-hp-mark,
+.neon-home .nah-hum-bar > i { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--nah-yellow); }
+.neon-home .nah-hum-bar > i span { position: absolute; top: 100%; left: -8px; font-family: var(--nah-display); font-size: 9px; color: var(--nah-yellow); }
+.neon-home .nah-wound { font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--nah-text); }
+.neon-home .wound-seriouslyWounded .nah-wound { color: var(--nah-orange); }
+.neon-home .wound-mortallyWounded .nah-wound,
+.neon-home .wound-dead .nah-wound { color: var(--nah-pink); }
+.neon-home .nah-emp { font-family: var(--nah-display); font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-emp b { font-weight: 400; color: var(--nah-cyan); font-size: 16px; }
+.neon-home .nah-injury { margin-top: 6px; padding: 6px 8px; border-left: 3px solid var(--nah-pink); background: rgba(255, 42, 109, 0.06); font-size: 12px; }
+.neon-home .nah-injury header { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.neon-home .nah-injury header img { width: 20px; height: 20px; }
+.neon-home .nah-injury header b { flex: 1; }
+.neon-home .nah-injury p { margin: 1px 0; color: var(--nah-dim); }
+.neon-home .nah-injury p i { width: 14px; color: var(--nah-cyan); }
+
+.neon-home .nah-tiers { list-style: none; margin: 14px 0 8px; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.neon-home .nah-tiers li { position: relative; display: grid; gap: 1px; padding: 6px; text-align: center; border: 1px solid var(--nah-line); background: var(--nah-bg-2); color: var(--nah-dim); font-size: 10px; line-height: 1.2; }
+.neon-home .nah-tiers li b { font-family: var(--nah-display); font-weight: 400; font-size: 18px; }
+.neon-home .nah-tiers li small { color: var(--nah-green); }
+.neon-home .nah-tiers li.reached { border-color: rgba(255, 42, 109, 0.35); }
+.neon-home .nah-tiers li.current { color: #fff; border-color: var(--nah-pink); background: rgba(255, 42, 109, 0.18); box-shadow: 0 0 12px rgba(255, 42, 109, 0.35); }
+.neon-home .nah-tiers li:last-child.current { animation: nah-glitch 2.4s steps(2) infinite; }
+@keyframes nah-glitch { 0%, 90% { transform: none; } 92% { transform: translateX(-2px); } 96% { transform: translateX(2px); } }
+.neon-home .nah-psy-status { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.neon-home .nah-psy-tier { display: grid; }
+.neon-home .nah-psy-tier span { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-psy-tier b { font-family: var(--nah-display); font-weight: 400; font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--nah-cyan); }
+.neon-home .tier-borderline .nah-psy-tier b,
+.neon-home .tier-dissociative .nah-psy-tier b { color: var(--nah-orange); }
+.neon-home .tier-cyberpsychosis .nah-psy-tier b,
+.neon-home .tier-extreme .nah-psy-tier b { color: var(--nah-pink); text-shadow: 0 0 10px var(--nah-pink); }
+.neon-home .nah-psy-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+.neon-home .nah-psy-row { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-bottom: 8px; }
+.neon-home .nah-stat-box { display: grid; gap: 4px; align-content: start; padding: 8px 10px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.8); clip-path: var(--nah-notch-card); }
+.neon-home .nah-stat-box > span { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-stat-box > strong { font-family: var(--nah-display); font-weight: 400; font-size: 26px; color: var(--nah-green); text-shadow: 0 0 10px rgba(57, 255, 136, 0.5); }
+.neon-home .nah-stepper { display: flex; gap: 2px; }
+.neon-home .nah-stepper button { width: 22px; height: 20px; padding: 0; justify-content: center; clip-path: none; }
+.neon-home .nah-pips { display: flex; flex-wrap: wrap; gap: 4px; }
+.neon-home .nah-pips i { width: 16px; height: 16px; border: 1px solid var(--nah-yellow); transform: rotate(45deg) scale(0.75); }
+.neon-home .nah-pips i.on { background: var(--nah-yellow); box-shadow: 0 0 8px var(--nah-yellow); }
+.neon-home .nah-spend { display: flex; flex-wrap: wrap; gap: 4px; }
+.neon-home .nah-syndromes .nah-kicker button { margin-left: auto; }
+.neon-home .nah-syndrome { margin-top: 8px; padding: 8px 10px; border: 1px solid var(--nah-line); border-left: 3px solid var(--nah-yellow); background: rgba(7, 7, 11, 0.7); clip-path: var(--nah-notch-card); }
+.neon-home .nah-syndrome.sev-severe { border-left-color: var(--nah-orange); }
+.neon-home .nah-syndrome.sev-extreme { border-left-color: var(--nah-pink); }
+.neon-home .nah-syndrome.state-dormant { opacity: 0.55; filter: grayscale(0.6); }
+.neon-home .nah-syndrome.state-scar { border-style: dashed; }
+.neon-home .nah-syndrome.is-worst { box-shadow: inset 0 0 18px rgba(255, 42, 109, 0.35); }
+.neon-home .nah-syndrome header { display: flex; align-items: center; gap: 10px; }
+.neon-home .nah-syndrome header > i { font-size: 20px; color: var(--nah-pink); width: 24px; text-align: center; }
+.neon-home .nah-syndrome header > div { flex: 1; display: grid; }
+.neon-home .nah-syndrome header b { font-family: var(--nah-display); font-weight: 400; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+.neon-home .nah-syndrome header b em { font-style: normal; color: var(--nah-cyan); text-transform: none; letter-spacing: 0; font-family: "Signika", sans-serif; }
+.neon-home .nah-syndrome header small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-state { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; padding: 2px 6px; border: 1px solid currentColor; color: var(--nah-green); }
+.neon-home .state-dormant .nah-state { color: var(--nah-dim); }
+.neon-home .state-scar .nah-state { color: var(--nah-orange); }
+.neon-home .nah-syn-summary { margin: 6px 0 4px; font-size: 12px; font-style: italic; color: var(--nah-dim); }
+.neon-home .nah-stressors { margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.45; }
+.neon-home .nah-stressors li::marker { color: var(--nah-pink); content: "› "; }
+.neon-home .nah-syndrome footer { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; }
+.neon-home .nah-syndrome footer .nah-icon-btn { margin-left: auto; }
+.neon-home .nah-gm-row { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ==========================================================================
+   Weaponbench
+   ========================================================================== */
+.neon-home .nah-bench { display: grid; grid-template-columns: 240px minmax(0, 1fr) 320px; height: 100%; min-height: 0; }
+.neon-home .nah-rack { padding: 12px; border-right: 1px solid var(--nah-line); }
+.neon-home .nah-rack ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-rack li { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.8); clip-path: var(--nah-notch-card); }
+.neon-home .nah-rack li:hover { border-color: var(--nah-line-2); }
+.neon-home .nah-rack li.selected { border-color: var(--nah-pink); background: linear-gradient(90deg, rgba(255, 42, 109, 0.22), rgba(13, 13, 21, 0.9) 85%); }
+.neon-home .nah-rack li img { width: 32px; height: 32px; object-fit: contain; }
+.neon-home .nah-rack li > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-rack li b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-rack li small { font-size: 10px; color: var(--nah-dim); }
+.neon-home .nah-equipped { color: var(--nah-cyan); }
+.neon-home .nah-mat {
+  padding: 14px 18px;
+  background:
+    linear-gradient(rgba(5, 217, 232, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(5, 217, 232, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    radial-gradient(ellipse at 50% 20%, rgba(5, 217, 232, 0.08), transparent 70%),
+    #060a0d;
+}
+.neon-home .nah-mat-head { display: flex; align-items: center; gap: 16px; }
+.neon-home .nah-mat-art { flex: 0 0 120px; height: 120px; display: grid; place-items: center; border: 1px solid var(--nah-cyan); background: radial-gradient(circle, rgba(5, 217, 232, 0.18), transparent 70%); box-shadow: 0 0 22px rgba(5, 217, 232, 0.25), inset 0 0 22px rgba(5, 217, 232, 0.2); clip-path: var(--nah-notch); }
+.neon-home .nah-mat-art img { width: 96px; height: 96px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(5, 217, 232, 0.6)); }
+.neon-home .nah-mat-head h2 { font-family: var(--nah-display); font-weight: 400; font-size: 22px; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; text-shadow: 0 0 12px rgba(5, 217, 232, 0.6); }
+.neon-home .nah-mat-head .nah-hint { margin-top: 4px; }
+.neon-home .nah-rail { margin: 16px 0; }
+.neon-home .nah-rail-label { font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-rail.is-over .nah-rail-label { color: var(--nah-red); }
+.neon-home .nah-rail-sockets { position: relative; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; padding: 10px 6px; }
+.neon-home .nah-rail-sockets::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: linear-gradient(90deg, var(--nah-cyan), rgba(5, 217, 232, 0.1)); box-shadow: 0 0 8px var(--nah-cyan); }
+.neon-home .nah-node { position: relative; width: 46px; height: 46px; display: grid; place-items: center; border: 1px dashed var(--nah-line-2); background: var(--nah-bg); color: var(--nah-dim); transform: rotate(45deg) scale(0.82); }
+.neon-home .nah-node > * { transform: rotate(-45deg); }
+.neon-home .nah-node.filled { border: 1px solid var(--nah-cyan); background: rgba(5, 217, 232, 0.14); box-shadow: 0 0 12px rgba(5, 217, 232, 0.45); }
+.neon-home .nah-node.filled:not(.start) { opacity: 0.6; }
+.neon-home .nah-node.over { border-color: var(--nah-red); box-shadow: 0 0 12px rgba(255, 75, 75, 0.5); }
+.neon-home .nah-node img { width: 30px; height: 30px; object-fit: contain; }
+.neon-home .nah-specs { width: 100%; max-width: 520px; margin: 4px 0 16px; border-collapse: collapse; background: none; border: 0; font-size: 13px; }
+.neon-home .nah-specs th,
+.neon-home .nah-specs td { padding: 4px 8px; border-bottom: 1px solid var(--nah-line); text-align: left; background: none; }
+.neon-home .nah-specs thead th { font-family: var(--nah-display); font-size: 9px; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-specs tbody th { font-family: var(--nah-display); font-weight: 400; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-specs td { font-family: var(--nah-display); }
+.neon-home .nah-specs tr.changed td:last-child { color: var(--nah-green); text-shadow: 0 0 8px rgba(57, 255, 136, 0.5); }
+.neon-home .nah-specs tr.changed td:nth-child(3) { color: var(--nah-cyan); }
+.neon-home .nah-attached { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.neon-home .nah-attachment { padding: 8px; border: 1px solid var(--nah-line-2); background: rgba(7, 7, 11, 0.88); clip-path: var(--nah-notch-card); }
+.neon-home .nah-drawer .nah-attachment { margin-bottom: 6px; }
+.neon-home .nah-attachment header { display: flex; align-items: center; gap: 8px; }
+.neon-home .nah-attachment header img { width: 32px; height: 32px; object-fit: contain; }
+.neon-home .nah-attachment header > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-attachment header b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.neon-home .nah-attachment header b em { font-style: normal; color: var(--nah-cyan); }
+.neon-home .nah-attachment header small { font-size: 10px; color: var(--nah-dim); }
+.neon-home .nah-benefits { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; font-size: 12px; }
+.neon-home .nah-benefits li i { color: var(--nah-green); font-size: 10px; }
+.neon-home .nah-benefits li.is-custom i { color: var(--nah-yellow); }
+.neon-home .nah-benefits li.is-effect i { color: var(--nah-violet); }
+.neon-home .nah-benefits em { color: var(--nah-dim); }
+.neon-home .nah-drawer { padding: 12px; border-left: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.45); }
+.neon-home .nah-desc { margin-top: 12px; }
+
+/* ==========================================================================
+   Narrow windows: stack the columns.
+   ========================================================================== */
+@container (max-width: 1080px) {
+  .neon-home .nah-loadout { grid-template-columns: 300px minmax(0, 1fr); }
+  .neon-home .nah-col-store { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--nah-line); }
+  .neon-home .nah-bench { grid-template-columns: 200px minmax(0, 1fr); }
+  .neon-home .nah-drawer { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--nah-line); }
+  .neon-home .nah-loadout,
+  .neon-home .nah-bench { height: auto; overflow-y: auto; }
+}
+@container (max-width: 820px) {
+  .neon-home .nah-loadout,
+  .neon-home .nah-bench,
+  .neon-home .nah-bio { grid-template-columns: minmax(0, 1fr); }
+  .neon-home .nah-col-doll,
+  .neon-home .nah-rack { border-right: 0; }
+}
+
+/* ==========================================================================
+   Config windows
+   ========================================================================== */
+.neon-home.nah-config .window-content { overflow: hidden; }
+.neon-home .nah-config-wrap { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.neon-home .nah-config-body { flex: 1; overflow-y: auto; padding: 10px 14px; min-height: 0; }
+.neon-home .nah-config-tabs { padding: 0 14px; }
+.neon-home .nah-config-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.neon-home .nah-config-head img { width: 48px; height: 48px; object-fit: contain; border: 1px solid var(--nah-line-2); }
+.neon-home .nah-config-head h2 { font-family: var(--nah-display); font-weight: 400; font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; }
+.neon-home.nah-config fieldset,
+.neon-home-dialog fieldset { margin: 0 0 10px; border: 1px solid var(--nah-line); border-radius: 0; background: rgba(13, 13, 21, 0.6); }
+.neon-home.nah-config legend,
+.neon-home-dialog legend { font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--nah-yellow); }
+.neon-home.nah-config .form-group,
+.neon-home-dialog .form-group { color: var(--nah-text); }
+.neon-home.nah-config .form-group > label,
+.neon-home-dialog .form-group > label { font-size: 12px; color: var(--nah-dim); }
+.neon-home.nah-config .hint,
+.neon-home-dialog .hint { color: var(--nah-dim); font-size: 11px; }
+.neon-home .nah-checks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.neon-home .nah-checks label { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--nah-text); }
+.neon-home .nah-pool-row .form-fields { display: grid; grid-template-columns: 60px 1fr 1fr; gap: 4px; }
+.neon-home .nah-table { width: 100%; margin: 8px 0; border-collapse: collapse; border: 0; background: none; font-size: 12px; }
+.neon-home .nah-table th,
+.neon-home .nah-table td { padding: 3px 6px; border-bottom: 1px solid var(--nah-line); background: none; text-align: left; }
+.neon-home .nah-table thead th { font-family: var(--nah-display); font-size: 9px; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-table td input { width: 80px; }
+.neon-home .nah-weight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.neon-home .form-footer { display: flex; justify-content: flex-end; padding: 8px 14px; border-top: 1px solid var(--nah-line); }
+
+/* ---------- dialogs ---------- */
+.neon-home-dialog.application { border: 1px solid var(--nah-line-2); border-radius: 0; background: var(--nah-bg); color: var(--nah-text); }
+.neon-home-dialog .window-content { background: var(--nah-bg); color: var(--nah-text); }
+.neon-home-dialog .form-group.stacked textarea { width: 100%; }
+
+/* ---------- chat cards ---------- */
+.neon-home-chat {
+  padding: 8px 10px 10px;
+  border: 1px solid var(--nah-pink);
+  background: linear-gradient(115deg, rgba(255, 42, 109, 0.14), transparent 70%), #09090e;
+  color: var(--nah-text);
+  clip-path: var(--nah-notch-card);
+}
+.neon-home-chat header { margin-bottom: 4px; font-family: var(--nah-display); letter-spacing: 0.1em; text-transform: uppercase; color: #fff; }
+.neon-home-chat header i { color: var(--nah-pink); }
+.neon-home-chat p { margin: 0; }
+.neon-home-chat b { color: var(--nah-cyan); }
+
+/* ---------- sidebar button ---------- */
+#actors .header-actions .neon-home-open { flex: 1 1 100%; }

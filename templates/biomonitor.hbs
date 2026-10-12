@@ -1,0 +1,153 @@
+<div class="nah-bio nah-scroll">
+  {{!-- ================= BODY ================= --}}
+  <section class="nah-bio-body">
+    <div class="nah-ekg wound-{{bio.hp.stateKey}}" aria-hidden="true">
+      <svg viewBox="0 0 600 60" preserveAspectRatio="none"><polyline points="0,30 80,30 95,30 105,12 115,48 125,30 200,30 215,30 222,4 232,56 242,30 330,30 345,30 352,18 362,42 372,30 460,30 475,30 482,6 492,54 502,30 600,30"/></svg>
+    </div>
+    <div class="nah-scan">
+      <svg class="nah-scan-figure" viewBox="0 0 200 360" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5">
+          <path d="M88 74h24l4 12 30 9c9 3 14 10 15 19l8 72c1 6-3 10-8 10s-8-3-9-8l-9-60-3 0 2 58 6 118c0 7-5 11-11 11s-10-4-11-10l-11-98h-4l-11 98c-1 6-5 10-11 10s-11-4-11-11l6-118 2-58-3 0-9 60c-1 5-4 8-9 8s-9-4-8-10l8-72c1-9 6-16 15-19l30-9z"/>
+        </g>
+        <path class="nah-zone nah-zone-head {{#if bio.headHurt}}is-hurt{{/if}}" d="M100 14c15 0 25 11 25 27 0 17-10 31-25 31S75 58 75 41c0-16 10-27 25-27z"/>
+        <path class="nah-zone nah-zone-body {{#if bio.bodyHurt}}is-hurt{{/if}}" d="M88 74h24l4 12 30 9c9 3 14 10 15 19l-6 60-8 0-1 20 0 0h-92l-1-20-8 0-6-60c1-9 6-16 15-19l30-9z"/>
+        <line class="nah-scanline" x1="40" x2="160" y1="0" y2="0"/>
+      </svg>
+      <div class="nah-scan-tag nah-scan-tag-head {{#if bio.headHurt}}is-hurt{{/if}}">
+        <span>{{localize "NEONHOME.Location.head"}}</span>
+        {{#with bio.armor.head}}<b>SP {{value}}/{{max}}</b>{{else}}<b>SP &mdash;</b>{{/with}}
+        {{#if bio.headInjuries}}<em><i class="fa-solid fa-triangle-exclamation"></i> {{bio.headInjuries}}</em>{{/if}}
+      </div>
+      <div class="nah-scan-tag nah-scan-tag-body {{#if bio.bodyHurt}}is-hurt{{/if}}">
+        <span>{{localize "NEONHOME.Location.body"}}</span>
+        {{#with bio.armor.body}}<b>SP {{value}}/{{max}}</b>{{else}}<b>SP &mdash;</b>{{/with}}
+        {{#if bio.bodyInjuries}}<em><i class="fa-solid fa-triangle-exclamation"></i> {{bio.bodyInjuries}}</em>{{/if}}
+      </div>
+      {{#with bio.armor.shield}}
+      <div class="nah-scan-tag nah-scan-tag-shield"><span>{{localize "NEONHOME.Location.shield"}}</span><b>HP {{value}}/{{max}}</b></div>
+      {{/with}}
+    </div>
+
+    <div class="nah-hp wound-{{bio.hp.stateKey}}">
+      <div class="nah-hp-head">
+        <h3 class="nah-kicker">{{localize "NEONHOME.Bio.HP"}}</h3>
+        <strong>{{bio.hp.value}}<em>/{{bio.hp.max}}</em></strong>
+      </div>
+      <div class="nah-hp-bar">
+        <b style="width:{{bio.hp.pct}}%"></b>
+        <i class="nah-hp-mark" style="left:{{bio.hp.seriousPct}}%" data-tooltip="{{localize 'NEONHOME.Bio.Serious' n=bio.hp.serious}}"></i>
+      </div>
+      <p class="nah-hint"><span class="nah-wound">{{bio.hp.state}}</span>{{#if bio.deathPenalty}} &middot; {{localize "NEONHOME.Bio.DeathPenalty" n=bio.deathPenalty}}{{/if}}</p>
+    </div>
+
+    <section class="nah-panel nah-injuries">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Bio.Injuries"}}</h3>
+      {{#each bio.injuries}}
+      <article class="nah-injury loc-{{location}}" data-item-id="{{id}}">
+        <header data-action="bioOpenInjury"><img src="{{img}}" alt=""><b>{{name}}</b><span class="nah-chip">{{locLabel}}</span></header>
+        <p><i class="fa-solid fa-kit-medical"></i> {{quick}}</p>
+        <p><i class="fa-solid fa-bed-pulse"></i> {{treat}}</p>
+        {{#if deathSave}}<p class="nah-warn"><i class="fa-solid fa-skull"></i> {{localize "NEONHOME.Bio.DeathSaveUp"}}</p>{{/if}}
+      </article>
+      {{else}}
+      <p class="nah-hint">{{localize "NEONHOME.Bio.NoInjuries"}}</p>
+      {{/each}}
+    </section>
+  </section>
+
+  {{!-- ================= MIND ================= --}}
+  <section class="nah-bio-mind">
+    <div class="nah-hum">
+      <div class="nah-hp-head">
+        <h3 class="nah-kicker">{{localize "NEONHOME.Bio.Humanity"}}</h3>
+        <strong>{{bio.humanity.value}}<em>/{{bio.humanity.max}}</em></strong>
+        <span class="nah-emp" data-tooltip="{{localize 'NEONHOME.Bio.EmpTip'}}">EMP <b>{{bio.emp.value}}</b>/{{bio.emp.max}}</span>
+      </div>
+      <div class="nah-hum-bar">
+        <b style="width:{{bio.humanity.pct}}%"></b>
+        {{#if bio.psyche.catharsis}}<s style="left:{{bio.humanity.pct}}%;width:{{bio.psyche.catharsisPct}}%" data-tooltip="{{localize 'NEONHOME.Bio.CatharsisTip' n=bio.psyche.catharsis}}"></s>{{/if}}
+        {{#each bio.humanity.markers}}<i style="left:{{pct}}%"><span>{{value}}</span></i>{{/each}}
+      </div>
+    </div>
+
+    {{#if bio.syndromesOn}}
+    {{#with bio.psyche}}
+    <ol class="nah-tiers">
+      {{#each tiers}}<li class="{{#if current}}current{{/if}} {{#if reached}}reached{{/if}}"><b>{{emp}}</b><span>{{label}}</span>{{#if catharsis}}<small>+{{catharsis}}</small>{{/if}}</li>{{/each}}
+    </ol>
+
+    <div class="nah-psy-status tier-{{tierKey}}">
+      <div class="nah-psy-tier"><span>{{localize "NEONHOME.Bio.Tier.Label"}}</span><b>{{tierLabel}}</b></div>
+      <div class="nah-psy-badges">
+        {{#if antipathy}}<span class="nah-badge" data-tooltip="{{localize 'NEONHOME.Bio.AntipathyTip'}}"><i class="fa-solid fa-face-meh-blank"></i> {{localize "NEONHOME.Bio.Antipathy"}}</span>{{/if}}
+        {{#if extreme}}<span class="nah-badge nah-badge-danger" data-tooltip="{{localize 'NEONHOME.Bio.BreakTip'}}"><i class="fa-solid fa-skull"></i> {{localize "NEONHOME.Bio.Break"}}</span>{{/if}}
+        {{#if inTheSystem}}<span class="nah-badge" data-tooltip="{{localize 'NEONHOME.Bio.SystemTip'}}"><i class="fa-solid fa-fingerprint"></i> {{localize "NEONHOME.Bio.InTheSystem"}}</span>{{/if}}
+      </div>
+    </div>
+
+    <div class="nah-psy-row">
+      <div class="nah-stat-box" data-tooltip="{{localize 'NEONHOME.Bio.CatharsisHint'}}">
+        <span>{{localize "NEONHOME.Bio.Catharsis"}}</span>
+        <strong>{{catharsis}}</strong>
+        {{#if @root.isGM}}<div class="nah-stepper"><button type="button" data-action="bioAdjust" data-field="catharsis" data-delta="-1">&minus;</button><button type="button" data-action="bioAdjust" data-field="catharsis" data-delta="1">+</button></div>{{/if}}
+      </div>
+      <div class="nah-stat-box nah-inspiration">
+        <span>{{localize "NEONHOME.Bio.Inspiration"}}</span>
+        <div class="nah-pips">{{#each pips}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</div>
+        {{#if @root.isGM}}<div class="nah-stepper"><button type="button" data-action="bioAdjust" data-field="inspiration" data-delta="-1">&minus;</button><button type="button" data-action="bioAdjust" data-field="inspiration" data-delta="1">+</button></div>{{/if}}
+        {{#if inspiration}}
+        <div class="nah-spend">
+          <button type="button" data-action="bioSpend" data-use="reroll"><i class="fa-solid fa-dice"></i> {{localize "NEONHOME.Bio.Spend.reroll"}}</button>
+          <button type="button" data-action="bioSpend" data-use="luck"><i class="fa-solid fa-clover"></i> {{localize "NEONHOME.Bio.Spend.luck"}}</button>
+          <button type="button" data-action="bioSpend" data-use="lootbox"><i class="fa-solid fa-box-open"></i> {{localize "NEONHOME.Bio.Spend.lootbox"}}</button>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    {{#if owed}}<p class="nah-alert"><i class="fa-solid fa-brain"></i> {{owedText}}</p>{{/if}}
+    {{#if needsScar}}<p class="nah-alert"><i class="fa-solid fa-bandage"></i> {{localize "NEONHOME.Bio.NeedsScar" severity=scarSeverity}}</p>{{/if}}
+
+    <section class="nah-panel nah-syndromes">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Bio.Syndromes"}}
+        <button type="button" class="nah-mini" data-action="bioAddSyndrome"><i class="fa-solid fa-plus"></i> {{localize "NEONHOME.Bio.AddSyndrome"}}</button>
+      </h3>
+      {{#each syndromes}}
+      <article class="nah-syndrome sev-{{severityKey}} state-{{state}} {{#if worst}}is-worst{{/if}}" data-syndrome="{{id}}">
+        <header>
+          <i class="{{icon}}"></i>
+          <div>
+            <b>{{name}}{{#if variant}} <em>&middot; {{variant}}</em>{{/if}}</b>
+            <small>{{severity}}{{#if upgraded}} ({{localize "NEONHOME.Bio.Upgraded"}}){{/if}} &middot; {{pickedAt}}</small>
+          </div>
+          <span class="nah-state">{{stateLabel}}</span>
+        </header>
+        {{#if summary}}<p class="nah-syn-summary">{{summary}}</p>{{/if}}
+        <ul class="nah-stressors">{{#each stressors}}<li>{{this}}</li>{{/each}}</ul>
+        {{#if worst}}<p class="nah-warn">{{localize "NEONHOME.Bio.WorstNote"}}</p>{{/if}}
+        <footer>
+          {{#if canUpgrade}}<button type="button" data-action="bioUpgrade"><i class="fa-solid fa-angles-up"></i> {{localize "NEONHOME.Bio.Upgrade"}}</button>{{/if}}
+          {{#if canScar}}<button type="button" data-action="bioScar"><i class="fa-solid fa-bandage"></i> {{localize "NEONHOME.Bio.MakeScar"}}</button>{{/if}}
+          {{#if isScar}}<span class="nah-chip"><i class="fa-solid fa-bandage"></i> {{localize "NEONHOME.Bio.Scar"}}</span>{{/if}}
+          {{#if @root.isGM}}<button type="button" class="nah-icon-btn is-danger" data-action="bioRemove" data-tooltip="{{localize 'NEONHOME.Bio.RemoveTitle'}}"><i class="fa-solid fa-trash"></i></button>{{/if}}
+        </footer>
+      </article>
+      {{else}}
+      <p class="nah-hint">{{localize "NEONHOME.Bio.NoSyndromes"}}</p>
+      {{/each}}
+    </section>
+
+    {{#if @root.isGM}}
+    <section class="nah-panel nah-gm">
+      <h3 class="nah-kicker">{{localize "NEONHOME.Bio.GMTools"}}</h3>
+      <div class="nah-gm-row">
+        <button type="button" data-action="bioToggle" data-field="inTheSystem" class="{{#if inTheSystem}}on{{/if}}"><i class="fa-solid fa-fingerprint"></i> {{localize "NEONHOME.Bio.InTheSystem"}}</button>
+        <button type="button" data-action="bioToggle" data-field="breakdown" class="{{#if breakdown}}on{{/if}}"><i class="fa-solid fa-skull"></i> {{localize "NEONHOME.Bio.Break"}}</button>
+        <button type="button" data-action="bioTherapy"><i class="fa-solid fa-couch"></i> {{localize "NEONHOME.Bio.Therapy"}}</button>
+      </div>
+    </section>
+    {{/if}}
+    {{/with}}
+    {{/if}}
+  </section>
+</div>

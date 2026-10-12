@@ -1,0 +1,100 @@
+{{#*inline "nahBenefits"}}
+<ul class="nah-benefits">
+  {{#each benefits}}<li class="{{#if custom}}is-custom{{/if}} {{#if effect}}is-effect{{/if}}"><i class="fa-solid fa-angle-right"></i> {{text}}{{#if situational}} <em>({{localize "NEONHOME.Bench.Situational"}})</em>{{/if}}</li>{{else}}<li class="nah-hint">{{localize "NEONHOME.Bench.NoBenefits"}}</li>{{/each}}
+</ul>
+{{/inline}}
+
+<div class="nah-bench">
+  {{!-- ================= RACK ================= --}}
+  <aside class="nah-rack nah-scroll">
+    <h3 class="nah-kicker">{{localize "NEONHOME.Bench.Rack"}}</h3>
+    <ul>
+      {{#each bench.rack}}
+      <li class="{{#if selected}}selected{{/if}}" data-item-id="{{id}}" data-action="benchSelect">
+        <img src="{{img}}" alt="">
+        <div><b>{{name}}</b><small>{{type}}{{#if attached}} &middot; <i class="fa-solid fa-puzzle-piece"></i> {{attached}}{{/if}}</small></div>
+        {{#if equipped}}<i class="fa-solid fa-hand-fist nah-equipped" data-tooltip="{{localize 'NEONHOME.State.equipped'}}"></i>{{/if}}
+      </li>
+      {{else}}
+      <li class="nah-hint">{{localize "NEONHOME.Bench.NoWeapons"}}</li>
+      {{/each}}
+    </ul>
+  </aside>
+
+  {{!-- ================= BENCH ================= --}}
+  <main class="nah-mat nah-scroll" data-drop="bench">
+    {{#with bench.weapon}}
+    <header class="nah-mat-head">
+      <div class="nah-mat-art" data-item-id="{{id}}" data-action="benchOpen"><img src="{{img}}" alt=""></div>
+      <div>
+        <h2>{{name}}</h2>
+        <p class="nah-hint">{{type}}{{#if skill}} &middot; {{skill}}{{/if}}{{#if quality}} &middot; {{quality}}{{/if}} &middot; {{localize "NEONHOME.Bench.Hands" n=hands}}{{#if concealable}} &middot; {{localize "NEONHOME.Bench.Concealable"}}{{/if}}</p>
+        {{#if ammo}}<p class="nah-hint"><i class="fa-solid fa-box-archive"></i> {{ammo}}</p>{{/if}}
+      </div>
+    </header>
+
+    <div class="nah-rail {{#if over}}is-over{{/if}}">
+      <span class="nah-rail-label">{{localize "NEONHOME.Bench.Slots" used=used slots=slots}}</span>
+      <div class="nah-rail-sockets">
+        {{#each sockets}}
+        <div class="nah-node {{#if filled}}filled{{/if}} {{#if start}}start{{/if}} {{#if over}}over{{/if}}" {{#if name}}data-tooltip="{{name}}"{{/if}}>
+          {{#if start}}{{#if img}}<img src="{{img}}" alt="">{{else}}<i class="fa-solid fa-plus"></i>{{/if}}{{/if}}
+        </div>
+        {{else}}<em class="nah-hint">{{localize "NEONHOME.Bench.NoSlots"}}</em>{{/each}}
+      </div>
+    </div>
+
+    <table class="nah-specs">
+      <thead><tr><th></th><th>{{localize "NEONHOME.Bench.Base"}}</th><th></th><th>{{localize "NEONHOME.Bench.Now"}}</th></tr></thead>
+      <tbody>
+        {{#each rows}}
+        <tr class="{{#if changed}}changed{{/if}}"><th>{{label}}</th><td>{{base}}</td><td>{{#if changed}}<i class="fa-solid fa-arrow-right-long"></i>{{/if}}</td><td>{{value}}{{#if override}} <i class="fa-solid fa-lock" data-tooltip="{{localize 'NEONHOME.Bench.OverrideTip'}}"></i>{{/if}}</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <h3 class="nah-kicker">{{localize "NEONHOME.Bench.Attached"}}</h3>
+    <div class="nah-attached">
+      {{#each attachments}}
+      <article class="nah-attachment" data-item-id="{{id}}" data-owner="" data-drag data-kind="installed">
+        <header>
+          <img src="{{img}}" alt="" data-action="benchOpen">
+          <div><b data-action="benchOpen">{{name}}</b><small>{{localize "NEONHOME.Bench.SizeN" n=size}}</small></div>
+          {{#if canDetach}}
+          <button type="button" class="nah-icon-btn" data-action="benchDetach" data-tooltip="{{localize 'NEONHOME.Bench.Detach'}}"><i class="fa-solid fa-eject"></i></button>
+          {{#if @root.bench.stashed}}<button type="button" class="nah-icon-btn" data-action="benchDetach" data-stow="1" data-tooltip="{{localize 'NEONHOME.Bench.DetachStow'}}"><i class="fa-solid fa-box-archive"></i></button>{{/if}}
+          {{else}}<span class="nah-chip" data-tooltip="{{localize 'NEONHOME.Bench.FixedTip'}}"><i class="fa-solid fa-lock"></i></span>{{/if}}
+        </header>
+        {{> nahBenefits}}
+      </article>
+      {{else}}
+      <p class="nah-hint nah-dropzone">{{localize "NEONHOME.Bench.NoneAttached"}}</p>
+      {{/each}}
+    </div>
+    {{#if description}}<p class="nah-hint nah-desc">{{description}}</p>{{/if}}
+    {{else}}
+    <p class="nah-empty">{{localize "NEONHOME.Bench.PickWeapon"}}</p>
+    {{/with}}
+  </main>
+
+  {{!-- ================= DRAWER ================= --}}
+  <aside class="nah-drawer nah-scroll" data-drop="drawer">
+    <h3 class="nah-kicker">{{localize "NEONHOME.Bench.Drawer"}}
+      {{#if bench.canCraft}}<button type="button" class="nah-mini" data-action="benchCraft"><i class="fa-solid fa-screwdriver-wrench"></i> {{localize "NEONHOME.Bench.Craft"}}</button>{{/if}}
+    </h3>
+    {{#if bench.weapon}}
+    {{#each bench.drawer}}
+    <article class="nah-attachment {{#unless ok}}is-blocked{{/unless}}" data-item-id="{{id}}" data-owner="{{owner}}" data-drag data-kind="attachment">
+      <header>
+        <img src="{{img}}" alt="" data-action="benchOpen">
+        <div><b data-action="benchOpen">{{name}}{{#if amount}} <em>&times;{{amount}}</em>{{/if}}</b><small>{{localize "NEONHOME.Bench.SizeN" n=size}} &middot; {{from}}</small></div>
+        <button type="button" class="nah-icon-btn" data-action="benchAttach" {{#if ok}}data-tooltip="{{localize 'NEONHOME.Bench.Attach'}}"{{else}}disabled data-tooltip="{{reason}}"{{/if}}><i class="fa-solid fa-plug-circle-plus"></i></button>
+      </header>
+      {{> nahBenefits}}
+    </article>
+    {{else}}
+    <p class="nah-hint">{{localize "NEONHOME.Bench.DrawerEmpty"}}</p>
+    {{/each}}
+    {{/if}}
+  </aside>
+</div>

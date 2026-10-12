@@ -1,0 +1,147 @@
+{
+  "_id": "QVCFd9RBgFBHGCbw",
+  "_key": "!items!QVCFd9RBgFBHGCbw",
+  "name": "Deployable Armor lv. 2",
+  "type": "itemUpgrade",
+  "img": "icons/svg/upgrade.svg",
+  "folder": "EU7K6wIyoG71gphY",
+  "sort": 500,
+  "system": {
+    "description": {
+      "value": "<p>The armor is now made up mostly of nano-machines, and is stored in two bracelets and a belt. Without all three of these the armor cannot be put on.</p><p>Armor can be put on and taken off with an action.</p>"
+    },
+    "favorite": false,
+    "source": {
+      "book": "Homebrew: Armor & Carrying 2.0",
+      "page": 0
+    },
+    "revealed": true,
+    "usage": "installed",
+    "isElectronic": false,
+    "providesHardening": false,
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    },
+    "brand": "",
+    "price": {
+      "market": 10000
+    },
+    "installLocation": "mall",
+    "size": 3,
+    "type": "armor",
+    "handsReq": 0,
+    "modifiers": {
+      "Wardrobe & Style": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "attackmod": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "bodySp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "cool": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "damage": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "headSp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "magazine": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "rof": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "sdp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "seats": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "shieldHp": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "slots": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null,
+        "type": "modifier"
+      },
+      "speedCombat": {
+        "isSituational": false,
+        "onByDefault": false,
+        "value": null
+      },
+      "secondaryWeapon": {
+        "configured": false
+      }
+    },
+    "installedItems": {
+      "allowed": false,
+      "allowedTypes": [
+        "itemUpgrade"
+      ],
+      "list": [],
+      "usedSlots": 0,
+      "slots": 0
+    }
+  },
+  "effects": [],
+  "flags": {
+    "cpr-neon-at-home": {
+      "item": {
+        "upgrade": {
+          "key": "deployable2",
+          "location": "body",
+          "classes": [
+            "light",
+            "medium",
+            "heavy"
+          ],
+          "effects": [],
+          "requires": "",
+          "pair": false,
+          "pools": []
+        }
+      }
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}
