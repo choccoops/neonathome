@@ -314,8 +314,14 @@ world and edit it (for instance with the DLC's own text) and Neon At Home rolls 
 an offline cyberarm, drops what that hand held: two-handed weapons always (one arm can't hold
 them), everything if both arms are gone, and the GM is asked about one-handed items (and which arm,
 if that isn't known). With **Item Piles** on, dropped items land in a pile beside the token, with
-their attachments, which go back on when someone picks the item up; without it, they're simply no
-longer carried.
+their attachments, which go back on when someone picks the item up, and the pile goes once it's
+empty; without it, they're simply no longer carried. Item Piles needs its System Specific settings
+for Cyberpunk RED (an actor class type, and `system.amount` as the item quantity attribute): Neon At
+Home says so when they're missing.
+
+**Holding things with a lost hand.** With an arm or hand gone, a character has one hand left:
+equipping a two-handed weapon, or another weapon or shield when that hand is full, is stopped with
+a pop-up (the GM can equip it anyway). With both gone, nothing can be held.
 
 ## Item settings (GM)
 

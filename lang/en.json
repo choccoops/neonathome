@@ -958,6 +958,16 @@
       "Confirm": "Drop",
       "PilesSetting": "Item Piles can't make piles: its actor type for piles is \"{type}\". In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (or set Actor class type to one of: {types}). Until then, dropped items are just no longer carried.",
       "PilesQuantity": "Item Piles' \"Item quantity attribute\" is blank, so anything dropped in a pile couldn't be picked up again. In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (it's system.amount). Until then, dropped items are just no longer carried."
+    },
+    "Hands": {
+      "Title": "Not enough hands",
+      "One": "<b>{name}</b> has one working hand left: the {side} arm or hand is gone.",
+      "None": "<b>{name}</b> has no working hands: both arms or hands are gone.",
+      "TwoHanded": "<b>{item}</b> needs both hands.",
+      "Full": "That hand is already holding <b>{held}</b>.",
+      "Hint": "Put something down first. A replacement limb, or the cyberarm working again, gives the hand back.",
+      "Ok": "OK",
+      "Override": "Equip anyway (GM)"
     }
   }
 }

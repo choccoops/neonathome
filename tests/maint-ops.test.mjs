@@ -402,6 +402,9 @@ test("dropping into an Item Piles pile takes the attachments along, and picking 
     assert.equal(piles[0].sceneId, "scene1");
     const data = piles[0].items[0];
     assert.equal(data.name, "Assault Rifle");
+    assert.equal(data.flags[M].dropped, true);
+    assert.equal(piles[0].itemPileFlags.deleteWhenEmpty, true);
+    assert.equal(piles[0].tokenOverrides.flags[M].dropPile, true);
     assert.deepEqual(data.system.installedItems.list, []);
     assert.equal(data.flags[M].dropTree[0].name, "Sniping Scope");
     assert.equal(actor.items.get("rifle"), undefined);
@@ -418,6 +421,7 @@ test("dropping into an Item Piles pile takes the attachments along, and picking 
     assert.equal(rebuilt.imported, true);
     assert.equal(rebuilt.tree[0].name, "Sniping Scope");
     assert.equal(found.flags[M].dropTree, undefined);
+    assert.equal(found.flags[M].dropped, undefined, "picked up, it's no longer a dropped item");
   } finally {
     noPiles();
   }
@@ -505,6 +509,8 @@ test("other injuries, or the setting off, drop nothing", async () => {
 test("Cyberpunk RED's container (and mook, demon, Black ICE) create hands back the actor it made", async () => {
   const made = [];
   class Container {
+    static documentName = "Actor";
+
     constructor(data) {
       Object.assign(this, data);
     }
@@ -520,12 +526,93 @@ test("Cyberpunk RED's container (and mook, demon, Black ICE) create hands back t
   const before = CONFIG.Actor;
   CONFIG.Actor = { documentClass: function Doc(data) { return data.type === "container" ? new Container(data) : {}; } };
   try {
+    const objectCreate = Object.create;
     CPR.fixActorCreate();
     CPR.fixActorCreate();
     const pile = await Container.create({ name: "Default Item Pile", type: "container" });
     assert.equal(pile, made[0]);
     assert.equal(pile.name, "Default Item Pile");
+    assert.equal(Object.create, objectCreate, "only Actor classes are touched");
   } finally {
     CONFIG.Actor = before;
   }
+});
+
+test("a pile Neon At Home made goes once what was dropped in it is picked up", async () => {
+  asUser(true);
+  const pile = makeActor({ name: "Item Pile", type: "character" }, [
+    { _id: "skill", name: "Athletics", type: "skill", system: {} },
+    { _id: "gun", name: "Assault Rifle", type: "weapon", system: {}, flags: { [M]: { dropped: true } } }
+  ]);
+  let deleted = false;
+  const tokens = new Map();
+  const token = { id: "tok", flags: { [M]: { dropPile: true } }, parent: { tokens }, delete: async () => { deleted = true; tokens.delete("tok"); } };
+  token.getFlag = (scope, key) => token.flags?.[scope]?.[key];
+  tokens.set("tok", token);
+  Object.assign(pile, { isToken: true, token });
+  await MaintOps.clearPile(pile);
+  assert.equal(deleted, false, "the rifle is still there");
+  pile.items.delete("gun");
+  callHook("deleteItem", { parent: pile });
+  await new Promise((r) => setImmediate(r));
+  assert.equal(deleted, true, "only Cyberpunk RED's skills are left: the pile goes");
+  // piles someone else made are left alone
+  deleted = false;
+  tokens.set("tok", token);
+  token.flags = {};
+  await MaintOps.clearPile(pile);
+  assert.equal(deleted, false);
+});
+
+test("a lost arm or hand leaves one hand to hold things with; the GM can equip anyway", async () => {
+  asUser(false);
+  const actor = gearhead();
+  // two hands: rifle (2) and pistol (1) equipped is CPR's business, not ours
+  assert.equal(HomeOps.holdCheck(actor, actor.items.get("pistol")), null);
+  await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "L" } } }]);
+  actor.items.get("rifle").system.equipped = "carried";
+  actor.items.get("pistol").system.equipped = "carried";
+  assert.deepEqual(HomeOps.lostHands(actor), ["L"]);
+  const rifle = HomeOps.holdCheck(actor, actor.items.get("rifle"));
+  assert.deepEqual([rifle.need, rifle.hands], [2, 1], "two-handed: no");
+  assert.equal(HomeOps.holdCheck(actor, actor.items.get("pistol")), null, "one-handed in the free hand: fine");
+  actor.items.get("pistol").system.equipped = "equipped";
+  const second = HomeOps.holdCheck(actor, { ...actor.items.get("rifle"), id: "x", system: { handsReq: 1 }, type: "weapon" });
+  assert.deepEqual(second.holding.map((i) => i.name), ["Heavy Pistol"], "the hand is full");
+  assert.equal(HomeOps.holdCheck(actor, actor.items.get("jack")), null, "armor isn't held (shields are)");
+
+  // the character sheet's equip toggle: stopped with the pop-up
+  dialogs.shown.length = 0;
+  dialogs.next = "ok";
+  assert.equal(callHook("preUpdateItem", actor.items.get("rifle"), { system: { equipped: "equipped" } }, {}, game.user.id), false);
+  await new Promise((r) => setImmediate(r));
+  assert.match(dialogs.shown[0].content, /needs both hands/);
+  assert.equal(dialogs.shown[0].buttons.length, 1, "players can't override");
+  // the Loadout: stopped too
+  dialogs.next = "ok";
+  await assert.rejects(HomeOps.equip(actor, "rifle", "equipped"), RuleBlock);
+  assert.equal(actor.items.get("rifle").system.equipped, "carried");
+  // the GM can equip it anyway
+  asUser(true);
+  dialogs.next = "override";
+  await HomeOps.equip(actor, "rifle", "equipped");
+  assert.equal(actor.items.get("rifle").system.equipped, "equipped");
+});
+
+test("with both arms gone nothing can be held", async () => {
+  asUser(false);
+  const actor = gearhead();
+  actor.items.get("rifle").system.equipped = "carried";
+  actor.items.get("pistol").system.equipped = "carried";
+  await actor.createEmbeddedDocuments("Item", [
+    { name: "Dismembered Arm (Destroyed Cyberarm)", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "R" } } },
+    { name: "Dismembered Hand", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "L" } } }
+  ]);
+  const check = HomeOps.holdCheck(actor, actor.items.get("pistol"));
+  assert.equal(check.hands, 0);
+  dialogs.shown.length = 0;
+  dialogs.next = "ok";
+  await assert.rejects(HomeOps.equip(actor, "pistol", "equipped"), RuleBlock);
+  assert.match(dialogs.shown[0].content, /no working hands/);
+  asUser(true);
 });

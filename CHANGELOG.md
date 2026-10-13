@@ -2,6 +2,9 @@
 
 ## 1.4.2
 
+- **Piles clear themselves.** A pile Neon At Home drops an item into goes away once the item is picked up out of it (Item Piles' own "delete when empty" can't tell on character-type piles, which carry Cyberpunk RED's skills and built-in cyberware). The pile token shows the dropped item.
+- **A lost arm or hand limits what can be held.** With a Dismembered Arm or Hand (Cyberpunk RED's, or an offline cyberarm's), equipping a two-handed weapon, or a second one-handed weapon or shield when the one hand left is full, is stopped with a pop-up, from the character sheet and the Loadout alike. With both gone, nothing can be held. The GM can equip it anyway.
+- **Fixed:** the 1.4.1 fix for Cyberpunk RED's `Actor.create` now only ever touches Cyberpunk RED's own Actor classes.
 - **Dropping into Item Piles checks Item Piles' setup first.** Item Piles makes piles as actors of the type in its System Specific settings ("Actor class type"). When that's blank (it can be, in worlds where Item Piles' Cyberpunk RED defaults were never applied) or isn't a Cyberpunk RED actor type, Item Piles fails with "Unsupported Entity type for create()" and "pileActor is undefined". The same goes for a blank "Item quantity attribute": Item Piles then counts everything in a pile as 0, so a dropped item couldn't be picked up again. In either case Neon At Home doesn't hand the item to Item Piles: the GM is told which setting to fix (reset Item Piles' System Specific settings to Cyberpunk RED's defaults), and the item is simply no longer carried.
 
 ## 1.4.1

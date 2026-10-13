@@ -481,13 +481,12 @@ export const MaintOps = {
 
   /** What a character holds: equipped weapons and shields (not installed ones, not cyberweapons). */
   held(actor) {
-    return actor.items.filter((i) => ((i.type === "weapon") || (i.type === "armor" && i.system?.isShield))
-      && i.system?.equipped === "equipped" && !CPR.isInstalled(i));
+    return HomeOps.held(actor);
   },
 
   /** Hands an item takes. */
   hands(item) {
-    return item.type === "armor" ? 1 : Math.max(1, Number(item.system?.handsReq) || 1);
+    return HomeOps.handsFor(item);
   },
 
   /** The side a cyberlimb is on (as the Biomonitor draws it), or null. */
@@ -543,16 +542,25 @@ export const MaintOps = {
       const data = item.toObject();
       delete data._id;
       if (data.system?.equipped) data.system.equipped = "owned";
+      // marked, so its pile goes once it's picked up (see clearPile)
+      data.flags ??= {};
+      data.flags[MODULE_ID] = { ...(data.flags[MODULE_ID] ?? {}), dropped: true };
       const tree = item.system?.installedItems?.list?.length && typeof item.createInstalledObjectData === "function";
       if (tree) {
-        data.flags ??= {};
-        data.flags[MODULE_ID] = { ...(data.flags[MODULE_ID] ?? {}), dropTree: item.createInstalledObjectData() };
+        data.flags[MODULE_ID].dropTree = item.createInstalledObjectData();
         data.system.installedItems.list = [];
         data.system.installedItems.usedSlots = 0;
       }
       const grid = Number(token.document.parent.grid?.size ?? canvas?.grid?.size) || 100;
       try {
-        const made = await api.createItemPile({ position: { x: token.document.x + grid, y: token.document.y }, sceneId: token.document.parent.id, items: [data] });
+        const made = await api.createItemPile({
+          position: { x: token.document.x + grid, y: token.document.y },
+          sceneId: token.document.parent.id,
+          items: [data],
+          // the pile shows the dropped item, and goes when it's empty
+          itemPileFlags: { deleteWhenEmpty: true, displayOne: true, showItemName: true, overrideSingleItemScale: true, singleItemScale: 0.75 },
+          tokenOverrides: { flags: { [MODULE_ID]: { dropPile: true } } }
+        });
         // false: a hook stopped it; nothing was made
         if (!made) throw new Error("Item Piles made no pile");
         if (item.type === "armor" && item.system.equipped === "equipped") await CPR.setEquipped(actor, item, "owned");
@@ -630,17 +638,32 @@ export const MaintOps = {
   },
 
   /**
-   * Picked up from a pile: put back what was installed in it (the scope on the rifle). Runs on the
-   * client that created the item.
+   * Picked up from a pile: it's no longer a dropped item, and what was installed in it (the scope on
+   * the rifle) goes back on. Runs on the client that created the item.
    */
   async restoreDropped(item) {
-    const tree = item.getFlag(MODULE_ID, "dropTree");
     const actor = item.parent;
-    if (!tree || !actor) return;
+    const tree = item.getFlag(MODULE_ID, "dropTree");
+    if (!actor || (!tree && !item.getFlag(MODULE_ID, "dropped"))) return;
     if (game.itempiles?.API?.isValidItemPile?.(actor)) return;
-    if (typeof item.createInstalledItemsOnActor !== "function") return;
-    await item.update({ "flags.cprInstallTree": tree, [`flags.${MODULE_ID}.-=dropTree`]: null }, { [MODULE_ID]: { [CHECKED]: true } });
-    await item.createInstalledItemsOnActor(true);
+    const rebuild = tree && typeof item.createInstalledItemsOnActor === "function";
+    const update = { [`flags.${MODULE_ID}.-=dropped`]: null, [`flags.${MODULE_ID}.-=dropTree`]: null };
+    if (rebuild) update["flags.cprInstallTree"] = tree;
+    await item.update(update, { [MODULE_ID]: { [CHECKED]: true } });
+    if (rebuild) await item.createInstalledItemsOnActor(true);
+  },
+
+  /**
+   * Lead GM, when an item leaves a pile Neon At Home made: once nothing it dropped is left, the pile
+   * token goes. (Item Piles' own "delete when empty" can't tell, with Cyberpunk RED's skills and
+   * built-in cyberware on character-type pile actors.)
+   */
+  async clearPile(actor) {
+    const token = actor?.isToken ? actor.token : null;
+    if (!token?.getFlag?.(MODULE_ID, "dropPile")) return;
+    if (actor.items.some((i) => i.getFlag(MODULE_ID, "dropped"))) return;
+    if (token.parent?.tokens?.has?.(token.id) === false) return;
+    await token.delete();
   }
 };
 
