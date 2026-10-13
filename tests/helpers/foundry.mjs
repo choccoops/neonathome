@@ -81,10 +81,18 @@ globalThis.CONST = { ACTIVE_EFFECT_MODES: { CUSTOM: 0, MULTIPLY: 1, ADD: 2, OVER
 globalThis.ui = { notifications: { info() {}, warn() {}, error() {} } };
 /** Hooks: registered handlers are kept so tests can call them. */
 const hooks = new Map();
+let hookId = 0;
 globalThis.Hooks = {
   on(name, fn) {
     if (!hooks.has(name)) hooks.set(name, []);
+    fn.hookId = ++hookId;
     hooks.get(name).push(fn);
+    return fn.hookId;
+  },
+  off(name, id) {
+    const list = hooks.get(name) ?? [];
+    const i = list.findIndex((fn) => fn === id || fn.hookId === id);
+    if (i >= 0) list.splice(i, 1);
   },
   once() {},
   callAll() {}

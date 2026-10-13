@@ -234,56 +234,74 @@ test("without Neon Hub the GM starts each month: uncovered gear falls due again"
   await game.settings.set(M, "maintCycleMode", "rent");
 });
 
-/** Neon Hub with a calendar: each character's billing says which rent month they're in. */
-function neonHub(period, { calendar = { id: "nc", name: "Night City" }, days = 5 } = {}) {
-  const state = { period, toRentDay: [] };
+/**
+ * Neon Hub with a calendar (or none): each character's billing says which rent month they're in,
+ * worked out from the calendar's date as Neon Hub does.
+ */
+function neonHub({ calendar = { id: "nc", name: "Night City", year: 2045, month: 10, day: 20, rentDay: 1, players: [] }, counter = 3 } = {}) {
+  const { rentPeriod } = maintenance;
+  const state = { calendar, counter, toRentDay: [] };
   game.modules.set("cpr-neon-hub", {
     active: true,
     api: {
       lifestyleBill: async () => ({
-        billing: calendar
-          ? { mode: "calendar", calendar, period: state.period, label: `Month ${state.period}`, next: { days, today: days === 0 } }
-          : { mode: "counter", calendar: null, period: state.period, label: `Month ${state.period}`, next: null }
+        billing: state.calendar
+          ? { mode: "calendar", calendar: state.calendar, period: rentPeriod(state.calendar, state.calendar.rentDay), label: "Rent month", next: { days: 5, today: false } }
+          : { mode: "counter", calendar: null, period: state.counter, label: `Month ${state.counter}`, next: null }
       }),
+      listCalendars: () => (state.calendar ? [state.calendar] : []),
+      lifestyleMonth: () => state.counter,
       toRentDay: async (id) => {
         state.toRentDay.push(id);
-        state.period += 1;
+        state.calendar = { ...state.calendar, month: state.calendar.month + 1, day: state.calendar.rentDay };
       }
     }
   });
   return state;
 }
+const maintenance = await import("../scripts/data/maintenance.js");
 
 test("with Neon Hub's calendar, maintenance months start on Rent Day", async () => {
   asUser(true);
   const actor = gearhead();
   actor.hasPlayerOwner = true;
-  const hub = neonHub(24550);
+  const hub = neonHub();
   try {
     assert.equal(MaintOps.mode, "rent");
     const c = await MaintOps.cycleFor(actor);
-    assert.deepEqual([c.scheme, c.n, c.calendar.name, c.next.days], ["cal", 24550, "Night City", 5]);
+    const october = 2045 * 12 + 9;
+    assert.deepEqual([c.scheme, c.n, c.calendar.name, c.next.days], ["cal", october, "Night City", 5]);
 
     rollsTotal(16);
     await MaintOps.check(actor, "rifle", { mode: "maintain" });
-    assert.deepEqual(flagOf(actor.items.get("rifle")).maintained, { scheme: "cal", n: 24550 });
+    assert.deepEqual(flagOf(actor.items.get("rifle")).maintained, { scheme: "cal", n: october });
     assert.equal((await MaintOps.entry(actor, "rifle")).status, "maintained");
     await assert.rejects(MaintOps.newCycle(), RuleBlock, "Neon Hub starts the months");
 
-    // the first look remembers where the calendar is; Rent Day passing announces who has gear due
+    // the world loads: where the calendar stands is noted, nothing is posted
+    MaintOps.primeRent();
     chat.length = 0;
-    await MaintOps.announceRentDay();
-    assert.equal(chat.length, 0);
+    await MaintOps.onHubChange();
+    assert.equal(chat.length, 0, "a change within the month posts nothing");
+    // the GM moves the calendar past Rent Day
     await MaintOps.toRentDay(actor);
     assert.deepEqual(hub.toRentDay, ["nc"]);
     assert.equal((await MaintOps.entry(actor, "rifle")).status, "due");
-    await MaintOps.announceRentDay();
+    await MaintOps.onHubChange();
     assert.equal(chat.length, 1);
     assert.match(chat[0].content, /Rent Day/);
     assert.match(chat[0].content, /Night City/);
     assert.match(chat[0].content, /Gearhead: 2 to maintain/, "the rifle and the 500eb cyberarm");
-    await MaintOps.announceRentDay();
+    assert.deepEqual(chat[0].whisper, [], "a calendar without players: everyone sees it, as Neon Hub's card");
+    await MaintOps.onHubChange();
     assert.equal(chat.length, 1, "once per Rent Day");
+
+    // a calendar with players: to them and the GM
+    hub.calendar = { ...hub.calendar, players: ["p1"] };
+    MaintOps.primeRent();
+    hub.calendar = { ...hub.calendar, month: hub.calendar.month + 1 };
+    await MaintOps.onHubChange();
+    assert.deepEqual(chat.at(-1).whisper, ["p1", "gm"]);
 
     // the GM can still keep months here instead
     await game.settings.set(M, "maintCycleMode", "month");
@@ -295,16 +313,49 @@ test("with Neon Hub's calendar, maintenance months start on Rent Day", async () 
   }
 });
 
-test("Neon Hub without calendars: its month counter keeps the months", async () => {
+test("a GM's own characters on the calendar are listed too, and the card posts even with nothing due", async () => {
   asUser(true);
-  const actor = gearhead();
-  neonHub(7, { calendar: null });
+  for (const id of [...game.actors.keys()]) game.actors.delete(id);
+  const actor = gearhead({ lifestyle: "Fresh Food" });
+  neonHub();
   try {
-    const c = await MaintOps.cycleFor(actor);
-    assert.deepEqual([c.scheme, c.n, c.calendar, c.next], ["hub", 7, null, null]);
+    MaintOps.primeRent();
+    chat.length = 0;
+    await MaintOps.toRentDay(actor);
+    await MaintOps.onHubChange();
+    assert.equal(chat.length, 1);
+    assert.match(chat[0].content, /Nothing needs a maintenance Check/, "Fresh Food covers it all");
   } finally {
     game.modules.delete("cpr-neon-hub");
   }
+});
+
+test("Neon Hub without calendars: its month counter keeps the months", async () => {
+  asUser(true);
+  const actor = gearhead();
+  const hub = neonHub({ calendar: null, counter: 7 });
+  try {
+    const c = await MaintOps.cycleFor(actor);
+    assert.deepEqual([c.scheme, c.n, c.calendar, c.next], ["hub", 7, null, null]);
+    MaintOps.primeRent();
+    chat.length = 0;
+    hub.counter = 8;
+    await MaintOps.onHubChange();
+    assert.match(chat.at(-1).content, /Month 8/);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
+});
+
+test("rent months as Neon Hub counts them", () => {
+  const { rentPeriod, rentMonth } = maintenance;
+  const at = (year, month, day, rentDay) => rentPeriod({ year, month, day }, rentDay) - (year * 12 + month - 1);
+  assert.equal(at(2045, 3, 10, 15), -1, "before the 15th it's still February's month");
+  assert.equal(at(2045, 3, 15, 15), 0);
+  assert.equal(at(2045, 2, 28, 31), 0, "Rent Day on the 31st falls on the last day of February");
+  assert.equal(at(2044, 2, 28, 31), -1, "2044 is a leap year");
+  assert.equal(at(2044, 2, 29, 31), 0);
+  assert.deepEqual(rentMonth(2045 * 12 + 10), { year: 2045, month: 11 });
 });
 
 test("the GM breaks several pieces at once, for a reason", async () => {
@@ -408,4 +459,32 @@ test("other injuries, or the setting off, drop nothing", async () => {
   await MaintOps.onInjury(actor, arm);
   await game.settings.set(M, "dropHeld", true);
   assert.equal(actor.items.get("rifle").system.equipped, "equipped");
+});
+
+test("Cyberpunk RED's container (and mook, demon, Black ICE) create hands back the actor it made", async () => {
+  const made = [];
+  class Container {
+    constructor(data) {
+      Object.assign(this, data);
+    }
+
+    // as Cyberpunk RED 0.92: makes the actor, returns nothing
+    static async create(data) {
+      const doc = new Container(data);
+      made.push(doc);
+      callHook("createActor", doc, {}, game.user.id);
+    }
+  }
+  globalThis.CONFIG ??= {};
+  const before = CONFIG.Actor;
+  CONFIG.Actor = { documentClass: function Doc(data) { return data.type === "container" ? new Container(data) : {}; } };
+  try {
+    CPR.fixActorCreate();
+    CPR.fixActorCreate();
+    const pile = await Container.create({ name: "Default Item Pile", type: "container" });
+    assert.equal(pile, made[0]);
+    assert.equal(pile.name, "Default Item Pile");
+  } finally {
+    CONFIG.Actor = before;
+  }
 });

@@ -896,7 +896,8 @@
       "HubMonth": "<b>{month}</b> begins (Neon Hub). Gear beyond your Lifestyle needs its maintenance Check.",
       "FollowsRent": "Maintenance months start on Neon Hub's Rent Day. Move the calendar on, or change Maintenance months in the module settings.",
       "ToRentDay": "To Rent Day",
-      "ToRentDayAsk": "Jump this character's Neon Hub calendar to its next Rent Day? Neon Hub starts the new month for everyone on that calendar (Lifestyle bills, Headquarters), and maintenance falls due."
+      "ToRentDayAsk": "Jump this character's Neon Hub calendar to its next Rent Day? Neon Hub starts the new month for everyone on that calendar (Lifestyle bills, Headquarters), and maintenance falls due.",
+      "NothingDue": "Nothing needs a maintenance Check."
     },
     "Malfunction": {
       "Title": "Malfunction: {item}",

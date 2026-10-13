@@ -142,6 +142,48 @@ export const CPR = {
   },
 
   /* ---------------------------------------- */
+  /*  Creating actors                         */
+  /* ---------------------------------------- */
+
+  /**
+   * Cyberpunk RED 0.92's container, mook, demon and Black ICE actors don't return the new actor from
+   * Actor.create (character actors do). Modules that make actors and then use them, like Item Piles
+   * building its default pile actor (a container in Cyberpunk RED), break on that. Each of those
+   * create() calls is wrapped to hand back the actor it made.
+   */
+  fixActorCreate() {
+    const Doc = CONFIG.Actor?.documentClass;
+    if (!Doc) return;
+    for (const type of ["container", "mook", "demon", "blackIce"]) {
+      // The class of an actor of that type: one in the world, or a throwaway (never saved) one.
+      let cls = game.actors?.find?.((a) => a.type === type)?.constructor ?? null;
+      if (!cls) {
+        try {
+          cls = new Doc({ name: "Neon At Home", type })?.constructor ?? null;
+        } catch (err) {
+          console.warn(`${MODULE_ID} | couldn't reach Cyberpunk RED's ${type} actor class`, err);
+          continue;
+        }
+      }
+      if (!cls || !Object.prototype.hasOwnProperty.call(cls, "create") || cls.create[`${MODULE_ID}Returns`]) continue;
+      const original = cls.create;
+      const fixed = async function (data, options) {
+        let made = null;
+        const watch = Hooks.on("createActor", (doc, opts, userId) => {
+          if (!made && userId === game.user.id && doc.type === data?.type && doc.name === data?.name) made = doc;
+        });
+        try {
+          return (await original.call(this, data, options)) ?? made;
+        } finally {
+          Hooks.off("createActor", watch);
+        }
+      };
+      fixed[`${MODULE_ID}Returns`] = true;
+      cls.create = fixed;
+    }
+  },
+
+  /* ---------------------------------------- */
   /*  Skill checks                            */
   /* ---------------------------------------- */
 

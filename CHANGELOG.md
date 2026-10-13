@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1
+
+- **Fixed: dropping into an Item Piles pile failed** ("pileActor is undefined") the first time Item Piles had to make its Default Item Pile actor. Cyberpunk RED's `Actor.create` doesn't hand back the actor it made for container actors (which Item Piles uses for piles), nor for mooks, demons or Black ICE; Neon At Home now makes it return the new actor, which also helps other modules that create those actors. Each failed attempt left an unconfigured "Default Item Pile" container actor in the Actors list: those can be deleted.
+- **Fixed: no maintenance card on Rent Day.** The card relied on the GM's first check after loading the world to note where the calendar stood, and only counted characters with a player owner, so it could miss a Rent Day. Now every client notes each Neon Hub calendar's rent month as the world loads, and when a calendar passes Rent Day the GM posts the card to the same players Neon Hub's own Rent Day card goes to (that calendar's players, or everyone), listing who has gear to maintain, or that nothing is due.
+
 ## 1.4.0
 
 - **Maintenance tab (Breaking Your Stuff).** A new tab built on R. Talsorian's *Breaking Your Stuff* DLC:

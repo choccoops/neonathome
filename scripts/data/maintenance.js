@@ -19,6 +19,32 @@ import { itemStates } from "./condition.js";
 /*  Lifestyle tiers (Maintenance Basics, p.5) */
 /* ------------------------------------------ */
 
+/**
+ * The rent month a date falls in, as Neon Hub counts them (year * 12 + month - 1): a month starts on
+ * its Rent Day, so with rent on the 15th, 10 March is still in February's month. A Rent Day past the
+ * end of a short month falls on its last day.
+ */
+export function rentPeriod(date, rentDay = 1) {
+  const year = Math.trunc(Number(date?.year) || 0);
+  const month = Math.min(12, Math.max(1, Math.trunc(Number(date?.month) || 1)));
+  const day = Math.trunc(Number(date?.day) || 1);
+  const due = Math.min(Math.max(1, Math.trunc(Number(rentDay)) || 1), daysInMonth(year, month));
+  const index = year * 12 + (month - 1);
+  return day >= due ? index : index - 1;
+}
+
+/** Days in a month of the Gregorian calendar Neon Hub uses. */
+function daysInMonth(year, month) {
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  return [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+}
+
+/** { year, month } of a rent month number. */
+export function rentMonth(period) {
+  const year = Math.floor(period / 12);
+  return { year, month: period - year * 12 + 1 };
+}
+
 /** Kibble, Generic Prepak, Good Prepak, Fresh Food: Neon Hub's package tiers 1-4 in both eras. */
 export const LIFESTYLES = ["none", "kibble", "generic", "good", "fresh"];
 

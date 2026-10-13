@@ -150,8 +150,8 @@ export const Settings = {
       type: Boolean,
       default: true
     });
-    // the GM's own maintenance counter, and the Neon Hub months last announced: { n, seen: { key: n } }
-    reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1, seen: {} }, onChange: changed });
+    // the GM's own maintenance counter: { n }
+    reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1 }, onChange: changed });
     reg("tab", { scope: "client", config: false, type: String, default: "loadout" });
   },
 
@@ -171,12 +171,10 @@ export const Settings = {
     return normalizeWeightRules(this.get("weightRules"));
   },
 
-  /** The GM's own maintenance counter and the Neon Hub months last announced: { n, seen }. */
+  /** The GM's own maintenance counter: { n }. */
   get maintCycle() {
     const raw = this.get("maintCycle") ?? {};
-    const n = Math.max(1, Math.floor(Number(raw.n) || 1));
-    const seen = raw.seen && typeof raw.seen === "object" ? { ...raw.seen } : {};
-    return { n, seen };
+    return { n: Math.max(1, Math.floor(Number(raw.n) || 1)) };
   },
 
   get customSyndromes() {

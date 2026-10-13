@@ -28,6 +28,9 @@ registerFeature(Biomonitor);
 registerFeature(Bench);
 registerFeature(Maintenance);
 
+// Item Piles makes its pile actors (containers in Cyberpunk RED) with Actor.create; see CPR.fixActorCreate.
+Hooks.once("ready", () => CPR.fixActorCreate());
+
 Hooks.once("init", () => {
   Settings.register(RulesConfig);
 
@@ -322,25 +325,21 @@ Hooks.on("updateWorldTime", () => {
 
 /**
  * Neon Hub's Rent Day starts a new maintenance month for the characters living by that calendar
- * (or its month counter, without calendars): the lead GM posts who has gear to maintain.
+ * (or its month counter, without calendars). Every client keeps track of where Neon Hub's months
+ * stand; when one moves on, the lead GM posts who has gear to maintain.
  */
 let rentWatch = null;
 const watchRent = () => {
-  if (!HomeOps.isLeadGM) return;
   clearTimeout(rentWatch);
   rentWatch = setTimeout(() => {
-    MaintOps.announceRentDay().catch((err) => console.warn(`${MODULE_ID} | following Neon Hub's Rent Day failed`, err));
+    MaintOps.onHubChange().catch((err) => console.warn(`${MODULE_ID} | following Neon Hub's Rent Day failed`, err));
+    // Everyone's Maintenance tab shows the new month and the days to Rent Day.
+    if (HomeApp.instance?.tab === "maintenance") HomeApp.refresh();
   }, 750);
 };
-// Everyone's Maintenance tab shows the new month and the days to Rent Day.
-const refreshMaintenance = () => {
-  if (HomeApp.instance?.tab === "maintenance") HomeApp.refresh();
-};
-for (const hook of [`${NEON_HUB_ID}.calendarChanged`, `${NEON_HUB_ID}.lifestyleChanged`]) {
-  Hooks.on(hook, watchRent);
-  Hooks.on(hook, refreshMaintenance);
-}
-Hooks.once("ready", watchRent);
+Hooks.on(`${NEON_HUB_ID}.calendarChanged`, watchRent);
+Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, watchRent);
+Hooks.once("ready", () => MaintOps.primeRent());
 
 /** The GM's buttons on malfunction cards (v12 passes jQuery, v13 an element). */
 function bindMalfunctionCard(message, html) {

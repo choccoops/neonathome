@@ -6,7 +6,7 @@ import { HomeOps, RuleBlock } from "./ops.js";
 import { itemFlag } from "../data/item-flag.js";
 import { traumaMap, placeInjury } from "../data/injuries.js";
 import {
-  MALFUNCTIONS, DURATIONS, maintenanceList, flattenList, lifestyleTier, rolesOf,
+  MALFUNCTIONS, rentPeriod, rentMonth, DURATIONS, maintenanceList, flattenList, lifestyleTier, rolesOf,
   malfunctionResult, tableOf, fieldExpertise
 } from "../data/maintenance.js";
 
@@ -377,46 +377,71 @@ export const MaintOps = {
   },
 
   /**
-   * Lead GM, when Neon Hub's calendars or lifestyle month change: for each calendar (or Neon Hub's
-   * month counter) whose rent month moved on since last time, post who now has gear to maintain.
-   * The first look only remembers where things stand.
+   * Where Neon Hub's months stand: each calendar's rent month, and its month counter.
+   * @returns {{calendars: Map<string, {period, calendar}>, counter: number|null}}
    */
-  async announceRentDay() {
+  hubMonths() {
+    const api = this.hub;
+    const calendars = new Map();
+    for (const c of api?.listCalendars?.() ?? []) calendars.set(c.id, { period: rentPeriod(c, c.rentDay), calendar: c });
+    const counter = Number(api?.lifestyleMonth?.());
+    return { calendars, counter: Number.isFinite(counter) ? counter : null };
+  },
+
+  /** Every client, as the world loads: remember where Neon Hub's months stand. */
+  primeRent() {
+    this._months = this.mode === "rent" ? this.hubMonths() : null;
+  },
+
+  /**
+   * Every client, when Neon Hub's calendars or lifestyle month change: note where they stand now,
+   * and (the lead GM) announce each calendar that passed its Rent Day, or Neon Hub's month counter
+   * moving on when there are no calendars.
+   */
+  async onHubChange() {
     if (this.mode !== "rent") return;
-    const groups = new Map();
-    for (const actor of this.players()) {
+    const before = this._months;
+    const now = this.hubMonths();
+    this._months = now;
+    if (!before || !HomeOps.isLeadGM) return;
+    for (const [id, cur] of now.calendars) {
+      const was = before.calendars.get(id);
+      if (was && cur.period > was.period) await this.announceRentDay(cur.calendar, cur.period);
+    }
+    if (!now.calendars.size && now.counter !== null && before.counter !== null && now.counter > before.counter) {
+      await this.announceRentDay(null, now.counter);
+    }
+  },
+
+  /**
+   * Lead GM: a new maintenance month began on a calendar's Rent Day (or Neon Hub's counter): post who
+   * living by it has gear to maintain, to the same players Neon Hub's own Rent Day card goes to.
+   */
+  async announceRentDay(calendar, period) {
+    const everyone = game.actors.filter((a) => a.type === "character" && !game.itempiles?.API?.isValidItemPile?.(a));
+    const living = [];
+    for (const actor of everyone) {
       const c = await this.cycleFor(actor);
-      if (c.scheme === "own") continue;
-      const key = c.calendar ? `cal:${c.calendar.id}` : "hub";
-      const g = groups.get(key) ?? { n: c.n, label: c.label, calendar: c.calendar, actors: [] };
-      if (c.n > g.n) Object.assign(g, { n: c.n, label: c.label });
-      g.actors.push(actor);
-      groups.set(key, g);
+      if (calendar ? c.calendar?.id === calendar.id : c.scheme === "hub") living.push(actor);
     }
-    const cur = Settings.maintCycle;
-    const seen = { ...cur.seen };
-    let changed = false;
-    for (const [key, g] of groups) {
-      const before = Number(seen[key]);
-      if (seen[key] === undefined || !Number.isFinite(before) || g.n < before) {
-        seen[key] = g.n;
-        changed = true;
-        continue;
-      }
-      if (g.n === before) continue;
-      seen[key] = g.n;
-      changed = true;
-      const rows = await this._dueRows(g.actors);
-      const head = g.calendar
-        ? L("NEONHOME.Maint.RentDay", { month: esc(g.label), calendar: esc(g.calendar.name) })
-        : L("NEONHOME.Maint.HubMonth", { month: esc(g.label) });
-      await ChatMessage.create({
-        content: HomeOps._card("fa-solid fa-calendar-check", `${head}${rows}`),
-        speaker: { alias: L("NEONHOME.Maint.Title") },
-        whisper: [...new Set([...g.actors.flatMap((a) => HomeOps._owners(a))])]
-      });
+    // Player characters first; a GM's own characters are listed too (for testing, or NPC crews).
+    const rows = await this._dueRows(living.filter((a) => a.hasPlayerOwner).concat(living.filter((a) => !a.hasPlayerOwner)));
+    let head;
+    if (calendar) {
+      const { year, month } = rentMonth(period);
+      const name = game.i18n.has?.(`NEONHUB.Calendar.Month.${month}`) ? `${L(`NEONHUB.Calendar.Month.${month}`)} ${year}` : `${month}/${year}`;
+      head = L("NEONHOME.Maint.RentDay", { month: esc(name), calendar: esc(calendar.name) });
+    } else {
+      head = L("NEONHOME.Maint.HubMonth", { month: esc(L("NEONHOME.Maint.Cycle.month", { n: period })) });
     }
-    if (changed) await game.settings.set(MODULE_ID, "maintCycle", { ...cur, seen });
+    // As Neon Hub's card: the calendar's players and the GMs, or everyone if it has no players.
+    const players = Array.isArray(calendar?.players) ? calendar.players : [];
+    const whisper = players.length ? [...new Set([...players, ...game.users.filter((u) => u.isGM).map((u) => u.id)])] : [];
+    await ChatMessage.create({
+      content: HomeOps._card("fa-solid fa-calendar-check", `${head}${rows || `<p>${L("NEONHOME.Maint.NothingDue")}</p>`}`),
+      speaker: { alias: L("NEONHOME.Maint.Title") },
+      whisper
+    });
   },
 
   /** GM: jump a character's Neon Hub calendar to its next Rent Day (Neon Hub bills and rolls the month). */
