@@ -340,7 +340,9 @@ export const HomeOps = {
       id: ENCUMBRANCE_STATUS[level],
       name: `NEONHOME.Encumbrance.${level}.Status`,
       img: `modules/${MODULE_ID}/assets/${level === "one" ? "overloaded" : "encumbered"}.svg`,
-      changes: [this.encumbranceChange(level)]
+      changes: [this.encumbranceChange(level)],
+      // Placed from the token HUD, the effect is made from this: it needs CPR's bookkeeping too.
+      flags: { [SYSTEM_ID]: { changes: CPR.effectFlags([this.encumbranceChange(level)]) } }
     };
   },
 
@@ -402,7 +404,13 @@ export const HomeOps = {
       if (effect) {
         // The GM's condition may not change MOVE itself: add the penalty, and mark it as ours.
         const has = effect.changes.some((c) => c.key === change.key && c.value === change.value);
-        await effect.update({ changes: has ? effect.changes : [...effect.changes, change], [`flags.${MODULE_ID}.${ENCUMBRANCE_FLAG}`]: level });
+        const changes = has ? effect.changes : [...effect.changes, change];
+        await effect.update({
+          changes,
+          [`flags.${MODULE_ID}.${ENCUMBRANCE_FLAG}`]: level,
+          // CPR's sheet reads a category for every change; CLT's effect doesn't have them.
+          [`flags.${SYSTEM_ID}.changes`]: CPR.effectFlags(changes, effect.flags?.[SYSTEM_ID]?.changes)
+        });
         return;
       }
     }
@@ -412,8 +420,30 @@ export const HomeOps = {
       img: status.img,
       statuses: [status.id],
       changes: status.changes,
-      flags: { [MODULE_ID]: { [ENCUMBRANCE_FLAG]: level }, [SYSTEM_ID]: { changes: { cats: { 0: "stat" } } } }
+      flags: { [MODULE_ID]: { [ENCUMBRANCE_FLAG]: level }, [SYSTEM_ID]: { changes: CPR.effectFlags(status.changes) } }
     }]);
+  },
+
+  /** Is this one of Neon At Home's effects, or another module's effect carrying its MOVE change? */
+  _carriesOurChange(effect) {
+    return (effect?.changes ?? []).some((c) => String(c?.value ?? "").startsWith(`${MODULE_ID}.`))
+      || [...(effect?.statuses ?? [])].some((s) => Object.values(ENCUMBRANCE_STATUS).includes(s));
+  },
+
+  /**
+   * GM, once per load: give CPR's bookkeeping to any effect carrying Neon At Home's change that
+   * lacks it (made by 1.2.0-1.3.0 through Condition Lab or the token HUD), which breaks the sheet.
+   */
+  async repairEffects() {
+    for (const actor of game.actors) {
+      const updates = actor.effects
+        .filter((e) => this._carriesOurChange(e) && CPR.needsEffectFlags(e))
+        .map((e) => ({ _id: e.id, [`flags.${SYSTEM_ID}.changes`]: CPR.effectFlags(e.changes, e.flags?.[SYSTEM_ID]?.changes) }));
+      if (updates.length) {
+        await actor.updateEmbeddedDocuments("ActiveEffect", updates);
+        console.log(`${MODULE_ID} | repaired ${updates.length} effect(s) on ${actor.name}`);
+      }
+    }
   },
 
   async _removeEncumbrance(actor, effect) {

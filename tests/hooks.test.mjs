@@ -42,3 +42,19 @@ test("the sheet's equip toggle can't carry past the slots; checked writes and th
   await game.settings.set(M, "enforceCarry", "block");
   asUser(true);
 });
+
+test("an effect carrying the encumbrance change gets CPR's change flags as it's created", () => {
+  const effect = {
+    name: "Encumbered (CLT)",
+    changes: [{ key: "bonuses.allActions", value: "-1" }, { key: "system.stats.move.value", mode: 0, value: `${M}.half` }],
+    statuses: new Set(["cltEnc"]),
+    flags: {},
+    updateSource(u) {
+      for (const [k, v] of Object.entries(u)) foundry.utils.setProperty(this, k, v);
+    }
+  };
+  callHook("preCreateActiveEffect", effect, {}, {}, game.user.id);
+  assert.deepEqual(effect.flags["cyberpunk-red-core"].changes.cats, { 0: "skill", 1: "stat" });
+  const other = { name: "Blessed", changes: [{ key: "bonuses.stealth", value: "1" }], statuses: new Set(), flags: {}, updateSource() { throw new Error("should not touch"); } };
+  callHook("preCreateActiveEffect", other, {}, {}, game.user.id);
+});
