@@ -2,10 +2,12 @@
 <div class="nah-maint">
   {{!-- ================= STATUS STRIP ================= --}}
   <header class="nah-maint-strip">
-    <div class="nah-maint-cycle">
-      <span class="nah-kicker">{{localize "NEONHOME.Maint.CycleKicker"}}</span>
+    <div class="nah-maint-cycle {{#if rent}}is-rent{{/if}}">
+      <span class="nah-kicker">{{#if rent}}{{localize "NEONHOME.Maint.RentKicker"}}{{else}}{{localize "NEONHOME.Maint.CycleKicker"}}{{/if}}</span>
       <b>{{cycleLabel}}</b>
-      {{#if isGM}}<button type="button" data-action="maintNewCycle" data-tooltip="{{nextLabel}}"><i class="fa-solid fa-calendar-plus"></i> {{nextLabel}}</button>{{/if}}
+      {{#if rentHint}}<small class="nah-rent-hint"><i class="fa-solid fa-calendar-day"></i> {{rentHint}}</small>{{/if}}
+      {{#if canNewCycle}}<button type="button" data-action="maintNewCycle" data-tooltip="{{nextLabel}}"><i class="fa-solid fa-calendar-plus"></i> {{nextLabel}}</button>{{/if}}
+      {{#if canRentDay}}<button type="button" data-action="maintRentDay" data-tooltip="{{localize 'NEONHOME.Maint.ToRentDayAsk'}}"><i class="fa-solid fa-forward-step"></i> {{localize "NEONHOME.Maint.ToRentDay"}}</button>{{/if}}
     </div>
     <div class="nah-maint-life" data-tooltip="{{lifestyle.covers}}">
       <span class="nah-kicker">{{localize "NEONHOME.Maint.LifestyleKicker"}}</span>

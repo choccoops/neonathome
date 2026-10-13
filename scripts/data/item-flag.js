@@ -32,6 +32,26 @@ export const DAMAGE_CAUSES = ["", "maintenance", "injury", "electrocution", "env
 /** Who looks after gear so its owner doesn't have to (Breaking Your Stuff, "Roles and Maintenance"). */
 export const EXEMPT = ["", "exec", "medtech", "nomad", "other"];
 
+/**
+ * How maintenance months are counted: "cal" a Neon Hub calendar's rent months (year * 12 + month,
+ * the same on every calendar), "hub" Neon Hub's month counter, "own" the GM's own counter here.
+ */
+export const CYCLE_SCHEMES = ["cal", "hub", "own"];
+
+/**
+ * A maintenance cycle, as stored: { scheme, n } or null. Months from different schemes can't be
+ * compared. A bare number (1.4.0 betas) is the GM's own counter.
+ */
+export function cycleRef(raw) {
+  if (raw === null || raw === undefined || raw === "") return null;
+  if (typeof raw === "object") {
+    const n = Number(raw.n);
+    return CYCLE_SCHEMES.includes(raw.scheme) && Number.isFinite(n) ? { scheme: raw.scheme, n: Math.floor(n) } : null;
+  }
+  const n = Number(raw);
+  return Number.isFinite(n) ? { scheme: "own", n: Math.max(0, Math.floor(n)) } : null;
+}
+
 /** A malfunction under way on a piece of gear, or null. */
 function normalizeMalfunction(raw) {
   if (!raw || typeof raw !== "object" || !str(raw.table)) return null;
@@ -126,8 +146,8 @@ export function normalizeItemFlag(raw = {}) {
     // knocked out by EMP (cyberware and electronics) until the GM says it's back
     emp: !!r.emp || r.cyberState === "emp",
     // the maintenance cycle it was last maintained in, and a cycle it can't be covered in
-    maintained: r.maintained === null || r.maintained === undefined || r.maintained === "" ? null : int(r.maintained, 0),
-    missCycle: r.missCycle === null || r.missCycle === undefined || r.missCycle === "" ? null : int(r.missCycle, 0),
+    maintained: cycleRef(r.maintained),
+    missCycle: cycleRef(r.missCycle),
     malfunction: normalizeMalfunction(r.malfunction),
     // the GM's overrides: what kind of gear it is for maintenance, its malfunction table, and
     // whether someone else looks after it

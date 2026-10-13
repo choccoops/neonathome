@@ -115,23 +115,19 @@ export const Settings = {
       default: true,
       onChange: changed
     });
-    reg("maintPeriod", {
-      name: "NEONHOME.Settings.MaintPeriod.Name",
-      hint: "NEONHOME.Settings.MaintPeriod.Hint",
+    reg("maintCycleMode", {
+      name: "NEONHOME.Settings.MaintCycleMode.Name",
+      hint: "NEONHOME.Settings.MaintCycleMode.Hint",
       scope: "world",
       config: true,
       type: String,
-      choices: { month: "NEONHOME.Settings.MaintPeriod.month", week: "NEONHOME.Settings.MaintPeriod.week" },
-      default: "month",
+      choices: {
+        rent: "NEONHOME.Settings.MaintCycleMode.rent",
+        month: "NEONHOME.Settings.MaintCycleMode.month",
+        week: "NEONHOME.Settings.MaintCycleMode.week"
+      },
+      default: "rent",
       onChange: changed
-    });
-    reg("maintFollowHub", {
-      name: "NEONHOME.Settings.MaintFollowHub.Name",
-      hint: "NEONHOME.Settings.MaintFollowHub.Hint",
-      scope: "world",
-      config: true,
-      type: Boolean,
-      default: true
     });
     reg("malfunctionOnFumble", {
       name: "NEONHOME.Settings.MalfunctionOnFumble.Name",
@@ -154,8 +150,8 @@ export const Settings = {
       type: Boolean,
       default: true
     });
-    // the maintenance cycle: { n, hubMonth }
-    reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1, hubMonth: null }, onChange: changed });
+    // the GM's own maintenance counter, and the Neon Hub months last announced: { n, seen: { key: n } }
+    reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1, seen: {} }, onChange: changed });
     reg("tab", { scope: "client", config: false, type: String, default: "loadout" });
   },
 
@@ -175,11 +171,12 @@ export const Settings = {
     return normalizeWeightRules(this.get("weightRules"));
   },
 
-  /** The maintenance cycle: { n, hubMonth }. */
+  /** The GM's own maintenance counter and the Neon Hub months last announced: { n, seen }. */
   get maintCycle() {
     const raw = this.get("maintCycle") ?? {};
     const n = Math.max(1, Math.floor(Number(raw.n) || 1));
-    return { n, hubMonth: Number.isFinite(Number(raw.hubMonth)) && raw.hubMonth !== null ? Number(raw.hubMonth) : null };
+    const seen = raw.seen && typeof raw.seen === "object" ? { ...raw.seen } : {};
+    return { n, seen };
   },
 
   get customSyndromes() {

@@ -118,7 +118,8 @@ export const Maintenance = {
   async prepare(app, actor) {
     const isGM = game.user.isGM;
     const ui = (app.uiState.maint ??= { selected: null, mechanic: null });
-    const list = MaintOps.list(actor);
+    const cycle = await MaintOps.cycleFor(actor);
+    const list = await MaintOps.list(actor, cycle);
     const flat = flattenList(list);
     if (!flat.some((e) => e.id === ui.selected)) ui.selected = flat[0]?.id ?? null;
     const crew = mechanics(actor);
@@ -130,12 +131,19 @@ export const Maintenance = {
       return { key: g, label: L(`NEONHOME.Maint.Group.${g}`), rows: flattenList(tops).map((e) => row(e, isGM, ui.selected)) };
     }).filter((g) => g.rows.length);
     const sel = flat.find((e) => e.id === ui.selected);
-    const period = Settings.get("maintPeriod") === "week" ? "week" : "month";
+    const mode = MaintOps.mode;
+    const period = mode === "week" ? "week" : "month";
     return {
       maint: {
         isGM,
-        cycle: MaintOps.cycle,
-        cycleLabel: L(`NEONHOME.Maint.Cycle.${period}`, { n: MaintOps.cycle }),
+        cycleLabel: cycle.label,
+        // Neon Hub's Rent Day keeps the months: when the next one is, and on which calendar
+        rent: cycle.scheme !== "own",
+        rentHint: cycle.calendar
+          ? (cycle.next?.today ? L("NEONHOME.Maint.RentToday", { calendar: cycle.calendar.name }) : L("NEONHOME.Maint.RentIn", { n: cycle.next?.days ?? 0, calendar: cycle.calendar.name }))
+          : cycle.scheme === "hub" ? L("NEONHOME.Maint.HubCounter") : "",
+        canRentDay: isGM && !!cycle.calendar,
+        canNewCycle: isGM && cycle.scheme === "own",
         nextLabel: L(`NEONHOME.Maint.Next.${period}`),
         lifestyle: {
           tier: lifestyle.tier,
@@ -170,7 +178,7 @@ export const Maintenance = {
       return this.act(async () => {
         let dv = null;
         if (mode === "repair") {
-          const e = MaintOps.entry(this.actor, id);
+          const e = await MaintOps.entry(this.actor, id);
           dv = await askDv(e?.dv ?? 13);
           if (dv === null) return;
         }
@@ -206,16 +214,27 @@ export const Maintenance = {
       return this.act(async () => {
         const ok = await Compat.DialogV2.confirm({
           window: { title: L("NEONHOME.Maint.NewCycleTitle"), icon: "fa-solid fa-calendar-check" },
-          content: `<p>${L(`NEONHOME.Maint.NewCycleAsk.${Settings.get("maintPeriod") === "week" ? "week" : "month"}`)}</p>`,
+          content: `<p>${L(`NEONHOME.Maint.NewCycleAsk.${MaintOps.mode === "week" ? "week" : "month"}`)}</p>`,
           classes: ["neon-home-dialog"],
           rejectClose: false
         });
         if (ok) await MaintOps.newCycle();
       });
     },
+    maintRentDay() {
+      return this.act(async () => {
+        const ok = await Compat.DialogV2.confirm({
+          window: { title: L("NEONHOME.Maint.ToRentDay"), icon: "fa-solid fa-calendar-day" },
+          content: `<p>${L("NEONHOME.Maint.ToRentDayAsk")}</p>`,
+          classes: ["neon-home-dialog"],
+          rejectClose: false
+        });
+        if (ok) await MaintOps.toRentDay(this.actor);
+      });
+    },
     maintBreak() {
       return this.act(async () => {
-        const answer = await askBreak(this.actor);
+        const answer = await askBreak(this.actor, await MaintOps.list(this.actor));
         if (answer?.ids.length) await MaintOps.damage(this.actor, answer.ids, answer);
       });
     }
@@ -247,8 +266,8 @@ function askDv(dv) {
 }
 
 /** GM: what broke, and why (Breaking Stuff, p.5). Resolves to { cause, hidden, ids } or null. */
-function askBreak(actor) {
-  const all = flattenList(MaintOps.list(actor)).filter((e) => e.condition !== "destroyed" && e.condition !== "dbr");
+function askBreak(actor, list) {
+  const all = flattenList(list).filter((e) => e.condition !== "destroyed" && e.condition !== "dbr");
   const causes = DAMAGE_CAUSES.filter(Boolean);
   const rows = all.map((e) => {
     const suggest = causes.filter((c) => SUGGEST[c](e)).join(" ");

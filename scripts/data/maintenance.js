@@ -3,9 +3,9 @@
  * Pure: no Foundry calls.
  *
  * Gear is maintained as part of your Lifestyle when the Lifestyle is good enough for its cost;
- * anything pricier needs a maintenance Check once a month (or whatever cycle the GM runs). Some
- * Roles count their Lifestyle a level higher for the gear of their trade. Damaged gear can
- * malfunction; each kind of gear has its own 1d6 table.
+ * anything pricier needs a maintenance Check once a month (from Neon Hub's Rent Day, or a cycle the
+ * GM runs). Some Roles count their Lifestyle a level higher for the gear of their trade. Damaged
+ * gear can malfunction; each kind of gear has its own 1d6 table.
  *
  * The malfunction text here is a short summary written for this module, with the DLC's page; the
  * full text is in the DLC. GMs can import the module's Malfunction Tables compendium and edit the
@@ -393,24 +393,27 @@ export function malfunctionState(m, now = 0) {
 
 /**
  * Where a piece of gear stands this cycle.
+ * @param {object} cycle - the character's current cycle { scheme, n } (see item-flag.js cycleRef)
  * @returns {{status: "exempt"|"covered"|"maintained"|"due", missed: number}}
- *   missed: whole cycles since it was last maintained (0 when that isn't known)
+ *   missed: whole cycles since it was last maintained (0 when that isn't known, or was counted
+ *   another way, e.g. before the world started following Neon Hub's Rent Day)
  */
 export function maintenanceStatus(flag, { cycle, covered }) {
   if (flag.maint.exempt) return { status: "exempt", missed: 0 };
-  const blocked = flag.missCycle !== null && flag.missCycle === cycle;
+  const same = (ref) => !!ref && !!cycle && ref.scheme === cycle.scheme;
+  const blocked = same(flag.missCycle) && flag.missCycle.n === cycle.n;
   if (covered && !blocked) return { status: "covered", missed: 0 };
-  if (flag.maintained !== null && flag.maintained >= cycle) return { status: "maintained", missed: 0 };
-  return { status: "due", missed: flag.maintained === null ? 0 : Math.max(0, cycle - flag.maintained - 1) };
+  if (same(flag.maintained) && flag.maintained.n >= cycle.n) return { status: "maintained", missed: 0 };
+  return { status: "due", missed: same(flag.maintained) ? Math.max(0, cycle.n - flag.maintained.n - 1) : 0 };
 }
 
 /**
  * Everything a character owns that needs looking after, as trees (a weapon with its attachments,
  * a cyberarm with its options), with what each needs and where it stands.
  * @param {object[]} items - the character's items (documents or data)
- * @param {object} opts - { moduleId, cycle, lifestyle (0-4), roles (lowercase names), now (world time) }
+ * @param {object} opts - { moduleId, cycle ({ scheme, n }), lifestyle (0-4), roles (lowercase names), now (world time) }
  */
-export function maintenanceList(items, { moduleId, cycle = 1, lifestyle = 0, roles = [], now = 0 } = {}) {
+export function maintenanceList(items, { moduleId, cycle = { scheme: "own", n: 1 }, lifestyle = 0, roles = [], now = 0 } = {}) {
   const states = itemStates(items, moduleId);
   const byId = new Map(items.map((i) => [idOf(i), i]));
   const entry = (item) => {

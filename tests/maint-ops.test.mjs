@@ -72,7 +72,7 @@ test("a player can't wear Destroyed armor", () => {
 test("maintenance: Lifestyle covers cheap gear; a check maintains the rest and clears Damage", async () => {
   asUser(false);
   const actor = gearhead();
-  let list = MaintOps.list(actor);
+  let list = await MaintOps.list(actor);
   const status = (id) => [...list, ...list.flatMap((e) => e.children)].find((e) => e.id === id)?.status;
   assert.equal(status("pistol"), "covered", "100eb is Kibble");
   assert.equal(status("rifle"), "due", "500eb needs Generic Prepak");
@@ -88,10 +88,10 @@ test("maintenance: Lifestyle covers cheap gear; a check maintains the rest and c
   const ok = await MaintOps.check(actor, "rifle", { mode: "maintain" });
   assert.equal(ok.outcome, "maintain.fixed", "meeting the DV is enough");
   const f = flagOf(actor.items.get("rifle"));
-  assert.equal(f.maintained, MaintOps.cycle);
+  assert.deepEqual(f.maintained, { scheme: "own", n: (await MaintOps.cycleFor(actor)).n });
   assert.equal(f.condition, "");
   assert.equal(f.malfunction, null);
-  list = MaintOps.list(actor);
+  list = await MaintOps.list(actor);
   assert.equal(status("rifle"), "maintained");
   asUser(true);
 });
@@ -99,12 +99,12 @@ test("maintenance: Lifestyle covers cheap gear; a check maintains the rest and c
 test("a Solo's Lifestyle counts a level higher for weapons; the GM can set the Lifestyle", async () => {
   asUser(true);
   const actor = gearhead({ roles: [{ name: "Solo" }] });
-  const rifle = () => MaintOps.list(actor).find((e) => e.id === "rifle");
-  assert.equal(rifle().status, "covered");
-  assert.equal(rifle().roleBonus, "solo");
+  const rifle = async () => (await MaintOps.list(actor)).find((e) => e.id === "rifle");
+  assert.equal((await rifle()).status, "covered");
+  assert.equal((await rifle()).roleBonus, "solo");
   await MaintOps.setLifestyle(actor, 0);
   assert.equal(MaintOps.lifestyle(actor).source, "gm");
-  assert.equal(rifle().status, "due");
+  assert.equal((await rifle()).status, "due");
   await MaintOps.setLifestyle(actor, null);
   assert.equal(MaintOps.lifestyle(actor).tier, 1);
 });
@@ -141,7 +141,7 @@ test("a Tech jury-rigs a malfunction for 10 minutes per point of Field Expertise
   const m = flagOf(actor.items.get("rifle")).malfunction;
   assert.equal(m.rigUntil, game.time.worldTime + 1200);
   assert.equal(m.rigMinutes, 20);
-  assert.equal(MaintOps.entry(actor, "rifle").malfunction.rigged, true);
+  assert.equal((await MaintOps.entry(actor, "rifle")).malfunction.rigged, true);
   asUser(true);
 });
 
@@ -218,32 +218,92 @@ test("a natural 1 with Damaged gear malfunctions; damage rolls and working gear 
   }
 });
 
-test("a new cycle makes uncovered gear due again; Neon Hub's month can start it", async () => {
+test("without Neon Hub the GM starts each month: uncovered gear falls due again", async () => {
   asUser(true);
   const actor = gearhead();
-  actor.items.get("rifle").flags[M] = { item: { maintained: MaintOps.cycle } };
-  assert.equal(MaintOps.entry(actor, "rifle").status, "maintained");
-  const before = MaintOps.cycle;
+  assert.equal(MaintOps.mode, "month", "Rent Day needs Neon Hub");
+  const before = await MaintOps.cycleFor(actor);
+  assert.equal(before.scheme, "own");
+  actor.items.get("rifle").flags[M] = { item: { maintained: { scheme: "own", n: before.n } } };
+  assert.equal((await MaintOps.entry(actor, "rifle")).status, "maintained");
   await MaintOps.newCycle();
-  assert.equal(MaintOps.cycle, before + 1);
-  assert.equal(MaintOps.entry(actor, "rifle").status, "due");
-  // Neon Hub: the first look only remembers its month; a later month moves maintenance along
-  let month = 4;
-  game.modules.set("cpr-neon-hub", { active: true, api: { lifestyleMonth: () => month } });
+  assert.equal((await MaintOps.cycleFor(actor)).n, before.n + 1);
+  assert.equal((await MaintOps.entry(actor, "rifle")).status, "due");
+  await game.settings.set(M, "maintCycleMode", "week");
+  assert.equal((await MaintOps.cycleFor(actor)).label, `Week ${before.n + 1}`);
+  await game.settings.set(M, "maintCycleMode", "rent");
+});
+
+/** Neon Hub with a calendar: each character's billing says which rent month they're in. */
+function neonHub(period, { calendar = { id: "nc", name: "Night City" }, days = 5 } = {}) {
+  const state = { period, toRentDay: [] };
+  game.modules.set("cpr-neon-hub", {
+    active: true,
+    api: {
+      lifestyleBill: async () => ({
+        billing: calendar
+          ? { mode: "calendar", calendar, period: state.period, label: `Month ${state.period}`, next: { days, today: days === 0 } }
+          : { mode: "counter", calendar: null, period: state.period, label: `Month ${state.period}`, next: null }
+      }),
+      toRentDay: async (id) => {
+        state.toRentDay.push(id);
+        state.period += 1;
+      }
+    }
+  });
+  return state;
+}
+
+test("with Neon Hub's calendar, maintenance months start on Rent Day", async () => {
+  asUser(true);
+  const actor = gearhead();
+  actor.hasPlayerOwner = true;
+  const hub = neonHub(24550);
   try {
-    await MaintOps.followHub();
-    assert.equal(MaintOps.cycle, before + 1);
-    assert.equal(Settings.maintCycle.hubMonth, 4);
-    month = 5;
-    await MaintOps.followHub();
-    assert.equal(MaintOps.cycle, before + 2);
-    await game.settings.set(M, "maintPeriod", "week");
-    month = 6;
-    await MaintOps.followHub();
-    assert.equal(MaintOps.cycle, before + 2, "weekly cycles don't follow Neon Hub's months");
+    assert.equal(MaintOps.mode, "rent");
+    const c = await MaintOps.cycleFor(actor);
+    assert.deepEqual([c.scheme, c.n, c.calendar.name, c.next.days], ["cal", 24550, "Night City", 5]);
+
+    rollsTotal(16);
+    await MaintOps.check(actor, "rifle", { mode: "maintain" });
+    assert.deepEqual(flagOf(actor.items.get("rifle")).maintained, { scheme: "cal", n: 24550 });
+    assert.equal((await MaintOps.entry(actor, "rifle")).status, "maintained");
+    await assert.rejects(MaintOps.newCycle(), RuleBlock, "Neon Hub starts the months");
+
+    // the first look remembers where the calendar is; Rent Day passing announces who has gear due
+    chat.length = 0;
+    await MaintOps.announceRentDay();
+    assert.equal(chat.length, 0);
+    await MaintOps.toRentDay(actor);
+    assert.deepEqual(hub.toRentDay, ["nc"]);
+    assert.equal((await MaintOps.entry(actor, "rifle")).status, "due");
+    await MaintOps.announceRentDay();
+    assert.equal(chat.length, 1);
+    assert.match(chat[0].content, /Rent Day/);
+    assert.match(chat[0].content, /Night City/);
+    assert.match(chat[0].content, /Gearhead: 2 to maintain/, "the rifle and the 500eb cyberarm");
+    await MaintOps.announceRentDay();
+    assert.equal(chat.length, 1, "once per Rent Day");
+
+    // the GM can still keep months here instead
+    await game.settings.set(M, "maintCycleMode", "month");
+    assert.equal((await MaintOps.cycleFor(actor)).scheme, "own");
   } finally {
     game.modules.delete("cpr-neon-hub");
-    await game.settings.set(M, "maintPeriod", "month");
+    await game.settings.set(M, "maintCycleMode", "rent");
+    delete actor.hasPlayerOwner;
+  }
+});
+
+test("Neon Hub without calendars: its month counter keeps the months", async () => {
+  asUser(true);
+  const actor = gearhead();
+  neonHub(7, { calendar: null });
+  try {
+    const c = await MaintOps.cycleFor(actor);
+    assert.deepEqual([c.scheme, c.n, c.calendar, c.next], ["hub", 7, null, null]);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
   }
 });
 

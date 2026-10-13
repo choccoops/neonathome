@@ -59,16 +59,6 @@
         "Name": "Maintenance tab (Breaking Your Stuff)",
         "Hint": "Maintenance, inspections, repairs and malfunctions from R. Talsorian's Breaking Your Stuff DLC."
       },
-      "MaintPeriod": {
-        "Name": "Maintenance cycle",
-        "Hint": "Breaking Your Stuff has gear maintained once a month. Pick weekly for a faster grind.",
-        "month": "Monthly (Breaking Your Stuff)",
-        "week": "Weekly"
-      },
-      "MaintFollowHub": {
-        "Name": "Follow Neon Hub's month",
-        "Hint": "When Neon Hub starts a new lifestyle month, maintenance starts a new month too (monthly cycles only)."
-      },
       "MalfunctionOnFumble": {
         "Name": "Malfunction on a natural 1",
         "Hint": "Roll a malfunction automatically when a check with an item (an attack, a cyberdeck action) rolls a natural 1 and the item is poorly maintained. The GM can always call one from the Maintenance tab.",
@@ -79,6 +69,13 @@
       "DropHeld": {
         "Name": "Lost hands drop what they hold",
         "Hint": "A Dismembered Arm or Hand (including an EMP'd or Destroyed cyberarm) drops what it was holding: into an Item Piles pile beside the token when Item Piles is on, otherwise it's no longer carried. The GM is asked when it isn't clear which hand held what."
+      },
+      "MaintCycleMode": {
+        "Name": "Maintenance months",
+        "Hint": "Breaking Your Stuff has gear maintained once a month. With Neon Hub, each character's month starts on their calendar's Rent Day, like their Lifestyle bill (or with Neon Hub's month counter, without calendars). Otherwise the GM starts each month, or each week for a faster grind, from the Maintenance tab.",
+        "rent": "Neon Hub's Rent Day (falls back to monthly without Neon Hub)",
+        "month": "Monthly, started by the GM",
+        "week": "Weekly, started by the GM"
       }
     },
     "State": {
@@ -890,7 +887,16 @@
       "BeyondRepair": "{item} is Destroyed Beyond Repair.",
       "RepairTitle": "Repair",
       "RepairHint": "Destroyed gear is repaired with the appropriate Tech skill (Cyberpunk RED, p.140). Set the DV; it defaults to the gear's maintenance DV.",
-      "Roll": "Roll"
+      "Roll": "Roll",
+      "RentKicker": "Rent month",
+      "RentIn": "Rent Day in {n} days ({calendar})",
+      "RentToday": "Rent Day is today ({calendar})",
+      "HubCounter": "Neon Hub's month",
+      "RentDay": "<b>Rent Day</b> on {calendar}: <b>{month}</b> begins. Gear beyond your Lifestyle needs its maintenance Check.",
+      "HubMonth": "<b>{month}</b> begins (Neon Hub). Gear beyond your Lifestyle needs its maintenance Check.",
+      "FollowsRent": "Maintenance months start on Neon Hub's Rent Day. Move the calendar on, or change Maintenance months in the module settings.",
+      "ToRentDay": "To Rent Day",
+      "ToRentDayAsk": "Jump this character's Neon Hub calendar to its next Rent Day? Neon Hub starts the new month for everyone on that calendar (Lifestyle bills, Headquarters), and maintenance falls due."
     },
     "Malfunction": {
       "Title": "Malfunction: {item}",

@@ -91,12 +91,25 @@ test("what Damaged and Destroyed gear sells for (p.3)", () => {
 
 test("maintenance status: exempt, covered, maintained this cycle, or due with missed cycles", () => {
   const f = (raw) => normalizeItemFlag(raw);
-  assert.equal(maintenanceStatus(f({ maint: { exempt: "exec" } }), { cycle: 3, covered: false }).status, "exempt");
-  assert.equal(maintenanceStatus(f({}), { cycle: 3, covered: true }).status, "covered");
-  assert.equal(maintenanceStatus(f({ missCycle: 3 }), { cycle: 3, covered: true }).status, "due", "a malfunction can make it miss a cycle");
-  assert.equal(maintenanceStatus(f({ maintained: 3 }), { cycle: 3, covered: false }).status, "maintained");
-  assert.deepEqual(maintenanceStatus(f({ maintained: 1 }), { cycle: 4, covered: false }), { status: "due", missed: 2 });
-  assert.deepEqual(maintenanceStatus(f({}), { cycle: 4, covered: false }), { status: "due", missed: 0 });
+  const own = (n) => ({ scheme: "own", n });
+  assert.equal(maintenanceStatus(f({ maint: { exempt: "exec" } }), { cycle: own(3), covered: false }).status, "exempt");
+  assert.equal(maintenanceStatus(f({}), { cycle: own(3), covered: true }).status, "covered");
+  assert.equal(maintenanceStatus(f({ missCycle: 3 }), { cycle: own(3), covered: true }).status, "due", "a malfunction can make it miss a cycle");
+  assert.equal(maintenanceStatus(f({ maintained: 3 }), { cycle: own(3), covered: false }).status, "maintained", "a bare number is the GM's own counter");
+  assert.deepEqual(maintenanceStatus(f({ maintained: { scheme: "own", n: 1 } }), { cycle: own(4), covered: false }), { status: "due", missed: 2 });
+  assert.deepEqual(maintenanceStatus(f({}), { cycle: own(4), covered: false }), { status: "due", missed: 0 });
+});
+
+test("months counted different ways aren't compared (the GM's counter vs Neon Hub's Rent Day)", () => {
+  const f = (raw) => normalizeItemFlag(raw);
+  const rent = { scheme: "cal", n: 2045 * 12 + 10 };
+  // maintained in the GM's month 3, then the world switched to Rent Day: due, with no wear to show
+  assert.deepEqual(maintenanceStatus(f({ maintained: 3 }), { cycle: rent, covered: false }), { status: "due", missed: 0 });
+  // a huge rent-month number doesn't count as "maintained" on the GM's counter either
+  assert.equal(maintenanceStatus(f({ maintained: rent }), { cycle: { scheme: "own", n: 4 }, covered: false }).status, "due");
+  assert.equal(maintenanceStatus(f({ maintained: rent }), { cycle: rent, covered: false }).status, "maintained");
+  assert.deepEqual(maintenanceStatus(f({ maintained: rent }), { cycle: { scheme: "cal", n: rent.n + 3 }, covered: false }), { status: "due", missed: 2 });
+  assert.equal(normalizeItemFlag({ maintained: { scheme: "nope", n: 1 } }).maintained, null);
 });
 
 test("a character's gear as trees: parts maintained separately, core containers left out", () => {
@@ -109,7 +122,7 @@ test("a character's gear as trees: parts maintained separately, core containers 
     { _id: "deck", name: "Deck", type: "cyberdeck", system: { price: { market: 1000 } }, flags: flag({ condition: "destroyed", malfunction: { table: "cyberdeck", roll: 2, at: 0, until: 60 } }) },
     { _id: "solo", name: "Solo", type: "role", system: {} }
   ];
-  const list = maintenanceList(items, { moduleId: M, cycle: 2, lifestyle: 1, roles: rolesOf(items), now: 10 });
+  const list = maintenanceList(items, { moduleId: M, cycle: { scheme: "own", n: 2 }, lifestyle: 1, roles: rolesOf(items), now: 10 });
   assert.deepEqual(list.map((e) => e.id), ["rifle", "nasal", "deck"], "options in the body's containers are top level; ammo isn't gear");
   const rifle = list[0];
   assert.deepEqual(rifle.children.map((c) => c.id), ["scope"]);
@@ -125,7 +138,7 @@ test("a character's gear as trees: parts maintained separately, core containers 
   assert.equal(flat.find((e) => e.id === "scope").depth, 1);
   assert.deepEqual(tally(list), { total: 4, covered: 3, maintained: 0, due: 1, damaged: 1, destroyed: 1, malfunctioning: 1 });
   // the malfunction is over once world time passes its end
-  assert.equal(maintenanceList(items, { moduleId: M, cycle: 2, lifestyle: 1, roles: [], now: 60 })[2].malfunction, null);
+  assert.equal(maintenanceList(items, { moduleId: M, cycle: { scheme: "own", n: 2 }, lifestyle: 1, roles: [], now: 60 })[2].malfunction, null);
 });
 
 test("malfunction results and jury rigs", () => {

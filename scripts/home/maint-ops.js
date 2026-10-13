@@ -22,9 +22,48 @@ export const INSPECT_DV = 13;
  * what a lost hand was holding (through Item Piles when it's there).
  */
 export const MaintOps = {
-  /** The current maintenance cycle (a month, or a week if the GM runs them weekly). */
-  get cycle() {
-    return Settings.maintCycle.n;
+  /** Neon Hub's API, when it's on and can tell a character's rent month. */
+  get hub() {
+    const mod = game.modules.get(NEON_HUB_ID);
+    return mod?.active && typeof mod.api?.lifestyleBill === "function" ? mod.api : null;
+  },
+
+  /**
+   * How maintenance months are kept: "rent" (Neon Hub's Rent Day: each character's calendar, or its
+   * month counter without calendars), else "month" or "week" counted here, started by the GM.
+   */
+  get mode() {
+    const m = Settings.get("maintCycleMode");
+    if (m === "month" || m === "week") return m;
+    return this.hub ? "rent" : "month";
+  },
+
+  /**
+   * A character's maintenance cycle: { scheme, n, label, next, calendar }.
+   * With Neon Hub's calendars, it's their calendar's rent month (it starts on Rent Day, as their
+   * Lifestyle bill does); without calendars, Neon Hub's month counter; otherwise the GM's counter.
+   */
+  async cycleFor(actor) {
+    if (this.mode === "rent") {
+      try {
+        const billing = (await this.hub.lifestyleBill(actor))?.billing;
+        const n = Number(billing?.period);
+        if (billing && Number.isFinite(n)) {
+          const cal = billing.mode === "calendar" && billing.calendar ? billing.calendar : null;
+          return {
+            scheme: cal ? "cal" : "hub",
+            n,
+            label: String(billing.label ?? ""),
+            next: cal && billing.next ? { days: Number(billing.next.days) || 0, today: !!billing.next.today } : null,
+            calendar: cal ? { id: cal.id, name: cal.name } : null
+          };
+        }
+      } catch (err) {
+        console.warn(`${MODULE_ID} | couldn't read ${actor.name}'s rent month from Neon Hub`, err);
+      }
+    }
+    const n = Settings.maintCycle.n;
+    return { scheme: "own", n, label: L(`NEONHOME.Maint.Cycle.${this.mode === "week" ? "week" : "month"}`, { n }), next: null, calendar: null };
   },
 
   /** World time in seconds, for how long malfunctions last. */
@@ -54,19 +93,20 @@ export const MaintOps = {
   },
 
   /** Everything the character owns that needs looking after, as trees (see data/maintenance.js). */
-  list(actor) {
+  async list(actor, cycle = null) {
+    cycle ??= await this.cycleFor(actor);
     const items = actor.items.map((i) => i.toObject());
     return maintenanceList(items, {
       moduleId: MODULE_ID,
-      cycle: this.cycle,
+      cycle,
       lifestyle: this.lifestyle(actor).tier,
       roles: rolesOf(items),
       now: this.now()
     });
   },
 
-  entry(actor, itemId) {
-    return flattenList(this.list(actor)).find((e) => e.id === itemId) ?? null;
+  async entry(actor, itemId, cycle = null) {
+    return flattenList(await this.list(actor, cycle)).find((e) => e.id === itemId) ?? null;
   },
 
   /* ---------------------------------------- */
@@ -85,7 +125,8 @@ export const MaintOps = {
    */
   async check(actor, itemId, { mode = "maintain", mechanic = null, event = null, dv = null } = {}) {
     const item = actor.items.get(itemId);
-    const e = this.entry(actor, itemId);
+    const cycle = await this.cycleFor(actor);
+    const e = await this.entry(actor, itemId, cycle);
     if (!item || !e) return null;
     const who = mechanic ?? actor;
     const flag = itemFlag(item.toObject(), MODULE_ID);
@@ -107,7 +148,7 @@ export const MaintOps = {
     if (ok) {
       switch (mode) {
         case "maintain": {
-          const patch = { maintained: this.cycle, malfunction: null };
+          const patch = { maintained: { scheme: cycle.scheme, n: cycle.n }, malfunction: null };
           if (flag.condition === "damaged") {
             Object.assign(patch, { condition: "", hidden: false, cause: "" });
             outcome = "maintain.fixed";
@@ -247,10 +288,12 @@ export const MaintOps = {
         await item.update({ "system.magazine.value": 0 });
         await ChatMessage.create({ content: HomeOps._card("fa-solid fa-ban", L("NEONHOME.Malfunction.Done.emptyMag", { name: esc(actor.name), item: esc(item.name) })), speaker: ChatMessage.getSpeaker({ actor }) });
         break;
-      case "missCycle":
-        await HomeOps._patchFlag(item, { missCycle: this.cycle + 1 });
+      case "missCycle": {
+        const cycle = await this.cycleFor(actor);
+        await HomeOps._patchFlag(item, { missCycle: { scheme: cycle.scheme, n: cycle.n + 1 } });
         await ChatMessage.create({ content: HomeOps._card("fa-solid fa-calendar-xmark", L("NEONHOME.Malfunction.Done.missCycle", { item: esc(item.name) })), whisper: game.users.filter((u) => u.isGM).map((u) => u.id) });
         break;
+      }
     }
     await message.setFlag(MODULE_ID, "malfunction", { ...data, done: true });
   },
@@ -286,7 +329,7 @@ export const MaintOps = {
     if (!actor || actor.documentName !== "Actor" || item.type === "skill") return;
     if (String(cprRoll?.rollCard ?? "").includes("damage-rollcard")) return;
     if (typeof cprRoll?.wasCritFail !== "function" || !cprRoll.wasCritFail()) return;
-    const e = this.entry(actor, item.id);
+    const e = await this.entry(actor, item.id);
     if (!e) return;
     const poorly = e.condition === "damaged" || (mode === "unmaintained" && e.status === "due" && e.missed > 0);
     if (!poorly) return;
@@ -301,36 +344,87 @@ export const MaintOps = {
   /*  The maintenance cycle                   */
   /* ---------------------------------------- */
 
+  /** Player characters (not Item Piles' piles, which are character actors in Cyberpunk RED). */
+  players() {
+    return game.actors.filter((a) => a.type === "character" && a.hasPlayerOwner && !game.itempiles?.API?.isValidItemPile?.(a));
+  },
+
+  /** "Gearhead: 2 to maintain" lines for whoever has gear due. */
+  async _dueRows(actors) {
+    const rows = [];
+    for (const a of actors) {
+      const due = flattenList(await this.list(a)).filter((e) => e.status === "due").length;
+      if (due) rows.push(`<li>${esc(a.name)}: ${L("NEONHOME.Maint.DueCount", { n: due })}</li>`);
+    }
+    return rows.length ? `<ul>${rows.join("")}</ul>` : "";
+  },
+
   /**
-   * GM: start the next month (or week). Gear that isn't covered by Lifestyle needs a new
-   * maintenance Check; each character's count is posted for the GM.
+   * GM: start the next month (or week) of the GM's own counter. With Neon Hub's Rent Day keeping
+   * the months, Neon Hub starts them instead.
    */
-  async newCycle({ hubMonth = undefined } = {}) {
+  async newCycle() {
     if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
+    if (this.mode === "rent") throw new RuleBlock(L("NEONHOME.Maint.FollowsRent"));
     const cur = Settings.maintCycle;
     const n = cur.n + 1;
-    await game.settings.set(MODULE_ID, "maintCycle", { n, hubMonth: hubMonth === undefined ? cur.hubMonth : hubMonth });
-    const rows = game.actors
-      .filter((a) => a.type === "character" && a.hasPlayerOwner && !game.itempiles?.API?.isValidItemPile?.(a))
-      .map((a) => ({ a, due: flattenList(this.list(a)).filter((e) => e.status === "due").length }))
-      .filter((r) => r.due)
-      .map((r) => `<li>${esc(r.a.name)}: ${L("NEONHOME.Maint.DueCount", { n: r.due })}</li>`)
-      .join("");
+    await game.settings.set(MODULE_ID, "maintCycle", { ...cur, n });
+    const rows = await this._dueRows(this.players());
     await ChatMessage.create({
-      content: HomeOps._card("fa-solid fa-calendar-check", `${L(`NEONHOME.Maint.NewCycle.${Settings.get("maintPeriod") === "week" ? "week" : "month"}`, { n })}${rows ? `<ul>${rows}</ul>` : ""}`),
+      content: HomeOps._card("fa-solid fa-calendar-check", `${L(`NEONHOME.Maint.NewCycle.${this.mode === "week" ? "week" : "month"}`, { n })}${rows}`),
       speaker: { alias: L("NEONHOME.Maint.Title") }
     });
   },
 
-  /** Lead GM: when Neon Hub starts a new lifestyle month, so does maintenance (if the GM wants). */
-  async followHub() {
-    if (!Settings.get("maintFollowHub") || Settings.get("maintPeriod") === "week") return;
-    const api = game.modules.get(NEON_HUB_ID)?.active ? game.modules.get(NEON_HUB_ID).api : null;
-    const month = Number(api?.lifestyleMonth?.());
-    if (!Number.isFinite(month)) return;
+  /**
+   * Lead GM, when Neon Hub's calendars or lifestyle month change: for each calendar (or Neon Hub's
+   * month counter) whose rent month moved on since last time, post who now has gear to maintain.
+   * The first look only remembers where things stand.
+   */
+  async announceRentDay() {
+    if (this.mode !== "rent") return;
+    const groups = new Map();
+    for (const actor of this.players()) {
+      const c = await this.cycleFor(actor);
+      if (c.scheme === "own") continue;
+      const key = c.calendar ? `cal:${c.calendar.id}` : "hub";
+      const g = groups.get(key) ?? { n: c.n, label: c.label, calendar: c.calendar, actors: [] };
+      if (c.n > g.n) Object.assign(g, { n: c.n, label: c.label });
+      g.actors.push(actor);
+      groups.set(key, g);
+    }
     const cur = Settings.maintCycle;
-    if (cur.hubMonth === null) return game.settings.set(MODULE_ID, "maintCycle", { ...cur, hubMonth: month });
-    if (month > cur.hubMonth) await this.newCycle({ hubMonth: month });
+    const seen = { ...cur.seen };
+    let changed = false;
+    for (const [key, g] of groups) {
+      const before = Number(seen[key]);
+      if (seen[key] === undefined || !Number.isFinite(before) || g.n < before) {
+        seen[key] = g.n;
+        changed = true;
+        continue;
+      }
+      if (g.n === before) continue;
+      seen[key] = g.n;
+      changed = true;
+      const rows = await this._dueRows(g.actors);
+      const head = g.calendar
+        ? L("NEONHOME.Maint.RentDay", { month: esc(g.label), calendar: esc(g.calendar.name) })
+        : L("NEONHOME.Maint.HubMonth", { month: esc(g.label) });
+      await ChatMessage.create({
+        content: HomeOps._card("fa-solid fa-calendar-check", `${head}${rows}`),
+        speaker: { alias: L("NEONHOME.Maint.Title") },
+        whisper: [...new Set([...g.actors.flatMap((a) => HomeOps._owners(a))])]
+      });
+    }
+    if (changed) await game.settings.set(MODULE_ID, "maintCycle", { ...cur, seen });
+  },
+
+  /** GM: jump a character's Neon Hub calendar to its next Rent Day (Neon Hub bills and rolls the month). */
+  async toRentDay(actor) {
+    if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
+    const c = await this.cycleFor(actor);
+    if (!c.calendar || typeof this.hub?.toRentDay !== "function") return;
+    await this.hub.toRentDay(c.calendar.id);
   },
 
   /* ---------------------------------------- */

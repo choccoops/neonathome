@@ -902,6 +902,9 @@
 .neon-home .nah-maint-strip small { color: var(--nah-dim); font-size: 11px; }
 .neon-home .nah-maint-strip select { height: 24px; font-size: 12px; max-width: 160px; }
 .neon-home .nah-maint-strip button { height: 24px; font-size: 11px; }
+.neon-home .nah-maint-cycle.is-rent b { color: var(--nah-cyan); text-shadow: 0 0 8px rgba(5, 217, 232, 0.5); }
+.neon-home .nah-rent-hint { color: var(--nah-dim); }
+.neon-home .nah-rent-hint i { color: var(--nah-pink); }
 .neon-home .nah-maint-tally { list-style: none; display: flex; gap: 4px; margin: 0 0 0 auto; padding: 0; }
 .neon-home .nah-maint-tally li { padding: 2px 7px; font-family: var(--nah-display); font-size: 11px; border: 1px solid var(--nah-line-2); color: var(--nah-dim); }
 .neon-home .nah-maint-tally li.t-ok { color: var(--nah-cyan); }

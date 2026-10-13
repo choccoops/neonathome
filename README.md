@@ -278,8 +278,16 @@ Tech skills) against DV13, 15, 17 or 21 by value. It's rolled with Cyberpunk RED
 success maintains it for the month, removes the Damaged condition and ends any malfunction; a
 failure means starting over. Wear pips show months without maintenance.
 
-**Months.** The GM starts the next month with **New month**. If Neon Hub runs lifestyle months, its
-new month starts one here too. The GM can switch to weekly cycles in the module settings.
+**Months and Rent Day.** With **Neon Hub**, maintenance months follow its calendar: each
+character's month is their calendar's rent month, starting on its **Rent Day** just as their
+Lifestyle bill does (characters on different calendars keep their own months). When a calendar
+passes Rent Day, gear beyond the Lifestyle falls due again, and the players on that calendar and the
+GM get a card listing who has what to maintain. The tab shows the rent month and the days to the next
+Rent Day, and the GM can jump the calendar there (**To Rent Day**; Neon Hub then runs its own Rent
+Day too: bills, Headquarters). Without calendars, Neon Hub's month counter keeps the months. Without
+Neon Hub, or if the GM prefers, the GM starts each month (or each week) from the tab with **New
+month**. Switching between them doesn't confuse old records: gear maintained under one way of
+counting is simply due under the other.
 
 **Conditions.** Damaged gear works but can malfunction; Destroyed gear doesn't work until it's
 repaired (its effects switch off, its rolls are stopped, and Destroyed armor comes off and can't be
@@ -328,8 +336,8 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - **Weight limit**: show only, warn, or block players (encumbrance applies either way).
 - **Apply armor upgrade bonuses**, **Vehicle bays without a home**, **Players can make custom
   attachments**, **Syndromes & Inspiration**, **Catharsis takes Humanity Loss first**.
-- **Maintenance tab**, **Maintenance cycle** (monthly, as the DLC has it, or weekly), **Follow Neon
-  Hub's month**, **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
+- **Maintenance tab**, **Maintenance months** (Neon Hub's Rent Day, or monthly or weekly started by
+  the GM), **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
   **Lost hands drop what they hold**.
 
 ## For macros and other modules
@@ -345,7 +353,8 @@ home.awardInspiration(actor, 1);    // GM
 home.maintenance(actor);            // gear, what it needs, where it stands
 home.malfunction(actor, itemId);    // roll a malfunction (optionally: , "weapon")
 home.setCondition(actor, itemId, "damaged"); // GM: "", "damaged", "destroyed", "dbr"
-home.newMaintenanceCycle();         // GM: next month (or week)
+home.maintenanceCycle(actor);       // their month: { scheme, n, label, next, calendar }
+home.newMaintenanceCycle();         // GM: next month (or week), when not following Rent Day
 home.drop(actor, itemId);           // drop it where they stand
 home.registerFeature({ id, icon, label, template, prepare, actions }); // add a tab
 ```

@@ -63,7 +63,9 @@ Hooks.once("init", () => {
     malfunction: (actor, itemId, table = null) => MaintOps.malfunction(actor, itemId, { table }),
     /** GM: set an item's condition: "", "damaged", "destroyed" or "dbr". */
     setCondition: (actor, itemId, condition, opts = {}) => HomeOps.setCondition(actor, itemId, condition, opts),
-    /** GM: start the next maintenance month (or week). */
+    /** A character's maintenance month: { scheme, n, label, next, calendar } (Neon Hub's Rent Day, or the GM's counter). */
+    maintenanceCycle: (actor) => MaintOps.cycleFor(actor),
+    /** GM: start the next maintenance month (or week) when the GM keeps them (not Neon Hub's Rent Day). */
     newMaintenanceCycle: () => MaintOps.newCycle(),
     /** Drop an item where the character stands (an Item Piles pile when it's on). */
     drop: (actor, itemId) => MaintOps.dropItem(actor, actor.items.get(itemId)),
@@ -318,13 +320,27 @@ Hooks.on("updateWorldTime", () => {
   expiry = setTimeout(() => MaintOps.expireMalfunctions().catch((err) => console.warn(`${MODULE_ID} | malfunction expiry failed`, err)), 500);
 });
 
-// Neon Hub's new lifestyle month starts a new maintenance month.
-Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
-  if (HomeOps.isLeadGM) MaintOps.followHub().catch((err) => console.warn(`${MODULE_ID} | following Neon Hub's month failed`, err));
-});
-Hooks.once("ready", () => {
-  if (HomeOps.isLeadGM) MaintOps.followHub().catch(() => null);
-});
+/**
+ * Neon Hub's Rent Day starts a new maintenance month for the characters living by that calendar
+ * (or its month counter, without calendars): the lead GM posts who has gear to maintain.
+ */
+let rentWatch = null;
+const watchRent = () => {
+  if (!HomeOps.isLeadGM) return;
+  clearTimeout(rentWatch);
+  rentWatch = setTimeout(() => {
+    MaintOps.announceRentDay().catch((err) => console.warn(`${MODULE_ID} | following Neon Hub's Rent Day failed`, err));
+  }, 750);
+};
+// Everyone's Maintenance tab shows the new month and the days to Rent Day.
+const refreshMaintenance = () => {
+  if (HomeApp.instance?.tab === "maintenance") HomeApp.refresh();
+};
+for (const hook of [`${NEON_HUB_ID}.calendarChanged`, `${NEON_HUB_ID}.lifestyleChanged`]) {
+  Hooks.on(hook, watchRent);
+  Hooks.on(hook, refreshMaintenance);
+}
+Hooks.once("ready", watchRent);
 
 /** The GM's buttons on malfunction cards (v12 passes jQuery, v13 an element). */
 function bindMalfunctionCard(message, html) {
