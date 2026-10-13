@@ -1,0 +1,106 @@
+{
+  "_id": "VpzZjI8Vi4Pafq3i",
+  "_key": "!tables!VpzZjI8Vi4Pafq3i",
+  "name": "Malfunctions: Cyberaudio, cyberoptics & related borgware",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.7. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "V88B9mNTh3YLVtOF",
+      "_key": "!tables.results!VpzZjI8Vi4Pafq3i.V88B9mNTh3YLVtOF",
+      "type": "text",
+      "text": "Junk data: -1 to Checks that need sight (cyberoptics) or hearing (cyberaudio), until you spend an Action clearing it. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "eoXirOHUNBoUFqxC",
+      "_key": "!tables.results!VpzZjI8Vi4Pafq3i.eoXirOHUNBoUFqxC",
+      "type": "text",
+      "text": "Warped perception: -1 to Checks involving spatial awareness (cyberoptics) or balance (cyberaudio). <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "yW1ROm6smzhzE1iD",
+      "_key": "!tables.results!VpzZjI8Vi4Pafq3i.yW1ROm6smzhzE1iD",
+      "type": "text",
+      "text": "Lost definition: you see only in black and white or one colour (cyberoptics), or hear a constant ringing (cyberaudio). <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "CPrArvA5jF29GYd7",
+      "_key": "!tables.results!VpzZjI8Vi4Pafq3i.CPrArvA5jF29GYd7",
+      "type": "text",
+      "text": "Worn circuit: no wireless connection to anything but its installed options (Agents, Chipware Sockets, linked tracers...). <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "WPUkPeUBoSswBglj",
+      "_key": "!tables.results!VpzZjI8Vi4Pafq3i.WPUkPeUBoSswBglj",
+      "type": "text",
+      "text": "Rogue option: a switched-off option turns on and can't be shut off: -2 to Checks that need sight or hearing. <em>(For 1 Round)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "nEvNZzqIQ6iC6IOl",
+      "_key": "!tables.results!VpzZjI8Vi4Pafq3i.nEvNZzqIQ6iC6IOl",
+      "type": "text",
+      "text": "No faces, no voices: you can't recognise anyone by their face (cyberoptics) or voice (cyberaudio). <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 400,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "cyberSenses"
+    }
+  }
+}

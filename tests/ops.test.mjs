@@ -295,26 +295,27 @@ test("EMP'd cyberware switches off its effects and its options', and they come b
     { _id: "arm", name: "Cyberarm", type: "cyberware", system: { type: "cyberArm", isFoundational: true, installedItems: { list: ["grip"], slots: 4 } }, effects: [{ _id: "e1", name: "Arm", changes: [{ key: "bonuses.athletics", value: "1" }] }] },
     { _id: "grip", name: "Grip Foot", type: "cyberware", system: { type: "cyberArm", installedItems: { list: [] } }, effects: [{ _id: "e2", name: "Grip", changes: [{ key: "bonuses.athletics", value: "1" }] }, { _id: "e3", name: "Off already", disabled: true }] }
   ]);
-  await HomeOps.setCyberState(actor, "arm", "emp");
-  assert.equal(actor.items.get("arm").getFlag(M, "item").cyberState, "emp");
+  await HomeOps.setEmp(actor, "arm", true);
+  assert.equal(actor.items.get("arm").getFlag(M, "item").emp, true);
   assert.equal(actor.items.get("arm").effects.get("e1").disabled, true);
   assert.equal(actor.items.get("grip").effects.get("e2").disabled, true, "what's installed in it goes offline too");
-  await HomeOps.setCyberState(actor, "arm", "");
+  await HomeOps.setEmp(actor, "arm", false);
   assert.equal(actor.items.get("arm").effects.get("e1").disabled, false);
   assert.equal(actor.items.get("grip").effects.get("e2").disabled, false);
   assert.equal(actor.items.get("grip").effects.get("e3").disabled, true, "an effect someone else switched off stays off");
 });
 
-test("only the GM marks cyberware EMP'd, broken or working", async () => {
+test("only the GM changes whether gear works", async () => {
   const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["link"] } } }, [
     { _id: "link", name: "Neural Link", type: "cyberware", system: { type: "neuralWare", isFoundational: true, installedItems: { list: [] } } }
   ]);
   asUser(false);
-  await assert.rejects(HomeOps.setCyberState(actor, "link", "emp"), RuleBlock);
-  assert.equal(actor.items.get("link").getFlag(M, "item")?.cyberState, undefined);
+  await assert.rejects(HomeOps.setEmp(actor, "link", true), RuleBlock);
+  await assert.rejects(HomeOps.setCondition(actor, "link", "destroyed"), RuleBlock);
+  assert.equal(actor.items.get("link").getFlag(M, "item"), undefined);
   asUser(true);
-  await HomeOps.setCyberState(actor, "link", "emp");
-  assert.equal(actor.items.get("link").getFlag(M, "item").cyberState, "emp");
+  await HomeOps.setEmp(actor, "link", true);
+  assert.equal(actor.items.get("link").getFlag(M, "item").emp, true);
 });
 
 test("an offline cyberarm or cyberleg is a Dismembered Arm / Leg until it works again", async () => {
@@ -329,13 +330,16 @@ test("an offline cyberarm or cyberleg is a Dismembered Arm / Leg until it works 
   const injuries = () => actor.items.filter((i) => i.type === "criticalInjury");
 
   // An EMP'd gun in a working arm isn't a lost arm.
-  await HomeOps.setCyberState(actor, "gun", "emp");
+  await HomeOps.setEmp(actor, "gun", true);
   assert.equal(injuries().length, 0);
-  assert.equal(HomeOps.isCyberOffline(actor, "gun"), "emp");
-  assert.equal(HomeOps.isCyberOffline(actor, "armR"), "");
+  assert.equal(HomeOps.offlineState(actor, "gun"), "emp");
+  assert.equal(HomeOps.offlineState(actor, "armR"), "");
+  // A Damaged arm still works: no lost arm.
+  await HomeOps.setCondition(actor, "armR", "damaged");
+  assert.equal(injuries().length, 0);
 
   // The left arm (the second one) is EMP'd: CPR's Dismembered Arm, on the left, without the Death Save.
-  await HomeOps.setCyberState(actor, "armL", "emp");
+  await HomeOps.setEmp(actor, "armL", true);
   let [arm] = injuries();
   assert.equal(arm.name, "Dismembered Arm (EMP'd Cyberarm)");
   assert.equal(arm.getFlag(M, "cyberLimb"), "armL");
@@ -343,18 +347,20 @@ test("an offline cyberarm or cyberleg is a Dismembered Arm / Leg until it works 
   assert.equal(arm.system.deathSaveIncrease, false);
   assert.match(arm.system.description.value, /Arm removed/);
 
-  // Broken instead of EMP'd: the injury follows; a broken meat leg is no lost leg, a broken cyberleg is.
-  await HomeOps.setCyberState(actor, "armL", "broken");
-  await HomeOps.setCyberState(actor, "meatLeg", "broken");
-  await HomeOps.setCyberState(actor, "legR", "broken");
-  assert.deepEqual(injuries().map((i) => i.name).sort(), ["Dismembered Arm (Broken Cyberarm)", "Dismembered Leg (Broken Cyberleg)"]);
+  // Destroyed as well as EMP'd: the injury follows the worse; a destroyed meat leg is no lost leg, a cyberleg is.
+  await HomeOps.setCondition(actor, "armL", "destroyed");
+  await HomeOps.setCondition(actor, "meatLeg", "destroyed");
+  await HomeOps.setCondition(actor, "legR", "dbr");
+  assert.deepEqual(injuries().map((i) => i.name).sort(), ["Dismembered Arm (Destroyed Cyberarm)", "Dismembered Leg (Cyberleg Destroyed Beyond Repair)"]);
   const leg = injuries().find((i) => i.getFlag(M, "cyberLimb") === "legR");
   assert.equal(leg.getFlag(M, "side"), "R");
   assert.equal(leg.effects.contents?.[0]?.changes?.[0]?.value ?? [...leg.effects][0].changes[0].value, "-6", "with its -6 MOVE");
   assertCprReadable(actor);
 
-  // Repaired: gone. Uninstalled while broken: gone too.
-  await HomeOps.setCyberState(actor, "armL", "");
+  // Repaired, but still EMP'd: back to the EMP injury. Back online too: gone. Uninstalled: gone too.
+  await HomeOps.setCondition(actor, "armL", "");
+  assert.equal(injuries().find((i) => i.getFlag(M, "cyberLimb") === "armL").name, "Dismembered Arm (EMP'd Cyberarm)");
+  await HomeOps.setEmp(actor, "armL", false);
   assert.deepEqual(injuries().map((i) => i.getFlag(M, "cyberLimb")), ["legR"]);
   actor.system.installedItems.list = ["armR", "armL", "meatLeg"];
   await HomeOps.syncCyberLimbs(actor);
@@ -369,7 +375,7 @@ test("the Dismembered injury comes from CPR's compendium when it's there", async
     const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["leg"] } } }, [
       { _id: "leg", name: "Cyberleg", type: "cyberware", system: { type: "cyberLeg", isFoundational: true, installedItems: { list: [], slots: 3 } } }
     ]);
-    await HomeOps.setCyberState(actor, "leg", "emp");
+    await HomeOps.setEmp(actor, "leg", true);
     const [injury] = actor.items.filter((i) => i.type === "criticalInjury");
     assert.equal(injury.img, "pack.svg");
     assert.equal(injury.name, "Dismembered Leg (EMP'd Cyberleg)");

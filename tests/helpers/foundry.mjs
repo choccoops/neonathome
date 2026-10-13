@@ -98,7 +98,37 @@ export function callHook(name, ...args) {
 globalThis.Actor = class Actor {};
 globalThis.fromUuidSync = (uuid) => registry.get(uuid) ?? null;
 globalThis.fromUuid = async (uuid) => registry.get(uuid) ?? null;
-globalThis.ChatMessage = { create: async () => null, getSpeaker: () => ({}) };
+/** Chat messages created, newest last (tests read and clear it). */
+export const chat = [];
+globalThis.ChatMessage = {
+  create: async (data) => {
+    const msg = { ...data, flags: data.flags ?? {} };
+    msg.getFlag = (scope, key) => msg.flags?.[scope]?.[key];
+    msg.setFlag = async (scope, key, value) => {
+      msg.flags[scope] ??= {};
+      msg.flags[scope][key] = clone(value);
+    };
+    chat.push(msg);
+    return msg;
+  },
+  getSpeaker: () => ({}),
+  applyRollMode: (data, mode) => {
+    data.rollMode = mode;
+    return data;
+  }
+};
+/** Dice: Roll results come from dice.next (then 1). */
+export const dice = { next: [] };
+globalThis.Roll = class Roll {
+  constructor(formula) {
+    this.formula = formula;
+  }
+
+  async evaluate() {
+    this.total = dice.next.length ? dice.next.shift() : 1;
+    return this;
+  }
+};
 
 /**
  * Foundry v12's ApplicationV2, as far as subclasses can trip over it: these are getters with no
@@ -163,6 +193,7 @@ globalThis.game = {
   },
   user: users[0],
   users: Object.assign(users, { activeGM: users[0] }),
+  time: { worldTime: 0 },
   modules: new Map([[MODULE_ID, { active: true }]]),
   actors: new Collection(),
   settings: {
@@ -171,6 +202,7 @@ globalThis.game = {
     },
     registerMenu() {},
     get(scope, key) {
+      if (scope === "core" && key === "rollMode") return "publicroll";
       if (!settingsStore.has(key)) throw new Error(`Setting not registered: ${scope}.${key}`);
       return settingsStore.get(key);
     },
@@ -234,7 +266,11 @@ export function makeItem(actor, data) {
     }
   };
   item.update = async (changes) => {
-    for (const [k, v] of Object.entries(changes)) setProperty(item, k, clone(v));
+    for (const [k, v] of Object.entries(changes)) {
+      const m = /^(.*)\.-=(\w+)$/.exec(k);
+      if (m) delete foundry.utils.getProperty(item, m[1])?.[m[2]];
+      else setProperty(item, k, clone(v));
+    }
     return item;
   };
   // CPR's container mixin, as far as Neon At Home uses it.

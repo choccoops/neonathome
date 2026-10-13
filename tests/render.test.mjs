@@ -109,7 +109,8 @@ test("Biomonitor's cyberware view: types, slots, the chrome arm and the EMP'd gu
   assert.equal(c.marks.find((k) => k.rootId === "cyberarm0000000a").state, "emp", "its marker flags what's offline inside");
   assert.ok(html.includes("No Neural Link") === false, "this character has one");
   assert.ok(html.includes("EMP&#x27;d") || html.includes("EMP'd"));
-  assert.ok(html.includes('data-action="cyberState"'));
+  assert.ok(html.includes('data-action="cyberCondition"'));
+  assert.ok(html.includes('data-action="cyberEmp"'));
   assert.ok(!/NEONHOME\./.test(html));
 });
 
@@ -125,6 +126,27 @@ test("Weaponbench shows sockets, stats and the drawer", async () => {
   assert.deepEqual(names.sort(), ["Smartgun Link", "Sniping Scope"]);
   assert.ok(html.includes("Looks mean"));
   assert.ok(html.includes("+1 to attack"));
+  assert.ok(!/NEONHOME\./.test(html));
+});
+
+test("Maintenance shows the cycle, the Lifestyle, the gear and the workbench", async () => {
+  app.uiState.maint = { selected: "rifle0000000000a" };
+  const { ctx, html } = await renderTab("maintenance");
+  const m = ctx.maint;
+  assert.equal(m.lifestyle.label, "Kibble");
+  assert.equal(m.lifestyle.source, "(Neon Hub)");
+  assert.ok(m.groups.some((g) => g.key === "weapon"));
+  assert.ok(!html.includes("Kibble</b></small>"), "Neon Hub's lifestyle items aren't gear");
+  const sel = m.selected;
+  assert.equal(sel.name, "Tsunami Arms Helix");
+  assert.equal(sel.status, "due");
+  assert.equal(sel.condition, "damaged");
+  assert.equal(sel.can.maintain, true);
+  assert.ok(sel.malf.text.includes("jams"));
+  assert.ok(html.includes("Breaking Your Stuff, p.10"));
+  assert.ok(html.includes('data-action="maintCheck"'));
+  assert.ok(html.includes('data-action="maintCondition"'), "the GM's controls");
+  assert.ok(html.includes("Sells for") || html.includes("pays"), "what it's worth");
   assert.ok(!/NEONHOME\./.test(html));
 });
 

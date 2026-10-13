@@ -1,4 +1,4 @@
-import { MODULE_ID, SYSTEM_ID, TEMPLATE_PATH, CHECKED } from "./constants.js";
+import { MODULE_ID, SYSTEM_ID, TEMPLATE_PATH, CHECKED, NEON_HUB_ID } from "./constants.js";
 import { Compat } from "./compat.js";
 import { HomeSocket } from "./socket.js";
 import { Settings } from "./settings.js";
@@ -11,6 +11,8 @@ import { Loadout } from "./apps/loadout.js";
 import { Bay } from "./apps/bay.js";
 import { Biomonitor } from "./apps/biomonitor.js";
 import { Bench } from "./apps/bench.js";
+import { Maintenance } from "./apps/maintenance.js";
+import { MaintOps } from "./home/maint-ops.js";
 import { ItemConfig } from "./apps/item-config.js";
 import { RulesConfig } from "./apps/rules-config.js";
 import { isVasVehicle } from "./data/vehicles.js";
@@ -24,6 +26,7 @@ registerFeature(Loadout);
 registerFeature(Bay);
 registerFeature(Biomonitor);
 registerFeature(Bench);
+registerFeature(Maintenance);
 
 Hooks.once("init", () => {
   Settings.register(RulesConfig);
@@ -33,7 +36,7 @@ Hooks.once("init", () => {
   CONFIG.statusEffects.push(HomeOps.encumbranceStatus("half"), HomeOps.encumbranceStatus("one"));
 
   game.modules.get(MODULE_ID).api = {
-    /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, biomonitor, bench. */
+    /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, biomonitor, bench, maintenance. */
     open: (actor = null, tab = null) => HomeApp.open(actor, { tab }),
     /** GM: open each listed user's own home suite (default: every connected player). */
     show: (tab = null, userIds = null) => HomeSocket.emit("openHome", { tab }, userIds ?? game.users.filter((u) => u.active && !u.isGM).map((u) => u.id)),
@@ -54,6 +57,16 @@ Hooks.once("init", () => {
     /** Add a sub-feature tab to the suite (see scripts/apps/features.js). */
     registerFeature,
     features: () => features().map((f) => f.id),
+    /** Maintenance: a character's gear, what it needs and where it stands (see data/maintenance.js). */
+    maintenance: (actor) => MaintOps.list(actor),
+    /** Roll a malfunction for an item (optionally on a given table). */
+    malfunction: (actor, itemId, table = null) => MaintOps.malfunction(actor, itemId, { table }),
+    /** GM: set an item's condition: "", "damaged", "destroyed" or "dbr". */
+    setCondition: (actor, itemId, condition, opts = {}) => HomeOps.setCondition(actor, itemId, condition, opts),
+    /** GM: start the next maintenance month (or week). */
+    newMaintenanceCycle: () => MaintOps.newCycle(),
+    /** Drop an item where the character stands (an Item Piles pile when it's on). */
+    drop: (actor, itemId) => MaintOps.dropItem(actor, actor.items.get(itemId)),
     /** Open Neon At Home's settings for an item (GM). */
     configureItem: (item) => ItemConfig.open(item),
     apps: { HomeApp, ItemConfig, RulesConfig }
@@ -175,6 +188,14 @@ Hooks.on("preUpdateItem", (item, changes, options, userId) => {
   if (!(actor instanceof Actor) || actor.type !== "character") return;
   const equipped = foundry.utils.getProperty(changes, "system.equipped");
   if (equipped === undefined || equipped === item.system.equipped || equipped === "owned") return;
+  // Destroyed (or EMP'd) armor can't be worn until it works again.
+  if (equipped === "equipped" && item.type === "armor" && !game.user.isGM) {
+    const state = HomeOps.offlineState(actor, item.id);
+    if (state) {
+      ui.notifications.warn(L(`NEONHOME.Condition.Blocked.${state}`, { item: item.name }));
+      return false;
+    }
+  }
   const mode = Settings.get("enforceCarry");
   if (mode === "off") return;
   const change = item.toObject();
@@ -224,7 +245,8 @@ Hooks.on("updateActor", (actor, changes, options) => {
 
 /**
  * Cyberpunk RED has no hook before a roll, so the sheet's roll buttons are caught first (capture
- * phase): rolling with EMP'd or broken cyberware, or anything installed in it, is stopped.
+ * phase): rolling with gear that doesn't work (EMP'd, Destroyed, Destroyed Beyond Repair, or
+ * installed in something that is) is stopped.
  */
 function guardOfflineRolls(sheet, element) {
   const actor = sheet.actor ?? sheet.document;
@@ -234,16 +256,97 @@ function guardOfflineRolls(sheet, element) {
   root.addEventListener("click", (ev) => {
     const roll = ev.target?.closest?.(".rollable, [data-action='roll'], [data-roll-type]");
     const id = roll?.closest("[data-item-id]")?.dataset.itemId ?? roll?.dataset.itemId;
-    if (!id || actor.items.get(id)?.type !== "cyberware") return;
-    const state = HomeOps.isCyberOffline(actor, id);
+    const item = id ? actor.items.get(id) : null;
+    if (!item || item.type === "skill") return;
+    const state = HomeOps.offlineState(actor, id);
     if (!state) return;
     ev.preventDefault();
     ev.stopImmediatePropagation();
-    ui.notifications.warn(L(`NEONHOME.Cyber.Blocked.${state}`, { item: actor.items.get(id).name }));
+    ui.notifications.warn(L(`NEONHOME.Condition.Blocked.${state}`, { item: item.name }));
   }, true);
 }
 Hooks.on("renderActorSheet", (sheet, html) => guardOfflineRolls(sheet, sheet.element ?? html));
 Hooks.on("renderActorSheetV2", (sheet, element) => guardOfflineRolls(sheet, element));
+
+/* ------------------------------------------ */
+/*  Breaking Your Stuff                       */
+/* ------------------------------------------ */
+
+/**
+ * Natural 1s with poorly maintained gear. Every roll Cyberpunk RED makes with an item (attacks,
+ * cyberdeck actions, item macros) goes through the item's confirmRoll before it's rolled, so the
+ * roll is watched from there.
+ */
+Hooks.once("ready", () => {
+  let proto = CONFIG.Item?.documentClass?.prototype;
+  while (proto && !Object.prototype.hasOwnProperty.call(proto, "confirmRoll")) proto = Object.getPrototypeOf(proto);
+  if (!proto || proto.confirmRoll?.[`${MODULE_ID}Watched`]) return;
+  const original = proto.confirmRoll;
+  const watched = async function (cprRoll, ...rest) {
+    const out = await original.call(this, cprRoll, ...rest);
+    const item = this;
+    if (out && typeof out.roll === "function" && item?.type !== "skill") {
+      const roll = out.roll;
+      out.roll = async function (...args) {
+        const result = await roll.apply(this, args);
+        MaintOps.onItemRoll(item, this).catch((err) => console.warn(`${MODULE_ID} | fumble check failed`, err));
+        return result;
+      };
+    }
+    return out;
+  };
+  watched[`${MODULE_ID}Watched`] = true;
+  proto.confirmRoll = watched;
+});
+
+/** A lost arm or hand drops what it held; an item picked up from a pile gets its attachments back. */
+Hooks.on("createItem", (item, options, userId) => {
+  const actor = item.parent;
+  if (!(actor instanceof Actor)) return;
+  if (item.type === "criticalInjury" && HomeOps.isLeadGM) {
+    MaintOps.onInjury(actor, item).catch((err) => console.warn(`${MODULE_ID} | dropping held items failed`, err));
+  }
+  if (userId === game.user.id && item.getFlag(MODULE_ID, "dropTree")) {
+    MaintOps.restoreDropped(item).catch((err) => console.warn(`${MODULE_ID} | restoring ${item.name}'s attachments failed`, err));
+  }
+});
+
+let expiry = null;
+Hooks.on("updateWorldTime", () => {
+  if (!HomeOps.isLeadGM) return;
+  clearTimeout(expiry);
+  expiry = setTimeout(() => MaintOps.expireMalfunctions().catch((err) => console.warn(`${MODULE_ID} | malfunction expiry failed`, err)), 500);
+});
+
+// Neon Hub's new lifestyle month starts a new maintenance month.
+Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
+  if (HomeOps.isLeadGM) MaintOps.followHub().catch((err) => console.warn(`${MODULE_ID} | following Neon Hub's month failed`, err));
+});
+Hooks.once("ready", () => {
+  if (HomeOps.isLeadGM) MaintOps.followHub().catch(() => null);
+});
+
+/** The GM's buttons on malfunction cards (v12 passes jQuery, v13 an element). */
+function bindMalfunctionCard(message, html) {
+  const root = html?.[0] ?? html;
+  const data = message.getFlag?.(MODULE_ID, "malfunction");
+  if (!root?.querySelectorAll || !data || root.dataset?.nahMalf) return;
+  if (root.dataset) root.dataset.nahMalf = "1";
+  for (const button of root.querySelectorAll("[data-nah-malf]")) {
+    if (!game.user.isGM || data.done) {
+      button.disabled = true;
+      if (!game.user.isGM) button.hidden = true;
+      continue;
+    }
+    button.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      button.disabled = true;
+      HomeOps.run(() => MaintOps.cardAction(message));
+    });
+  }
+}
+Hooks.on("renderChatMessage", (message, html) => bindMalfunctionCard(message, html));
+Hooks.on("renderChatMessageHTML", (message, html) => bindMalfunctionCard(message, html));
 
 /* ------------------------------------------ */
 /*  Entry points                              */

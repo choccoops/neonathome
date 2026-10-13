@@ -1,4 +1,5 @@
 import { MODULE_ID, CHECKED, SYSTEM_ID } from "./constants.js";
+import { Compat } from "./compat.js";
 
 /** Operation options for writes Neon At Home has already checked against the carry rules. */
 const checked = (extra = {}) => ({ ...extra, [MODULE_ID]: { [CHECKED]: true } });
@@ -120,14 +121,74 @@ export const CPR = {
       await item.update({ "system.amount": total - qty });
       return created ?? null;
     }
+    await this.removeWithInstalled(item);
+    return created ?? null;
+  },
+
+  /**
+   * Delete an item from its actor with what's installed in it, as CPR does when an item leaves for
+   * another actor: loaded ammo stacks stay (their rounds went with the weapon's magazine count).
+   */
+  async removeWithInstalled(item) {
+    const source = item.parent;
+    if (!source) return;
     const deleteIds = [item.id];
-    if (tree && typeof item.recursiveGetAllInstalledItems === "function") {
+    if (item.system?.installedItems?.list?.length && typeof item.recursiveGetAllInstalledItems === "function") {
       for (const inner of item.recursiveGetAllInstalledItems()) {
         if (inner.type !== "ammo" || Number(inner.system.amount) === 0) deleteIds.push(inner.id);
       }
     }
     await source.deleteEmbeddedDocuments("Item", deleteIds, { unloadAmmo: false, deleteInstalled: true });
-    return created ?? null;
+  },
+
+  /* ---------------------------------------- */
+  /*  Skill checks                            */
+  /* ---------------------------------------- */
+
+  /** A character's skill item by name (ignoring case, spaces and slashes), or null. */
+  skill(actor, skillName) {
+    const slug = (n) => String(n ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const want = slug(skillName);
+    return actor?.items?.find((i) => i.type === "skill" && slug(i.name) === want) ?? null;
+  },
+
+  /**
+   * Roll a skill check through Cyberpunk RED's own roll: its roll dialog (unless Ctrl-clicked,
+   * per the system's setting), LUCK, situational modifiers, critical dice, and its roll card.
+   * Without the skill it's the skill's STAT alone.
+   * @param {object} [opts] - { event: the click, for the dialog; stat: when the skill is missing }
+   * @returns {Promise<{total: number, html: string, critFail: boolean, critSuccess: boolean}|null>}
+   *   null when the dialog was cancelled
+   */
+  async skillCheck(actor, skillName, { event = null, stat = "tech" } = {}) {
+    const skill = this.skill(actor, skillName);
+    let roll = null;
+    if (skill && typeof skill.createRoll === "function") roll = skill.createRoll("skill", actor);
+    else if (typeof actor.createRoll === "function") roll = actor.createRoll("stat", stat);
+    if (!roll) throw new Error(game.i18n.format("NEONHOME.Error.NoSkill", { skill: skillName }));
+    const ev = event ?? { type: "click", ctrlKey: false, metaKey: false };
+    if (typeof roll.handleRollDialog === "function") {
+      const go = await roll.handleRollDialog(ev, actor, skill);
+      if (!go) return null;
+    }
+    if (skill && typeof skill.confirmRoll === "function") roll = await skill.confirmRoll(roll);
+    await roll.roll();
+    // Consume LUCK as the character sheet does.
+    const luck = Number(roll.luck) || 0;
+    if (luck > 0) {
+      const have = Number(getProperty(actor, "system.stats.luck.value")) || 0;
+      await actor.update({ "system.stats.luck.value": Math.max(0, have - luck) });
+    }
+    roll.entityData = { actor: actor.id, token: null, item: skill?.id ?? null };
+    roll.criticalCard = typeof roll.wasCritical === "function" ? roll.wasCritical() : false;
+    const html = roll.rollCard ? await Compat.renderTemplate(roll.rollCard, roll) : "";
+    return {
+      total: Number(roll.resultTotal) || 0,
+      html,
+      critFail: typeof roll.wasCritFail === "function" ? roll.wasCritFail() : false,
+      critSuccess: typeof roll.wasCritSuccess === "function" ? roll.wasCritSuccess() : false,
+      skill: skill?.name ?? skillName
+    };
   },
 
   /* ---------------------------------------- */

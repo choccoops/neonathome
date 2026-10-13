@@ -96,7 +96,14 @@ function onFigure(anchor, side) {
 /** The cyberware monitor: the scan's marks and chrome limbs, and each type's pieces and slots. */
 function cyberContext(actor, isGM) {
   const m = HomeOps.cyberware(actor);
+  // What's shown: why it's offline, else Damaged (unless the GM is keeping that quiet), else ok.
+  const shownKey = (n) => n.state || (n.damaged && (isGM || !n.hidden) ? "damaged" : "ok");
   const stateKey = (st) => st || "ok";
+  const sets = (n) => ({
+    is: { ok: !n.condition, damaged: n.condition === "damaged", destroyed: n.condition === "destroyed", dbr: n.condition === "dbr" },
+    emp: n.emp,
+    hiddenDamage: isGM && n.hidden
+  });
   const row = (n, depth) => [
     {
       id: n.id,
@@ -105,11 +112,11 @@ function cyberContext(actor, isGM) {
       depth,
       size: n.size,
       weapon: n.weapon,
-      state: stateKey(n.state),
+      state: shownKey(n),
       own: stateKey(n.own),
-      is: { ok: !n.own, emp: n.own === "emp", broken: n.own === "broken" },
+      ...sets(n),
       inherited: n.inheritedOffline,
-      stateLabel: L(`NEONHOME.Cyber.State.${stateKey(n.state)}`)
+      stateLabel: L(`NEONHOME.Cyber.State.${shownKey(n)}`)
     },
     ...n.children.flatMap((c) => row(c, depth + 1))
   ];
@@ -120,10 +127,10 @@ function cyberContext(actor, isGM) {
     core: n.core,
     meat: n.meat,
     side: n.side ? L(`NEONHOME.Bio.Side.${n.side}`) : "",
-    state: stateKey(n.state),
+    state: shownKey(n),
     own: stateKey(n.own),
-    is: { ok: !n.own, emp: n.own === "emp", broken: n.own === "broken" },
-    stateLabel: L(`NEONHOME.Cyber.State.${stateKey(n.state)}`),
+    ...sets(n),
+    stateLabel: L(`NEONHOME.Cyber.State.${shownKey(n)}`),
     slots: n.slots,
     used: n.used,
     over: n.used > n.slots,
@@ -136,17 +143,18 @@ function cyberContext(actor, isGM) {
     total: m.total,
     offline: m.offline,
     emp: m.emp,
-    broken: m.broken,
+    destroyed: m.destroyed,
+    damaged: isGM ? m.damaged : 0,
     canEdit: isGM,
     marks: m.marks.map((k) => ({
       ...onFigure(k.anchor, k.side),
-      state: stateKey(k.state),
+      state: stateKey(k.state === "damaged" && !isGM && !k.knownDamage ? "" : k.state),
       count: k.count,
       multi: k.count > 1,
       rootId: k.rootId,
       tip: [`<b>${esc(L(`NEONHOME.Cyber.Type.${k.type}`))}</b>`, ...k.names.map((nm) => esc(nm))].join("<br>")
     })),
-    limbs: m.marks.filter((k) => k.limb && k.side).map((k) => ({ ...SEVERED_SHAPES[k.limb][k.side], state: stateKey(k.rootState) })),
+    limbs: m.marks.filter((k) => k.limb && k.side).map((k) => ({ ...SEVERED_SHAPES[k.limb][k.side], state: stateKey(k.rootState === "damaged" && !isGM && !k.rootKnown ? "" : k.rootState) })),
     types: m.types.map((t) => ({
       type: t.type,
       label: L(`NEONHOME.Cyber.Type.${t.type}`),
@@ -365,10 +373,15 @@ export const Biomonitor = {
       this.uiState.bio = { ...(this.uiState.bio ?? {}), view: target.dataset.view };
       this.render();
     },
-    /** Mark a piece of cyberware working, EMP'd or broken (the GM only). */
-    cyberState(event, target) {
+    /** GM: a piece of cyberware's condition (Breaking Your Stuff): working, Damaged, Destroyed, Destroyed Beyond Repair. */
+    cyberCondition(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
-      return this.act(() => HomeOps.setCyberState(this.actor, id, target.dataset.state || ""));
+      return this.act(() => HomeOps.setCondition(this.actor, id, target.dataset.condition || ""));
+    },
+    /** GM: knock a piece of cyberware out with EMP, or bring it back. */
+    cyberEmp(event, target) {
+      const id = target.closest("[data-item-id]")?.dataset.itemId;
+      return this.act(() => HomeOps.setEmp(this.actor, id, target.dataset.on === "1"));
     },
     bioOpenInjury(event, target) {
       this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId)?.sheet.render(true);

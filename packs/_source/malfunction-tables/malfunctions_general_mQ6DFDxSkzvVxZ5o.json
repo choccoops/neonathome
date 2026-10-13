@@ -1,0 +1,106 @@
+{
+  "_id": "mQ6DFDxSkzvVxZ5o",
+  "_key": "!tables!mQ6DFDxSkzvVxZ5o",
+  "name": "Malfunctions: General gear & personal electronics",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.9. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "UisZD69OQB9sa4m8",
+      "_key": "!tables.results!mQ6DFDxSkzvVxZ5o.UisZD69OQB9sa4m8",
+      "type": "text",
+      "text": "Poor function: no bonuses from it, and -1 to Checks made with it. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "oa2ajGrgIJELmuKb",
+      "_key": "!tables.results!mQ6DFDxSkzvVxZ5o.oa2ajGrgIJELmuKb",
+      "type": "text",
+      "text": "Bites back: it hurts you: 5 damage straight to HP. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "mBWBDxwEywFoGfMm",
+      "_key": "!tables.results!mQ6DFDxSkzvVxZ5o.mBWBDxwEywFoGfMm",
+      "type": "text",
+      "text": "Last legs: it's Destroyed after its next use. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "L5cYGAgJCuzYswaQ",
+      "_key": "!tables.results!mQ6DFDxSkzvVxZ5o.L5cYGAgJCuzYswaQ",
+      "type": "text",
+      "text": "Worse than nothing: no bonuses from it, and -2 to Checks made with it. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "W5sURtFULbo1g0Re",
+      "_key": "!tables.results!mQ6DFDxSkzvVxZ5o.W5sURtFULbo1g0Re",
+      "type": "text",
+      "text": "Something's wrong: one function of the GM's choice doesn't work. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Ogo5IkrHDC4bzbbG",
+      "_key": "!tables.results!mQ6DFDxSkzvVxZ5o.Ogo5IkrHDC4bzbbG",
+      "type": "text",
+      "text": "Hard to spot: next month it isn't maintained, even if Lifestyle or a Check would cover it. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 800,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "general"
+    }
+  }
+}

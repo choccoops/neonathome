@@ -1,4 +1,4 @@
-# Neon At Home: Loadout, Vehicle Bay, Biomonitor & Weaponbench for Cyberpunk RED
+# Neon At Home: Loadout, Vehicle Bay, Biomonitor, Weaponbench & Maintenance for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
 from the character sheet, with a tab for each part of their home.
@@ -13,6 +13,10 @@ from the character sheet, with a tab for each part of their home.
   Antipathy, In The System and Inspiration.
 - **Weaponbench.** A weapon's attachment slots, what each attachment does to it, and attaching
   and detaching them, including custom attachments.
+- **Maintenance.** R. Talsorian's *Breaking Your Stuff* DLC: what the character's Lifestyle
+  maintains, monthly maintenance Checks for the rest, Damaged, Destroyed and Destroyed Beyond
+  Repair gear, inspections, repairs, jury rigs, and malfunctions from the DLC's tables (on a GM's
+  call or a natural 1 with poorly maintained gear).
 
 | Requirement | Version |
 | --- | --- |
@@ -21,6 +25,7 @@ from the character sheet, with a tab for each part of their home.
 | [Neon Hub](https://github.com/choccoops/neonredlanding) | optional: vehicle bays from the character's home or household |
 | [MMuton's CPR Vehicle Actor Sheet](https://github.com/MMuton/MMutons-Cyberpunk-Vehicle-Actor-Sheet) | optional: crew seats, mounted weapons and upgrades on vehicle actors |
 | [MMuton's CPR Weight System](https://github.com/MMuton/MMutons-Cyberpunk-Red-Weight-System) | optional: item weights set there are used here |
+| [Item Piles](https://foundryvtt.com/packages/item-piles) | optional: what a lost hand (or a malfunction) drops lands in a pile beside the token |
 
 ![The Loadout tab](docs/loadout.jpg)
 
@@ -215,21 +220,25 @@ Fashionware) with its option slots as sockets (used and total, counting slot upg
 cyberware installed in it, nested. The scan marks each piece on the body and draws cyberlimbs in
 chrome.
 
-The GM can mark each piece **working**, **EMP'd** or **broken / worn out** (players see the state but
-can't change it). Offline cyberware is non-functional, and takes everything installed in it offline
-too:
+The GM sets each piece's condition from *Breaking Your Stuff*: **working**, **Damaged**,
+**Destroyed** or **Destroyed Beyond Repair**, and can knock it out with **EMP** (players see it but
+can't change it; Damaged can be kept from them). Damaged cyberware still works but can malfunction.
+Destroyed or EMP'd cyberware is non-functional, and takes everything installed in it offline too:
 
-- it flickers yellow (EMP) or shows red (broken) on the scan and in the list;
-- its bonuses (Active Effects) switch off until it's marked working again;
+- it shows orange (Damaged), flickers yellow (EMP), red (Destroyed) or dead grey (Beyond Repair)
+  on the scan and in the list;
+- its bonuses (Active Effects) switch off until it works again;
 - its weapons can't be rolled from the character sheet (a warning says why);
 - an offline **cyberarm or cyberleg** counts as a lost limb: the character gets Cyberpunk RED's
   **Dismembered Arm** or **Dismembered Leg** critical injury (from the core compendium, with its
-  effects, e.g. -6 MOVE for a leg), named for the cause, e.g. "Dismembered Arm (EMP'd Cyberarm)",
-  and on the right side of the trauma map. It goes away by itself when the limb works again or is
-  uninstalled. It doesn't raise the Death Save penalty, since nothing was actually cut off. Meat
-  limbs aren't affected.
+  effects, e.g. -6 MOVE for a leg), named for the cause, e.g. "Dismembered Arm (Destroyed
+  Cyberarm)", and on the right side of the trauma map. It goes away by itself when the limb works
+  again or is uninstalled. It doesn't raise the Death Save penalty, since nothing was actually cut
+  off. Meat limbs aren't affected. A lost arm also drops what its hand was holding (see
+  [Maintenance](#maintenance)).
 
-The player and GM are told in chat.
+The player and GM are told in chat. Maintaining, inspecting and repairing it is done from the
+Maintenance tab.
 
 ## Weaponbench
 
@@ -243,6 +252,62 @@ marked **fixed** stay on.
 **Custom attachment** makes a new attachment item: name, slots, modifiers (added or set), and
 free-text benefits. Players can make their own if the GM allows it.
 
+## Maintenance
+
+Rules from R. Talsorian's free **Breaking Your Stuff** DLC (v1.1), which you'll want to read. The
+tab lists everything the character owns that needs looking after, grouped by kind, with each
+weapon's attachments, each armor's upgrades and each cyberlimb's options as their own entries
+(they're maintained separately).
+
+**Lifestyle.** Gear is maintained as part of your Lifestyle when the Lifestyle is good enough for
+its value: Kibble covers gear under 500eb, Generic Prepak under 1,000eb, Good Prepak under
+5,000eb, Fresh Food everything (drones and vehicles: 20,000 / 50,000 / 100,000eb). The Lifestyle is
+read from the character's active **Neon Hub** lifestyle package, in either era (the 2045 packages,
+their "+" versions, and the 2070 PrePaks), otherwise from the character sheet's Lifestyle; the GM
+can set it by hand.
+
+**Roles.** Techs count their Lifestyle a level higher for any gear, Solos and Lawmen for weapons and
+armor, Netrunners for cyberdecks, bodyweight suits and VR goggles, Medias for cameras and
+microphones, Rockerboys for instruments, microphones and amps. Gear an Exec's employer, a Medtech's
+Role Ability or a Nomad's family looks after can be marked so in its item settings.
+
+**Maintenance Checks.** Anything pricier than the Lifestyle covers needs a Check each month: the
+skill for its kind (Basic Tech, Cybertech, Electronics/Security Tech, Weaponstech, or the vehicle
+Tech skills) against DV13, 15, 17 or 21 by value. It's rolled with Cyberpunk RED's own skill roll
+(dialog, LUCK, modifiers, criticals) and anyone can do the work: pick who in **Who works on it**. A
+success maintains it for the month, removes the Damaged condition and ends any malfunction; a
+failure means starting over. Wear pips show months without maintenance.
+
+**Months.** The GM starts the next month with **New month**. If Neon Hub runs lifestyle months, its
+new month starts one here too. The GM can switch to weekly cycles in the module settings.
+
+**Conditions.** Damaged gear works but can malfunction; Destroyed gear doesn't work until it's
+repaired (its effects switch off, its rolls are stopped, and Destroyed armor comes off and can't be
+worn); Destroyed Beyond Repair never works again. The GM sets them on the workbench or with
+**Break gear**, which picks the gear a cause usually affects (lack of maintenance, a Critical
+Injury, electrocution, the environment, 20+ damage, fire or radiation, drugs). Damaged gear isn't
+always obvious: the GM can keep it quiet, and a DV13 **Inspect** finds it. **Repair** fixes Destroyed
+gear against a DV the GM confirms. The bench also shows what it sells for in its condition.
+
+**Malfunctions.** Each kind of gear has its 1d6 table: armor, cyberdecks, cyberlimbs, cyberaudio and
+optics, internal/external/fashionware, neuralware, drones, general gear and electronics, linear
+frames and cyberchairs, vehicles, weapons. The GM rolls one from the bench (or picks the table), and
+by default one is rolled automatically when an attack or other roll with a **Damaged** item comes up
+a natural 1. The malfunction stays on the item for as long as it lasts (by world time), and a Tech
+with Field Expertise can **jury-rig** it for 10 minutes per point. The card's button does what Neon
+At Home can: drop the weapon, empty the magazine, mark the item Destroyed...
+
+The malfunction text is a short summary written for this module, with the DLC's page; the DLC has
+the full wording. The **Malfunction Tables** compendium has all eleven tables: import one into your
+world and edit it (for instance with the DLC's own text) and Neon At Home rolls from your copy.
+
+**Dropping things.** A **Dismembered Arm** or **Hand**, from Cyberpunk RED's critical injuries or
+an offline cyberarm, drops what that hand held: two-handed weapons always (one arm can't hold
+them), everything if both arms are gone, and the GM is asked about one-handed items (and which arm,
+if that isn't known). With **Item Piles** on, dropped items land in a pile beside the token, with
+their attachments, which go back on when someone picks the item up; without it, they're simply no
+longer carried.
+
 ## Item settings (GM)
 
 Every item sheet has a **Home** button for the GM, with Neon At Home's settings for that item:
@@ -251,7 +316,8 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - armor class (armor);
 - bonus carry slots, *no armor* and *one per group* (carry gear like holsters and bags);
 - where an armor upgrade fits, which classes, built-in effects, what it requires, bonus slots;
-- benefit lines and *fixed* (weapon attachments).
+- benefit lines and *fixed* (weapon attachments);
+- maintenance: what kind of gear it is, its malfunction table, and who looks after it.
 
 ## Module settings
 
@@ -262,17 +328,25 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - **Weight limit**: show only, warn, or block players (encumbrance applies either way).
 - **Apply armor upgrade bonuses**, **Vehicle bays without a home**, **Players can make custom
   attachments**, **Syndromes & Inspiration**, **Catharsis takes Humanity Loss first**.
+- **Maintenance tab**, **Maintenance cycle** (monthly, as the DLC has it, or weekly), **Follow Neon
+  Hub's month**, **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
+  **Lost hands drop what they hold**.
 
 ## For macros and other modules
 
 ```js
 const home = game.modules.get("cpr-neon-at-home").api;
-home.open(actor, "bench");          // open a tab: loadout, bay, biomonitor, bench
+home.open(actor, "bench");          // open a tab: loadout, bay, biomonitor, bench, maintenance
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }
 home.psyche(actor);                 // tier, Syndromes, Catharsis...
 home.awardInspiration(actor, 1);    // GM
+home.maintenance(actor);            // gear, what it needs, where it stands
+home.malfunction(actor, itemId);    // roll a malfunction (optionally: , "weapon")
+home.setCondition(actor, itemId, "damaged"); // GM: "", "damaged", "destroyed", "dbr"
+home.newMaintenanceCycle();         // GM: next month (or week)
+home.drop(actor, itemId);           // drop it where they stand
 home.registerFeature({ id, icon, label, template, prepare, actions }); // add a tab
 ```
 
@@ -282,7 +356,9 @@ New sub-features plug into the same window: see `scripts/apps/features.js`.
 
 - Actor flags `cpr-neon-at-home.home` (stash, vehicles, bays) and `cpr-neon-at-home.psyche`
   (Syndromes, Catharsis, Inspiration).
-- Item flag `cpr-neon-at-home.item` (the item settings above).
+- Item flag `cpr-neon-at-home.item` (the item settings above, plus condition, EMP, last
+  maintained month and any malfunction). Actor flag `cpr-neon-at-home.maint` (the GM's Lifestyle
+  for maintenance).
 - Stashes are Cyberpunk RED container actors flagged `cpr-neon-at-home.stashOf`.
 - Cyberpunk RED data it reads: equip state, armor locations, SP and penalty, installed items,
   upgrade modifiers, HP, wound state, Humanity, EMP, LUCK and critical injuries.
@@ -294,7 +370,7 @@ npm install
 npm test             # rules, operations and template rendering against mock documents
 npm run check        # syntax, JSON and localization keys
 npm run preview      # render each tab to preview/ with a test character
-npm run build:packs  # compile the compendiums from packs/_source
+npm run build:packs  # write the malfunction tables, then compile the compendiums from packs/_source
 ```
 
 See [PUBLISHING.md](PUBLISHING.md) for releases.

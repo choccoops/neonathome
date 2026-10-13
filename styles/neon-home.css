@@ -784,7 +784,7 @@
 .neon-home .nah-cyber-flesh { fill: rgba(216, 219, 236, 0.04); stroke: rgba(5, 217, 232, 0.35); stroke-width: 1.2; }
 .neon-home .nah-chrome-limb { fill: rgba(5, 217, 232, 0.18); stroke: var(--nah-cyan); stroke-width: 1.4; stroke-dasharray: 5 2; filter: drop-shadow(0 0 4px var(--nah-cyan)); }
 .neon-home .nah-chrome-limb.state-emp { fill: rgba(243, 230, 0, 0.2); stroke: var(--nah-yellow); filter: drop-shadow(0 0 5px var(--nah-yellow)); animation: nah-emp 0.9s steps(2) infinite; }
-.neon-home .nah-chrome-limb.state-broken { fill: rgba(255, 75, 75, 0.18); stroke: var(--nah-red); stroke-dasharray: 2 4; filter: none; }
+.neon-home .nah-chrome-limb:is(.state-destroyed, .state-dbr) { fill: rgba(255, 75, 75, 0.18); stroke: var(--nah-red); stroke-dasharray: 2 4; filter: none; }
 .neon-home .nah-cyber-mark {
   --mk: var(--nah-cyan);
   position: absolute;
@@ -799,8 +799,8 @@
 }
 .neon-home .nah-cyber-mark b { position: absolute; left: 13px; top: -10px; transform: rotate(-45deg); padding: 0 3px; font-family: var(--nah-display); font-size: 9px; font-weight: 400; color: #06131a; background: var(--mk); }
 .neon-home .nah-cyber-mark.state-emp { --mk: var(--nah-yellow); animation: nah-emp 0.9s steps(2) infinite; }
-.neon-home .nah-cyber-mark.state-broken { --mk: var(--nah-red); border-style: dashed; background: rgba(7, 7, 11, 0.85); }
-.neon-home .nah-cyber-mark.state-broken::after { content: "\00d7"; position: absolute; inset: 0; display: grid; place-items: center; transform: rotate(-45deg); color: var(--nah-red); font: 700 11px/1 var(--nah-display); }
+.neon-home .nah-cyber-mark:is(.state-destroyed, .state-dbr) { --mk: var(--nah-red); border-style: dashed; background: rgba(7, 7, 11, 0.85); }
+.neon-home .nah-cyber-mark:is(.state-destroyed, .state-dbr)::after { content: "\00d7"; position: absolute; inset: 0; display: grid; place-items: center; transform: rotate(-45deg); color: var(--nah-red); font: 700 11px/1 var(--nah-display); }
 @keyframes nah-emp { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 .neon-home .nah-cyber-readout b { color: var(--nah-cyan); }
 .neon-home .nah-cyber-readout b.is-off { color: var(--nah-yellow); text-shadow: 0 0 10px var(--nah-yellow); }
@@ -810,7 +810,7 @@
 .neon-home .nah-cyber-legend i { width: 9px; height: 9px; transform: rotate(45deg); border: 1px solid; }
 .neon-home .nah-cyber-legend .state-ok i { border-color: var(--nah-cyan); background: var(--nah-cyan); }
 .neon-home .nah-cyber-legend .state-emp i { border-color: var(--nah-yellow); background: var(--nah-yellow); }
-.neon-home .nah-cyber-legend .state-broken i { border-color: var(--nah-red); border-style: dashed; }
+.neon-home .nah-cyber-legend :is(.state-destroyed, .state-dbr) i { border-color: var(--nah-red); border-style: dashed; }
 
 /* the list: one block per type, a card per foundational piece or built-in container */
 .neon-home .nah-cyber-type { margin-bottom: 12px; }
@@ -828,7 +828,7 @@
 .neon-home .nah-cyber-card.is-core { --st: var(--nah-line-2); }
 .neon-home .nah-cyber-card.is-meat { --st: #c98a7a; }
 .neon-home .nah-cyber-card.state-emp { --st: var(--nah-yellow); }
-.neon-home .nah-cyber-card.state-broken { --st: var(--nah-red); }
+.neon-home .nah-cyber-card:is(.state-destroyed, .state-dbr) { --st: var(--nah-red); }
 .neon-home .nah-cyber-card > header { display: flex; align-items: center; gap: 8px; }
 .neon-home .nah-cyber-card > header img { width: 32px; height: 32px; object-fit: contain; }
 .neon-home .nah-cyber-card > header > div { flex: 1; min-width: 0; display: grid; }
@@ -837,8 +837,8 @@
 .neon-home .nah-cyber-state { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; padding: 2px 6px; border: 1px solid currentColor; color: var(--nah-cyan); white-space: nowrap; }
 .neon-home .state-emp > .nah-cyber-state,
 .neon-home .state-emp > header > .nah-cyber-state { color: var(--nah-yellow); animation: nah-emp 1.2s steps(2) infinite; }
-.neon-home .state-broken > .nah-cyber-state,
-.neon-home .state-broken > header > .nah-cyber-state { color: var(--nah-red); }
+.neon-home :is(.state-destroyed, .state-dbr) > .nah-cyber-state,
+.neon-home :is(.state-destroyed, .state-dbr) > header > .nah-cyber-state { color: var(--nah-red); }
 .neon-home .nah-cyber-sockets { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0 2px; }
 .neon-home .nah-cyber-sockets i { width: 16px; height: 10px; border: 1px solid var(--nah-line-2); transform: skewX(-15deg); }
 .neon-home .nah-cyber-sockets i.filled { background: var(--st); border-color: var(--st); box-shadow: 0 0 6px var(--st); }
@@ -855,8 +855,8 @@
   background: rgba(13, 13, 21, 0.7);
 }
 .neon-home .nah-cyber-row.state-emp { --st: var(--nah-yellow); }
-.neon-home .nah-cyber-row.state-broken { --st: var(--nah-red); }
-.neon-home .nah-cyber-row.state-broken .nah-cyber-name { text-decoration: line-through; text-decoration-color: rgba(255, 75, 75, 0.7); }
+.neon-home .nah-cyber-row:is(.state-destroyed, .state-dbr) { --st: var(--nah-red); }
+.neon-home .nah-cyber-row:is(.state-destroyed, .state-dbr) .nah-cyber-name { text-decoration: line-through; text-decoration-color: rgba(255, 75, 75, 0.7); }
 .neon-home .nah-cyber-row.is-inherited { opacity: 0.6; }
 .neon-home .nah-cyber-row img { width: 20px; height: 20px; object-fit: contain; }
 .neon-home .nah-cyber-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -867,5 +867,195 @@
 .neon-home .nah-cyber-set button + button { margin-left: -1px; }
 .neon-home .nah-cyber-set button.on { color: #06131a; background: var(--nah-cyan); border-color: var(--nah-cyan); }
 .neon-home .nah-cyber-set button.is-emp.on { background: var(--nah-yellow); border-color: var(--nah-yellow); }
-.neon-home .nah-cyber-set button.is-broken.on { color: #fff; background: var(--nah-red); border-color: var(--nah-red); }
+.neon-home .nah-cyber-set button:is(.is-destroyed, .is-dbr).on { color: #fff; background: var(--nah-red); border-color: var(--nah-red); }
+/* Breaking Your Stuff: Damaged (hazard orange), Destroyed (red), Destroyed Beyond Repair (dead grey) */
+.neon-home .nah-chrome-limb.state-damaged { fill: rgba(255, 138, 31, 0.16); stroke: var(--nah-orange); filter: drop-shadow(0 0 4px var(--nah-orange)); }
+.neon-home .nah-chrome-limb.state-dbr { fill: rgba(110, 114, 144, 0.14); stroke: var(--nah-dim); stroke-dasharray: 1 5; }
+.neon-home .nah-cyber-mark.state-damaged { --mk: var(--nah-orange); }
+.neon-home .nah-cyber-mark.state-dbr { --mk: var(--nah-dim); box-shadow: none; }
+.neon-home .nah-cyber-mark.state-dbr::after { color: var(--nah-dim); }
+.neon-home .nah-cyber-legend .state-damaged i { border-color: var(--nah-orange); background: var(--nah-orange); }
+.neon-home .nah-cyber-legend .state-dbr i { border-color: var(--nah-dim); border-style: dotted; }
+.neon-home .nah-cyber-card.state-damaged,
+.neon-home .nah-cyber-row.state-damaged { --st: var(--nah-orange); }
+.neon-home .nah-cyber-card.state-dbr,
+.neon-home .nah-cyber-row.state-dbr { --st: var(--nah-dim); }
+.neon-home .nah-cyber-card.state-dbr { filter: grayscale(0.8); }
+.neon-home .state-damaged > .nah-cyber-state,
+.neon-home .state-damaged > header > .nah-cyber-state { color: var(--nah-orange); }
+.neon-home .state-dbr > .nah-cyber-state,
+.neon-home .state-dbr > header > .nah-cyber-state { color: var(--nah-dim); }
+.neon-home .nah-cyber-set button.is-damaged.on { background: var(--nah-orange); border-color: var(--nah-orange); }
+.neon-home .nah-cyber-set button.is-dbr.on { background: #3b3d52; border-color: var(--nah-dim); }
+.neon-home .nah-cyber-set button.is-emp { margin-left: 4px; }
+.neon-home .nah-cyber-secret { color: var(--nah-orange); font-size: 10px; }
 @media (prefers-reduced-motion: reduce) { .neon-home .nah-cyber-mark, .neon-home .nah-chrome-limb, .neon-home .nah-cyber-state { animation: none !important; } }
+
+/* ==========================================================================
+   Maintenance (Breaking Your Stuff): the cycle strip, the gear list, the workbench
+   ========================================================================== */
+.neon-home .nah-maint { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.neon-home .nah-maint-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 10px 16px; border-bottom: 1px solid var(--nah-line); background: linear-gradient(90deg, rgba(255, 138, 31, 0.08), transparent 55%); }
+.neon-home .nah-maint-strip > div { display: flex; align-items: center; gap: 6px; }
+.neon-home .nah-maint-strip .nah-kicker { margin: 0; }
+.neon-home .nah-maint-strip b { font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; }
+.neon-home .nah-maint-strip small { color: var(--nah-dim); font-size: 11px; }
+.neon-home .nah-maint-strip select { height: 24px; font-size: 12px; max-width: 160px; }
+.neon-home .nah-maint-strip button { height: 24px; font-size: 11px; }
+.neon-home .nah-maint-tally { list-style: none; display: flex; gap: 4px; margin: 0 0 0 auto; padding: 0; }
+.neon-home .nah-maint-tally li { padding: 2px 7px; font-family: var(--nah-display); font-size: 11px; border: 1px solid var(--nah-line-2); color: var(--nah-dim); }
+.neon-home .nah-maint-tally li.t-ok { color: var(--nah-cyan); }
+.neon-home .nah-maint-tally li.t-done { color: var(--nah-green); }
+.neon-home .nah-maint-tally li.t-due.on { color: var(--nah-yellow); border-color: var(--nah-yellow); }
+.neon-home .nah-maint-tally li.t-dmg.on { color: var(--nah-orange); border-color: var(--nah-orange); }
+.neon-home .nah-maint-tally li.t-dead.on { color: var(--nah-red); border-color: var(--nah-red); }
+.neon-home .nah-maint-tally li.t-malf.on { color: #0b0006; background: var(--nah-yellow); border-color: var(--nah-yellow); animation: nah-emp 1.4s steps(2) infinite; }
+.neon-home .nah-maint-break { border-color: var(--nah-orange); color: var(--nah-orange); }
+
+.neon-home .nah-maint-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); }
+.neon-home .nah-maint-list { padding: 10px 12px; border-right: 1px solid var(--nah-line); }
+.neon-home .nah-maint-list ul { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-maint-row {
+  --cond: var(--nah-line-2);
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 6px 4px calc(6px + var(--depth, 0) * 16px);
+  border: 1px solid var(--nah-line);
+  border-left: 3px solid var(--cond);
+  background: rgba(13, 13, 21, 0.8);
+  clip-path: var(--nah-notch-card);
+  cursor: pointer;
+}
+.neon-home .nah-maint-row:hover { border-color: var(--nah-line-2); }
+.neon-home .nah-maint-row.selected { border-color: var(--nah-pink); background: linear-gradient(90deg, rgba(255, 42, 109, 0.2), rgba(13, 13, 21, 0.9) 85%); }
+.neon-home .nah-maint-row img { width: 28px; height: 28px; object-fit: contain; }
+.neon-home .nah-maint-name { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-maint-name b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-maint-name small { font-size: 10px; color: var(--nah-dim); white-space: nowrap; overflow: hidden; }
+.neon-home .nah-maint-row.cond-damaged { --cond: var(--nah-orange); }
+.neon-home .nah-maint-row.cond-destroyed { --cond: var(--nah-red); }
+.neon-home .nah-maint-row.cond-dbr { --cond: var(--nah-dim); }
+.neon-home .nah-maint-row:is(.cond-destroyed, .cond-dbr) .nah-maint-name b { text-decoration: line-through; text-decoration-color: rgba(255, 75, 75, 0.7); }
+.neon-home .nah-maint-row.cond-dbr { filter: grayscale(0.85); opacity: 0.75; }
+.neon-home .nah-maint-row.is-offline:not(.cond-destroyed, .cond-dbr) { opacity: 0.65; }
+.neon-home .nah-maint-row.is-malf { animation: nah-jolt 3.2s infinite; }
+.neon-home .nah-emp-icon { color: var(--nah-yellow); }
+.neon-home .nah-malf-icon { color: var(--nah-yellow); text-shadow: 0 0 6px var(--nah-yellow); }
+
+.neon-home .nah-pill { display: inline-block; padding: 0 5px; font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid currentColor; }
+.neon-home .nah-pill.st-covered,
+.neon-home .nah-pill.st-exempt { color: var(--nah-cyan); }
+.neon-home .nah-pill.st-maintained { color: var(--nah-green); }
+.neon-home .nah-pill.st-due { color: var(--nah-yellow); }
+.neon-home .nah-pill.cond-damaged { color: var(--nah-orange); }
+.neon-home .nah-pill.cond-destroyed { color: var(--nah-red); }
+.neon-home .nah-pill.cond-dbr { color: var(--nah-dim); }
+
+/* wear: cycles without maintenance */
+.neon-home .nah-wear { display: flex; gap: 2px; }
+.neon-home .nah-wear i { width: 4px; height: 12px; background: var(--nah-line); transform: skewX(-15deg); }
+.neon-home .nah-wear i.on { background: var(--nah-yellow); box-shadow: 0 0 4px var(--nah-yellow); }
+.neon-home .nah-wear i.on:nth-child(n+3) { background: var(--nah-orange); box-shadow: 0 0 4px var(--nah-orange); }
+.neon-home .nah-wear i.on:nth-child(4) { background: var(--nah-red); box-shadow: 0 0 4px var(--nah-red); }
+
+/* the workbench */
+.neon-home .nah-maint-bench { padding: 14px 18px; }
+.neon-home .nah-maint-card { --cond: var(--nah-cyan); display: grid; gap: 10px; }
+.neon-home .nah-maint-card.cond-damaged { --cond: var(--nah-orange); }
+.neon-home .nah-maint-card.cond-destroyed { --cond: var(--nah-red); }
+.neon-home .nah-maint-card.cond-dbr { --cond: var(--nah-dim); }
+.neon-home .nah-maint-card .nah-mat-head { position: relative; }
+.neon-home .nah-maint-card .nah-mat-art { flex-basis: 96px; height: 96px; border-color: var(--cond); cursor: pointer; }
+.neon-home .nah-maint-card .nah-mat-art img { width: 76px; height: 76px; }
+.neon-home .nah-maint-card.cond-damaged .nah-mat-art { background: repeating-linear-gradient(-45deg, rgba(255, 138, 31, 0.16) 0 6px, transparent 6px 12px); }
+.neon-home .nah-maint-card.cond-destroyed .nah-mat-art img { filter: grayscale(0.6) drop-shadow(0 0 6px var(--nah-red)); animation: nah-flicker 2.8s infinite; }
+.neon-home .nah-maint-card.cond-dbr .nah-mat-art img { filter: grayscale(1) brightness(0.6); }
+.neon-home .nah-maint-card .nah-mat-head > div:nth-child(2) { flex: 1; min-width: 0; }
+.neon-home .nah-stamp {
+  align-self: flex-start;
+  padding: 4px 10px;
+  font-family: var(--nah-display);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cond);
+  border: 2px solid var(--cond);
+  transform: rotate(-4deg);
+  text-shadow: 0 0 8px var(--cond);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cond) 35%, transparent), inset 0 0 8px color-mix(in srgb, var(--cond) 25%, transparent);
+  display: grid;
+  justify-items: center;
+}
+.neon-home .nah-stamp.cond- { --cond: var(--nah-cyan); }
+.neon-home .nah-stamp.cond-destroyed { animation: nah-glitch 3s infinite; }
+.neon-home .nah-stamp-emp { font-size: 9px; color: var(--nah-yellow); text-shadow: 0 0 6px var(--nah-yellow); animation: nah-emp 1s steps(2) infinite; }
+.neon-home .nah-maint-note { font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-maint-note.is-secret { color: var(--nah-orange); }
+.neon-home .nah-maint-note.is-offline { color: var(--nah-red); }
+.neon-home .nah-maint-specs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0; }
+.neon-home .nah-maint-specs > div { padding: 6px 8px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.7); clip-path: var(--nah-notch-card); }
+.neon-home .nah-maint-specs dt { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-maint-specs dd { margin: 2px 0 0; font-family: var(--nah-display); font-size: 15px; color: #fff; }
+.neon-home .nah-maint-status { display: flex; align-items: baseline; gap: 10px; padding: 8px 10px; border-left: 3px solid var(--st, var(--nah-cyan)); background: rgba(13, 13, 21, 0.7); font-size: 12px; }
+.neon-home .nah-maint-status b { font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--st, var(--nah-cyan)); white-space: nowrap; }
+.neon-home .nah-maint-status.st-maintained { --st: var(--nah-green); }
+.neon-home .nah-maint-status.st-due { --st: var(--nah-yellow); }
+.neon-home .nah-maint-malf { padding: 8px 10px; border: 1px solid var(--nah-yellow); background: repeating-linear-gradient(-45deg, rgba(243, 230, 0, 0.07) 0 8px, transparent 8px 16px), rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-card); }
+.neon-home .nah-maint-malf header { font-family: var(--nah-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--nah-yellow); animation: nah-flicker 3s infinite; }
+.neon-home .nah-maint-malf header small { color: var(--nah-dim); letter-spacing: 0.05em; }
+.neon-home .nah-maint-malf p { margin: 4px 0; font-size: 13px; }
+.neon-home .nah-maint-malf footer { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-maint-malf.is-rigged { border-color: var(--nah-cyan); }
+.neon-home .nah-maint-malf.is-rigged header { color: var(--nah-cyan); animation: none; }
+.neon-home .nah-rigged { color: var(--nah-cyan); }
+.neon-home .nah-maint-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.neon-home .nah-maint-actions button small { margin-left: 4px; color: var(--nah-dim); font-family: var(--nah-display); }
+.neon-home .nah-maint-actions button.nah-primary { border-color: var(--nah-pink); color: #fff; background: linear-gradient(90deg, rgba(255, 42, 109, 0.25), rgba(13, 13, 21, 0.9)); }
+.neon-home .nah-maint-who { font-size: 11px; }
+.neon-home .nah-maint-worth { font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-maint-worth i { color: var(--nah-green); }
+.neon-home .nah-maint-gm { margin: 4px 0 0; padding: 8px 10px; border: 1px dashed var(--nah-line-2); display: grid; gap: 6px; }
+.neon-home .nah-maint-gm legend { padding: 0 6px; font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-maint-gm-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.neon-home .nah-maint-gm-row select { height: 26px; font-size: 12px; max-width: 220px; }
+.neon-home .nah-cond-set { display: flex; }
+.neon-home .nah-cond-set button { flex: 1; justify-content: center; clip-path: none; font-size: 11px; }
+.neon-home .nah-cond-set button + button { margin-left: -1px; }
+.neon-home .nah-cond-set button.on.cond- { color: #06131a; background: var(--nah-cyan); border-color: var(--nah-cyan); }
+.neon-home .nah-cond-set button.on.cond-damaged { color: #160800; background: var(--nah-orange); border-color: var(--nah-orange); }
+.neon-home .nah-cond-set button.on.cond-destroyed { color: #fff; background: var(--nah-red); border-color: var(--nah-red); }
+.neon-home .nah-cond-set button.on.cond-dbr { color: #fff; background: #3b3d52; border-color: var(--nah-dim); }
+.neon-home .nah-maint-gm button.on { color: #0b0006; background: var(--nah-yellow); border-color: var(--nah-yellow); }
+.neon-home .nah-maint-table { margin-top: 14px; font-size: 12px; }
+.neon-home .nah-maint-table summary { cursor: pointer; color: var(--nah-dim); font-family: var(--nah-display); letter-spacing: 0.1em; text-transform: uppercase; font-size: 11px; }
+.neon-home .nah-maint-table table { width: 100%; margin-top: 6px; border-collapse: collapse; }
+.neon-home .nah-maint-table :is(th, td) { padding: 3px 6px; border-bottom: 1px solid var(--nah-line); text-align: left; }
+.neon-home .nah-maint-table th { font-family: var(--nah-display); font-weight: 400; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home .nah-maint-table tr.on td { color: var(--nah-cyan); }
+@container (max-width: 860px) {
+  .neon-home .nah-maint-body { grid-template-columns: minmax(0, 1fr); }
+  .neon-home .nah-maint-list { max-height: 40%; border-right: 0; border-bottom: 1px solid var(--nah-line); }
+  .neon-home .nah-maint-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neon-home :is(.nah-maint-row, .nah-stamp, .nah-stamp-emp, .nah-maint-malf header, .nah-maint-tally li, .nah-maint-card .nah-mat-art img) { animation: none !important; }
+}
+
+/* dialogs: drop / break gear */
+.neon-home-dialog .nah-check { display: flex; align-items: center; gap: 6px; padding: 2px 0 2px calc(var(--depth, 0) * 16px); font-size: 13px; }
+.neon-home-dialog .nah-drop-list { display: grid; gap: 2px; max-height: 320px; overflow-y: auto; margin-top: 6px; padding: 6px 8px; border: 1px solid var(--nah-line); }
+
+/* chat: maintenance verdicts and malfunctions */
+.neon-home-chat.nah-maint-verdict { margin-top: 6px; }
+.neon-home-chat.nah-maint-verdict.is-ok { border-color: var(--nah-green); background: linear-gradient(115deg, rgba(57, 255, 136, 0.12), transparent 70%), #09090e; }
+.neon-home-chat.nah-maint-verdict.is-ok header i { color: var(--nah-green); }
+.neon-home-chat.nah-maint-verdict.is-fail { border-color: var(--nah-red); }
+.neon-home-chat .nah-maint-dv { font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.1em; color: var(--nah-dim); }
+.neon-home-chat.nah-malfunction { border-color: var(--nah-yellow); background: repeating-linear-gradient(-45deg, rgba(243, 230, 0, 0.06) 0 8px, transparent 8px 16px), #09090e; }
+.neon-home-chat.nah-malfunction header i { color: var(--nah-yellow); }
+.neon-home-chat .nah-malf-why { font-size: 12px; color: var(--nah-dim); }
+.neon-home-chat .nah-malf-table { font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--nah-yellow); margin-top: 4px; }
+.neon-home-chat .nah-malf-text { margin: 4px 0; }
+.neon-home-chat .nah-malf-dur { font-size: 11px; color: var(--nah-dim); }
+.neon-home-chat .nah-malf-actions { margin-top: 6px; }
+.neon-home-chat .nah-malf-actions button { width: 100%; font-size: 12px; }
+.neon-home-chat ul { margin: 4px 0 0; padding-left: 18px; }

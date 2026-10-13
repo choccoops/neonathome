@@ -1,0 +1,106 @@
+{
+  "_id": "TsrpSgoxeZ6kYXfs",
+  "_key": "!tables!TsrpSgoxeZ6kYXfs",
+  "name": "Malfunctions: Vehicle",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.9. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "gThOqnBSxVF21kF0",
+      "_key": "!tables.results!TsrpSgoxeZ6kYXfs.gThOqnBSxVF21kF0",
+      "type": "text",
+      "text": "Won't start: every start needs a DV15 Vehicle Tech Check, or it fails and the Action is wasted. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "VDK6xdbYIWqJzQTy",
+      "_key": "!tables.results!TsrpSgoxeZ6kYXfs.VDK6xdbYIWqJzQTy",
+      "type": "text",
+      "text": "Chaos: radio, lights, horn, wipers and other extras switch on at random. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "FUkfItmjgA2GhdaX",
+      "_key": "!tables.results!TsrpSgoxeZ6kYXfs.FUkfItmjgA2GhdaX",
+      "type": "text",
+      "text": "Smoking engine: Combat and Narrative speed are halved (round up). <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Ffg0C81XqYPFrIs0",
+      "_key": "!tables.results!TsrpSgoxeZ6kYXfs.Ffg0C81XqYPFrIs0",
+      "type": "text",
+      "text": "Stalling: the GM can call for a DV15 Vehicle Tech Check; on a failure it stalls and takes an Action to restart. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "RxBBmp7g0KEJQOXc",
+      "_key": "!tables.results!TsrpSgoxeZ6kYXfs.RxBBmp7g0KEJQOXc",
+      "type": "text",
+      "text": "Stiff controls: -2 to Checks to drive or pilot it. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "c2qV3SuOP1j4W4NX",
+      "_key": "!tables.results!TsrpSgoxeZ6kYXfs.c2qV3SuOP1j4W4NX",
+      "type": "text",
+      "text": "Brittle frame: attacks on it deal double damage, as if they hit a weak spot. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 1000,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "vehicle"
+    }
+  }
+}

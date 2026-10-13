@@ -20,8 +20,33 @@ export const ACCEPT_TAGS = {
   pocket: ["utility", "oneHanded"]
 };
 
-/** What can be wrong with a piece of cyberware ("" is working). */
-export const CYBER_STATES = ["", "emp", "broken"];
+/**
+ * Breaking Your Stuff: the condition of a piece of gear ("" is working). Damaged gear works but can
+ * malfunction; Destroyed gear doesn't work until it's repaired; Destroyed Beyond Repair never will.
+ */
+export const CONDITIONS = ["", "damaged", "destroyed", "dbr"];
+
+/** Why gear was Damaged (Breaking Your Stuff, "Breaking Stuff"). */
+export const DAMAGE_CAUSES = ["", "maintenance", "injury", "electrocution", "environment", "excessive", "fire", "drugs", "other"];
+
+/** Who looks after gear so its owner doesn't have to (Breaking Your Stuff, "Roles and Maintenance"). */
+export const EXEMPT = ["", "exec", "medtech", "nomad", "other"];
+
+/** A malfunction under way on a piece of gear, or null. */
+function normalizeMalfunction(raw) {
+  if (!raw || typeof raw !== "object" || !str(raw.table)) return null;
+  const opt = (v) => (v === null || v === undefined || v === "" || !Number.isFinite(Number(v)) ? null : Number(v));
+  return {
+    table: str(raw.table),
+    roll: int(raw.roll, 1, 6),
+    // world time it started and ends (null: until it's fixed or the GM clears it)
+    at: opt(raw.at),
+    until: opt(raw.until),
+    // a Tech's jury rig holds it off until then (world time)
+    rigUntil: opt(raw.rigUntil),
+    rigMinutes: int(raw.rigMinutes, 0, 999)
+  };
+}
 
 /** Where an armor upgrade fits. */
 export const UPGRADE_LOCATIONS = ["body", "head", "both", "shield", "any"];
@@ -49,6 +74,7 @@ export function normalizeItemFlag(raw = {}) {
   const carry = r.carry && typeof r.carry === "object" ? r.carry : {};
   const upgrade = r.upgrade && typeof r.upgrade === "object" ? r.upgrade : {};
   const attachment = r.attachment && typeof r.attachment === "object" ? r.attachment : {};
+  const maint = r.maint && typeof r.maint === "object" ? r.maint : {};
   const effects = Array.isArray(upgrade.effects) ? upgrade.effects : (upgrade.effect ? [upgrade.effect] : []);
   return {
     // carry slots
@@ -91,8 +117,25 @@ export function normalizeItemFlag(raw = {}) {
     },
     // vehicles: cargo capacity in weight units
     cargo: optNum(r.cargo, 0, 99999),
-    // cyberware: "" (working), "emp" (knocked out by EMP) or "broken" (broken / worn out)
-    cyberState: CYBER_STATES.includes(r.cyberState) ? r.cyberState : ""
+    // Breaking Your Stuff: "" (working), "damaged", "destroyed" or "dbr" (Destroyed Beyond Repair).
+    // 1.4.0 betas stored a cyberware "broken" state, which is Destroyed.
+    condition: CONDITIONS.includes(r.condition) ? r.condition : r.cyberState === "broken" ? "destroyed" : "",
+    // Damaged without the players knowing (Damaged gear isn't always obvious)
+    hidden: !!r.hidden,
+    cause: DAMAGE_CAUSES.includes(r.cause) ? r.cause : "",
+    // knocked out by EMP (cyberware and electronics) until the GM says it's back
+    emp: !!r.emp || r.cyberState === "emp",
+    // the maintenance cycle it was last maintained in, and a cycle it can't be covered in
+    maintained: r.maintained === null || r.maintained === undefined || r.maintained === "" ? null : int(r.maintained, 0),
+    missCycle: r.missCycle === null || r.missCycle === undefined || r.missCycle === "" ? null : int(r.missCycle, 0),
+    malfunction: normalizeMalfunction(r.malfunction),
+    // the GM's overrides: what kind of gear it is for maintenance, its malfunction table, and
+    // whether someone else looks after it
+    maint: {
+      kind: str(maint.kind),
+      table: str(maint.table),
+      exempt: EXEMPT.includes(maint.exempt) ? maint.exempt : ""
+    }
   };
 }
 

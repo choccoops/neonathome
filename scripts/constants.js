@@ -7,6 +7,7 @@ export const TEMPLATE_PATH = `modules/${MODULE_ID}/templates`;
 export const NEON_HUB_ID = "cpr-neon-hub";
 export const VAS_ID = "mmutons-cyberpunk-red-vas";
 export const MMUTON_WEIGHT_ID = "mmutons-cyberpunk-red-weight-system";
+export const ITEM_PILES_ID = "item-piles";
 
 /** Actor flag: the character's home (stash, vehicles, bay override). */
 export const HOME_FLAG = "home";
@@ -30,4 +31,4 @@ export const CLT_ID = "condition-lab-triggler";
 export const CHECKED = "checked";
 
 /** The sub-features of the home suite, in tab order. New ones register here (see apps/features.js). */
-export const FEATURE_ORDER = ["loadout", "bay", "biomonitor", "bench"];
+export const FEATURE_ORDER = ["loadout", "bay", "biomonitor", "bench", "maintenance"];

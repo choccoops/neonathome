@@ -21,7 +21,9 @@ export function docFrom(uuid) {
 export const HomeStore = {
   /** Characters this user can open the home of. */
   characters() {
-    return game.actors.filter((a) => a.type === "character" && (game.user.isGM || a.isOwner))
+    // Item Piles makes its piles as character actors in Cyberpunk RED: they aren't anyone's home.
+    const isPile = (a) => !!game.itempiles?.API?.isValidItemPile?.(a);
+    return game.actors.filter((a) => a.type === "character" && (game.user.isGM || a.isOwner) && !isPile(a))
       .sort((a, b) => a.name.localeCompare(b.name));
   },
 

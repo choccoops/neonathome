@@ -62,7 +62,7 @@ test("an effect carrying the encumbrance change gets CPR's change flags as it's 
 test("the character sheet won't roll offline cyberware", async () => {
   asUser(false);
   const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["arm"] } } }, [
-    { _id: "arm", name: "Cyberarm", type: "cyberware", system: { type: "cyberArm", isFoundational: true, installedItems: { list: ["gun"], slots: 4 } }, flags: { [M]: { item: { cyberState: "broken" } } } },
+    { _id: "arm", name: "Cyberarm", type: "cyberware", system: { type: "cyberArm", isFoundational: true, installedItems: { list: ["gun"], slots: 4 } }, flags: { [M]: { item: { condition: "destroyed" } } } },
     { _id: "gun", name: "Popup Gun", type: "cyberware", system: { type: "cyberArm", installedItems: { list: [] } } },
     rifle("rifle", "equipped")
   ]);
@@ -81,9 +81,9 @@ test("the character sheet won't roll offline cyberware", async () => {
   ui.notifications.warn = (m) => warned.push(m);
   try {
     assert.equal(click("gun"), true, "the gun in a broken arm is offline too");
-    assert.match(warned[0], /Popup Gun is broken/);
+    assert.match(warned[0], /Popup Gun is Destroyed/);
     assert.equal(click("rifle"), false, "other weapons roll as usual");
-    actor.items.get("arm").flags[M].item.cyberState = "";
+    actor.items.get("arm").flags[M].item.condition = "";
     assert.equal(click("gun"), false, "and the gun rolls again once the arm is fixed");
   } finally {
     ui.notifications.warn = warn;

@@ -1,0 +1,106 @@
+{
+  "_id": "YcFxk6FfDzgEDI8x",
+  "_key": "!tables!YcFxk6FfDzgEDI8x",
+  "name": "Malfunctions: Linear frame & cyberchair",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.9. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "8nlj79k4YcRihAeX",
+      "_key": "!tables.results!YcFxk6FfDzgEDI8x.8nlj79k4YcRihAeX",
+      "type": "text",
+      "text": "Out of sync: after each Move Action the GM shifts you 2 m/yds (1 square) left or right. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "7e6kTMgc7urqCtjM",
+      "_key": "!tables.results!YcFxk6FfDzgEDI8x.7e6kTMgc7urqCtjM",
+      "type": "text",
+      "text": "Short circuit: 5 damage straight to HP; armor doesn't stop it. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "e0VbF4VXaOLKVUkr",
+      "_key": "!tables.results!YcFxk6FfDzgEDI8x.e0VbF4VXaOLKVUkr",
+      "type": "text",
+      "text": "Motor glitch: a linear frame doesn't boost BODY (HP, Seriously Wounded and Death Save stay as they are); a cyberchair gives -1 MOVE. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "hNfBovF9kKVeknw6",
+      "_key": "!tables.results!YcFxk6FfDzgEDI8x.hNfBovF9kKVeknw6",
+      "type": "text",
+      "text": "Seized joints: -1 to DEX- and REF-based Skill Checks. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "uJoMAV1q0OrDYcTT",
+      "_key": "!tables.results!YcFxk6FfDzgEDI8x.uJoMAV1q0OrDYcTT",
+      "type": "text",
+      "text": "Knocking piston: -2 to Stealth unless you stay completely still. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "MJ89RAo8l7UincaY",
+      "_key": "!tables.results!YcFxk6FfDzgEDI8x.MJ89RAo8l7UincaY",
+      "type": "text",
+      "text": "Fluid leak: an internal frame makes you nauseous (-2 to Resist Torture/Drugs); an external frame or cyberchair leaves a foul trail. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 900,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "linearFrame"
+    }
+  }
+}

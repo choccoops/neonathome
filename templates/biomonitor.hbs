@@ -1,16 +1,21 @@
+{{#*inline "nahCyberSet"}}
+<span class="nah-cyber-set" role="group">
+  <button type="button" class="{{#if is.ok}}on{{/if}}" data-action="cyberCondition" data-condition="" data-tooltip="{{localize 'NEONHOME.Condition.ok'}}"><i class="fa-solid fa-check"></i></button>
+  <button type="button" class="is-damaged {{#if is.damaged}}on{{/if}}" data-action="cyberCondition" data-condition="damaged" data-tooltip="{{localize 'NEONHOME.Condition.damaged'}}"><i class="fa-solid fa-triangle-exclamation"></i></button>
+  <button type="button" class="is-destroyed {{#if is.destroyed}}on{{/if}}" data-action="cyberCondition" data-condition="destroyed" data-tooltip="{{localize 'NEONHOME.Condition.destroyed'}}"><i class="fa-solid fa-heart-crack"></i></button>
+  <button type="button" class="is-dbr {{#if is.dbr}}on{{/if}}" data-action="cyberCondition" data-condition="dbr" data-tooltip="{{localize 'NEONHOME.Condition.dbr'}}"><i class="fa-solid fa-skull"></i></button>
+  <button type="button" class="is-emp {{#if emp}}on{{/if}}" data-action="cyberEmp" data-on="{{#if emp}}0{{else}}1{{/if}}" data-tooltip="{{localize 'NEONHOME.Condition.emp'}}"><i class="fa-solid fa-bolt"></i></button>
+</span>
+{{/inline}}
+
 {{#*inline "nahCyberRow"}}
 <li class="nah-cyber-row state-{{state}} {{#if inherited}}is-inherited{{/if}}" data-item-id="{{id}}" style="--depth: {{depth}}">
   <img src="{{img}}" alt="" data-action="openItem">
   <span class="nah-cyber-name" data-action="openItem">{{name}}{{#if weapon}} <i class="fa-solid fa-crosshairs" data-tooltip="{{localize 'NEONHOME.Cyber.Weapon'}}"></i>{{/if}}</span>
   <small>{{size}}</small>
   <span class="nah-cyber-state">{{stateLabel}}</span>
-  {{#if @root.bio.cyber.canEdit}}
-  <span class="nah-cyber-set" role="group">
-    <button type="button" class="{{#if is.ok}}on{{/if}}" data-action="cyberState" data-state="" data-tooltip="{{localize 'NEONHOME.Cyber.State.ok'}}"><i class="fa-solid fa-check"></i></button>
-    <button type="button" class="is-emp {{#if is.emp}}on{{/if}}" data-action="cyberState" data-state="emp" data-tooltip="{{localize 'NEONHOME.Cyber.State.emp'}}"><i class="fa-solid fa-bolt"></i></button>
-    <button type="button" class="is-broken {{#if is.broken}}on{{/if}}" data-action="cyberState" data-state="broken" data-tooltip="{{localize 'NEONHOME.Cyber.State.broken'}}"><i class="fa-solid fa-heart-crack"></i></button>
-  </span>
-  {{/if}}
+  {{#if hiddenDamage}}<i class="fa-solid fa-eye-slash nah-cyber-secret" data-tooltip="{{localize 'NEONHOME.Maint.HiddenDamage'}}"></i>{{/if}}
+  {{#if @root.bio.cyber.canEdit}}{{> nahCyberSet}}{{/if}}
 </li>
 {{/inline}}
 
@@ -40,13 +45,15 @@
         <div class="nah-trauma nah-cyber-readout">
           <span>{{localize "NEONHOME.Cyber.Title"}}</span>
           <b class="{{#if offline}}is-off{{/if}}">{{#if offline}}{{localize "NEONHOME.Cyber.Offline" n=offline}}{{else}}{{localize "NEONHOME.Cyber.AllOnline"}}{{/if}}</b>
-          <small>{{localize "NEONHOME.Cyber.Installed" n=total}}{{#if emp}} &middot; <i class="fa-solid fa-bolt"></i> {{emp}}{{/if}}{{#if broken}} &middot; <i class="fa-solid fa-heart-crack"></i> {{broken}}{{/if}}</small>
+          <small>{{localize "NEONHOME.Cyber.Installed" n=total}}{{#if emp}} &middot; <i class="fa-solid fa-bolt"></i> {{emp}}{{/if}}{{#if destroyed}} &middot; <i class="fa-solid fa-heart-crack"></i> {{destroyed}}{{/if}}{{#if damaged}} &middot; <i class="fa-solid fa-triangle-exclamation"></i> {{damaged}}{{/if}}</small>
         </div>
       </div>
       <ul class="nah-cyber-legend">
         <li class="state-ok"><i></i> {{localize "NEONHOME.Cyber.State.ok"}}</li>
+        <li class="state-damaged"><i></i> {{localize "NEONHOME.Cyber.State.damaged"}}</li>
         <li class="state-emp"><i></i> {{localize "NEONHOME.Cyber.State.emp"}}</li>
-        <li class="state-broken"><i></i> {{localize "NEONHOME.Cyber.State.broken"}}</li>
+        <li class="state-destroyed"><i></i> {{localize "NEONHOME.Cyber.State.destroyed"}}</li>
+        <li class="state-dbr"><i></i> {{localize "NEONHOME.Cyber.State.dbr"}}</li>
       </ul>
       <p class="nah-hint">{{localize "NEONHOME.Cyber.Hint"}}</p>
     </section>
@@ -64,13 +71,8 @@
               <small>{{#if side}}{{side}} &middot; {{/if}}{{localize "NEONHOME.Cyber.Slots" used=used slots=slots}}{{#if upgrades}} &middot; <i class="fa-solid fa-square-caret-up"></i> {{upgrades}}{{/if}}</small>
             </div>
             {{#unless core}}<span class="nah-cyber-state">{{stateLabel}}</span>{{/unless}}
-            {{#if @root.bio.cyber.canEdit}}{{#unless core}}
-            <span class="nah-cyber-set" role="group">
-              <button type="button" class="{{#if is.ok}}on{{/if}}" data-action="cyberState" data-state="" data-tooltip="{{localize 'NEONHOME.Cyber.State.ok'}}"><i class="fa-solid fa-check"></i></button>
-              <button type="button" class="is-emp {{#if is.emp}}on{{/if}}" data-action="cyberState" data-state="emp" data-tooltip="{{localize 'NEONHOME.Cyber.State.emp'}}"><i class="fa-solid fa-bolt"></i></button>
-              <button type="button" class="is-broken {{#if is.broken}}on{{/if}}" data-action="cyberState" data-state="broken" data-tooltip="{{localize 'NEONHOME.Cyber.State.broken'}}"><i class="fa-solid fa-heart-crack"></i></button>
-            </span>
-            {{/unless}}{{/if}}
+            {{#if hiddenDamage}}<i class="fa-solid fa-eye-slash nah-cyber-secret" data-tooltip="{{localize 'NEONHOME.Maint.HiddenDamage'}}"></i>{{/if}}
+            {{#if @root.bio.cyber.canEdit}}{{#unless core}}{{> nahCyberSet}}{{/unless}}{{/if}}
           </header>
           <div class="nah-cyber-sockets {{#if over}}is-over{{/if}}">{{#each sockets}}<i class="{{#if filled}}filled{{/if}} {{#if over}}over{{/if}}"></i>{{else}}<em class="nah-hint">{{localize "NEONHOME.Cyber.NoSlots"}}</em>{{/each}}</div>
           {{#if rows.length}}<ul class="nah-cyber-rows">{{#each rows}}{{> nahCyberRow}}{{/each}}</ul>{{/if}}

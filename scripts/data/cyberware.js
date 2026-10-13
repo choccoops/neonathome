@@ -9,6 +9,7 @@
  */
 import { int, idOf } from "./util.js";
 import { itemFlag } from "./item-flag.js";
+import { ownState, worseState } from "./condition.js";
 import { totalUpgrade } from "./attachments.js";
 
 /** Cyberware types in head-to-toe order (the keys of CPR.cyberwareTypes). */
@@ -30,8 +31,10 @@ export const CYBER_ANCHOR = {
   borgware: "spine"
 };
 
-/** The worse of two states: broken beats EMP beats working. */
-const worse = (a, b) => (a === "broken" || b === "broken" ? "broken" : a === "emp" || b === "emp" ? "emp" : "");
+/** What a mark or card shows: an offline state, else Damaged, else "" (working). */
+const shown = (n) => n.state || (n.damaged ? "damaged" : "");
+const SHOWN_RANK = { "": 0, damaged: 1, emp: 2, destroyed: 3, dbr: 4 };
+const worseShown = (a, b) => (SHOWN_RANK[a] >= SHOWN_RANK[b] ? a : b);
 
 /**
  * One installed piece and everything installed in it.
@@ -39,8 +42,9 @@ const worse = (a, b) => (a === "broken" || b === "broken" ? "broken" : a === "em
  */
 function node(item, byId, moduleId, inherited = "") {
   const s = item.system ?? {};
-  const own = itemFlag(item, moduleId).cyberState;
-  const state = worse(own, inherited);
+  const flag = itemFlag(item, moduleId);
+  const own = ownState(flag);
+  const state = worseState(own, inherited);
   const inside = (s.installedItems?.list ?? []).map((id) => byId.get(id)).filter(Boolean);
   const upgrades = inside.filter((i) => i.type === "itemUpgrade");
   const slotsUp = totalUpgrade(upgrades, "slots");
@@ -60,6 +64,10 @@ function node(item, byId, moduleId, inherited = "") {
     meat: /\bmeat\b/i.test(String(item.name ?? "")),
     own,
     state,
+    condition: flag.condition,
+    damaged: flag.condition === "damaged",
+    hidden: flag.condition === "damaged" && flag.hidden,
+    emp: flag.emp,
     // offline only because what it's installed in is
     inheritedOffline: !own && !!inherited,
     slots,
@@ -78,7 +86,7 @@ export function flatten(nodes) {
  * The cyberware monitor for a character.
  * @param {object[]} items - the character's items
  * @param {string[]} actorInstalled - the actor's own installedItems list
- * @returns {{types: {type, roots: object[]}[], marks: object[], total, offline, emp, broken}}
+ * @returns {{types: {type, roots: object[]}[], marks: object[], total, offline, emp, destroyed, damaged}}
  */
 export function cyberwareMap(items, actorInstalled, moduleId) {
   const byId = new Map(items.map((i) => [idOf(i), i]));
@@ -106,8 +114,11 @@ export function cyberwareMap(items, actorInstalled, moduleId) {
         rootId: r.id,
         names: all.map((n) => n.name),
         // the mark shows the worst of anything in it; a chrome limb shows the limb itself
-        state: all.reduce((w, n) => worse(w, n.state), ""),
-        rootState: r.state,
+        state: all.reduce((w, n) => worseShown(w, shown(n)), ""),
+        rootState: shown(r),
+        // Damage the players know about (the GM can keep it quiet)
+        knownDamage: all.some((n) => n.damaged && !n.hidden),
+        rootKnown: r.damaged && !r.hidden,
         count: all.length,
         limb: ["cyberArm", "cyberLeg"].includes(t.type) && !r.meat ? (t.type === "cyberArm" ? "arm" : "leg") : null
       });
@@ -121,6 +132,7 @@ export function cyberwareMap(items, actorInstalled, moduleId) {
     total: pieces.length,
     offline: pieces.filter((n) => n.state).length,
     emp: pieces.filter((n) => n.state === "emp").length,
-    broken: pieces.filter((n) => n.state === "broken").length
+    destroyed: pieces.filter((n) => n.state === "destroyed" || n.state === "dbr").length,
+    damaged: pieces.filter((n) => !n.state && n.damaged).length
   };
 }

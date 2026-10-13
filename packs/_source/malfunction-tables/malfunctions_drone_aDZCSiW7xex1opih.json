@@ -1,0 +1,106 @@
+{
+  "_id": "aDZCSiW7xex1opih",
+  "_key": "!tables!aDZCSiW7xex1opih",
+  "name": "Malfunctions: Drone",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.8. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "skHgdp8LlO3wWUnH",
+      "_key": "!tables.results!aDZCSiW7xex1opih.skHgdp8LlO3wWUnH",
+      "type": "text",
+      "text": "Friend or foe: its next Attack targets you or an ally. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "PNsiHL5IvVjwDY8v",
+      "_key": "!tables.results!aDZCSiW7xex1opih.PNsiHL5IvVjwDY8v",
+      "type": "text",
+      "text": "Really friend or foe: it sees every target as friendly or hostile (the GM's choice). <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "E6QwiEH4xf3MsgTb",
+      "_key": "!tables.results!aDZCSiW7xex1opih.E6QwiEH4xf3MsgTb",
+      "type": "text",
+      "text": "Short leash: it can't go more than 2 m/yds from its controlling signal or it shuts down. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "mHoWOuFOhdo8gVs9",
+      "_key": "!tables.results!aDZCSiW7xex1opih.mHoWOuFOhdo8gVs9",
+      "type": "text",
+      "text": "Backdoor: countering it with Electronics/Security Tech takes 1 Action instead of 5 minutes. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "GSA7buhUDDLFSogL",
+      "_key": "!tables.results!aDZCSiW7xex1opih.GSA7buhUDDLFSogL",
+      "type": "text",
+      "text": "Comms fault: one of its options stops working. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "XqN7EjwjeAtEgxQa",
+      "_key": "!tables.results!aDZCSiW7xex1opih.XqN7EjwjeAtEgxQa",
+      "type": "text",
+      "text": "Seizing up: its MOVE is halved (round up). <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 700,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "drone"
+    }
+  }
+}

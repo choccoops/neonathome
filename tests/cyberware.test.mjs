@@ -43,21 +43,35 @@ test("groups installed cyberware by type, head to toe, with option slots used an
   assert.equal(m.total, 7, "the core containers (and the uninstalled cybereye) aren't counted");
 });
 
-test("an EMP'd or broken piece takes what's installed in it offline too", () => {
+test("an EMP'd or Destroyed piece takes what's installed in it offline too; Damaged still works", () => {
   const items = body();
-  items.find((i) => i._id === "armR").flags = { [M]: { item: { cyberState: "emp" } } };
-  items.find((i) => i._id === "sandy").flags = { [M]: { item: { cyberState: "broken" } } };
+  items.find((i) => i._id === "armR").flags = { [M]: { item: { emp: true } } };
+  items.find((i) => i._id === "sandy").flags = { [M]: { item: { condition: "destroyed" } } };
+  items.find((i) => i._id === "plugs").flags = { [M]: { item: { condition: "damaged", hidden: true } } };
   const m = cyberwareMap(items, installed, M);
   const all = flatten(m.types.flatMap((t) => t.roots));
   const byName = (n) => all.find((x) => x.name === n);
   assert.equal(byName("Cyberarm").state, "emp");
   assert.equal(byName("Popup Gun").state, "emp");
   assert.equal(byName("Popup Gun").inheritedOffline, true);
-  assert.equal(byName("Sandevistan").state, "broken");
+  assert.equal(byName("Sandevistan").state, "destroyed");
   assert.equal(byName("Neural Link").state, "");
   assert.equal(m.offline, 3);
   assert.equal(m.emp, 2);
-  assert.equal(m.broken, 1);
+  assert.equal(m.destroyed, 1);
+  assert.equal(m.damaged, 1, "Damaged isn't offline");
+  const link = m.marks.find((k) => k.type === "neuralWare");
+  assert.equal(link.state, "destroyed", "the mark shows the worst");
+  assert.equal(link.knownDamage, false, "the GM is keeping the damaged plugs quiet");
+});
+
+test("1.4.0 beta states read as the new ones: broken is Destroyed", () => {
+  const items = body();
+  items.find((i) => i._id === "armR").flags = { [M]: { item: { cyberState: "broken" } } };
+  items.find((i) => i._id === "armL").flags = { [M]: { item: { cyberState: "emp" } } };
+  const m = cyberwareMap(items, installed, M);
+  assert.equal(m.types[3].roots[0].state, "destroyed");
+  assert.equal(m.types[3].roots[1].state, "emp");
 });
 
 test("marks on the figure: one per piece in the body, limbs drawn in chrome unless they're meat", () => {

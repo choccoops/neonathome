@@ -9,7 +9,9 @@ import { computeLoadout, canInstallUpgrade, armorEffects, poolsThatWontTake } fr
 import { computeWeight, encumbrance } from "../data/weight.js";
 import { normalizePsyche, psycheState, tierOf, catharsisGain, absorbLoss, TIERS } from "../data/syndromes.js";
 import { canAttach, canDetach } from "../data/attachments.js";
-import { cyberwareMap, flatten } from "../data/cyberware.js";
+import { cyberwareMap } from "../data/cyberware.js";
+import { itemStates } from "../data/condition.js";
+import { itemFlag } from "../data/item-flag.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -466,51 +468,105 @@ export const HomeOps = {
     return cyberwareMap(actor.items.map((i) => i.toObject()), Array.from(actor.system?.installedItems?.list ?? []), MODULE_ID);
   },
 
+  /** Every item's condition and whether it works (see data/condition.js). */
+  states(actor) {
+    return itemStates(actor.items.map((i) => i.toObject()), MODULE_ID);
+  },
+
+  /** Why an item doesn't work ("emp", "destroyed", "dbr"; its own or what it's installed in), or "". */
+  offlineState(actor, itemId) {
+    return this.states(actor).get(itemId)?.state ?? "";
+  },
+
+  /** Write part of an item's Neon At Home flag. */
+  async _patchFlag(item, patch) {
+    const flag = { ...(item.getFlag(MODULE_ID, "item") ?? {}) };
+    delete flag.cyberState;
+    await item.setFlag(MODULE_ID, "item", { ...flag, ...patch });
+  },
+
   /**
-   * Mark a piece of cyberware working, EMP'd or broken / worn out. Offline cyberware, and anything
-   * installed in it, has its effects switched off (and back on when it works again).
-   * @param {string} state - "" (working), "emp" or "broken"
+   * GM: set a piece of gear's condition (Breaking Your Stuff): working (""), Damaged, Destroyed or
+   * Destroyed Beyond Repair. Destroyed gear, and anything installed in it, stops working: its
+   * effects switch off, its rolls are stopped, worn armor comes off, and a cyberlimb counts as a
+   * lost limb. Damaged gear still works but can malfunction; the GM can keep that from the players.
+   * @param {object} [opts] - { hidden, cause }
    */
-  async setCyberState(actor, itemId, state) {
+  async setCondition(actor, itemId, condition, { hidden = null, cause = null } = {}) {
     if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
     const item = actor.items.get(itemId);
-    if (!item || item.type !== "cyberware") return;
-    const was = item.getFlag(MODULE_ID, "item")?.cyberState ?? "";
-    if (was === state) return;
-    await item.setFlag(MODULE_ID, "item", { ...(item.getFlag(MODULE_ID, "item") ?? {}), cyberState: state });
-    await this.syncCyberEffects(actor);
+    if (!item) return;
+    const flag = itemFlag(item.toObject(), MODULE_ID);
+    if (flag.condition === condition && hidden === null && cause === null) return;
+    const patch = { condition };
+    if (condition !== "damaged") Object.assign(patch, { hidden: false, cause: "" });
+    if (hidden !== null) patch.hidden = !!hidden;
+    if (cause !== null) patch.cause = cause;
+    // fixed or replaced: no malfunction carries over
+    if (!condition || condition === "dbr") patch.malfunction = null;
+    await this._patchFlag(item, patch);
+    if ((condition === "destroyed" || condition === "dbr") && item.type === "armor" && item.system.equipped === "equipped") {
+      await CPR.setEquipped(actor, item, "carried");
+    }
+    await this.syncOfflineEffects(actor);
     await this.syncCyberLimbs(actor);
-    const key = state ? `NEONHOME.Cyber.Card.${state}` : "NEONHOME.Cyber.Card.ok";
+    if (flag.condition === condition) return;
+    const secret = condition === "damaged" && (hidden ?? flag.hidden);
     await ChatMessage.create({
-      content: this._card("fa-solid fa-microchip", L(key, { name: esc(actor.name), item: esc(item.name) })),
+      content: this._card("fa-solid fa-screwdriver-wrench", L(`NEONHOME.Condition.Card.${condition || "ok"}`, { name: esc(actor.name), item: esc(item.name) })),
+      whisper: secret ? game.users.filter((u) => u.isGM).map((u) => u.id) : this._owners(actor),
+      speaker: ChatMessage.getSpeaker({ actor })
+    });
+  },
+
+  /** GM: knock a piece of cyberware or electronics out with EMP, or bring it back. */
+  async setEmp(actor, itemId, on) {
+    if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
+    const item = actor.items.get(itemId);
+    if (!item || itemFlag(item.toObject(), MODULE_ID).emp === !!on) return;
+    await this._patchFlag(item, { emp: !!on });
+    await this.syncOfflineEffects(actor);
+    await this.syncCyberLimbs(actor);
+    await ChatMessage.create({
+      content: this._card("fa-solid fa-bolt", L(`NEONHOME.Condition.Card.${on ? "emp" : "empOff"}`, { name: esc(actor.name), item: esc(item.name) })),
       whisper: this._owners(actor),
       speaker: ChatMessage.getSpeaker({ actor })
     });
   },
 
-  /**
-   * Switch off the effects of offline cyberware and switch back on the ones Neon At Home switched
-   * off when it works again. Effects the player or GM disabled themselves are left alone.
-   */
-  async syncCyberEffects(actor) {
-    const nodes = flatten(this.cyberware(actor).types.flatMap((t) => t.roots));
-    for (const n of nodes) {
-      const item = actor.items.get(n.id);
-      if (!item?.effects?.size) continue;
-      const updates = [];
-      for (const e of item.effects) {
-        const ours = !!e.getFlag(MODULE_ID, "offline");
-        if (n.state && !e.disabled) updates.push({ _id: e.id, disabled: true, [`flags.${MODULE_ID}.offline`]: true });
-        else if (!n.state && ours) updates.push({ _id: e.id, disabled: false, [`flags.${MODULE_ID}.-=offline`]: null });
-      }
-      if (updates.length) await item.updateEmbeddedDocuments("ActiveEffect", updates);
+  /** GM: tell the players a piece of gear is Damaged, or keep it from them. */
+  async setHidden(actor, itemId, hidden) {
+    if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
+    const item = actor.items.get(itemId);
+    if (!item) return;
+    await this._patchFlag(item, { hidden: !!hidden });
+    if (!hidden && itemFlag(item.toObject(), MODULE_ID).condition === "damaged") {
+      await ChatMessage.create({
+        content: this._card("fa-solid fa-screwdriver-wrench", L("NEONHOME.Condition.Card.damaged", { name: esc(actor.name), item: esc(item.name) })),
+        whisper: this._owners(actor),
+        speaker: ChatMessage.getSpeaker({ actor })
+      });
     }
   },
 
-  /** Is this cyberware offline (EMP'd, broken, or installed in something that is)? */
-  isCyberOffline(actor, itemId) {
-    const n = flatten(this.cyberware(actor).types.flatMap((t) => t.roots)).find((x) => x.id === itemId);
-    return n?.state || "";
+  /**
+   * Switch off the effects of gear that doesn't work (EMP'd, Destroyed, or installed in something
+   * that is) and switch back on the ones Neon At Home switched off once it works again. Effects
+   * the player or GM disabled themselves are left alone.
+   */
+  async syncOfflineEffects(actor) {
+    const states = this.states(actor);
+    for (const item of actor.items) {
+      if (!item?.effects?.size) continue;
+      const off = !!states.get(item.id)?.state;
+      const updates = [];
+      for (const e of item.effects) {
+        const ours = !!e.getFlag(MODULE_ID, "offline");
+        if (off && !e.disabled) updates.push({ _id: e.id, disabled: true, [`flags.${MODULE_ID}.offline`]: true });
+        else if (!off && ours) updates.push({ _id: e.id, disabled: false, [`flags.${MODULE_ID}.-=offline`]: null });
+      }
+      if (updates.length) await item.updateEmbeddedDocuments("ActiveEffect", updates);
+    }
   },
 
   /** CPR's core Dismembered Arm / Leg critical injuries, by limb. */
@@ -548,7 +604,7 @@ export const HomeOps = {
   },
 
   /**
-   * GM: an EMP'd or broken cyberarm or cyberleg works like a lost limb. Give the character CPR's
+   * GM: an EMP'd or Destroyed cyberarm or cyberleg works like a lost limb. Give the character CPR's
    * Dismembered Arm / Leg injury for it (its effects included, on that side), and take it away
    * when the limb works again or is gone. Meat limbs aren't affected.
    */
@@ -559,7 +615,7 @@ export const HomeOps = {
       .flatMap((t) => t.roots.map((r) => ({ ...r, limb: t.type === "cyberArm" ? "arm" : "leg" })))
       .filter((r) => !r.meat && r.state);
     const ours = actor.items.filter((i) => i.type === "criticalInjury" && i.getFlag(MODULE_ID, "cyberLimb"));
-    const stale = ours.filter((i) => !offline.some((r) => r.id === i.getFlag(MODULE_ID, "cyberLimb") && r.state === i.getFlag(MODULE_ID, "cyberState")));
+    const stale = ours.filter((i) => !offline.some((r) => r.id === i.getFlag(MODULE_ID, "cyberLimb") && r.state === i.getFlag(MODULE_ID, "limbState")));
     if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale.map((i) => i.id));
     const have = new Set(ours.filter((i) => !stale.includes(i)).map((i) => i.getFlag(MODULE_ID, "cyberLimb")));
     const create = [];
@@ -571,7 +627,7 @@ export const HomeOps = {
       // Not a wound: an offline limb doesn't bleed, so it doesn't raise the Death Save.
       foundry.utils.setProperty(data, "system.deathSaveIncrease", false);
       foundry.utils.setProperty(data, "system.description.value", `<p><em>${L(`NEONHOME.Cyber.InjuryNote.${r.state}`, { limb: esc(r.name) })}</em></p>${data.system?.description?.value ?? ""}`);
-      data.flags = { ...(data.flags ?? {}), [MODULE_ID]: { cyberLimb: r.id, cyberState: r.state, side: r.side ?? "R" } };
+      data.flags = { ...(data.flags ?? {}), [MODULE_ID]: { cyberLimb: r.id, limbState: r.state, side: r.side ?? "R" } };
       create.push(data);
     }
     if (create.length) await actor.createEmbeddedDocuments("Item", create, { [MODULE_ID]: { [CHECKED]: true } });
