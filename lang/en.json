@@ -413,6 +413,41 @@
         "custom": "Custom"
       }
     },
+    "Cyber": {
+      "Title": "Cyberware",
+      "Vitals": "Vitals",
+      "Offline": "{n} offline",
+      "AllOnline": "All online",
+      "Installed": "{n} installed",
+      "Slots": "{used}/{slots} option slots",
+      "NoSlots": "No option slots",
+      "None": "Nothing installed.",
+      "NoLink": "No Neural Link: neuralware needs one.",
+      "Weapon": "Cyberweapon",
+      "Hint": "Mark cyberware EMP'd or broken / worn out: it goes offline with everything installed in it, and its bonuses switch off until it's marked working again.",
+      "State": {
+        "ok": "Working",
+        "emp": "EMP'd",
+        "broken": "Broken / worn out"
+      },
+      "Type": {
+        "neuralWare": "Neuralware",
+        "cyberEye": "Cybereyes",
+        "cyberAudioSuite": "Cyberaudio",
+        "cyberArm": "Cyberarms",
+        "cyberLeg": "Cyberlegs",
+        "cyberwareInternal": "Internal body cyberware",
+        "cyberwareExternal": "External body cyberware",
+        "fashionware": "Fashionware",
+        "borgware": "Borgware",
+        "other": "Other"
+      },
+      "Card": {
+        "ok": "<b>{name}</b>'s <b>{item}</b> is working again.",
+        "emp": "<b>{name}</b>'s <b>{item}</b> is knocked out by EMP: offline, with everything installed in it.",
+        "broken": "<b>{name}</b>'s <b>{item}</b> is broken / worn out: offline, with everything installed in it, until it's repaired."
+      }
+    },
     "Bench": {
       "Title": "Weaponbench",
       "Rack": "Weapon rack",

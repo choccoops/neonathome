@@ -289,3 +289,18 @@ test("the token-HUD status carries CPR's change flags, and broken effects from 1
   assert.equal(CPR.needsEffectFlags(fixed), false);
   assert.equal(CPR.needsEffectFlags(actor.effects.find((e) => e.name === "Other")), true);
 });
+
+test("EMP'd cyberware switches off its effects and its options', and they come back when it's fixed", async () => {
+  const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["arm"] } } }, [
+    { _id: "arm", name: "Cyberarm", type: "cyberware", system: { type: "cyberArm", isFoundational: true, installedItems: { list: ["grip"], slots: 4 } }, effects: [{ _id: "e1", name: "Arm", changes: [{ key: "bonuses.athletics", value: "1" }] }] },
+    { _id: "grip", name: "Grip Foot", type: "cyberware", system: { type: "cyberArm", installedItems: { list: [] } }, effects: [{ _id: "e2", name: "Grip", changes: [{ key: "bonuses.athletics", value: "1" }] }, { _id: "e3", name: "Off already", disabled: true }] }
+  ]);
+  await HomeOps.setCyberState(actor, "arm", "emp");
+  assert.equal(actor.items.get("arm").getFlag(M, "item").cyberState, "emp");
+  assert.equal(actor.items.get("arm").effects.get("e1").disabled, true);
+  assert.equal(actor.items.get("grip").effects.get("e2").disabled, true, "what's installed in it goes offline too");
+  await HomeOps.setCyberState(actor, "arm", "");
+  assert.equal(actor.items.get("arm").effects.get("e1").disabled, false);
+  assert.equal(actor.items.get("grip").effects.get("e2").disabled, false);
+  assert.equal(actor.items.get("grip").effects.get("e3").disabled, true, "an effect someone else switched off stays off");
+});

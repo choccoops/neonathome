@@ -47,7 +47,7 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = {
     body: {
       template: `${TEMPLATE_PATH}/shell.hbs`,
-      scrollable: [".nah-col-doll", ".nah-col-carry", ".nah-col-store", ".nah-bay", ".nah-bio", ".nah-rack", ".nah-mat", ".nah-drawer", ".nah-scroll"]
+      scrollable: [".nah-col-doll", ".nah-col-carry", ".nah-col-store", ".nah-bay", ".nah-bio", ".nah-rack", ".nah-mat", ".nah-drawer", ".nah-cyber-list", ".nah-scroll"]
     }
   };
 

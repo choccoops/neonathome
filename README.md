@@ -206,6 +206,20 @@ the **Syndromes & Inspiration** homebrew (the GM can turn it off):
 - GM tools: In The System, a complete break regardless of Humanity, and **Intensive Therapy**
   (removes the lingering Syndromes and resets the scars).
 
+### Cyberware monitor
+
+The **Cyberware** switch at the top of the Biomonitor shows what's installed in the body, by type
+and in the character sheet's order: each foundational piece (Neural Link, Cybereye, Cyberarm,
+Cyberleg, Cyberaudio Suite, borgware mounts) and built-in container (Internal, External,
+Fashionware) with its option slots as sockets (used and total, counting slot upgrades), and the
+cyberware installed in it, nested. The scan marks each piece on the body and draws cyberlimbs in
+chrome.
+
+Each piece can be marked **working**, **EMP'd** or **broken / worn out**. Offline cyberware takes
+everything installed in it offline too; it flickers yellow (EMP) or shows red (broken), its bonuses
+(Active Effects) switch off until it's marked working again, and the player and GM are told in
+chat. Owners and the GM can change it.
+
 ## Weaponbench
 
 Pick a weapon from the rack. The bench shows its attachment slots as sockets, its numbers before

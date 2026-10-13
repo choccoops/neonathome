@@ -5,7 +5,7 @@ import { Settings } from "../settings.js";
 import { HomeStore } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
 import { SYNDROMES, SEVERITIES, TIERS, psycheState } from "../data/syndromes.js";
-import { traumaMap } from "../data/injuries.js";
+import { traumaMap, ANCHORS, SEVERED_SHAPES } from "../data/injuries.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -86,6 +86,77 @@ async function syndromeDialog(defaultTier) {
   });
 }
 
+/** A position on the figure as a share of its size. */
+function onFigure(anchor, side) {
+  const a = ANCHORS[anchor] ?? ANCHORS.chest;
+  const p = a.L ? a[side ?? "R"] : a;
+  return { left: Math.round((p.x / 200) * 1000) / 10, top: Math.round((p.y / 350) * 1000) / 10 };
+}
+
+/** The cyberware monitor: the scan's marks and chrome limbs, and each type's pieces and slots. */
+function cyberContext(actor, isGM) {
+  const m = HomeOps.cyberware(actor);
+  const stateKey = (st) => st || "ok";
+  const row = (n, depth) => [
+    {
+      id: n.id,
+      name: n.name,
+      img: n.img,
+      depth,
+      size: n.size,
+      weapon: n.weapon,
+      state: stateKey(n.state),
+      own: stateKey(n.own),
+      is: { ok: !n.own, emp: n.own === "emp", broken: n.own === "broken" },
+      inherited: n.inheritedOffline,
+      stateLabel: L(`NEONHOME.Cyber.State.${stateKey(n.state)}`)
+    },
+    ...n.children.flatMap((c) => row(c, depth + 1))
+  ];
+  const card = (n) => ({
+    id: n.id,
+    name: n.name,
+    img: n.img,
+    core: n.core,
+    meat: n.meat,
+    side: n.side ? L(`NEONHOME.Bio.Side.${n.side}`) : "",
+    state: stateKey(n.state),
+    own: stateKey(n.own),
+    is: { ok: !n.own, emp: n.own === "emp", broken: n.own === "broken" },
+    stateLabel: L(`NEONHOME.Cyber.State.${stateKey(n.state)}`),
+    slots: n.slots,
+    used: n.used,
+    over: n.used > n.slots,
+    upgrades: n.upgrades.join(", "),
+    // one socket per option slot, filled by what's installed (by size)
+    sockets: Array.from({ length: Math.max(n.slots, n.used) }, (_, i) => ({ filled: i < n.used, over: i >= n.slots })),
+    rows: n.children.flatMap((c) => row(c, 0))
+  });
+  return {
+    total: m.total,
+    offline: m.offline,
+    emp: m.emp,
+    broken: m.broken,
+    canEdit: isGM || actor.isOwner,
+    marks: m.marks.map((k) => ({
+      ...onFigure(k.anchor, k.side),
+      state: stateKey(k.state),
+      count: k.count,
+      multi: k.count > 1,
+      rootId: k.rootId,
+      tip: [`<b>${esc(L(`NEONHOME.Cyber.Type.${k.type}`))}</b>`, ...k.names.map((nm) => esc(nm))].join("<br>")
+    })),
+    limbs: m.marks.filter((k) => k.limb && k.side).map((k) => ({ ...SEVERED_SHAPES[k.limb][k.side], state: stateKey(k.rootState) })),
+    types: m.types.map((t) => ({
+      type: t.type,
+      label: L(`NEONHOME.Cyber.Type.${t.type}`),
+      icon: { neuralWare: "fa-solid fa-brain", cyberEye: "fa-solid fa-eye", cyberAudioSuite: "fa-solid fa-ear-listen", cyberArm: "fa-solid fa-hand-fist", cyberLeg: "fa-solid fa-person-walking", cyberwareInternal: "fa-solid fa-lungs", cyberwareExternal: "fa-solid fa-shield-halved", fashionware: "fa-solid fa-gem", borgware: "fa-solid fa-robot" }[t.type] ?? "fa-solid fa-microchip",
+      empty: L(t.type === "neuralWare" ? "NEONHOME.Cyber.NoLink" : "NEONHOME.Cyber.None"),
+      cards: t.roots.map(card)
+    }))
+  };
+}
+
 export const Biomonitor = {
   id: "biomonitor",
   icon: "fa-solid fa-heart-pulse",
@@ -94,6 +165,7 @@ export const Biomonitor = {
 
   async prepare(app, actor) {
     const isGM = game.user.isGM;
+    const view = (app.uiState.bio ??= { view: "vitals" }).view;
     const hp = CPR.hp(actor);
     const serious = Number(getProperty(actor, "system.derivedStats.seriouslyWounded")) || Math.ceil(hp.max / 2);
     const wound = String(getProperty(actor, "system.derivedStats.currentWoundState") ?? "");
@@ -162,7 +234,9 @@ export const Biomonitor = {
           markers: [30, 20, 10].filter((m) => m < scale).map((m) => ({ value: m, pct: pct(m, scale) }))
         },
         emp,
-        syndromesOn: !!Settings.get("syndromes")
+        syndromesOn: !!Settings.get("syndromes"),
+        view: { vitals: view !== "cyber", cyber: view === "cyber" },
+        cyber: cyberContext(actor, isGM)
       }
     };
     if (!ctx.bio.syndromesOn) return ctx;
@@ -286,6 +360,15 @@ export const Biomonitor = {
       const side = traumaMap(this.actor.items.filter((i) => i.type === "criticalInjury"), MODULE_ID)
         .marks.find((m) => m.injuries.some((i) => i.id === item.id))?.side;
       return this.act(() => item.setFlag(MODULE_ID, "side", side === "L" ? "R" : "L"));
+    },
+    bioView(event, target) {
+      this.uiState.bio = { ...(this.uiState.bio ?? {}), view: target.dataset.view };
+      this.render();
+    },
+    /** Mark a piece of cyberware working, EMP'd or broken (owners and the GM). */
+    cyberState(event, target) {
+      const id = target.closest("[data-item-id]")?.dataset.itemId;
+      return this.act(() => HomeOps.setCyberState(this.actor, id, target.dataset.state || ""));
     },
     bioOpenInjury(event, target) {
       this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId)?.sheet.render(true);

@@ -93,6 +93,26 @@ test("Biomonitor shows HP, injuries, the tier and Syndromes", async () => {
   assert.ok(!/NEONHOME\./.test(html));
 });
 
+test("Biomonitor's cyberware view: types, slots, the chrome arm and the EMP'd gun", async () => {
+  app.uiState.bio = { view: "cyber" };
+  const { ctx, html } = await renderTab("biomonitor");
+  app.uiState.bio = { view: "vitals" };
+  const c = ctx.bio.cyber;
+  assert.equal(c.total, 4, "neural link, cyberarm, popup gun, subdermal pocket");
+  assert.equal(c.emp, 1);
+  const arms = c.types.find((t) => t.type === "cyberArm");
+  assert.equal(arms.cards[0].slots, 4);
+  assert.equal(arms.cards[0].used, 2);
+  assert.equal(arms.cards[0].rows[0].state, "emp");
+  assert.equal(c.limbs.length, 1, "the cyberarm is drawn in chrome");
+  assert.equal(c.limbs[0].state, "ok", "the arm itself works; only the gun in it is EMP'd");
+  assert.equal(c.marks.find((k) => k.rootId === "cyberarm0000000a").state, "emp", "its marker flags what's offline inside");
+  assert.ok(html.includes("No Neural Link") === false, "this character has one");
+  assert.ok(html.includes("EMP&#x27;d") || html.includes("EMP'd"));
+  assert.ok(html.includes('data-action="cyberState"'));
+  assert.ok(!/NEONHOME\./.test(html));
+});
+
 test("Weaponbench shows sockets, stats and the drawer", async () => {
   const { ctx, html } = await renderTab("bench");
   const w = ctx.bench.weapon;

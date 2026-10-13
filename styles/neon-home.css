@@ -761,3 +761,111 @@
 
 /* ---------- sidebar button ---------- */
 #actors .header-actions .neon-home-open { flex: 1 1 100%; }
+
+/* ==========================================================================
+   Biomonitor: the Vitals / Cyberware switch and the cyberware monitor
+   ========================================================================== */
+.neon-home .nah-bio-wrap { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.neon-home .nah-bio-wrap > .nah-bio,
+.neon-home .nah-bio-wrap > .nah-cyber { flex: 1; min-height: 0; }
+.neon-home .nah-bio-switch { display: flex; gap: 2px; padding: 8px 16px 0; }
+.neon-home .nah-bio-switch button { padding: 5px 14px; font-size: 11px; letter-spacing: 0.16em; color: var(--nah-dim); background: var(--nah-bg-2); }
+.neon-home .nah-bio-switch button.active { color: #fff; border-color: var(--nah-cyan); background: rgba(5, 217, 232, 0.12); box-shadow: inset 0 -2px 0 var(--nah-cyan); }
+.neon-home .nah-cyber-alert { display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin-left: 4px; padding: 0 4px; font-size: 10px; color: #0b0006; background: var(--nah-yellow); box-shadow: 0 0 8px var(--nah-yellow); }
+
+.neon-home .nah-cyber { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; padding: 10px 16px 12px; }
+.neon-home .nah-cyber-scan { min-width: 0; }
+.neon-home .nah-cyber-list { min-height: 0; padding-right: 4px; }
+@container (max-width: 820px) { .neon-home .nah-cyber { grid-template-columns: minmax(0, 1fr); } }
+
+/* the scan: flesh dim, chrome bright */
+.neon-home .nah-chrome-scan { height: 330px; }
+.neon-home .nah-chrome-scan .nah-scan-body { height: 310px; }
+.neon-home .nah-cyber-flesh { fill: rgba(216, 219, 236, 0.04); stroke: rgba(5, 217, 232, 0.35); stroke-width: 1.2; }
+.neon-home .nah-chrome-limb { fill: rgba(5, 217, 232, 0.18); stroke: var(--nah-cyan); stroke-width: 1.4; stroke-dasharray: 5 2; filter: drop-shadow(0 0 4px var(--nah-cyan)); }
+.neon-home .nah-chrome-limb.state-emp { fill: rgba(243, 230, 0, 0.2); stroke: var(--nah-yellow); filter: drop-shadow(0 0 5px var(--nah-yellow)); animation: nah-emp 0.9s steps(2) infinite; }
+.neon-home .nah-chrome-limb.state-broken { fill: rgba(255, 75, 75, 0.18); stroke: var(--nah-red); stroke-dasharray: 2 4; filter: none; }
+.neon-home .nah-cyber-mark {
+  --mk: var(--nah-cyan);
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 1.5px solid var(--mk);
+  background: radial-gradient(circle, var(--mk) 0 25%, rgba(7, 7, 11, 0.7) 32%);
+  box-shadow: 0 0 10px var(--mk);
+  transform: rotate(45deg);
+  z-index: 1;
+}
+.neon-home .nah-cyber-mark b { position: absolute; left: 13px; top: -10px; transform: rotate(-45deg); padding: 0 3px; font-family: var(--nah-display); font-size: 9px; font-weight: 400; color: #06131a; background: var(--mk); }
+.neon-home .nah-cyber-mark.state-emp { --mk: var(--nah-yellow); animation: nah-emp 0.9s steps(2) infinite; }
+.neon-home .nah-cyber-mark.state-broken { --mk: var(--nah-red); border-style: dashed; background: rgba(7, 7, 11, 0.85); }
+.neon-home .nah-cyber-mark.state-broken::after { content: "\00d7"; position: absolute; inset: 0; display: grid; place-items: center; transform: rotate(-45deg); color: var(--nah-red); font: 700 11px/1 var(--nah-display); }
+@keyframes nah-emp { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.neon-home .nah-cyber-readout b { color: var(--nah-cyan); }
+.neon-home .nah-cyber-readout b.is-off { color: var(--nah-yellow); text-shadow: 0 0 10px var(--nah-yellow); }
+.neon-home .nah-chrome-scan.has-offline { box-shadow: inset 0 0 30px rgba(243, 230, 0, 0.12); }
+.neon-home .nah-cyber-legend { list-style: none; margin: 8px 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-cyber-legend li { display: flex; align-items: center; gap: 5px; }
+.neon-home .nah-cyber-legend i { width: 9px; height: 9px; transform: rotate(45deg); border: 1px solid; }
+.neon-home .nah-cyber-legend .state-ok i { border-color: var(--nah-cyan); background: var(--nah-cyan); }
+.neon-home .nah-cyber-legend .state-emp i { border-color: var(--nah-yellow); background: var(--nah-yellow); }
+.neon-home .nah-cyber-legend .state-broken i { border-color: var(--nah-red); border-style: dashed; }
+
+/* the list: one block per type, a card per foundational piece or built-in container */
+.neon-home .nah-cyber-type { margin-bottom: 12px; }
+.neon-home .nah-cyber-type .nah-kicker i { color: var(--nah-cyan); }
+.neon-home .nah-cyber-empty { padding: 4px 0 2px 2px; }
+.neon-home .nah-cyber-card {
+  --st: var(--nah-cyan);
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--nah-line-2);
+  border-left: 3px solid var(--st);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--st) 8%, transparent), transparent 60%), rgba(7, 7, 11, 0.85);
+  clip-path: var(--nah-notch-card);
+}
+.neon-home .nah-cyber-card.is-core { --st: var(--nah-line-2); }
+.neon-home .nah-cyber-card.is-meat { --st: #c98a7a; }
+.neon-home .nah-cyber-card.state-emp { --st: var(--nah-yellow); }
+.neon-home .nah-cyber-card.state-broken { --st: var(--nah-red); }
+.neon-home .nah-cyber-card > header { display: flex; align-items: center; gap: 8px; }
+.neon-home .nah-cyber-card > header img { width: 32px; height: 32px; object-fit: contain; }
+.neon-home .nah-cyber-card > header > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-cyber-card > header b { font-family: var(--nah-display); font-weight: 400; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-cyber-card > header small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-cyber-state { font-family: var(--nah-display); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; padding: 2px 6px; border: 1px solid currentColor; color: var(--nah-cyan); white-space: nowrap; }
+.neon-home .state-emp > .nah-cyber-state,
+.neon-home .state-emp > header > .nah-cyber-state { color: var(--nah-yellow); animation: nah-emp 1.2s steps(2) infinite; }
+.neon-home .state-broken > .nah-cyber-state,
+.neon-home .state-broken > header > .nah-cyber-state { color: var(--nah-red); }
+.neon-home .nah-cyber-sockets { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0 2px; }
+.neon-home .nah-cyber-sockets i { width: 16px; height: 10px; border: 1px solid var(--nah-line-2); transform: skewX(-15deg); }
+.neon-home .nah-cyber-sockets i.filled { background: var(--st); border-color: var(--st); box-shadow: 0 0 6px var(--st); }
+.neon-home .nah-cyber-sockets i.over { background: repeating-linear-gradient(45deg, var(--nah-red) 0 2px, transparent 2px 4px); border-color: var(--nah-red); }
+.neon-home .nah-cyber-rows { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
+.neon-home .nah-cyber-row {
+  --st: var(--nah-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 2px calc(4px + var(--depth, 0) * 16px);
+  font-size: 12px;
+  border-left: 2px solid var(--st);
+  background: rgba(13, 13, 21, 0.7);
+}
+.neon-home .nah-cyber-row.state-emp { --st: var(--nah-yellow); }
+.neon-home .nah-cyber-row.state-broken { --st: var(--nah-red); }
+.neon-home .nah-cyber-row.state-broken .nah-cyber-name { text-decoration: line-through; text-decoration-color: rgba(255, 75, 75, 0.7); }
+.neon-home .nah-cyber-row.is-inherited { opacity: 0.6; }
+.neon-home .nah-cyber-row img { width: 20px; height: 20px; object-fit: contain; }
+.neon-home .nah-cyber-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-cyber-name i { color: var(--nah-pink); font-size: 10px; }
+.neon-home .nah-cyber-row small { color: var(--nah-dim); font-family: var(--nah-display); font-size: 10px; }
+.neon-home .nah-cyber-set { display: flex; flex: 0 0 auto; }
+.neon-home .nah-cyber-set button { width: 22px; height: 22px; padding: 0; justify-content: center; clip-path: none; background: var(--nah-bg-2); color: var(--nah-dim); border-color: var(--nah-line); font-size: 10px; }
+.neon-home .nah-cyber-set button + button { margin-left: -1px; }
+.neon-home .nah-cyber-set button.on { color: #06131a; background: var(--nah-cyan); border-color: var(--nah-cyan); }
+.neon-home .nah-cyber-set button.is-emp.on { background: var(--nah-yellow); border-color: var(--nah-yellow); }
+.neon-home .nah-cyber-set button.is-broken.on { color: #fff; background: var(--nah-red); border-color: var(--nah-red); }
+@media (prefers-reduced-motion: reduce) { .neon-home .nah-cyber-mark, .neon-home .nah-chrome-limb, .neon-home .nah-cyber-state { animation: none !important; } }

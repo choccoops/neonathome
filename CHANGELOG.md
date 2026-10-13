@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0
+
+- **Cyberware monitor in the Biomonitor.** A Vitals / Cyberware switch at the top of the tab. The cyberware view shows every piece installed in the body by type, in the character sheet's order (neuralware, cybereyes, cyberaudio, cyberarms, cyberlegs, internal, external, fashionware, borgware): each foundational piece or built-in container with its option slots as sockets (used and total, with slot upgrades), and what's installed in it, nested. A scan marks each piece on the body and draws cyberlimbs in chrome on their side (meat limbs stay flesh).
+- **EMP'd and broken / worn-out cyberware.** Any piece can be marked working, EMP'd or broken. Offline cyberware, and everything installed in it, flickers yellow (EMP) or shows red (broken) on the scan and in the list, its bonuses switch off until it's marked working again, and the player and GM are told in chat. The Cyberware switch shows how many pieces are offline.
+
 ## 1.3.1
 
 - **Fixed: the character sheet wouldn't open** ("can't access property \"changes\"") after Encumbered or Overloaded was applied through Condition Lab & Triggler, or placed from the token HUD. Cyberpunk RED's sheet needs its own bookkeeping on every effect change, and the MOVE penalty added to those effects didn't have it. Every effect carrying the penalty now does, however it's made, and effects already broken in your world are repaired when the GM loads it.

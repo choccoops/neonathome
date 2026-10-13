@@ -20,6 +20,9 @@ export const ACCEPT_TAGS = {
   pocket: ["utility", "oneHanded"]
 };
 
+/** What can be wrong with a piece of cyberware ("" is working). */
+export const CYBER_STATES = ["", "emp", "broken"];
+
 /** Where an armor upgrade fits. */
 export const UPGRADE_LOCATIONS = ["body", "head", "both", "shield", "any"];
 
@@ -87,7 +90,9 @@ export function normalizeItemFlag(raw = {}) {
       fixed: !!attachment.fixed
     },
     // vehicles: cargo capacity in weight units
-    cargo: optNum(r.cargo, 0, 99999)
+    cargo: optNum(r.cargo, 0, 99999),
+    // cyberware: "" (working), "emp" (knocked out by EMP) or "broken" (broken / worn out)
+    cyberState: CYBER_STATES.includes(r.cyberState) ? r.cyberState : ""
   };
 }
 

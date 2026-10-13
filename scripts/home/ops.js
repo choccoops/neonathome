@@ -9,6 +9,7 @@ import { computeLoadout, canInstallUpgrade, armorEffects, poolsThatWontTake } fr
 import { computeWeight, encumbrance } from "../data/weight.js";
 import { normalizePsyche, psycheState, tierOf, catharsisGain, absorbLoss, TIERS } from "../data/syndromes.js";
 import { canAttach, canDetach } from "../data/attachments.js";
+import { cyberwareMap, flatten } from "../data/cyberware.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -454,6 +455,54 @@ export const HomeOps = {
       if (!actor.effects.has(effect.id)) return;
     }
     await effect.delete();
+  },
+
+  /* ---------------------------------------- */
+  /*  Cyberware monitor                       */
+  /* ---------------------------------------- */
+
+  /** The cyberware monitor for a character (see data/cyberware.js). */
+  cyberware(actor) {
+    return cyberwareMap(actor.items.map((i) => i.toObject()), Array.from(actor.system?.installedItems?.list ?? []), MODULE_ID);
+  },
+
+  /**
+   * Mark a piece of cyberware working, EMP'd or broken / worn out. Offline cyberware, and anything
+   * installed in it, has its effects switched off (and back on when it works again).
+   * @param {string} state - "" (working), "emp" or "broken"
+   */
+  async setCyberState(actor, itemId, state) {
+    const item = actor.items.get(itemId);
+    if (!item || item.type !== "cyberware") return;
+    const was = item.getFlag(MODULE_ID, "item")?.cyberState ?? "";
+    if (was === state) return;
+    await item.setFlag(MODULE_ID, "item", { ...(item.getFlag(MODULE_ID, "item") ?? {}), cyberState: state });
+    await this.syncCyberEffects(actor);
+    const key = state ? `NEONHOME.Cyber.Card.${state}` : "NEONHOME.Cyber.Card.ok";
+    await ChatMessage.create({
+      content: this._card("fa-solid fa-microchip", L(key, { name: esc(actor.name), item: esc(item.name) })),
+      whisper: this._owners(actor),
+      speaker: ChatMessage.getSpeaker({ actor })
+    });
+  },
+
+  /**
+   * Switch off the effects of offline cyberware and switch back on the ones Neon At Home switched
+   * off when it works again. Effects the player or GM disabled themselves are left alone.
+   */
+  async syncCyberEffects(actor) {
+    const nodes = flatten(this.cyberware(actor).types.flatMap((t) => t.roots));
+    for (const n of nodes) {
+      const item = actor.items.get(n.id);
+      if (!item?.effects?.size) continue;
+      const updates = [];
+      for (const e of item.effects) {
+        const ours = !!e.getFlag(MODULE_ID, "offline");
+        if (n.state && !e.disabled) updates.push({ _id: e.id, disabled: true, [`flags.${MODULE_ID}.offline`]: true });
+        else if (!n.state && ours) updates.push({ _id: e.id, disabled: false, [`flags.${MODULE_ID}.-=offline`]: null });
+      }
+      if (updates.length) await item.updateEmbeddedDocuments("ActiveEffect", updates);
+    }
   },
 
   /* ---------------------------------------- */

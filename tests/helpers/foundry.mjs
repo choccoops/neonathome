@@ -209,10 +209,30 @@ export function makeItem(actor, data) {
     get: () => !!actor.system?.installedItems?.list?.includes(item.id) || actor.items.some((i) => i.system?.installedItems?.list?.includes(item.id))
   });
   item.toObject = () => {
-    const out = clone({ _id: item._id, name: item.name, type: item.type, img: item.img, system: item.system, flags: item.flags, effects: item.effects });
+    const out = clone({ _id: item._id, name: item.name, type: item.type, img: item.img, system: item.system, flags: item.flags, effects: [...item.effects.values()].map(({ getFlag, ...e }) => e) });
     return out;
   };
   item.sheet = { render() {} };
+  // Effects on the item, as a collection of documents.
+  const effects = new Collection();
+  for (const e of item.effects ?? []) {
+    const doc = { disabled: false, flags: {}, ...clone(e) };
+    doc.id = doc._id ??= randomID();
+    doc.getFlag = (scope, key) => doc.flags?.[scope]?.[key];
+    effects.set(doc.id, doc);
+  }
+  item.effects = effects;
+  item.updateEmbeddedDocuments = async (type, updates) => {
+    for (const u of updates) {
+      const e = item.effects.get(u._id);
+      for (const [k, v] of Object.entries(u)) {
+        if (k === "_id") continue;
+        const m = /^(.*)\.-=(\w+)$/.exec(k);
+        if (m) delete foundry.utils.getProperty(e, m[1])?.[m[2]];
+        else setProperty(e, k, clone(v));
+      }
+    }
+  };
   item.update = async (changes) => {
     for (const [k, v] of Object.entries(changes)) setProperty(item, k, clone(v));
     return item;
