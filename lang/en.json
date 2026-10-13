@@ -685,7 +685,7 @@
         "damaged": "<b>{name}</b>'s <b>{item}</b> is <b>Damaged</b>: it still works, but it can malfunction until it's maintained.",
         "destroyed": "<b>{name}</b>'s <b>{item}</b> is <b>Destroyed</b>: it doesn't work, nor does anything installed in it, until it's repaired.",
         "dbr": "<b>{name}</b>'s <b>{item}</b> is <b>Destroyed Beyond Repair</b>. It will never work again.",
-        "emp": "<b>{name}</b>'s <b>{item}</b> is knocked out by <b>EMP</b>: offline, with everything installed in it.",
+        "emp": "<b>{name}</b>'s <b>{item}</b> is knocked out by <b>EMP</b>: offline, with everything installed in it, for a minute.",
         "empOff": "<b>{name}</b>'s <b>{item}</b> is back online after the EMP."
       },
       "Blocked": {
@@ -954,7 +954,7 @@
       "Reason": {
         "malfunction": "(malfunction)",
         "dismembered": "(the hand holding it is gone)",
-        "severed": "(the limb is gone)"
+        "severed": "(the limb is gone; torn-off cyberware is Destroyed until it's repaired with Cybertech)"
       },
       "Title": "Drop what the hand held",
       "Which": "Which arm",
@@ -974,7 +974,8 @@
       "Held": "What that hand was holding",
       "Chrome": "Cyberware that comes off with it",
       "NoChrome": "No cyberware on that side.",
-      "With": "{name} (with {items})"
+      "With": "{name} (with {items})",
+      "CybertechNote": "On a cyberlimb: Cybertech can Quick Fix or Treat this instead of First Aid, Paramedic or Surgery, at the same DV and in the same time (Cyberpunk RED, p.223)."
     },
     "Hands": {
       "Title": "Not enough hands",

@@ -586,12 +586,19 @@ export const HomeOps = {
     });
   },
 
-  /** GM: knock a piece of cyberware or electronics out with EMP, or bring it back. */
+  /** EMP lasts a minute (Cyberpunk RED p.345, EMP ammunition and the Microwaver). */
+  EMP_SECONDS: 60,
+
+  /**
+   * GM: knock a piece of cyberware or electronics out with EMP, or bring it back. It comes back by
+   * itself once a minute of world time has passed (when the world clock is used).
+   */
   async setEmp(actor, itemId, on) {
     if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
     const item = actor.items.get(itemId);
     if (!item || itemFlag(item.toObject(), MODULE_ID).emp === !!on) return;
-    await this._patchFlag(item, { emp: !!on });
+    const now = Number(game.time?.worldTime) || 0;
+    await this._patchFlag(item, { emp: !!on, empUntil: on ? now + this.EMP_SECONDS : null });
     await this.syncOfflineEffects(actor);
     await this.syncCyberLimbs(actor);
     await ChatMessage.create({

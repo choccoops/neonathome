@@ -667,6 +667,9 @@ test("a Dismembered Hand drops the hand's cyberware into a pile; the GM picks th
     assert.match(dialogs.shown[0].content, /Heavy Pistol/, "and what the hand held");
     assert.deepEqual(piles[0].items.map((i) => i.name), ["Heavy Pistol", "Rippers", "Lighter Cyberfinger"], "all in one pile");
     assert.ok(piles[0].items.every((i) => i.flags[M].dropped));
+    assert.equal(piles[0].items[0].flags[M].item?.condition, undefined, "what the hand held isn't broken");
+    assert.equal(piles[0].items[1].flags[M].item.condition, "destroyed", "torn-off cyberware needs a Cybertech repair");
+    assert.match(injury.system.description.value, /Cybertech can Quick Fix or Treat/, "a cyberarm's hand: Cybertech treats it");
     assert.equal(actor.items.get("rippers"), undefined);
     assert.deepEqual(actor.items.get("armR").system.installedItems.list, ["popup"], "the arm keeps the rest");
     assert.equal(injury.getFlag(M, "side"), "R");
@@ -686,6 +689,8 @@ test("a Dismembered Arm drops the whole cyberarm with its options", async () => 
     await MaintOps.onInjury(actor, injury);
     const arm = piles[0].items.find((i) => i.name === "Cyberarm");
     assert.deepEqual(arm.flags[M].dropTree.map((i) => i.name), ["Popup Ranged Weapon", "Rippers", "Lighter Cyberfinger"]);
+    assert.equal(arm.flags[M].item.condition, "destroyed");
+    assert.ok(arm.flags[M].dropTree.every((i) => i.flags[M].item.condition === "destroyed"), "with everything in it");
     for (const id of ["armR", "popup", "rippers", "finger", "glove"]) assert.equal(actor.items.get(id), undefined, `${id} is gone`);
     assert.deepEqual(actor.system.installedItems.list, ["armL", "legR", "legL"], "out of the body");
   } finally {
@@ -726,6 +731,8 @@ test("without Item Piles the cyberware just comes out of the limb; the setting c
   await MaintOps.onInjury(actor, hand);
   assert.ok(actor.items.get("rippers"), "still the character's");
   assert.ok(!actor.items.get("armR").system.installedItems.list.includes("rippers"), "but out of the arm");
+  assert.equal(actor.items.get("rippers").flags[M].item.condition, "destroyed");
+  assert.equal(actor.items.get("armR").flags[M]?.item?.condition, undefined, "the arm itself is fine");
 
   await game.settings.set(M, "dropCyberlimbs", false);
   await game.settings.set(M, "dropHeld", false);
@@ -766,4 +773,32 @@ test("the lost-limb prompt shows the chosen side's cyberware and ticks what the 
   select.listeners[0]();
   assert.deepEqual(shown(), ["grip"], "the left side: the meat arm's Subdermal Grip");
   assert.equal(rows.find((r) => r.input.value === "armR").input.disabled, true, "the other side's isn't sent");
+});
+
+test("a meat arm's Dismembered injury gets no Cybertech note", async () => {
+  asUser(true);
+  const actor = chromed();
+  dialogs.next = { side: "L", held: [], chrome: ["grip"] };
+  const [injury] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body", description: { value: "<p>Arm removed.</p>" } } }]);
+  await MaintOps.onInjury(actor, injury);
+  assert.equal(injury.system.description.value, "<p>Arm removed.</p>");
+});
+
+test("EMP lasts a minute of world time, then the gear is back online", async () => {
+  asUser(true);
+  const actor = chromed();
+  game.time.worldTime = 500;
+  await HomeOps.setEmp(actor, "armR", true);
+  assert.equal(actor.items.get("armR").flags[M].item.empUntil, 560);
+  assert.equal(HomeOps.offlineState(actor, "popup"), "emp");
+  game.time.worldTime = 559;
+  await MaintOps.expireMalfunctions();
+  assert.equal(HomeOps.offlineState(actor, "armR"), "emp", "not yet");
+  game.time.worldTime = 560;
+  chat.length = 0;
+  await MaintOps.expireMalfunctions();
+  assert.equal(HomeOps.offlineState(actor, "armR"), "");
+  assert.equal(actor.items.get("armR").flags[M].item.empUntil, null);
+  assert.match(chat.at(-1).content, /back online/);
+  game.time.worldTime = 0;
 });

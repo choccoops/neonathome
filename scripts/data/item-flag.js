@@ -143,8 +143,10 @@ export function normalizeItemFlag(raw = {}) {
     // Damaged without the players knowing (Damaged gear isn't always obvious)
     hidden: !!r.hidden,
     cause: DAMAGE_CAUSES.includes(r.cause) ? r.cause : "",
-    // knocked out by EMP (cyberware and electronics) until the GM says it's back
+    // knocked out by EMP (cyberware and electronics), until the GM says it's back or, by world
+    // time, the minute EMP lasts is up (null: no set end)
     emp: !!r.emp || r.cyberState === "emp",
+    empUntil: r.empUntil === null || r.empUntil === undefined || r.empUntil === "" || !Number.isFinite(Number(r.empUntil)) ? null : Number(r.empUntil),
     // the maintenance cycle it was last maintained in, and a cycle it can't be covered in
     maintained: cycleRef(r.maintained),
     missCycle: cycleRef(r.missCycle),

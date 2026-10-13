@@ -14,6 +14,18 @@ import {
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
 
+/**
+ * Mark item data (and the data of everything installed in it, in Cyberpunk RED's install tree or
+ * Neon At Home's dropped tree) Destroyed.
+ */
+function markDestroyed(data) {
+  data.flags ??= {};
+  const ours = (data.flags[MODULE_ID] ??= {});
+  ours.item = { ...(ours.item ?? {}), condition: "destroyed", hidden: false, malfunction: null };
+  for (const inner of [...(data.flags.cprInstallTree ?? []), ...(ours.dropTree ?? [])]) markDestroyed(inner);
+  return data;
+}
+
 /** DV of the check to tell whether gear is Damaged (Breaking Your Stuff, p.2). */
 export const INSPECT_DV = 13;
 
@@ -306,14 +318,19 @@ export const MaintOps = {
     if (item) await HomeOps._patchFlag(item, { malfunction: null });
   },
 
-  /** Lead GM: clear malfunctions whose time has run out (when world time moves on). */
+  /**
+   * Lead GM, when world time moves on: malfunctions whose time has run out end, and EMP'd gear
+   * whose minute is up comes back online.
+   */
   async expireMalfunctions() {
     const now = this.now();
     for (const actor of game.actors) {
       if (actor.type !== "character") continue;
       for (const item of actor.items) {
-        const m = itemFlag(item.toObject(), MODULE_ID).malfunction;
+        const flag = itemFlag(item.toObject(), MODULE_ID);
+        const m = flag.malfunction;
         if (m && m.until !== null && now >= m.until) await HomeOps._patchFlag(item, { malfunction: null });
+        if (flag.emp && flag.empUntil !== null && now >= flag.empUntil) await HomeOps.setEmp(actor, item.id, false);
       }
     }
   },
@@ -536,7 +553,7 @@ export const MaintOps = {
    * it's picked up; the pile goes once it's emptied), otherwise they're just no longer on them:
    * gear isn't carried any more, and cyberware comes out of the body (or the limb it was in).
    */
-  async dropItems(actor, items, { reason = "drop" } = {}) {
+  async dropItems(actor, items, { reason = "drop", destroyed = [] } = {}) {
     items = items.filter(Boolean);
     if (!items.length) return;
     const names = items.map((i) => esc(i.name)).join(", ");
@@ -553,7 +570,7 @@ export const MaintOps = {
         const made = await api.createItemPile({
           position: { x: token.document.x + grid, y: token.document.y },
           sceneId: token.document.parent.id,
-          items: items.map((i) => this._pileData(i)),
+          items: items.map((i) => this._pileData(i, destroyed.includes(i.id))),
           // the pile shows what was dropped, and goes when it's empty
           itemPileFlags: { deleteWhenEmpty: true, displayOne: true, showItemName: true, overrideSingleItemScale: true, singleItemScale: 0.75 },
           tokenOverrides: { flags: { [MODULE_ID]: { dropPile: true } } }
@@ -571,7 +588,13 @@ export const MaintOps = {
         console.warn(`${MODULE_ID} | Item Piles couldn't take ${names}`, err);
       }
     }
-    if (!piled) for (const item of items) await this._putDown(actor, item);
+    if (!piled) {
+      for (const item of items) {
+        await this._putDown(actor, item);
+        // out of the body now, so no lost-limb injury follows from it
+        if (destroyed.includes(item.id)) await this._destroyTree(actor, item);
+      }
+    }
     await ChatMessage.create({
       content: HomeOps._card("fa-solid fa-hand", L(`NEONHOME.Drop.${piled ? "Piled" : "Owned"}`, { name: esc(actor.name), item: names })
         + (reason === "drop" ? "" : ` <em>${esc(L(`NEONHOME.Drop.Reason.${reason}`))}</em>`)),
@@ -579,8 +602,11 @@ export const MaintOps = {
     });
   },
 
-  /** An item's data for a pile: marked as dropped, with what's installed in it carried along. */
-  _pileData(item) {
+  /**
+   * An item's data for a pile: marked as dropped, with what's installed in it carried along.
+   * @param {boolean} destroyed - torn off a body: it and everything in it arrive Destroyed
+   */
+  _pileData(item, destroyed = false) {
     const data = item.toObject();
     delete data._id;
     if (data.system?.equipped) data.system.equipped = "owned";
@@ -592,7 +618,15 @@ export const MaintOps = {
       data.system.installedItems.list = [];
       data.system.installedItems.usedSlots = 0;
     }
+    if (destroyed) markDestroyed(data);
     return data;
+  },
+
+  /** An item still on the character, and everything installed in it, marked Destroyed (quietly). */
+  async _destroyTree(actor, item) {
+    if (!item || !actor.items.get(item.id)) return;
+    await HomeOps._patchFlag(item, { condition: "destroyed", hidden: false, malfunction: null });
+    for (const id of item.system?.installedItems?.list ?? []) await this._destroyTree(actor, actor.items.get(id));
   },
 
   /** Without a pile: gear is no longer carried; cyberware comes out of the body or the limb it's in. */
@@ -760,8 +794,29 @@ export const MaintOps = {
     const answer = await this._askLimb(actor, anchor, side, held, chrome, lostSides);
     if (!answer) return;
     if (answer.side && answer.side !== flagSide) await injury.setFlag(MODULE_ID, "side", answer.side);
-    const drop = [...held.filter((i) => answer.held.includes(i.id)), ...answer.chrome.map((id) => actor.items.get(id))];
-    await this.dropItems(actor, drop, { reason: "severed" });
+    // On a cyberlimb, Cybertech treats the injury (Cyberpunk RED p.223): say so on it.
+    if (this.isCyberSide(actor, anchor, answer.side)) await this.noteCybertech(injury);
+    const chromeItems = answer.chrome.map((id) => actor.items.get(id)).filter(Boolean);
+    const drop = [...held.filter((i) => answer.held.includes(i.id)), ...chromeItems];
+    // Torn off, the cyberware needs repairing with Cybertech before it's any use (p.226).
+    await this.dropItems(actor, drop, { reason: "severed", destroyed: chromeItems.map((i) => i.id) });
+  },
+
+  /** Is the arm, hand or leg on this side cyberware (a cyberarm's hand is cyberware too)? */
+  isCyberSide(actor, anchor, side) {
+    const type = anchor === "leg" ? "cyberLeg" : "cyberArm";
+    const roots = HomeOps.cyberware(actor).types.find((t) => t.type === type)?.roots ?? [];
+    return roots.some((r) => !r.meat && !r.glove && (r.side ?? "R") === side);
+  },
+
+  /** Add the Cybertech note to an injury on a cyberlimb, once. */
+  async noteCybertech(injury) {
+    if (injury.getFlag(MODULE_ID, "cybertech")) return;
+    const desc = String(injury.system?.description?.value ?? "");
+    await injury.update({
+      "system.description.value": `${desc}<p><em>${L("NEONHOME.Drop.CybertechNote")}</em></p>`,
+      [`flags.${MODULE_ID}.cybertech`]: true
+    });
   },
 
   /**
