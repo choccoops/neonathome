@@ -1,0 +1,106 @@
+{
+  "_id": "GGf1Vi5mNmUXJgj0",
+  "_key": "!tables!GGf1Vi5mNmUXJgj0",
+  "name": "Malfunctions: External, internal & fashionware",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.8. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "tfSOTAuchl8AdlnY",
+      "_key": "!tables.results!GGf1Vi5mNmUXJgj0.tfSOTAuchl8AdlnY",
+      "type": "text",
+      "text": "Chemical leak: nausea, -2 to Resist Torture/Drugs Checks. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "PBBMYIC4v1kNOx46",
+      "_key": "!tables.results!GGf1Vi5mNmUXJgj0.PBBMYIC4v1kNOx46",
+      "type": "text",
+      "text": "Overheat: 5 damage straight to HP; armor doesn't stop it. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "mmFtQXabYcnZbtqT",
+      "_key": "!tables.results!GGf1Vi5mNmUXJgj0.mmFtQXabYcnZbtqT",
+      "type": "text",
+      "text": "Buzz and stink: no Wardrobe & Style or Personal Grooming bonuses, and -2 to Social Skill Checks. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "HAIJqCAZtJTdDObu",
+      "_key": "!tables.results!GGf1Vi5mNmUXJgj0.HAIJqCAZtJTdDObu",
+      "type": "text",
+      "text": "Stinging pain: before each Check, succeed at a DV13 Concentration Check or that Check fails. <em>(For 1 Round)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Gtuo3t2JyPjgtk35",
+      "_key": "!tables.results!GGf1Vi5mNmUXJgj0.Gtuo3t2JyPjgtk35",
+      "type": "text",
+      "text": "Glitch: Grafted Muscle and Bone Lace still work but give +1 to Death Saves; cyberware armor can't repair itself; anything else shuts down and can't be used. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "3CdMtVMEm8tkYGe1",
+      "_key": "!tables.results!GGf1Vi5mNmUXJgj0.3CdMtVMEm8tkYGe1",
+      "type": "text",
+      "text": "Infection: a Critical Injury to the part of the body with the cyberware deals 5 more bonus damage. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 500,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "cyberBody"
+    }
+  }
+}

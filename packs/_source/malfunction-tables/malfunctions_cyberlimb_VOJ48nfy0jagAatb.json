@@ -1,0 +1,106 @@
+{
+  "_id": "VOJ48nfy0jagAatb",
+  "_key": "!tables!VOJ48nfy0jagAatb",
+  "name": "Malfunctions: Cyberlimb & related borgware",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.7. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "BHmO1C44RZfzM2MS",
+      "_key": "!tables.results!VOJ48nfy0jagAatb.BHmO1C44RZfzM2MS",
+      "type": "text",
+      "text": "Dead option: one of the limb's options is switched off and can't be used; one already deployed (a Popup Weapon) can't be retracted. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "tKIDpXq3G2ZSqT26",
+      "_key": "!tables.results!VOJ48nfy0jagAatb.tKIDpXq3G2ZSqT26",
+      "type": "text",
+      "text": "Nervous tic: the limb gives your intentions away: -2 to Social Skill Checks. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "ItYuEJNPPnepZhNm",
+      "_key": "!tables.results!VOJ48nfy0jagAatb.ItYuEJNPPnepZhNm",
+      "type": "text",
+      "text": "Motion glitch: make a DV15 Concentration Check or drop a held item (cyberarm) or fall prone (cyberleg). <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "M0o2j0id2nOXYw6y",
+      "_key": "!tables.results!VOJ48nfy0jagAatb.M0o2j0id2nOXYw6y",
+      "type": "text",
+      "text": "Microfractures: a Critical Success on a Check made with the limb gives you the Torn Muscle Critical Injury. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "1u9VHj2uNbFCYvlV",
+      "_key": "!tables.results!VOJ48nfy0jagAatb.1u9VHj2uNbFCYvlV",
+      "type": "text",
+      "text": "Too much force: the limb lashes out at the nearest target, as a Brawling Attack. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "JCZxIlx7ygYR8XyN",
+      "_key": "!tables.results!VOJ48nfy0jagAatb.JCZxIlx7ygYR8XyN",
+      "type": "text",
+      "text": "Locking joints: a cyberarm can't pick up or drop anything; a cyberleg gives -1 MOVE (minimum 1). <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 300,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "cyberlimb"
+    }
+  }
+}

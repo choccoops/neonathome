@@ -1,0 +1,146 @@
+{{#with maint}}
+<div class="nah-maint">
+  {{!-- ================= STATUS STRIP ================= --}}
+  <header class="nah-maint-strip">
+    <div class="nah-maint-cycle {{#if rent}}is-rent{{/if}}">
+      <span class="nah-kicker">{{#if rent}}{{localize "NEONHOME.Maint.RentKicker"}}{{else}}{{localize "NEONHOME.Maint.CycleKicker"}}{{/if}}</span>
+      <b>{{cycleLabel}}</b>
+      {{#if rentHint}}<small class="nah-rent-hint"><i class="fa-solid fa-calendar-day"></i> {{rentHint}}</small>{{/if}}
+      {{#if canNewCycle}}<button type="button" data-action="maintNewCycle" data-tooltip="{{nextLabel}}"><i class="fa-solid fa-calendar-plus"></i> {{nextLabel}}</button>{{/if}}
+      {{#if canRentDay}}<button type="button" data-action="maintRentDay" data-tooltip="{{localize 'NEONHOME.Maint.ToRentDayAsk'}}"><i class="fa-solid fa-forward-step"></i> {{localize "NEONHOME.Maint.ToRentDay"}}</button>{{/if}}
+    </div>
+    <div class="nah-maint-life" data-tooltip="{{lifestyle.covers}}">
+      <span class="nah-kicker">{{localize "NEONHOME.Maint.LifestyleKicker"}}</span>
+      <b>{{lifestyle.label}}</b> <small>{{lifestyle.source}}</small>
+      {{#if isGM}}
+      <select data-maint="lifestyle" aria-label="{{localize 'NEONHOME.Maint.LifestyleKicker'}}">
+        {{#each lifestyle.options}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+      </select>
+      {{/if}}
+    </div>
+    <div class="nah-maint-mech">
+      <span class="nah-kicker">{{localize "NEONHOME.Maint.Mechanic"}}</span>
+      <select data-maint="mechanic" aria-label="{{localize 'NEONHOME.Maint.Mechanic'}}">
+        {{#each mechanics}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+      </select>
+    </div>
+    <ul class="nah-maint-tally">
+      <li class="t-ok" data-tooltip="{{localize 'NEONHOME.Maint.Tally.covered'}}"><i class="fa-solid fa-house-circle-check"></i> {{tally.covered}}</li>
+      <li class="t-done" data-tooltip="{{localize 'NEONHOME.Maint.Tally.maintained'}}"><i class="fa-solid fa-check-double"></i> {{tally.maintained}}</li>
+      <li class="t-due {{#if tally.due}}on{{/if}}" data-tooltip="{{localize 'NEONHOME.Maint.Tally.due'}}"><i class="fa-solid fa-clock-rotate-left"></i> {{tally.due}}</li>
+      <li class="t-dmg {{#if tally.damaged}}on{{/if}}" data-tooltip="{{localize 'NEONHOME.Maint.Tally.damaged'}}"><i class="fa-solid fa-triangle-exclamation"></i> {{tally.damaged}}</li>
+      <li class="t-dead {{#if tally.destroyed}}on{{/if}}" data-tooltip="{{localize 'NEONHOME.Maint.Tally.destroyed'}}"><i class="fa-solid fa-heart-crack"></i> {{tally.destroyed}}</li>
+      <li class="t-malf {{#if tally.malfunctioning}}on{{/if}}" data-tooltip="{{localize 'NEONHOME.Maint.Tally.malfunctioning'}}"><i class="fa-solid fa-bolt"></i> {{tally.malfunctioning}}</li>
+    </ul>
+    {{#if isGM}}<button type="button" class="nah-maint-break" data-action="maintBreak"><i class="fa-solid fa-hammer"></i> {{localize "NEONHOME.Maint.Break"}}</button>{{/if}}
+  </header>
+
+  <div class="nah-maint-body">
+    {{!-- ================= GEAR LIST ================= --}}
+    <aside class="nah-maint-list nah-scroll">
+      {{#each groups}}
+      <h3 class="nah-kicker">{{label}}</h3>
+      <ul>
+        {{#each rows}}
+        <li class="nah-maint-row cond-{{condition}} st-{{status}} {{#if selected}}selected{{/if}} {{#if offline}}is-offline{{/if}} {{#if malfunction}}is-malf{{/if}}" style="--depth: {{depth}}" data-item-id="{{id}}" data-action="maintSelect">
+          <img src="{{img}}" alt="">
+          <div class="nah-maint-name">
+            <b>{{name}}</b>
+            <small><span class="nah-pill st-{{status}}">{{statusLabel}}</span>{{#if conditionLabel}} <span class="nah-pill cond-{{condition}}">{{conditionLabel}}</span>{{/if}}{{#if hiddenDamage}} <i class="fa-solid fa-eye-slash" data-tooltip="{{localize 'NEONHOME.Maint.HiddenDamage'}}"></i>{{/if}}{{#if emp}} <i class="fa-solid fa-bolt nah-emp-icon" data-tooltip="{{localize 'NEONHOME.Condition.emp'}}"></i>{{/if}}{{#if malfunction}} <i class="fa-solid fa-triangle-exclamation nah-malf-icon" data-tooltip="{{localize 'NEONHOME.Malfunction.Active'}}"></i>{{/if}}</small>
+          </div>
+          <span class="nah-wear" data-tooltip="{{localize 'NEONHOME.Maint.Wear'}}">{{#each wear}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>
+        </li>
+        {{/each}}
+      </ul>
+      {{/each}}
+      {{#if empty}}<p class="nah-hint">{{localize "NEONHOME.Maint.Nothing"}}</p>{{/if}}
+    </aside>
+
+    {{!-- ================= WORKBENCH ================= --}}
+    <main class="nah-maint-bench nah-scroll">
+      {{#with selected}}
+      <section class="nah-maint-card cond-{{condition}} {{#if state}}is-offline{{/if}}" data-item-id="{{id}}">
+        <header class="nah-mat-head">
+          <div class="nah-mat-art" data-action="openItem"><img src="{{img}}" alt=""></div>
+          <div>
+            <h2>{{name}}</h2>
+            <p class="nah-hint">{{kindLabel}} &middot; {{skill}}{{#if roleLabel}} &middot; <i class="fa-solid fa-user-gear"></i> {{roleLabel}}{{/if}}</p>
+          </div>
+          <div class="nah-stamp cond-{{condition}}">{{conditionLabel}}{{#if emp}}<span class="nah-stamp-emp"><i class="fa-solid fa-bolt"></i> EMP</span>{{/if}}</div>
+        </header>
+
+        {{#if hiddenDamage}}<p class="nah-maint-note is-secret"><i class="fa-solid fa-eye-slash"></i> {{localize "NEONHOME.Maint.HiddenDamageHint"}}</p>{{/if}}
+        {{#if causeLabel}}<p class="nah-maint-note"><i class="fa-solid fa-circle-info"></i> {{localize "NEONHOME.Maint.CausedBy" cause=causeLabel}}</p>{{/if}}
+        {{#if inherited}}<p class="nah-maint-note is-offline"><i class="fa-solid fa-plug-circle-xmark"></i> {{localize "NEONHOME.Maint.InheritedOffline"}}</p>{{/if}}
+
+        <dl class="nah-maint-specs">
+          <div><dt>{{localize "NEONHOME.Maint.Value"}}</dt><dd>{{priceLabel}}</dd></div>
+          <div><dt>{{localize "NEONHOME.Maint.Needs"}}</dt><dd>{{tierLabel}}</dd></div>
+          <div><dt>DV</dt><dd>{{dv}}</dd></div>
+          <div><dt>{{localize "NEONHOME.Maint.TimeLabel"}}</dt><dd>{{timeLabel}}</dd></div>
+        </dl>
+
+        <div class="nah-maint-status st-{{status}}">
+          <b>{{statusLabel}}</b>
+          <span>{{statusHint}}</span>
+        </div>
+
+        {{#if malf}}
+        <div class="nah-maint-malf {{#if malf.rigged}}is-rigged{{/if}}">
+          <header><i class="fa-solid fa-triangle-exclamation"></i> {{localize "NEONHOME.Malfunction.Active"}} <small>{{malf.table}} &middot; {{malf.roll}}</small></header>
+          <p>{{malf.text}}</p>
+          <footer>
+            <span><i class="fa-regular fa-clock"></i> {{malf.duration}}</span>
+            {{#if malf.rigged}}<span class="nah-rigged"><i class="fa-solid fa-bolt-lightning"></i> {{localize "NEONHOME.Malfunction.Rigged" minutes=malf.rigMinutes}}</span>{{/if}}
+            <span class="nah-malf-src">{{localize "NEONHOME.Malfunction.Source" page=malf.page}}</span>
+          </footer>
+        </div>
+        {{/if}}
+
+        <div class="nah-maint-actions">
+          {{#if can.maintain}}<button type="button" class="nah-primary" data-action="maintCheck" data-mode="maintain"><i class="fa-solid fa-screwdriver-wrench"></i> {{localize "NEONHOME.Maint.Do.maintain"}} <small>DV{{dv}}</small></button>{{/if}}
+          {{#if can.tuneUp}}<button type="button" class="nah-primary" data-action="maintCheck" data-mode="maintain"><i class="fa-solid fa-screwdriver-wrench"></i> {{localize "NEONHOME.Maint.Do.tuneUp"}} <small>DV{{dv}}</small></button>{{/if}}
+          {{#if can.inspect}}<button type="button" data-action="maintCheck" data-mode="inspect"><i class="fa-solid fa-magnifying-glass"></i> {{localize "NEONHOME.Maint.Do.inspect"}} <small>DV{{inspectDv}}</small></button>{{/if}}
+          {{#if can.repair}}<button type="button" class="nah-primary" data-action="maintCheck" data-mode="repair"><i class="fa-solid fa-toolbox"></i> {{localize "NEONHOME.Maint.Do.repair"}}</button>{{/if}}
+          {{#if can.rig}}<button type="button" data-action="maintCheck" data-mode="rig"><i class="fa-solid fa-bolt-lightning"></i> {{localize "NEONHOME.Maint.Do.rig"}} <small>DV{{dv}}</small></button>{{/if}}
+          {{#if can.drop}}<button type="button" data-action="maintDrop"><i class="fa-solid fa-hand"></i> {{localize "NEONHOME.Maint.Do.drop"}}</button>{{/if}}
+        </div>
+        <p class="nah-hint nah-maint-who">{{localize "NEONHOME.Maint.WhoWorks" name=@root.maint.mechanicName}}</p>
+
+        {{#if worthLabel}}<p class="nah-maint-worth"><i class="fa-solid fa-sack-dollar"></i> {{worthLabel}}</p>{{/if}}
+
+        {{#if @root.maint.isGM}}
+        <fieldset class="nah-maint-gm">
+          <legend><i class="fa-solid fa-user-secret"></i> {{localize "NEONHOME.Maint.GM"}}</legend>
+          <div class="nah-cond-set" role="group">
+            {{#each conditions}}<button type="button" class="cond-{{key}} {{#if on}}on{{/if}}" data-action="maintCondition" data-condition="{{key}}">{{label}}</button>{{/each}}
+          </div>
+          <div class="nah-maint-gm-row">
+            {{#if isDamaged}}
+            <button type="button" data-action="maintHidden" data-hidden="{{#if hiddenDamage}}0{{else}}1{{/if}}"><i class="fa-solid {{#if hiddenDamage}}fa-eye{{else}}fa-eye-slash{{/if}}"></i> {{#if hiddenDamage}}{{localize "NEONHOME.Maint.Reveal"}}{{else}}{{localize "NEONHOME.Maint.Hide"}}{{/if}}</button>
+            {{/if}}
+            {{#if can.emp}}<button type="button" class="{{#if emp}}on{{/if}}" data-action="maintEmp" data-on="{{#if emp}}0{{else}}1{{/if}}"><i class="fa-solid fa-bolt"></i> {{#if emp}}{{localize "NEONHOME.Maint.EmpOff"}}{{else}}{{localize "NEONHOME.Maint.EmpOn"}}{{/if}}</button>{{/if}}
+          </div>
+          <div class="nah-maint-gm-row">
+            <select name="malfTable" aria-label="{{localize 'NEONHOME.Malfunction.TableLabel'}}">{{#each tables}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+            <button type="button" data-action="maintMalfunction"><i class="fa-solid fa-dice-six"></i> {{localize "NEONHOME.Malfunction.Roll"}}</button>
+            {{#if malf}}<button type="button" data-action="maintClear"><i class="fa-solid fa-eraser"></i> {{localize "NEONHOME.Malfunction.Clear"}}</button>{{/if}}
+          </div>
+        </fieldset>
+        {{/if}}
+      </section>
+      {{else}}
+      <p class="nah-hint">{{localize "NEONHOME.Maint.PickOne"}}</p>
+      {{/with}}
+
+      <details class="nah-maint-table">
+        <summary><i class="fa-solid fa-table"></i> {{localize "NEONHOME.Maint.Basics"}}</summary>
+        <table>
+          <thead><tr><th>{{localize "NEONHOME.Maint.Gear"}}</th><th>{{localize "NEONHOME.Maint.DronesVehicles"}}</th><th>{{localize "NEONHOME.Maint.LifestyleKicker"}}</th><th>DV</th><th>{{localize "NEONHOME.Maint.TimeLabel"}}</th></tr></thead>
+          <tbody>{{#each tiers}}<tr class="{{#if on}}on{{/if}}"><td>{{gear}}+</td><td>{{vehicle}}+</td><td>{{label}}</td><td>{{dv}}</td><td>{{time}}</td></tr>{{/each}}</tbody>
+        </table>
+      </details>
+    </main>
+  </div>
+</div>
+{{/with}}

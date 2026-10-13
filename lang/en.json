@@ -54,6 +54,28 @@
       "CatharsisAbsorbs": {
         "Name": "Catharsis takes Humanity Loss first",
         "Hint": "When a character with Catharsis loses Humanity, the buffer takes it first and only the rest comes off true Humanity."
+      },
+      "Maintenance": {
+        "Name": "Maintenance tab (Breaking Your Stuff)",
+        "Hint": "Maintenance, inspections, repairs and malfunctions from R. Talsorian's Breaking Your Stuff DLC."
+      },
+      "MalfunctionOnFumble": {
+        "Name": "Malfunction on a natural 1",
+        "Hint": "Roll a malfunction automatically when a check with an item (an attack, a cyberdeck action) rolls a natural 1 and the item is poorly maintained. The GM can always call one from the Maintenance tab.",
+        "damaged": "Damaged gear",
+        "unmaintained": "Damaged gear, or gear a cycle overdue for maintenance",
+        "off": "Never (the GM calls them)"
+      },
+      "DropHeld": {
+        "Name": "Lost hands drop what they hold",
+        "Hint": "A Dismembered Arm or Hand (including an EMP'd or Destroyed cyberarm) drops what it was holding: into an Item Piles pile beside the token when Item Piles is on, otherwise it's no longer carried. The GM is asked when it isn't clear which hand held what."
+      },
+      "MaintCycleMode": {
+        "Name": "Maintenance months",
+        "Hint": "Breaking Your Stuff has gear maintained once a month. With Neon Hub, each character's month starts on their calendar's Rent Day, like their Lifestyle bill (or with Neon Hub's month counter, without calendars). Otherwise the GM starts each month, or each week for a faster grind, from the Maintenance tab.",
+        "rent": "Neon Hub's Rent Day (falls back to monthly without Neon Hub)",
+        "month": "Monthly, started by the GM",
+        "week": "Weekly, started by the GM"
       }
     },
     "State": {
@@ -413,6 +435,49 @@
         "custom": "Custom"
       }
     },
+    "Cyber": {
+      "Title": "Cyberware",
+      "Vitals": "Vitals",
+      "Offline": "{n} offline",
+      "AllOnline": "All online",
+      "Installed": "{n} installed",
+      "Slots": "{used}/{slots} option slots",
+      "NoSlots": "No option slots",
+      "None": "Nothing installed.",
+      "NoLink": "No Neural Link: neuralware needs one.",
+      "Weapon": "Cyberweapon",
+      "Hint": "Conditions follow Breaking Your Stuff. Damaged cyberware works but can malfunction. Destroyed or EMP'd cyberware is offline with everything installed in it: its bonuses switch off and its weapons can't be rolled. An offline cyberarm or cyberleg counts as a Dismembered Arm or Leg until it works again. Only the GM changes this; see the Maintenance tab to maintain, inspect and repair.",
+      "State": {
+        "ok": "Working",
+        "damaged": "Damaged",
+        "emp": "EMP'd",
+        "destroyed": "Destroyed",
+        "dbr": "Beyond repair"
+      },
+      "Type": {
+        "neuralWare": "Neuralware",
+        "cyberEye": "Cybereyes",
+        "cyberAudioSuite": "Cyberaudio",
+        "cyberArm": "Cyberarms",
+        "cyberLeg": "Cyberlegs",
+        "cyberwareInternal": "Internal body cyberware",
+        "cyberwareExternal": "External body cyberware",
+        "fashionware": "Fashionware",
+        "borgware": "Borgware",
+        "other": "Other"
+      },
+      "GMOnly": "Only the GM can change whether gear works.",
+      "Injury": {
+        "emp": "{injury} (EMP'd {limb})",
+        "destroyed": "{injury} (Destroyed {limb})",
+        "dbr": "{injury} ({limb} Destroyed Beyond Repair)"
+      },
+      "InjuryNote": {
+        "emp": "{limb} is knocked out by EMP. This goes away by itself when the GM brings it back.",
+        "destroyed": "{limb} is Destroyed. This goes away by itself when it's repaired.",
+        "dbr": "{limb} is Destroyed Beyond Repair. This goes away when it's uninstalled or replaced."
+      }
+    },
     "Bench": {
       "Title": "Weaponbench",
       "Rack": "Weapon rack",
@@ -510,7 +575,18 @@
       "Pair": "Works only with head and body armor both upgraded",
       "Attachment": "Attachment",
       "Save": "Save",
-      "Saved": "Saved {name}."
+      "Saved": "Saved {name}.",
+      "Maintenance": "Maintenance (Breaking Your Stuff)",
+      "MaintenanceHint": "What kind of gear this is decides the skill that maintains it and the value scale (drones and vehicles have their own). The malfunction table is rolled when it malfunctions.",
+      "MaintKind": "Kind of gear",
+      "MaintExempt": "Looked after by",
+      "Exempt": {
+        "none": "Its owner",
+        "exec": "An Exec's employer (team gear)",
+        "medtech": "A Medtech's Role Ability",
+        "nomad": "A Nomad's family (Role Ability vehicles)",
+        "other": "Someone else"
+      }
     },
     "Rules": {
       "Saved": "Rules saved.",
@@ -591,7 +667,294 @@
       "NoPermission": "You can't open that.",
       "Installed": "{name} is installed in something. Take it out first.",
       "Core": "{name} is part of the character and can't be moved.",
-      "WrongSystem": "Neon At Home is made for Cyberpunk RED - CORE, not {system}."
+      "WrongSystem": "Neon At Home is made for Cyberpunk RED - CORE, not {system}.",
+      "NoSkill": "No {skill} skill to roll."
+    },
+    "Condition": {
+      "ok": "Working",
+      "damaged": "Damaged",
+      "destroyed": "Destroyed",
+      "dbr": "Destroyed Beyond Repair",
+      "emp": "EMP'd",
+      "Card": {
+        "ok": "<b>{name}</b>'s <b>{item}</b> works again.",
+        "damaged": "<b>{name}</b>'s <b>{item}</b> is <b>Damaged</b>: it still works, but it can malfunction until it's maintained.",
+        "destroyed": "<b>{name}</b>'s <b>{item}</b> is <b>Destroyed</b>: it doesn't work, nor does anything installed in it, until it's repaired.",
+        "dbr": "<b>{name}</b>'s <b>{item}</b> is <b>Destroyed Beyond Repair</b>. It will never work again.",
+        "emp": "<b>{name}</b>'s <b>{item}</b> is knocked out by <b>EMP</b>: offline, with everything installed in it.",
+        "empOff": "<b>{name}</b>'s <b>{item}</b> is back online after the EMP."
+      },
+      "Blocked": {
+        "emp": "{item} is offline (EMP'd) and can't be used until it's working again.",
+        "destroyed": "{item} is Destroyed and can't be used until it's repaired.",
+        "dbr": "{item} is Destroyed Beyond Repair and can't be used."
+      }
+    },
+    "Maint": {
+      "Title": "Maintenance",
+      "CycleKicker": "Cycle",
+      "Cycle": {
+        "month": "Month {n}",
+        "week": "Week {n}"
+      },
+      "Next": {
+        "month": "New month",
+        "week": "New week"
+      },
+      "NewCycleTitle": "Start a new maintenance cycle",
+      "NewCycleAsk": {
+        "month": "Start the next month? Gear that isn't covered by Lifestyle needs a new maintenance Check.",
+        "week": "Start the next week? Gear that isn't covered by Lifestyle needs a new maintenance Check."
+      },
+      "NewCycle": {
+        "month": "<b>Month {n}</b> begins. Gear beyond your Lifestyle needs its maintenance Check.",
+        "week": "<b>Week {n}</b> begins. Gear beyond your Lifestyle needs its maintenance Check."
+      },
+      "DueCount": "{n} to maintain",
+      "LifestyleKicker": "Lifestyle",
+      "Mechanic": "Who works on it",
+      "Auto": "Automatic",
+      "Lifestyle": {
+        "none": "No Lifestyle",
+        "kibble": "Kibble",
+        "generic": "Generic Prepak",
+        "good": "Good Prepak",
+        "fresh": "Fresh Food"
+      },
+      "Source": {
+        "gm": "(set by the GM)",
+        "hub": "(Neon Hub)",
+        "sheet": "(character sheet)"
+      },
+      "CoversAll": "Covers maintenance of all gear.",
+      "CoversNone": "Covers no maintenance.",
+      "CoversUpTo": "Covers maintenance of gear worth up to {eb} (drones and vehicles on their own scale).",
+      "Tally": {
+        "covered": "Covered by Lifestyle (or looked after by someone else)",
+        "maintained": "Maintained this cycle",
+        "due": "Due for a maintenance Check",
+        "damaged": "Damaged",
+        "destroyed": "Destroyed",
+        "malfunctioning": "Malfunctioning"
+      },
+      "Break": "Break gear",
+      "BreakTitle": "Break {name}'s gear",
+      "BreakConfirm": "Mark Damaged",
+      "BreakHint": "Breaking Your Stuff: gear becomes Damaged at the GM's call. Pick why; the gear that reason usually affects is ticked for you.",
+      "Why": "Why",
+      "KeepQuiet": "Keep it from the players (Damaged gear isn't always obvious)",
+      "DamagedCard": "<b>{name}</b>: {cause}. Damaged: <b>{items}</b>.",
+      "Cause": {
+        "maintenance": "Lack of maintenance",
+        "injury": "A Critical Injury",
+        "electrocution": "Electrocution",
+        "environment": "Environmental conditions",
+        "excessive": "Excessive damage",
+        "fire": "Fire or radiation",
+        "drugs": "Poison or drugs",
+        "other": "Something else"
+      },
+      "CauseHint": {
+        "maintenance": "Gear that hasn't been maintained properly.",
+        "injury": "Gear worn or stowed where the injury landed: a cracked deck, broken smart glasses.",
+        "electrocution": "A real jolt of electricity damages circuitry (EMP effects don't count here).",
+        "environment": "Weather or surroundings bad enough to hurt a person hurt their gear too.",
+        "excessive": "20 or more damage after SP can damage cyberware, worn gear or a vehicle, even without a Critical Injury.",
+        "fire": "Two or more Rounds on fire or exposed to radiation.",
+        "drugs": "Repeated toxins or long-term drug use throw cyberware out of whack.",
+        "other": "Pick the gear yourself."
+      },
+      "HiddenDamage": "Damaged, but the players don't know",
+      "HiddenDamageHint": "The players see this as working until someone inspects it (DV13) or you reveal it.",
+      "Reveal": "Tell the players",
+      "Hide": "Keep it quiet",
+      "EmpOn": "EMP it",
+      "EmpOff": "Bring it back online",
+      "Wear": "Cycles without maintenance",
+      "Nothing": "Nothing here needs maintaining.",
+      "PickOne": "Pick a piece of gear.",
+      "CausedBy": "Damaged by: {cause}",
+      "InheritedOffline": "Offline because what it's installed in doesn't work.",
+      "Value": "Value",
+      "Needs": "Covered by",
+      "TimeLabel": "Time",
+      "GM": "GM",
+      "WhoWorks": "Checks are rolled by {name}. Anyone can maintain anyone's gear; only the owner's Lifestyle covers it.",
+      "Basics": "Maintenance basics (Breaking Your Stuff, p.5)",
+      "Gear": "Gear",
+      "DronesVehicles": "Drones & vehicles",
+      "Do": {
+        "maintain": "Maintain",
+        "tuneUp": "Tune up",
+        "inspect": "Inspect",
+        "repair": "Repair",
+        "rig": "Jury-rig",
+        "drop": "Drop it"
+      },
+      "Status": {
+        "exempt": "Looked after",
+        "covered": "Covered",
+        "maintained": "Maintained",
+        "due": "Due"
+      },
+      "CoveredBy": "Maintained as part of a {lifestyle} Lifestyle: no Check or time needed.",
+      "CoveredRole": "Maintained as part of a {lifestyle} Lifestyle, counted a level higher for a {role}.",
+      "Exempt": {
+        "exec": "An Exec's employer maintains gear assigned to their team.",
+        "medtech": "A Medtech's Role Ability gear is looked after for them.",
+        "nomad": "A Nomad's family looks after vehicles and upgrades from their Role Ability.",
+        "other": "Someone else looks after this."
+      },
+      "MaintainedHint": "Maintained this cycle.",
+      "DueHint": "Worth more than the Lifestyle covers ({lifestyle} or better): it needs a maintenance Check this cycle. A failed Check means starting over.",
+      "Role": {
+        "tech": "Tech",
+        "solo": "Solo",
+        "lawman": "Lawman",
+        "netrunner": "Netrunner",
+        "media": "Media",
+        "rockerboy": "Rockerboy"
+      },
+      "Time": {
+        "30m": "30 minutes",
+        "1h": "1 hour",
+        "3h": "3 hours",
+        "1d": "1 day"
+      },
+      "Kind": {
+        "armor": "Armor",
+        "cyberdeck": "Cyberdeck",
+        "cyberware": "Cyberware",
+        "drone": "Drone",
+        "gear": "General gear",
+        "electronics": "Personal electronics",
+        "vehicleAir": "Air vehicle",
+        "vehicleLand": "Land vehicle",
+        "vehicleSea": "Sea vehicle",
+        "weapon": "Weapon"
+      },
+      "Group": {
+        "weapon": "Weapons",
+        "armor": "Armor",
+        "cyberware": "Cyberware",
+        "cyberdeck": "Cyberdecks",
+        "electronics": "Personal electronics",
+        "gear": "Gear",
+        "drone": "Drones",
+        "vehicle": "Vehicles"
+      },
+      "Price": {
+        "cheap": "Cheap",
+        "everyday": "Everyday",
+        "costly": "Costly",
+        "premium": "Premium",
+        "expensive": "Expensive",
+        "veryExpensive": "Very Expensive",
+        "luxury": "Luxury",
+        "superLuxury": "Super Luxury"
+      },
+      "WorthFull": "Sells for {eb} ({category}).",
+      "WorthDrop": "A buyer who knows its condition pays {eb} ({category}); the same in materials for a Tech.",
+      "Worthless": "Worthless: practically nobody buys it, and it's no use for crafting.",
+      "Check": {
+        "maintain": "Maintenance: {item}",
+        "inspect": "Inspection: {item}",
+        "repair": "Repair: {item}",
+        "rig": "Jury rig: {item}"
+      },
+      "VsDV": "{total} vs DV{dv}",
+      "Result": {
+        "maintain": {
+          "ok": "<b>{name}</b> maintains <b>{item}</b> ({time}). Good until next cycle.",
+          "fixed": "<b>{name}</b> maintains <b>{item}</b> ({time}): it's no longer Damaged, and any malfunction is over.",
+          "fail": "<b>{name}</b> realizes halfway through that something went wrong: start over on <b>{item}</b>."
+        },
+        "inspect": {
+          "ok": "<b>{name}</b> looks <b>{item}</b> over for a minute: it seems fine.",
+          "damaged": "<b>{name}</b> looks <b>{item}</b> over: it's <b>Damaged</b>.",
+          "fail": "<b>{name}</b> can't tell whether anything's wrong with <b>{item}</b>."
+        },
+        "repair": {
+          "ok": "<b>{name}</b> repairs <b>{item}</b>. It works again.",
+          "fail": "<b>{name}</b> can't get <b>{item}</b> working this time."
+        },
+        "rig": {
+          "ok": "<b>{name}</b> jury-rigs <b>{item}</b>: it works properly for {minutes} minutes, then the malfunction returns.",
+          "fail": "<b>{name}</b>'s jury rig on <b>{item}</b> doesn't hold."
+        }
+      },
+      "NoExpertise": "{name} needs Field Expertise (a Tech's Maker ability) to jury-rig a malfunction.",
+      "BeyondRepair": "{item} is Destroyed Beyond Repair.",
+      "RepairTitle": "Repair",
+      "RepairHint": "Destroyed gear is repaired with the appropriate Tech skill (Cyberpunk RED, p.140). Set the DV; it defaults to the gear's maintenance DV.",
+      "Roll": "Roll",
+      "RentKicker": "Rent month",
+      "RentIn": "Rent Day in {n} days ({calendar})",
+      "RentToday": "Rent Day is today ({calendar})",
+      "HubCounter": "Neon Hub's month",
+      "RentDay": "<b>Rent Day</b> on {calendar}: <b>{month}</b> begins. Gear beyond your Lifestyle needs its maintenance Check.",
+      "HubMonth": "<b>{month}</b> begins (Neon Hub). Gear beyond your Lifestyle needs its maintenance Check.",
+      "FollowsRent": "Maintenance months start on Neon Hub's Rent Day. Move the calendar on, or change Maintenance months in the module settings.",
+      "ToRentDay": "To Rent Day",
+      "ToRentDayAsk": "Jump this character's Neon Hub calendar to its next Rent Day? Neon Hub starts the new month for everyone on that calendar (Lifestyle bills, Headquarters), and maintenance falls due."
+    },
+    "Malfunction": {
+      "Title": "Malfunction: {item}",
+      "Reason": {
+        "gm": "The GM calls a malfunction on {name}'s {item}.",
+        "fumble": "{name} rolled a natural 1 with a poorly maintained {item}."
+      },
+      "Table": {
+        "armor": "Armor",
+        "cyberdeck": "Cyberdeck",
+        "cyberlimb": "Cyberlimb & related borgware",
+        "cyberSenses": "Cyberaudio, cyberoptics & related borgware",
+        "cyberBody": "External, internal & fashionware",
+        "neuralware": "Neuralware",
+        "drone": "Drone",
+        "general": "General gear & personal electronics",
+        "linearFrame": "Linear frame & cyberchair",
+        "vehicle": "Vehicle",
+        "weapon": "Weapon (including explosives)"
+      },
+      "TableLabel": "Malfunction table",
+      "Duration": {
+        "round": "For 1 Round",
+        "minute": "For 1 minute",
+        "hour": "For 1 hour",
+        "day": "For 1 day",
+        "use": "Until it happens",
+        "now": "Right away"
+      },
+      "Source": "Breaking Your Stuff, p.{page}",
+      "Action": {
+        "drop": "Drop it",
+        "dropHeld": "Failed: drop what the hand holds",
+        "destroy": "Used: it's Destroyed",
+        "emptyMag": "Destroy the loaded ammunition",
+        "missCycle": "Skip its next maintenance"
+      },
+      "Done": {
+        "emptyMag": "<b>{name}</b>'s <b>{item}</b>: the loaded ammunition is Destroyed Beyond Repair.",
+        "missCycle": "<b>{item}</b> won't be covered by Lifestyle next cycle."
+      },
+      "Active": "Malfunctioning",
+      "Rigged": "Jury-rigged ({minutes} min)",
+      "Roll": "Roll a malfunction",
+      "Clear": "Clear it"
+    },
+    "Drop": {
+      "Piled": "<b>{name}</b> drops <b>{item}</b>.",
+      "Owned": "<b>{name}</b> drops <b>{item}</b> (it's no longer carried).",
+      "Reason": {
+        "malfunction": "(malfunction)",
+        "dismembered": "(the hand holding it is gone)"
+      },
+      "Title": "Drop what the hand held",
+      "Which": "Which arm",
+      "TwoHanded": "two-handed",
+      "Ask": "<b>{name}</b> lost an arm {side}: drop anything it was holding. Tick what goes.",
+      "Confirm": "Drop"
     }
   }
 }

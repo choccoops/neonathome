@@ -1,0 +1,106 @@
+{
+  "_id": "Iqn0gZfksrLyoAW3",
+  "_key": "!tables!Iqn0gZfksrLyoAW3",
+  "name": "Malfunctions: Neuralware",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.8. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "SO5bb8Y573wff9bv",
+      "_key": "!tables.results!Iqn0gZfksrLyoAW3.SO5bb8Y573wff9bv",
+      "type": "text",
+      "text": "Junk data: -4 to Concentration Checks. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "mSH7yTZ4MUhmXqeU",
+      "_key": "!tables.results!Iqn0gZfksrLyoAW3.mSH7yTZ4MUhmXqeU",
+      "type": "text",
+      "text": "Power surge: a random Neuralware option switches on or off; switching it back takes an Action. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "ENFvCtjbivIurq4w",
+      "_key": "!tables.results!Iqn0gZfksrLyoAW3.ENFvCtjbivIurq4w",
+      "type": "text",
+      "text": "Skull pain: before each Check, succeed at a DV13 Concentration Check or that Check fails. <em>(For 1 Round)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "NaF21brIsbnnjaSW",
+      "_key": "!tables.results!Iqn0gZfksrLyoAW3.NaF21brIsbnnjaSW",
+      "type": "text",
+      "text": "Intoxicated: -2 to all Checks. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "4Dx4qYB9PrO0oRXx",
+      "_key": "!tables.results!Iqn0gZfksrLyoAW3.4Dx4qYB9PrO0oRXx",
+      "type": "text",
+      "text": "Fog: -1 to INT-based Skill Checks. <em>(For 1 hour)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "hfzLGgwgdP2bySDs",
+      "_key": "!tables.results!Iqn0gZfksrLyoAW3.hfzLGgwgdP2bySDs",
+      "type": "text",
+      "text": "Scrambled speech: you can only speak gibberish. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 600,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "neuralware"
+    }
+  }
+}

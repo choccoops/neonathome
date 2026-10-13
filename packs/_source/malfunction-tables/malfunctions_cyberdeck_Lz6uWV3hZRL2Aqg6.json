@@ -1,0 +1,106 @@
+{
+  "_id": "Lz6uWV3hZRL2Aqg6",
+  "_key": "!tables!Lz6uWV3hZRL2Aqg6",
+  "name": "Malfunctions: Cyberdeck",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.7. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "6ojtqoIzLlzMvckB",
+      "_key": "!tables.results!Lz6uWV3hZRL2Aqg6.6ojtqoIzLlzMvckB",
+      "type": "text",
+      "text": "Misread data: choose a program that gives an Interface bonus; its next use gives that much as a penalty instead. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Bopzjw0dYfXeRPTw",
+      "_key": "!tables.results!Lz6uWV3hZRL2Aqg6.Bopzjw0dYfXeRPTw",
+      "type": "text",
+      "text": "Feedback: the next time you Jack Out, a random program on the deck is Destroyed. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "uO5YpQ5QZFREgqq9",
+      "_key": "!tables.results!Lz6uWV3hZRL2Aqg6.uO5YpQ5QZFREgqq9",
+      "type": "text",
+      "text": "Surge: a random Black ICE on the deck attacks you instead for 1 Round after it rezzes; with no Black ICE, a random program stops working for 1 minute. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "AifJ4tXRT374jAz1",
+      "_key": "!tables.results!Lz6uWV3hZRL2Aqg6.AifJ4tXRT374jAz1",
+      "type": "text",
+      "text": "Loose port: the next time you take damage in a NET Architecture, make a DV15 Electronics/Security Tech Check or be unsafely Jacked Out. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "fmJvDHgLyIIuNUfQ",
+      "_key": "!tables.results!Lz6uWV3hZRL2Aqg6.fmJvDHgLyIIuNUfQ",
+      "type": "text",
+      "text": "Phantom error: the next time you Jack In, the deck beeps loudly for 1 minute unless it's Destroyed. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Okk6tw4nSWVmjWtm",
+      "_key": "!tables.results!Lz6uWV3hZRL2Aqg6.Okk6tw4nSWVmjWtm",
+      "type": "text",
+      "text": "Not optimized: for 1 minute after Jacking In, 1 less NET Action (minimum 1), even if you Jack Out and back in. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 200,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "cyberdeck"
+    }
+  }
+}

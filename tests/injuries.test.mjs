@@ -56,3 +56,11 @@ test("trauma levels by how many and how dangerous", () => {
   assert.equal(traumaLevel(5), "failing");
   assert.equal(traumaLevel(3, 3), "failing");
 });
+
+test("an offline cyberlimb's Dismembered injury blacks out that limb, on its side", () => {
+  const t = traumaMap([
+    { name: "Dismembered Arm (EMP'd Cyberarm)", system: { location: "body" }, flags: { [M]: { side: "L" } } },
+    { name: "Dismembered Leg (Broken Cyberleg)", system: { location: "body" }, flags: { [M]: { side: "R" } } }
+  ], M);
+  assert.deepEqual(t.severed.map((s) => `${s.limb}${s.side}`), ["armL", "legR"]);
+});

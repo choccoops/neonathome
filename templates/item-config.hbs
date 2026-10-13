@@ -100,6 +100,16 @@
     <div class="form-group"><label class="checkbox"><input type="checkbox" name="flag.attachment.fixed" {{checked flag.attachment.fixed}}> {{localize "NEONHOME.Bench.FixedLabel"}}</label></div>
   </fieldset>
   {{/if}}
+
+  {{#if maintainable}}
+  <fieldset>
+    <legend><i class="fa-solid fa-screwdriver-wrench"></i> {{localize "NEONHOME.Config.Maintenance"}}</legend>
+    <p class="nah-hint">{{localize "NEONHOME.Config.MaintenanceHint"}}</p>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.MaintKind"}}</label><select name="flag.maint.kind">{{#each maintKinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Malfunction.TableLabel"}}</label><select name="flag.maint.table">{{#each maintTables}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Config.MaintExempt"}}</label><select name="flag.maint.exempt">{{#each maintExempt}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+  </fieldset>
+  {{/if}}
 </div>
 <footer class="form-footer">
   <button type="submit"><i class="fa-solid fa-floppy-disk"></i> {{localize "NEONHOME.Config.Save"}}</button>

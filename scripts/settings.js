@@ -105,6 +105,53 @@ export const Settings = {
       type: String,
       default: "Overloaded"
     });
+    // Breaking Your Stuff: maintenance, malfunctions and dropped gear
+    reg("maintenance", {
+      name: "NEONHOME.Settings.Maintenance.Name",
+      hint: "NEONHOME.Settings.Maintenance.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: changed
+    });
+    reg("maintCycleMode", {
+      name: "NEONHOME.Settings.MaintCycleMode.Name",
+      hint: "NEONHOME.Settings.MaintCycleMode.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      choices: {
+        rent: "NEONHOME.Settings.MaintCycleMode.rent",
+        month: "NEONHOME.Settings.MaintCycleMode.month",
+        week: "NEONHOME.Settings.MaintCycleMode.week"
+      },
+      default: "rent",
+      onChange: changed
+    });
+    reg("malfunctionOnFumble", {
+      name: "NEONHOME.Settings.MalfunctionOnFumble.Name",
+      hint: "NEONHOME.Settings.MalfunctionOnFumble.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      choices: {
+        damaged: "NEONHOME.Settings.MalfunctionOnFumble.damaged",
+        unmaintained: "NEONHOME.Settings.MalfunctionOnFumble.unmaintained",
+        off: "NEONHOME.Settings.MalfunctionOnFumble.off"
+      },
+      default: "damaged"
+    });
+    reg("dropHeld", {
+      name: "NEONHOME.Settings.DropHeld.Name",
+      hint: "NEONHOME.Settings.DropHeld.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true
+    });
+    // the GM's own maintenance counter, and the Neon Hub months last announced: { n, seen: { key: n } }
+    reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1, seen: {} }, onChange: changed });
     reg("tab", { scope: "client", config: false, type: String, default: "loadout" });
   },
 
@@ -122,6 +169,14 @@ export const Settings = {
 
   get weight() {
     return normalizeWeightRules(this.get("weightRules"));
+  },
+
+  /** The GM's own maintenance counter and the Neon Hub months last announced: { n, seen }. */
+  get maintCycle() {
+    const raw = this.get("maintCycle") ?? {};
+    const n = Math.max(1, Math.floor(Number(raw.n) || 1));
+    const seen = raw.seen && typeof raw.seen === "object" ? { ...raw.seen } : {};
+    return { n, seen };
   },
 
   get customSyndromes() {

@@ -1,0 +1,106 @@
+{
+  "_id": "OMhkXD3yFdTkOsKE",
+  "_key": "!tables!OMhkXD3yFdTkOsKE",
+  "name": "Malfunctions: Weapon (including explosives)",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.10. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "SPqAJ68XzoWYgUOi",
+      "_key": "!tables.results!OMhkXD3yFdTkOsKE.SPqAJ68XzoWYgUOi",
+      "type": "text",
+      "text": "Dirty barrel or dull edge: it deals 1d6 less damage. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "b0gtaOv5X24R5EVM",
+      "_key": "!tables.results!OMhkXD3yFdTkOsKE.b0gtaOv5X24R5EVM",
+      "type": "text",
+      "text": "Accident: ranged, the next Attack targets an ally within 6 m/yds of the target; melee, it slips and you drop it; a thrown explosive lands at your feet and goes off. <em>(Right away)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "EnKAKU8lSIj2wRsV",
+      "_key": "!tables.results!OMhkXD3yFdTkOsKE.EnKAKU8lSIj2wRsV",
+      "type": "text",
+      "text": "Off target: -2 to the next Attack Check with it. <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "1aOt9xUo8JUSVrlz",
+      "_key": "!tables.results!OMhkXD3yFdTkOsKE.1aOt9xUo8JUSVrlz",
+      "type": "text",
+      "text": "Gunked up: it can't cause a Critical Injury through its damage roll. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "S8y4tIkgdFVAwhQL",
+      "_key": "!tables.results!OMhkXD3yFdTkOsKE.S8y4tIkgdFVAwhQL",
+      "type": "text",
+      "text": "Jam: it jams after the next Attack Check, whatever its Quality; a thrown explosive lands without going off (it can be picked up again). <em>(Until it happens)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "lM6sHkplNeMhzLMb",
+      "_key": "!tables.results!OMhkXD3yFdTkOsKE.lM6sHkplNeMhzLMb",
+      "type": "text",
+      "text": "Neglected parts: a firearm's loaded ammunition is Destroyed Beyond Repair; a melee weapon or bow is Poor Quality (already Poor: Destroyed for 1 minute); a thrown explosive fizzles and is Destroyed Beyond Repair. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 1100,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "weapon"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { MODULE_ID, TEMPLATE_PATH, ITEM_FLAG } from "../constants.js";
-import { CATEGORIES, ARMOR_CLASSES, POOL_ACCEPTS, UPGRADE_LOCATIONS, UPGRADE_EFFECTS, normalizeItemFlag } from "../data/item-flag.js";
+import { CATEGORIES, ARMOR_CLASSES, POOL_ACCEPTS, UPGRADE_LOCATIONS, UPGRADE_EFFECTS, EXEMPT, normalizeItemFlag } from "../data/item-flag.js";
+import { KINDS, TABLE_KEYS, isMaintainable, kindOf, tableOf } from "../data/maintenance.js";
 import { describeCarry, describeArmor, isSubdermalPocket } from "../data/capacity.js";
 import { baseWeight } from "../data/weight.js";
 import { Settings } from "../settings.js";
@@ -80,7 +81,14 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
       upgradeClasses: ARMOR_CLASSES.map((c) => ({ value: c, label: L(`NEONHOME.Class.${c}`), checked: flag.upgrade.classes.includes(c) })),
       upgradeEffects: UPGRADE_EFFECTS.filter(Boolean).map((e) => ({ value: e, label: L(`NEONHOME.Upgrade.Effect.${e}`), checked: flag.upgrade.effects.includes(e) })),
       upgradePools: pools(flag.upgrade.pools),
-      canCapacity: ["cyberware", "gear", "clothing"].includes(item.type)
+      canCapacity: ["cyberware", "gear", "clothing"].includes(item.type),
+      // Breaking Your Stuff
+      maintainable: isMaintainable(plain),
+      maintKinds: [{ value: "", label: L("NEONHOME.Config.Auto", { value: L(`NEONHOME.Maint.Kind.${kindOf(plain, MODULE_ID)}`) }), selected: !flag.maint.kind },
+        ...opt(Object.keys(KINDS), flag.maint.kind, (v) => L(`NEONHOME.Maint.Kind.${v}`))],
+      maintTables: [{ value: "", label: L("NEONHOME.Config.Auto", { value: L(`NEONHOME.Malfunction.Table.${tableOf(plain, MODULE_ID)}`) }), selected: !flag.maint.table },
+        ...opt(TABLE_KEYS, flag.maint.table, (v) => L(`NEONHOME.Malfunction.Table.${v}`))],
+      maintExempt: opt(EXEMPT, flag.maint.exempt, (v) => L(v ? `NEONHOME.Config.Exempt.${v}` : "NEONHOME.Config.Exempt.none"))
     };
   }
 
@@ -89,7 +97,10 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     const f = data.flag ?? {};
     const list = (obj) => Object.values(obj ?? {}).map((p) => ({ slots: Number(p.slots) || 0, accepts: p.accepts, label: p.label ?? "" })).filter((p) => p.slots > 0);
     const checked = (obj) => Object.entries(obj ?? {}).filter(([, v]) => v).map(([k]) => k);
+    // Keep what the form doesn't show (condition, maintenance, malfunction, vehicle cargo).
+    const existing = normalizeItemFlag(this.item.getFlag(MODULE_ID, ITEM_FLAG));
     const flag = normalizeItemFlag({
+      ...existing,
       category: f.category,
       slots: f.slots,
       weight: f.weight,
@@ -100,7 +111,8 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
         key: f.upgrade?.key, location: f.upgrade?.location, classes: checked(f.upgrade?.classes), effects: checked(f.upgrade?.effects),
         requires: f.upgrade?.requires, pair: f.upgrade?.pair, pools: list(f.upgrade?.pools)
       },
-      attachment: { benefits: f.attachment?.benefits, fixed: f.attachment?.fixed }
+      attachment: { benefits: f.attachment?.benefits, fixed: f.attachment?.fixed },
+      maint: f.maint ? { kind: f.maint.kind, table: f.maint.table, exempt: f.maint.exempt } : existing.maint
     });
     await this.item.setFlag(MODULE_ID, ITEM_FLAG, flag);
     ui.notifications.info(L("NEONHOME.Config.Saved", { name: this.item.name }));

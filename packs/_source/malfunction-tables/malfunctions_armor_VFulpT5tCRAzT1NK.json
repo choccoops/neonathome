@@ -1,0 +1,106 @@
+{
+  "_id": "VFulpT5tCRAzT1NK",
+  "_key": "!tables!VFulpT5tCRAzT1NK",
+  "name": "Malfunctions: Armor",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Breaking Your Stuff, p.6. A short summary by Neon At Home; the DLC has the full text. Import this table and edit it to use your own wording: Neon At Home rolls from your copy.</p>",
+  "results": [
+    {
+      "_id": "xmtO2aHfCTBbybhg",
+      "_key": "!tables.results!VFulpT5tCRAzT1NK.xmtO2aHfCTBbybhg",
+      "type": "text",
+      "text": "Soft plates: each time the armor is ablated it loses 1 more SP. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "v9SXJKA4zt82UZb4",
+      "_key": "!tables.results!VFulpT5tCRAzT1NK.v9SXJKA4zt82UZb4",
+      "type": "text",
+      "text": "Frayed straps: a Critical Injury where it's worn makes it fall off. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "8ul8ZE3SXYthFqSN",
+      "_key": "!tables.results!VFulpT5tCRAzT1NK.8ul8ZE3SXYthFqSN",
+      "type": "text",
+      "text": "Stretched weave: every hit that lands deals 1 damage straight to HP and ablates it by 1, even if it didn't beat the SP. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "CPPGZW8aWZsE4Cdz",
+      "_key": "!tables.results!VFulpT5tCRAzT1NK.CPPGZW8aWZsE4Cdz",
+      "type": "text",
+      "text": "Off balance: its Armor Penalty goes up by 1, even from 0. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "dVdG0Y9DEEoXBi9K",
+      "_key": "!tables.results!VFulpT5tCRAzT1NK.dVdG0Y9DEEoXBi9K",
+      "type": "text",
+      "text": "Shifting plates: its SP is halved against firearms and explosives. <em>(For 1 minute)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "BbJXOt6bboaVcrPz",
+      "_key": "!tables.results!VFulpT5tCRAzT1NK.BbJXOt6bboaVcrPz",
+      "type": "text",
+      "text": "Hidden flaw: the first time it's ablated it loses 2 more SP. <em>(For 1 day)</em>",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 100,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "malfunction": "armor"
+    }
+  }
+}

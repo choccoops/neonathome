@@ -1,8 +1,8 @@
 {
   "id": "cpr-neon-at-home",
-  "title": "Neon At Home: Loadout, Vehicle Bay, Biomonitor & Weaponbench for Cyberpunk RED",
-  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Vehicle Bay with bays from the character's home; a Biomonitor for HP, injuries, Humanity, Empathy tiers and Syndromes; and a Weaponbench for attachments.",
-  "version": "1.3.1",
+  "title": "Neon At Home: Loadout, Vehicle Bay, Biomonitor, Weaponbench & Maintenance for Cyberpunk RED",
+  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Vehicle Bay with bays from the character's home; a Biomonitor for HP, injuries, Humanity, Empathy tiers and Syndromes; a Weaponbench for attachments; and Maintenance from the Breaking Your Stuff DLC: Lifestyle maintenance, maintenance Checks, Damaged and Destroyed gear, and malfunctions.",
+  "version": "1.4.0",
   "authors": [
     {
       "name": "Neon At Home contributors"
@@ -33,6 +33,11 @@
         "id": "mmutons-cyberpunk-red-vas",
         "type": "module",
         "reason": "Vehicle actors on MMuton's Vehicle Actor Sheet show their crew seats, mounted weapons and upgrades in the Vehicle Bay."
+      },
+      {
+        "id": "item-piles",
+        "type": "module",
+        "reason": "Items a character drops (a lost hand, a malfunction) land in a pile beside their token."
       }
     ]
   },
@@ -67,6 +72,16 @@
       "path": "packs/carry-gear",
       "type": "Item",
       "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "malfunction-tables",
+      "label": "Neon At Home: Malfunction Tables",
+      "path": "packs/malfunction-tables",
+      "type": "RollTable",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
