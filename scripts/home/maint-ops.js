@@ -502,18 +502,27 @@ export const MaintOps = {
   /**
    * What's wrong with Item Piles' setup for making piles, or null. Item Piles makes piles as actors
    * of the type in its System Specific settings ("Actor class type"); blank or not one of Cyberpunk
-   * RED's types, it fails (and can leave half-made actors behind), so Neon At Home doesn't ask it.
+   * RED's types, it fails (and can leave half-made actors behind). With its "Item quantity
+   * attribute" blank, everything in a pile counts as 0 and can't be picked up. Either way Neon At
+   * Home doesn't use it.
    */
   itemPilesProblem() {
-    let type;
-    try {
-      type = game.settings.get(ITEM_PILES_ID, "actorClassType");
-    } catch {
-      return null;
-    }
+    const setting = (key) => {
+      try {
+        return game.settings.get(ITEM_PILES_ID, key);
+      } catch {
+        return undefined;
+      }
+    };
+    const type = setting("actorClassType");
+    const quantity = setting("itemQuantityAttribute");
+    // an Item Piles without these settings: nothing to check
+    if (type === undefined) return null;
     const types = (game.documentTypes?.Actor ?? Object.keys(game.system?.documentTypes?.Actor ?? {})).filter((t) => t !== "base");
-    if (type && (!types.length || types.includes(type))) return null;
-    return L("NEONHOME.Drop.PilesSetting", { type: type || "—", types: types.join(", ") });
+    if (!type || (types.length && !types.includes(type))) return L("NEONHOME.Drop.PilesSetting", { type: type || "—", types: types.join(", ") });
+    // Blank, every item in a pile counts as 0 and can't be taken out again.
+    if (typeof quantity === "string" && !quantity.trim()) return L("NEONHOME.Drop.PilesQuantity");
+    return null;
   },
 
   /**

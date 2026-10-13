@@ -956,7 +956,8 @@
       "TwoHanded": "two-handed",
       "Ask": "<b>{name}</b> lost an arm {side}: drop anything it was holding. Tick what goes.",
       "Confirm": "Drop",
-      "PilesSetting": "Item Piles can't make piles: its actor type for piles is \"{type}\". In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (or set Actor class type to one of: {types}). Until then, dropped items are just no longer carried."
+      "PilesSetting": "Item Piles can't make piles: its actor type for piles is \"{type}\". In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (or set Actor class type to one of: {types}). Until then, dropped items are just no longer carried.",
+      "PilesQuantity": "Item Piles' \"Item quantity attribute\" is blank, so anything dropped in a pile couldn't be picked up again. In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (it's system.amount). Until then, dropped items are just no longer carried."
     }
   }
 }

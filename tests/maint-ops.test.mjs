@@ -439,8 +439,14 @@ test("Item Piles with no actor type for its piles isn't asked; the GM is told wh
     assert.equal(actor.items.get("pistol").system.equipped, "owned", "it's still dropped: no longer carried");
     assert.match(warned[0], /System Specific/);
     assert.match(warned[0], /character, container, mook/);
-    // fixed: piles work
+    // the actor type fixed but the quantity attribute blank: still not used
     await game.settings.set("item-piles", "actorClassType", "character");
+    game.settings.register("item-piles", "itemQuantityAttribute", { default: "" });
+    await MaintOps.dropItem(actor, actor.items.get("agent"));
+    assert.equal(piles.length, 0);
+    assert.match(warned.at(-1), /system\.amount/);
+    // Cyberpunk RED's defaults: piles work
+    await game.settings.set("item-piles", "itemQuantityAttribute", "system.amount");
     await MaintOps.dropItem(actor, actor.items.get("rifle"));
     assert.equal(piles.length, 1);
   } finally {
