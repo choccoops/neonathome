@@ -414,18 +414,20 @@ export const MaintOps = {
   },
 
   /**
-   * Lead GM: a new maintenance month began on a calendar's Rent Day (or Neon Hub's counter): post who
-   * living by it has gear to maintain, to the same players Neon Hub's own Rent Day card goes to.
+   * Lead GM: a new maintenance month began on a calendar's Rent Day (or Neon Hub's counter): post
+   * which player characters living by it have gear to maintain, one card per calendar, to the same
+   * players Neon Hub's own Rent Day card goes to.
    */
   async announceRentDay(calendar, period) {
-    const everyone = game.actors.filter((a) => a.type === "character" && !game.itempiles?.API?.isValidItemPile?.(a));
+    // Player characters only: a GM's NPCs would flood the card (and Neon Hub puts every character
+    // without a player on the first calendar). No player characters on it: no card.
     const living = [];
-    for (const actor of everyone) {
+    for (const actor of this.players()) {
       const c = await this.cycleFor(actor);
       if (calendar ? c.calendar?.id === calendar.id : c.scheme === "hub") living.push(actor);
     }
-    // Player characters first; a GM's own characters are listed too (for testing, or NPC crews).
-    const rows = await this._dueRows(living.filter((a) => a.hasPlayerOwner).concat(living.filter((a) => !a.hasPlayerOwner)));
+    if (!living.length) return;
+    const rows = await this._dueRows(living);
     let head;
     if (calendar) {
       const { year, month } = rentMonth(period);

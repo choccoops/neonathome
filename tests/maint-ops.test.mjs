@@ -313,18 +313,25 @@ test("with Neon Hub's calendar, maintenance months start on Rent Day", async () 
   }
 });
 
-test("a GM's own characters on the calendar are listed too, and the card posts even with nothing due", async () => {
+test("Rent Day lists player characters only: no card for a calendar of NPCs; nothing due still posts", async () => {
   asUser(true);
   for (const id of [...game.actors.keys()]) game.actors.delete(id);
-  const actor = gearhead({ lifestyle: "Fresh Food" });
+  const npcs = [gearhead(), gearhead(), gearhead()];
   neonHub();
   try {
     MaintOps.primeRent();
     chat.length = 0;
-    await MaintOps.toRentDay(actor);
+    await MaintOps.toRentDay(npcs[0]);
     await MaintOps.onHubChange();
-    assert.equal(chat.length, 1);
+    assert.equal(chat.length, 0, "the GM's NPCs don't post anything");
+
+    const pc = gearhead({ lifestyle: "Fresh Food" });
+    pc.hasPlayerOwner = true;
+    await MaintOps.toRentDay(pc);
+    await MaintOps.onHubChange();
+    assert.equal(chat.length, 1, "one card for the calendar");
     assert.match(chat[0].content, /Nothing needs a maintenance Check/, "Fresh Food covers it all");
+    assert.doesNotMatch(chat[0].content, /to maintain/, "the NPCs' due gear isn't listed");
   } finally {
     game.modules.delete("cpr-neon-hub");
   }
@@ -333,6 +340,7 @@ test("a GM's own characters on the calendar are listed too, and the card posts e
 test("Neon Hub without calendars: its month counter keeps the months", async () => {
   asUser(true);
   const actor = gearhead();
+  actor.hasPlayerOwner = true;
   const hub = neonHub({ calendar: null, counter: 7 });
   try {
     const c = await MaintOps.cycleFor(actor);

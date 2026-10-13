@@ -282,7 +282,8 @@ failure means starting over. Wear pips show months without maintenance.
 character's month is their calendar's rent month, starting on its **Rent Day** just as their
 Lifestyle bill does (characters on different calendars keep their own months). When a calendar
 passes Rent Day, gear beyond the Lifestyle falls due again, and the players on that calendar and the
-GM get a card listing who has what to maintain. The tab shows the rent month and the days to the next
+GM get one card listing which player characters have what to maintain (the GM's NPCs aren't
+listed, and a calendar with no player characters posts nothing). The tab shows the rent month and the days to the next
 Rent Day, and the GM can jump the calendar there (**To Rent Day**; Neon Hub then runs its own Rent
 Day too: bills, Headquarters). Without calendars, Neon Hub's month counter keeps the months. Without
 Neon Hub, or if the GM prefers, the GM starts each month (or each week) from the tab with **New
