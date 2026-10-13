@@ -150,6 +150,14 @@ export const Settings = {
       type: Boolean,
       default: true
     });
+    reg("dropCyberlimbs", {
+      name: "NEONHOME.Settings.DropCyberlimbs.Name",
+      hint: "NEONHOME.Settings.DropCyberlimbs.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true
+    });
     // the GM's own maintenance counter: { n }
     reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1 }, onChange: changed });
     reg("tab", { scope: "client", config: false, type: String, default: "loadout" });

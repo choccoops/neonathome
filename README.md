@@ -319,6 +319,12 @@ empty; without it, they're simply no longer carried. Item Piles needs its System
 for Cyberpunk RED (an actor class type, and `system.amount` as the item quantity attribute): Neon At
 Home says so when they're missing.
 
+**Lost limbs and their cyberware.** A Dismembered Arm, Hand or Leg asks the GM which side was
+lost, and what comes off with it drops too (in the same pile): a cyberarm with every option in it,
+or a hand's cyberhand, cyberfingers and other hand options, or a cyberleg with its feet; the options
+in a meat limb, and a glove on a lost hand, go as well. The GM can untick anything. A cyberarm
+picked up again comes with its options installed.
+
 **Holding things with a lost hand.** With an arm or hand gone, a character has one hand left:
 equipping a two-handed weapon, or another weapon or shield when that hand is full, is stopped with
 a pop-up (the GM can equip it anyway). With both gone, nothing can be held.
@@ -345,7 +351,7 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   attachments**, **Syndromes & Inspiration**, **Catharsis takes Humanity Loss first**.
 - **Maintenance tab**, **Maintenance months** (Neon Hub's Rent Day, or monthly or weekly started by
   the GM), **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
-  **Lost hands drop what they hold**.
+  **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 
 ## For macros and other modules
 

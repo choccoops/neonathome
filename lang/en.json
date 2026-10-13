@@ -76,6 +76,10 @@
         "rent": "Neon Hub's Rent Day (falls back to monthly without Neon Hub)",
         "month": "Monthly, started by the GM",
         "week": "Weekly, started by the GM"
+      },
+      "DropCyberlimbs": {
+        "Name": "Lost limbs drop their cyberware",
+        "Hint": "A Dismembered Arm, Hand or Leg takes the cyberware in it along: a cyberarm or cyberleg with its options, or a hand's cyberhand, cyberfingers and other hand options, dropped where the character stands (an Item Piles pile when it's on). The GM picks the side."
       }
     },
     "State": {
@@ -949,7 +953,8 @@
       "Owned": "<b>{name}</b> drops <b>{item}</b> (it's no longer carried).",
       "Reason": {
         "malfunction": "(malfunction)",
-        "dismembered": "(the hand holding it is gone)"
+        "dismembered": "(the hand holding it is gone)",
+        "severed": "(the limb is gone)"
       },
       "Title": "Drop what the hand held",
       "Which": "Which arm",
@@ -957,7 +962,19 @@
       "Ask": "<b>{name}</b> lost an arm {side}: drop anything it was holding. Tick what goes.",
       "Confirm": "Drop",
       "PilesSetting": "Item Piles can't make piles: its actor type for piles is \"{type}\". In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (or set Actor class type to one of: {types}). Until then, dropped items are just no longer carried.",
-      "PilesQuantity": "Item Piles' \"Item quantity attribute\" is blank, so anything dropped in a pile couldn't be picked up again. In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (it's system.amount). Until then, dropped items are just no longer carried."
+      "PilesQuantity": "Item Piles' \"Item quantity attribute\" is blank, so anything dropped in a pile couldn't be picked up again. In Item Piles' module settings, open System Specific and reset them to Cyberpunk RED's defaults (it's system.amount). Until then, dropped items are just no longer carried.",
+      "LimbTitle": "Lost limb",
+      "LimbAsk": "<b>{name}</b> lost {part}. Which side, and what comes off with it?",
+      "Part": {
+        "arm": "an arm",
+        "hand": "a hand",
+        "leg": "a leg"
+      },
+      "Side": "Side",
+      "Held": "What that hand was holding",
+      "Chrome": "Cyberware that comes off with it",
+      "NoChrome": "No cyberware on that side.",
+      "With": "{name} (with {items})"
     },
     "Hands": {
       "Title": "Not enough hands",

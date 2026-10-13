@@ -5,6 +5,7 @@ import { Settings } from "../settings.js";
 import { HomeOps, RuleBlock } from "./ops.js";
 import { itemFlag } from "../data/item-flag.js";
 import { traumaMap, placeInjury } from "../data/injuries.js";
+import { flatten, HAND_OPTION } from "../data/cyberware.js";
 import {
   MALFUNCTIONS, rentPeriod, rentMonth, DURATIONS, maintenanceList, flattenList, lifestyleTier, rolesOf,
   malfunctionResult, tableOf, fieldExpertise
@@ -524,13 +525,21 @@ export const MaintOps = {
     return null;
   },
 
+  /** Drop an item where the character stands (see dropItems). */
+  async dropItem(actor, item, opts = {}) {
+    if (item) await this.dropItems(actor, [item], opts);
+  },
+
   /**
-   * Drop an item where the character stands: an Item Piles pile beside their token when Item Piles
-   * is on and they're on the scene (attachments go with it, and come back on when it's picked
-   * up), otherwise it's just no longer on them (owned, not carried).
+   * Drop items where the character stands, together: an Item Piles pile beside their token when Item
+   * Piles is on and they're on the scene (what's installed in each goes with it and goes back on when
+   * it's picked up; the pile goes once it's emptied), otherwise they're just no longer on them:
+   * gear isn't carried any more, and cyberware comes out of the body (or the limb it was in).
    */
-  async dropItem(actor, item, { reason = "drop" } = {}) {
-    if (!item) return;
+  async dropItems(actor, items, { reason = "drop" } = {}) {
+    items = items.filter(Boolean);
+    if (!items.length) return;
+    const names = items.map((i) => esc(i.name)).join(", ");
     const api = game.modules.get(ITEM_PILES_ID)?.active ? game.itempiles?.API : null;
     const token = actor.isToken ? actor.token?.object : actor.getActiveTokens?.()?.[0] ?? null;
     let piled = false;
@@ -539,43 +548,61 @@ export const MaintOps = {
       ui.notifications.warn(problem);
       console.warn(`${MODULE_ID} | ${problem}`);
     } else if (api?.createItemPile && token?.document?.parent) {
-      const data = item.toObject();
-      delete data._id;
-      if (data.system?.equipped) data.system.equipped = "owned";
-      // marked, so its pile goes once it's picked up (see clearPile)
-      data.flags ??= {};
-      data.flags[MODULE_ID] = { ...(data.flags[MODULE_ID] ?? {}), dropped: true };
-      const tree = item.system?.installedItems?.list?.length && typeof item.createInstalledObjectData === "function";
-      if (tree) {
-        data.flags[MODULE_ID].dropTree = item.createInstalledObjectData();
-        data.system.installedItems.list = [];
-        data.system.installedItems.usedSlots = 0;
-      }
       const grid = Number(token.document.parent.grid?.size ?? canvas?.grid?.size) || 100;
       try {
         const made = await api.createItemPile({
           position: { x: token.document.x + grid, y: token.document.y },
           sceneId: token.document.parent.id,
-          items: [data],
-          // the pile shows the dropped item, and goes when it's empty
+          items: items.map((i) => this._pileData(i)),
+          // the pile shows what was dropped, and goes when it's empty
           itemPileFlags: { deleteWhenEmpty: true, displayOne: true, showItemName: true, overrideSingleItemScale: true, singleItemScale: 0.75 },
           tokenOverrides: { flags: { [MODULE_ID]: { dropPile: true } } }
         });
         // false: a hook stopped it; nothing was made
         if (!made) throw new Error("Item Piles made no pile");
-        if (item.type === "armor" && item.system.equipped === "equipped") await CPR.setEquipped(actor, item, "owned");
-        await CPR.removeWithInstalled(item);
+        for (const item of items) {
+          // already gone with what it was installed in
+          if (!actor.items.get(item.id)) continue;
+          if (item.type === "armor" && item.system.equipped === "equipped") await CPR.setEquipped(actor, item, "owned");
+          await CPR.removeWithInstalled(item);
+        }
         piled = true;
       } catch (err) {
-        console.warn(`${MODULE_ID} | Item Piles couldn't take ${item.name}`, err);
+        console.warn(`${MODULE_ID} | Item Piles couldn't take ${names}`, err);
       }
     }
-    if (!piled) await CPR.setEquipped(actor, item, "owned");
+    if (!piled) for (const item of items) await this._putDown(actor, item);
     await ChatMessage.create({
-      content: HomeOps._card("fa-solid fa-hand", L(`NEONHOME.Drop.${piled ? "Piled" : "Owned"}`, { name: esc(actor.name), item: esc(item.name) })
+      content: HomeOps._card("fa-solid fa-hand", L(`NEONHOME.Drop.${piled ? "Piled" : "Owned"}`, { name: esc(actor.name), item: names })
         + (reason === "drop" ? "" : ` <em>${esc(L(`NEONHOME.Drop.Reason.${reason}`))}</em>`)),
       speaker: ChatMessage.getSpeaker({ actor })
     });
+  },
+
+  /** An item's data for a pile: marked as dropped, with what's installed in it carried along. */
+  _pileData(item) {
+    const data = item.toObject();
+    delete data._id;
+    if (data.system?.equipped) data.system.equipped = "owned";
+    // marked, so its pile goes once it's picked up (see clearPile)
+    data.flags ??= {};
+    data.flags[MODULE_ID] = { ...(data.flags[MODULE_ID] ?? {}), dropped: true };
+    if (item.system?.installedItems?.list?.length && typeof item.createInstalledObjectData === "function") {
+      data.flags[MODULE_ID].dropTree = item.createInstalledObjectData();
+      data.system.installedItems.list = [];
+      data.system.installedItems.usedSlots = 0;
+    }
+    return data;
+  },
+
+  /** Without a pile: gear is no longer carried; cyberware comes out of the body or the limb it's in. */
+  async _putDown(actor, item) {
+    if (!actor.items.get(item.id)) return;
+    if (CPR.isEquippable(item)) return CPR.setEquipped(actor, item, "owned");
+    if (!CPR.isInstalled(item)) return;
+    const holder = actor.items.find((i) => i.system?.installedItems?.list?.includes(item.id))
+      ?? (actor.system?.installedItems?.list?.includes(item.id) ? actor : null);
+    if (holder) await CPR.uninstall(holder, [item]);
   },
 
   /**
@@ -598,7 +625,7 @@ export const MaintOps = {
       drop = held.filter((i) => answer.ids.includes(i.id));
       if (!side && answer.side && injury) await injury.setFlag(MODULE_ID, "side", answer.side);
     }
-    for (const item of drop) await this.dropItem(actor, item, { reason });
+    await this.dropItems(actor, drop, { reason });
   },
 
   /** GM: which arm, and what was in its hand. Resolves to { side, ids } or null. */
@@ -623,18 +650,118 @@ export const MaintOps = {
   },
 
   /**
-   * Lead GM: a Dismembered Arm or Hand (Cyberpunk RED's injury, or an offline cyberarm's): "drop
-   * anything it was holding".
+   * The cyberware that comes off with a lost arm, hand or leg, by side:
+   *  - arm: each cyberarm (with everything in it), a glove on that hand, and the options in a meat arm;
+   *  - hand: the hand options in that arm (cyberhands, cyberfingers, palm and knuckle gear, blades), and
+   *    a glove;
+   *  - leg: each cyberleg (with everything in it), and the options in a meat leg.
+   * @returns {{id, side, label}[]}
+   */
+  severedChrome(actor, anchor) {
+    const type = anchor === "leg" ? "cyberLeg" : "cyberArm";
+    const roots = HomeOps.cyberware(actor).types.find((t) => t.type === type)?.roots ?? [];
+    const label = (n) => {
+      const inside = flatten(n.children).map((c) => c.name);
+      return inside.length ? L("NEONHOME.Drop.With", { name: n.name, items: inside.join(", ") }) : n.name;
+    };
+    const out = [];
+    for (const r of roots) {
+      const side = r.side ?? "R";
+      const add = (n) => out.push({ id: n.id, side, label: label(n) });
+      if (r.glove) {
+        if (anchor !== "leg") add(r);
+      } else if (anchor === "hand") {
+        for (const c of r.children) if (HAND_OPTION.test(c.name)) add(c);
+      } else if (r.meat) {
+        for (const c of r.children) add(c);
+      } else {
+        add(r);
+      }
+    }
+    return out;
+  },
+
+  /**
+   * GM: which side lost the limb, what that hand held, and which cyberware comes off with it.
+   * Resolves to { side, held: ids, chrome: ids } or null.
+   */
+  async _askLimb(actor, anchor, side, held, chrome, lostSides) {
+    const sideOpt = (s) => `<option value="${s}" ${s === side ? "selected" : ""}>${esc(L(`NEONHOME.Bio.Side.${s}`))}</option>`;
+    const heldRows = held.map((i) => `<label class="nah-check" data-hands="${this.hands(i)}"><input type="checkbox" name="held" value="${i.id}"> ${esc(i.name)}${this.hands(i) >= 2 ? ` <small>(${esc(L("NEONHOME.Drop.TwoHanded"))})</small>` : ""}</label>`).join("");
+    const chromeRows = chrome.map((c) => `<label class="nah-check" data-side="${c.side}"><input type="checkbox" name="chrome" value="${c.id}" checked> ${esc(c.label)}</label>`).join("");
+    const content = `<p>${L("NEONHOME.Drop.LimbAsk", { name: esc(actor.name), part: L(`NEONHOME.Drop.Part.${anchor}`) })}</p>`
+      + `<div class="form-group"><label>${esc(L("NEONHOME.Drop.Side"))}</label><select name="side">${sideOpt("R")}${sideOpt("L")}</select></div>`
+      + (held.length ? `<h4>${esc(L("NEONHOME.Drop.Held"))}</h4><div class="nah-drop-list">${heldRows}</div>` : "")
+      + `<h4>${esc(L("NEONHOME.Drop.Chrome"))}</h4><div class="nah-drop-list">${chromeRows}<em class="nah-no-chrome">${esc(L("NEONHOME.Drop.NoChrome"))}</em></div>`;
+    return Compat.DialogV2.prompt({
+      window: { title: L("NEONHOME.Drop.LimbTitle"), icon: "fa-solid fa-hand" },
+      position: { width: 460 },
+      content,
+      classes: ["neon-home-dialog"],
+      rejectClose: false,
+      // v12 passes the dialog's HTML element, v13 the dialog itself
+      render: (event, arg) => {
+        const root = arg instanceof HTMLElement ? arg : arg?.element ?? event?.target?.element;
+        const form = root?.querySelector("form") ?? root;
+        const select = form?.querySelector("[name=side]");
+        if (!select) return;
+        const sync = () => {
+          const s = select.value;
+          // a hand's two-handed weapon goes; with the other arm gone too, everything does
+          const both = lostSides.includes(s === "L" ? "R" : "L");
+          for (const row of form.querySelectorAll("[data-hands]")) row.querySelector("input").checked = both || Number(row.dataset.hands) >= 2;
+          let any = false;
+          for (const row of form.querySelectorAll("[data-side]")) {
+            const here = row.dataset.side === s;
+            row.hidden = !here;
+            row.querySelector("input").disabled = !here;
+            any ||= here;
+          }
+          form.querySelector(".nah-no-chrome").hidden = any;
+        };
+        select.addEventListener("change", sync);
+        sync();
+      },
+      ok: {
+        label: L("NEONHOME.Drop.Confirm"),
+        callback: (event, button) => {
+          const f = button.form;
+          return {
+            side: f.elements.side.value,
+            held: [...f.querySelectorAll("[name=held]:checked")].map((el) => el.value),
+            chrome: [...f.querySelectorAll("[name=chrome]:checked:not(:disabled)")].map((el) => el.value)
+          };
+        }
+      }
+    });
+  },
+
+  /**
+   * Lead GM: a Dismembered Arm, Hand or Leg. A lost hand drops what it was holding ("drop anything it
+   * was holding"), and a lost cyberlimb comes off with its cyberware: the GM picks the side, and
+   * everything lands in one pile. An offline cyberlimb's own injury only drops what's held (the limb
+   * is still attached).
    */
   async onInjury(actor, injury) {
-    if (!Settings.get("dropHeld") || actor?.type !== "character") return;
+    if (actor?.type !== "character") return;
     const { anchor, kind } = placeInjury(String(injury.name ?? ""), injury.system?.location === "head" ? "head" : "body");
-    if (kind !== "severed" || (anchor !== "arm" && anchor !== "hand")) return;
+    if (kind !== "severed" || !["arm", "hand", "leg"].includes(anchor)) return;
+    const offline = !!injury.getFlag(MODULE_ID, "cyberLimb");
+    const held = Settings.get("dropHeld") && anchor !== "leg" ? this.held(actor) : [];
+    const chrome = Settings.get("dropCyberlimbs") && !offline ? this.severedChrome(actor, anchor) : [];
+    if (!held.length && !chrome.length) return;
     const flagSide = injury.getFlag(MODULE_ID, "side");
-    const side = flagSide === "L" || flagSide === "R" ? flagSide : null;
+    const known = flagSide === "L" || flagSide === "R" ? flagSide : null;
     const others = actor.items.filter((i) => i.type === "criticalInjury" && i.id !== injury.id);
     const lostSides = traumaMap(others, MODULE_ID).severed.filter((s) => s.limb === "arm" || s.limb === "hand").map((s) => s.side);
-    await this.dropHeld(actor, side, { reason: "dismembered", lostSides, injury });
+    if (!chrome.length) return this.dropHeld(actor, known, { reason: "dismembered", lostSides, injury });
+    const sides = [...new Set(chrome.map((c) => c.side))];
+    const side = known ?? (sides.length === 1 ? sides[0] : "R");
+    const answer = await this._askLimb(actor, anchor, side, held, chrome, lostSides);
+    if (!answer) return;
+    if (answer.side && answer.side !== flagSide) await injury.setFlag(MODULE_ID, "side", answer.side);
+    const drop = [...held.filter((i) => answer.held.includes(i.id)), ...answer.chrome.map((id) => actor.items.get(id))];
+    await this.dropItems(actor, drop, { reason: "severed" });
   },
 
   /**

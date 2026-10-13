@@ -680,7 +680,7 @@ export const HomeOps = {
     const offline = this.cyberware(actor).types
       .filter((t) => t.type === "cyberArm" || t.type === "cyberLeg")
       .flatMap((t) => t.roots.map((r) => ({ ...r, limb: t.type === "cyberArm" ? "arm" : "leg" })))
-      .filter((r) => !r.meat && r.state);
+      .filter((r) => !r.meat && !r.glove && r.state);
     const ours = actor.items.filter((i) => i.type === "criticalInjury" && i.getFlag(MODULE_ID, "cyberLimb"));
     const stale = ours.filter((i) => !offline.some((r) => r.id === i.getFlag(MODULE_ID, "cyberLimb") && r.state === i.getFlag(MODULE_ID, "limbState")));
     if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale.map((i) => i.id));
