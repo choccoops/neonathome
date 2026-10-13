@@ -15,6 +15,18 @@ import { totalUpgrade } from "./attachments.js";
 /** Cyberware types in head-to-toe order (the keys of CPR.cyberwareTypes). */
 export const CYBER_TYPES = ["neuralWare", "cyberEye", "cyberAudioSuite", "cyberArm", "cyberLeg", "cyberwareInternal", "cyberwareExternal", "fashionware", "borgware"];
 
+/**
+ * Gauntlets and gloves Cyberpunk RED installs as foundational cyberarms (Battleglove, the smart
+ * gloves): worn over a hand, not limbs.
+ */
+export const GLOVE = /glove|gauntlet/i;
+
+/**
+ * Cyberarm options in the hand (cyberfingers, hands, palm, knuckle and finger blades, grips): they
+ * go with a lost hand. Everything in a cyberarm goes with a lost arm.
+ */
+export const HAND_OPTION = /hand|finger|knuck|ripp|scratcher|wolver|slice|grip|grapple|palm|quick change|waldo|glove|gauntlet/i;
+
 /** Types that come in pairs: the first installed goes on the right, the next on the left. */
 export const PAIRED = ["cyberEye", "cyberArm", "cyberLeg"];
 
@@ -62,6 +74,8 @@ function node(item, byId, moduleId, inherited = "") {
     weapon: !!s.isWeapon,
     // a limb of meat that hosts options, not chrome
     meat: /\bmeat\b/i.test(String(item.name ?? "")),
+    // a gauntlet or glove, not a limb
+    glove: s.type === "cyberArm" && GLOVE.test(String(item.name ?? "")),
     own,
     state,
     condition: flag.condition,
@@ -93,7 +107,11 @@ export function cyberwareMap(items, actorInstalled, moduleId) {
   const roots = (actorInstalled ?? []).map((id) => byId.get(id)).filter((i) => i?.type === "cyberware").map((i) => node(i, byId, moduleId));
   const types = CYBER_TYPES.map((type) => {
     const these = roots.filter((r) => r.type === type);
-    if (PAIRED.includes(type)) these.forEach((r, i) => (r.side = i % 2 === 0 ? "R" : "L"));
+    // limbs pair up right then left; gloves pair up the same way among themselves
+    if (PAIRED.includes(type)) {
+      these.filter((r) => !r.glove).forEach((r, i) => (r.side = i % 2 === 0 ? "R" : "L"));
+      these.filter((r) => r.glove).forEach((r, i) => (r.side = i % 2 === 0 ? "R" : "L"));
+    }
     return { type, roots: these };
   });
   // anything installed in the body with a type the list doesn't know goes last
@@ -120,7 +138,7 @@ export function cyberwareMap(items, actorInstalled, moduleId) {
         knownDamage: all.some((n) => n.damaged && !n.hidden),
         rootKnown: r.damaged && !r.hidden,
         count: all.length,
-        limb: ["cyberArm", "cyberLeg"].includes(t.type) && !r.meat ? (t.type === "cyberArm" ? "arm" : "leg") : null
+        limb: ["cyberArm", "cyberLeg"].includes(t.type) && !r.meat && !r.glove ? (t.type === "cyberArm" ? "arm" : "leg") : null
       });
     }
   }

@@ -364,7 +364,14 @@ export function makeActor(data, items = []) {
   };
   actor.deleteEmbeddedDocuments = async (type, ids) => {
     for (const id of ids) actor.items.delete(id);
+    // as CPR: cyberware installed in the body is uninstalled first
+    if (actor.system?.installedItems?.list) actor.system.installedItems.list = actor.system.installedItems.list.filter((x) => !ids.includes(x));
     for (const i of actor.items) if (i.system.installedItems?.list) i.system.installedItems.list = i.system.installedItems.list.filter((x) => !ids.includes(x));
+  };
+  // CPR actors are containers too: cyberware installed in the body
+  actor.uninstallItems = async (list) => {
+    const ids = list.map((i) => i.id);
+    if (actor.system?.installedItems?.list) actor.system.installedItems.list = actor.system.installedItems.list.filter((id) => !ids.includes(id));
   };
   actor.updateEmbeddedDocuments = async (type, updates) => {
     const docs = type === "ActiveEffect" ? actor.effects : actor.items;

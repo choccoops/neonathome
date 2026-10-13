@@ -193,6 +193,16 @@ Hooks.on("preUpdateItem", (item, changes, options, userId) => {
   if (!(actor instanceof Actor) || actor.type !== "character") return;
   const equipped = foundry.utils.getProperty(changes, "system.equipped");
   if (equipped === undefined || equipped === item.system.equipped || equipped === "owned") return;
+  // A lost arm or hand: not enough hands left to hold it (the GM can equip it anyway).
+  if (equipped === "equipped") {
+    const check = HomeOps.holdCheck(actor, item);
+    if (check) {
+      HomeOps.holdPopup(actor, item, check).then((override) => {
+        if (override) item.update(changes, { ...options, [MODULE_ID]: { [CHECKED]: true } });
+      });
+      return false;
+    }
+  }
   // Destroyed (or EMP'd) armor can't be worn until it works again.
   if (equipped === "equipped" && item.type === "armor" && !game.user.isGM) {
     const state = HomeOps.offlineState(actor, item.id);
@@ -311,9 +321,15 @@ Hooks.on("createItem", (item, options, userId) => {
   if (item.type === "criticalInjury" && HomeOps.isLeadGM) {
     MaintOps.onInjury(actor, item).catch((err) => console.warn(`${MODULE_ID} | dropping held items failed`, err));
   }
-  if (userId === game.user.id && item.getFlag(MODULE_ID, "dropTree")) {
+  if (userId === game.user.id && (item.getFlag(MODULE_ID, "dropTree") || item.getFlag(MODULE_ID, "dropped"))) {
     MaintOps.restoreDropped(item).catch((err) => console.warn(`${MODULE_ID} | restoring ${item.name}'s attachments failed`, err));
   }
+});
+
+// A pile Neon At Home made goes once what was dropped in it is picked up.
+Hooks.on("deleteItem", (item) => {
+  if (!HomeOps.isLeadGM || !item.parent?.isToken) return;
+  MaintOps.clearPile(item.parent).catch((err) => console.warn(`${MODULE_ID} | clearing an empty pile failed`, err));
 });
 
 let expiry = null;

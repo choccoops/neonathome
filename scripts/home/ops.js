@@ -10,6 +10,7 @@ import { computeWeight, encumbrance } from "../data/weight.js";
 import { normalizePsyche, psycheState, tierOf, catharsisGain, absorbLoss, TIERS } from "../data/syndromes.js";
 import { canAttach, canDetach } from "../data/attachments.js";
 import { cyberwareMap } from "../data/cyberware.js";
+import { traumaMap } from "../data/injuries.js";
 import { itemStates } from "../data/condition.js";
 import { itemFlag } from "../data/item-flag.js";
 
@@ -139,10 +140,76 @@ export const HomeOps = {
   /*  Loadout                                 */
   /* ---------------------------------------- */
 
+  /* ---------------------------------------- */
+  /*  Hands                                   */
+  /* ---------------------------------------- */
+
+  /** What a character holds: equipped weapons and shields (not installed ones, not cyberweapons). */
+  held(actor) {
+    return actor.items.filter((i) => this.isHeld(i) && i.system?.equipped === "equipped");
+  },
+
+  /** Is this something held in the hands when equipped? */
+  isHeld(item) {
+    return (item?.type === "weapon" || (item?.type === "armor" && !!item.system?.isShield)) && !CPR.isInstalled(item);
+  },
+
+  /** Hands an item takes. */
+  handsFor(item) {
+    return item.type === "armor" ? 1 : Math.max(1, Number(item.system?.handsReq) || 1);
+  },
+
+  /** The sides whose arm or hand is gone (Dismembered Arm or Hand, a lost cyberarm included). */
+  lostHands(actor) {
+    const injuries = actor.items.filter((i) => i.type === "criticalInjury");
+    return [...new Set(traumaMap(injuries, MODULE_ID).severed.filter((s) => s.limb === "arm" || s.limb === "hand").map((s) => s.side))];
+  },
+
+  /**
+   * Can a character with a lost arm or hand hold this too? Two-handed weapons need both hands; one
+   * hand holds one thing. Null when it's fine (or nothing's been lost).
+   * @returns {{need, hands, lost, holding: Item[]}|null}
+   */
+  holdCheck(actor, item) {
+    if (!this.isHeld(item)) return null;
+    const lost = this.lostHands(actor);
+    if (!lost.length) return null;
+    const hands = Math.max(0, 2 - lost.length);
+    const need = this.handsFor(item);
+    const holding = this.held(actor).filter((i) => i.id !== item.id);
+    const used = holding.reduce((n, i) => n + this.handsFor(i), 0);
+    return need + used > hands ? { need, hands, lost, holding } : null;
+  },
+
+  /** The "not enough hands" pop-up. Resolves true when the GM equips it anyway. */
+  async holdPopup(actor, item, check) {
+    const side = (s) => L(`NEONHOME.Bio.Side.${s}`).toLowerCase();
+    const lines = [check.hands
+      ? L("NEONHOME.Hands.One", { name: esc(actor.name), side: side(check.lost[0]) })
+      : L("NEONHOME.Hands.None", { name: esc(actor.name) })];
+    if (check.hands && check.need > check.hands) lines.push(L("NEONHOME.Hands.TwoHanded", { item: esc(item.name) }));
+    else if (check.holding.length) lines.push(L("NEONHOME.Hands.Full", { held: check.holding.map((i) => esc(i.name)).join(", ") }));
+    const content = lines.map((l) => `<p>${l}</p>`).join("") + `<p class="hint">${L("NEONHOME.Hands.Hint")}</p>`;
+    const buttons = [{ action: "ok", label: L("NEONHOME.Hands.Ok"), icon: "fa-solid fa-check", default: true }];
+    if (game.user.isGM) buttons.push({ action: "override", label: L("NEONHOME.Hands.Override"), icon: "fa-solid fa-triangle-exclamation" });
+    const choice = await Compat.DialogV2.wait({
+      window: { title: L("NEONHOME.Hands.Title"), icon: "fa-solid fa-hand" },
+      content,
+      buttons,
+      classes: ["neon-home-dialog"],
+      rejectClose: false
+    });
+    return game.user.isGM && choice === "override";
+  },
+
   /** Set an item to owned, carried or equipped. */
   async equip(actor, itemId, state) {
     const item = actor.items.get(itemId);
     if (!item || !CPR.isEquippable(item)) return;
+    if (state === "equipped" && item.system.equipped !== "equipped") {
+      const check = this.holdCheck(actor, item);
+      if (check && !(await this.holdPopup(actor, item, check))) throw new RuleBlock("");
+    }
     if (state === "equipped" && item.type === "weapon" && item.system.equipped !== "equipped" && !CPR.canHold(actor, item)) {
       ui.notifications.warn(L("NEONHOME.Loadout.TooManyHands", { name: item.name }));
     }
@@ -519,12 +586,19 @@ export const HomeOps = {
     });
   },
 
-  /** GM: knock a piece of cyberware or electronics out with EMP, or bring it back. */
+  /** EMP lasts a minute (Cyberpunk RED p.345, EMP ammunition and the Microwaver). */
+  EMP_SECONDS: 60,
+
+  /**
+   * GM: knock a piece of cyberware or electronics out with EMP, or bring it back. It comes back by
+   * itself once a minute of world time has passed (when the world clock is used).
+   */
   async setEmp(actor, itemId, on) {
     if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
     const item = actor.items.get(itemId);
     if (!item || itemFlag(item.toObject(), MODULE_ID).emp === !!on) return;
-    await this._patchFlag(item, { emp: !!on });
+    const now = Number(game.time?.worldTime) || 0;
+    await this._patchFlag(item, { emp: !!on, empUntil: on ? now + this.EMP_SECONDS : null });
     await this.syncOfflineEffects(actor);
     await this.syncCyberLimbs(actor);
     await ChatMessage.create({
@@ -613,7 +687,7 @@ export const HomeOps = {
     const offline = this.cyberware(actor).types
       .filter((t) => t.type === "cyberArm" || t.type === "cyberLeg")
       .flatMap((t) => t.roots.map((r) => ({ ...r, limb: t.type === "cyberArm" ? "arm" : "leg" })))
-      .filter((r) => !r.meat && r.state);
+      .filter((r) => !r.meat && !r.glove && r.state);
     const ours = actor.items.filter((i) => i.type === "criticalInjury" && i.getFlag(MODULE_ID, "cyberLimb"));
     const stale = ours.filter((i) => !offline.some((r) => r.id === i.getFlag(MODULE_ID, "cyberLimb") && r.state === i.getFlag(MODULE_ID, "limbState")));
     if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale.map((i) => i.id));

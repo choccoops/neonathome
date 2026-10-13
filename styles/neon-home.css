@@ -1062,3 +1062,7 @@
 .neon-home-chat .nah-malf-actions { margin-top: 6px; }
 .neon-home-chat .nah-malf-actions button { width: 100%; font-size: 12px; }
 .neon-home-chat ul { margin: 4px 0 0; padding-left: 18px; }
+.neon-home-dialog .nah-check[hidden],
+.neon-home-dialog .nah-no-chrome[hidden] { display: none; }
+.neon-home-dialog h4 { margin: 10px 0 4px; font-family: var(--nah-display); font-size: 10px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase; color: var(--nah-dim); border: 0; }
+.neon-home-dialog .nah-no-chrome { font-size: 12px; color: var(--nah-dim); }

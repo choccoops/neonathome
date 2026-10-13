@@ -165,7 +165,8 @@ export const CPR = {
           continue;
         }
       }
-      if (!cls || !Object.prototype.hasOwnProperty.call(cls, "create") || cls.create[`${MODULE_ID}Returns`]) continue;
+      // Only Cyberpunk RED's own Actor classes, which override create themselves.
+      if (!cls || cls.documentName !== "Actor" || !Object.prototype.hasOwnProperty.call(cls, "create") || cls.create[`${MODULE_ID}Returns`]) continue;
       const original = cls.create;
       const fixed = async function (data, options) {
         let made = null;

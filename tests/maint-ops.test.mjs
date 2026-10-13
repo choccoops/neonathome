@@ -402,6 +402,9 @@ test("dropping into an Item Piles pile takes the attachments along, and picking 
     assert.equal(piles[0].sceneId, "scene1");
     const data = piles[0].items[0];
     assert.equal(data.name, "Assault Rifle");
+    assert.equal(data.flags[M].dropped, true);
+    assert.equal(piles[0].itemPileFlags.deleteWhenEmpty, true);
+    assert.equal(piles[0].tokenOverrides.flags[M].dropPile, true);
     assert.deepEqual(data.system.installedItems.list, []);
     assert.equal(data.flags[M].dropTree[0].name, "Sniping Scope");
     assert.equal(actor.items.get("rifle"), undefined);
@@ -418,7 +421,41 @@ test("dropping into an Item Piles pile takes the attachments along, and picking 
     assert.equal(rebuilt.imported, true);
     assert.equal(rebuilt.tree[0].name, "Sniping Scope");
     assert.equal(found.flags[M].dropTree, undefined);
+    assert.equal(found.flags[M].dropped, undefined, "picked up, it's no longer a dropped item");
   } finally {
+    noPiles();
+  }
+});
+
+test("Item Piles with no actor type for its piles isn't asked; the GM is told which setting to fix", async () => {
+  asUser(true);
+  const actor = gearhead();
+  withPiles(actor);
+  piles.length = 0;
+  game.settings.register("item-piles", "actorClassType", { default: "" });
+  game.documentTypes = { Actor: ["base", "character", "container", "mook"] };
+  const warned = [];
+  const warn = ui.notifications.warn;
+  ui.notifications.warn = (m) => warned.push(m);
+  try {
+    await MaintOps.dropItem(actor, actor.items.get("pistol"));
+    assert.equal(piles.length, 0);
+    assert.equal(actor.items.get("pistol").system.equipped, "owned", "it's still dropped: no longer carried");
+    assert.match(warned[0], /System Specific/);
+    assert.match(warned[0], /character, container, mook/);
+    // the actor type fixed but the quantity attribute blank: still not used
+    await game.settings.set("item-piles", "actorClassType", "character");
+    game.settings.register("item-piles", "itemQuantityAttribute", { default: "" });
+    await MaintOps.dropItem(actor, actor.items.get("agent"));
+    assert.equal(piles.length, 0);
+    assert.match(warned.at(-1), /system\.amount/);
+    // Cyberpunk RED's defaults: piles work
+    await game.settings.set("item-piles", "itemQuantityAttribute", "system.amount");
+    await MaintOps.dropItem(actor, actor.items.get("rifle"));
+    assert.equal(piles.length, 1);
+  } finally {
+    ui.notifications.warn = warn;
+    delete game.documentTypes;
     noPiles();
   }
 });
@@ -433,6 +470,7 @@ test("without Item Piles (or a token) a dropped item is just no longer carried",
 test("a lost arm drops two-handed weapons on its own and asks about one-handed ones", async () => {
   asUser(true);
   const actor = gearhead();
+  actor.system.installedItems.list = []; // no cyberarm in the body: only what's held
   dialogs.shown.length = 0;
   // the GM says the pistol was in that hand
   dialogs.next = { side: "L", ids: ["rifle", "pistol"] };
@@ -448,6 +486,7 @@ test("a lost arm drops two-handed weapons on its own and asks about one-handed o
 test("losing the second arm drops everything without asking", async () => {
   asUser(true);
   const actor = gearhead();
+  actor.system.installedItems.list = []; // no cyberarm in the body: only what's held
   await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "R" } } }]);
   const [second] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm (Destroyed Cyberarm)", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "L" } } }]);
   dialogs.shown.length = 0;
@@ -472,6 +511,8 @@ test("other injuries, or the setting off, drop nothing", async () => {
 test("Cyberpunk RED's container (and mook, demon, Black ICE) create hands back the actor it made", async () => {
   const made = [];
   class Container {
+    static documentName = "Actor";
+
     constructor(data) {
       Object.assign(this, data);
     }
@@ -487,12 +528,277 @@ test("Cyberpunk RED's container (and mook, demon, Black ICE) create hands back t
   const before = CONFIG.Actor;
   CONFIG.Actor = { documentClass: function Doc(data) { return data.type === "container" ? new Container(data) : {}; } };
   try {
+    const objectCreate = Object.create;
     CPR.fixActorCreate();
     CPR.fixActorCreate();
     const pile = await Container.create({ name: "Default Item Pile", type: "container" });
     assert.equal(pile, made[0]);
     assert.equal(pile.name, "Default Item Pile");
+    assert.equal(Object.create, objectCreate, "only Actor classes are touched");
   } finally {
     CONFIG.Actor = before;
   }
+});
+
+test("a pile Neon At Home made goes once what was dropped in it is picked up", async () => {
+  asUser(true);
+  const pile = makeActor({ name: "Item Pile", type: "character" }, [
+    { _id: "skill", name: "Athletics", type: "skill", system: {} },
+    { _id: "gun", name: "Assault Rifle", type: "weapon", system: {}, flags: { [M]: { dropped: true } } }
+  ]);
+  let deleted = false;
+  const tokens = new Map();
+  const token = { id: "tok", flags: { [M]: { dropPile: true } }, parent: { tokens }, delete: async () => { deleted = true; tokens.delete("tok"); } };
+  token.getFlag = (scope, key) => token.flags?.[scope]?.[key];
+  tokens.set("tok", token);
+  Object.assign(pile, { isToken: true, token });
+  await MaintOps.clearPile(pile);
+  assert.equal(deleted, false, "the rifle is still there");
+  pile.items.delete("gun");
+  callHook("deleteItem", { parent: pile });
+  await new Promise((r) => setImmediate(r));
+  assert.equal(deleted, true, "only Cyberpunk RED's skills are left: the pile goes");
+  // piles someone else made are left alone
+  deleted = false;
+  tokens.set("tok", token);
+  token.flags = {};
+  await MaintOps.clearPile(pile);
+  assert.equal(deleted, false);
+});
+
+test("a lost arm or hand leaves one hand to hold things with; the GM can equip anyway", async () => {
+  asUser(false);
+  const actor = gearhead();
+  // two hands: rifle (2) and pistol (1) equipped is CPR's business, not ours
+  assert.equal(HomeOps.holdCheck(actor, actor.items.get("pistol")), null);
+  await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "L" } } }]);
+  actor.items.get("rifle").system.equipped = "carried";
+  actor.items.get("pistol").system.equipped = "carried";
+  assert.deepEqual(HomeOps.lostHands(actor), ["L"]);
+  const rifle = HomeOps.holdCheck(actor, actor.items.get("rifle"));
+  assert.deepEqual([rifle.need, rifle.hands], [2, 1], "two-handed: no");
+  assert.equal(HomeOps.holdCheck(actor, actor.items.get("pistol")), null, "one-handed in the free hand: fine");
+  actor.items.get("pistol").system.equipped = "equipped";
+  const second = HomeOps.holdCheck(actor, { ...actor.items.get("rifle"), id: "x", system: { handsReq: 1 }, type: "weapon" });
+  assert.deepEqual(second.holding.map((i) => i.name), ["Heavy Pistol"], "the hand is full");
+  assert.equal(HomeOps.holdCheck(actor, actor.items.get("jack")), null, "armor isn't held (shields are)");
+
+  // the character sheet's equip toggle: stopped with the pop-up
+  dialogs.shown.length = 0;
+  dialogs.next = "ok";
+  assert.equal(callHook("preUpdateItem", actor.items.get("rifle"), { system: { equipped: "equipped" } }, {}, game.user.id), false);
+  await new Promise((r) => setImmediate(r));
+  assert.match(dialogs.shown[0].content, /needs both hands/);
+  assert.equal(dialogs.shown[0].buttons.length, 1, "players can't override");
+  // the Loadout: stopped too
+  dialogs.next = "ok";
+  await assert.rejects(HomeOps.equip(actor, "rifle", "equipped"), RuleBlock);
+  assert.equal(actor.items.get("rifle").system.equipped, "carried");
+  // the GM can equip it anyway
+  asUser(true);
+  dialogs.next = "override";
+  await HomeOps.equip(actor, "rifle", "equipped");
+  assert.equal(actor.items.get("rifle").system.equipped, "equipped");
+});
+
+test("with both arms gone nothing can be held", async () => {
+  asUser(false);
+  const actor = gearhead();
+  actor.items.get("rifle").system.equipped = "carried";
+  actor.items.get("pistol").system.equipped = "carried";
+  await actor.createEmbeddedDocuments("Item", [
+    { name: "Dismembered Arm (Destroyed Cyberarm)", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "R" } } },
+    { name: "Dismembered Hand", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "L" } } }
+  ]);
+  const check = HomeOps.holdCheck(actor, actor.items.get("pistol"));
+  assert.equal(check.hands, 0);
+  dialogs.shown.length = 0;
+  dialogs.next = "ok";
+  await assert.rejects(HomeOps.equip(actor, "pistol", "equipped"), RuleBlock);
+  assert.match(dialogs.shown[0].content, /no working hands/);
+  asUser(true);
+});
+
+/* ------------------------------------------ */
+/*  Lost limbs take their cyberware along     */
+/* ------------------------------------------ */
+
+function chromed() {
+  const cw = (id, name, type, list = [], foundational = false) => ({ _id: id, name, type: "cyberware", system: { type, isFoundational: foundational, installedItems: { list, slots: 4 } } });
+  return makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["armR", "armL", "glove", "legR", "legL"] } } }, [
+    cw("armR", "Cyberarm", "cyberArm", ["popup", "rippers", "finger"], true),
+    cw("popup", "Popup Ranged Weapon", "cyberArm"),
+    cw("rippers", "Rippers", "cyberArm"),
+    cw("finger", "Lighter Cyberfinger", "cyberArm"),
+    cw("armL", "Meat Arm", "cyberArm", ["grip"], true),
+    cw("grip", "Subdermal Grip", "cyberArm"),
+    cw("glove", "Battleglove", "cyberArm", [], true),
+    cw("legR", "Cyberleg", "cyberLeg", ["foot"], true),
+    cw("foot", "Talon Foot", "cyberLeg"),
+    cw("legL", "Meat Leg", "cyberLeg", [], true),
+    { _id: "pistol", name: "Heavy Pistol", type: "weapon", system: { equipped: "equipped", handsReq: 1, installedItems: { list: [] } } }
+  ]);
+}
+
+test("what comes off with a lost arm, hand or leg, by side; a glove isn't a limb", () => {
+  const actor = chromed();
+  const ids = (anchor) => MaintOps.severedChrome(actor, anchor).map((c) => `${c.id}:${c.side}`);
+  assert.deepEqual(ids("arm"), ["armR:R", "grip:L", "glove:R"], "the cyberarm whole, the meat arm's options, the glove");
+  assert.deepEqual(ids("hand"), ["rippers:R", "finger:R", "grip:L", "glove:R"], "hand options only, not the popup gun");
+  assert.deepEqual(ids("leg"), ["legR:R"]);
+  assert.match(MaintOps.severedChrome(actor, "arm")[0].label, /Cyberarm \(with Popup Ranged Weapon, Rippers, Lighter Cyberfinger\)/);
+  const map = HomeOps.cyberware(actor);
+  assert.deepEqual(map.marks.filter((k) => k.limb).map((k) => `${k.limb}${k.side}`), ["armR", "legR"], "the Battleglove isn't drawn as a chrome arm");
+});
+
+test("a Dismembered Hand drops the hand's cyberware into a pile; the GM picks the side", async () => {
+  asUser(true);
+  const actor = chromed();
+  withPiles(actor);
+  piles.length = 0;
+  dialogs.shown.length = 0;
+  dialogs.next = { side: "R", held: ["pistol"], chrome: ["rippers", "finger"] };
+  try {
+    const [injury] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Hand", type: "criticalInjury", system: { location: "body" } }]);
+    await MaintOps.onInjury(actor, injury);
+    assert.equal(dialogs.shown.length, 1, "one prompt");
+    assert.match(dialogs.shown[0].content, /Rippers/);
+    assert.doesNotMatch(dialogs.shown[0].content, /Popup Ranged Weapon/);
+    assert.match(dialogs.shown[0].content, /Heavy Pistol/, "and what the hand held");
+    assert.deepEqual(piles[0].items.map((i) => i.name), ["Heavy Pistol", "Rippers", "Lighter Cyberfinger"], "all in one pile");
+    assert.ok(piles[0].items.every((i) => i.flags[M].dropped));
+    assert.equal(piles[0].items[0].flags[M].item?.condition, undefined, "what the hand held isn't broken");
+    assert.equal(piles[0].items[1].flags[M].item.condition, "destroyed", "torn-off cyberware needs a Cybertech repair");
+    assert.match(injury.system.description.value, /Cybertech can Quick Fix or Treat/, "a cyberarm's hand: Cybertech treats it");
+    assert.equal(actor.items.get("rippers"), undefined);
+    assert.deepEqual(actor.items.get("armR").system.installedItems.list, ["popup"], "the arm keeps the rest");
+    assert.equal(injury.getFlag(M, "side"), "R");
+  } finally {
+    noPiles();
+  }
+});
+
+test("a Dismembered Arm drops the whole cyberarm with its options", async () => {
+  asUser(true);
+  const actor = chromed();
+  withPiles(actor);
+  piles.length = 0;
+  dialogs.next = { side: "R", held: [], chrome: ["armR", "glove"] };
+  try {
+    const [injury] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { side: "R" } } }]);
+    await MaintOps.onInjury(actor, injury);
+    const arm = piles[0].items.find((i) => i.name === "Cyberarm");
+    assert.deepEqual(arm.flags[M].dropTree.map((i) => i.name), ["Popup Ranged Weapon", "Rippers", "Lighter Cyberfinger"]);
+    assert.equal(arm.flags[M].item.condition, "destroyed");
+    assert.ok(arm.flags[M].dropTree.every((i) => i.flags[M].item.condition === "destroyed"), "with everything in it");
+    for (const id of ["armR", "popup", "rippers", "finger", "glove"]) assert.equal(actor.items.get(id), undefined, `${id} is gone`);
+    assert.deepEqual(actor.system.installedItems.list, ["armL", "legR", "legL"], "out of the body");
+  } finally {
+    noPiles();
+  }
+});
+
+test("a Dismembered Leg drops the cyberleg; an offline cyberlimb's own injury drops no cyberware", async () => {
+  asUser(true);
+  const actor = chromed();
+  withPiles(actor);
+  piles.length = 0;
+  dialogs.shown.length = 0;
+  try {
+    // the cyberarm EMP'd: Neon At Home's injury for it, the arm still attached
+    const [offline] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm (EMP'd Cyberarm)", type: "criticalInjury", system: { location: "body" }, flags: { [M]: { cyberLimb: "armR", side: "R" } } }]);
+    dialogs.next = { side: "R", ids: [] };
+    await MaintOps.onInjury(actor, offline);
+    assert.ok(!dialogs.shown.some((d) => /Cyberware that comes off/.test(d.content)));
+    assert.ok(actor.items.get("armR"));
+
+    dialogs.next = { side: "R", held: [], chrome: ["legR"] };
+    const [leg] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Leg", type: "criticalInjury", system: { location: "body" } }]);
+    await MaintOps.onInjury(actor, leg);
+    assert.equal(piles.at(-1).items[0].name, "Cyberleg");
+    assert.equal(piles.at(-1).items[0].flags[M].dropTree[0].name, "Talon Foot");
+    assert.equal(actor.items.get("legR"), undefined);
+  } finally {
+    noPiles();
+  }
+});
+
+test("without Item Piles the cyberware just comes out of the limb; the setting can turn it off", async () => {
+  asUser(true);
+  const actor = chromed();
+  dialogs.next = { side: "R", held: [], chrome: ["rippers"] };
+  const [hand] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Hand", type: "criticalInjury", system: { location: "body" } }]);
+  await MaintOps.onInjury(actor, hand);
+  assert.ok(actor.items.get("rippers"), "still the character's");
+  assert.ok(!actor.items.get("armR").system.installedItems.list.includes("rippers"), "but out of the arm");
+  assert.equal(actor.items.get("rippers").flags[M].item.condition, "destroyed");
+  assert.equal(actor.items.get("armR").flags[M]?.item?.condition, undefined, "the arm itself is fine");
+
+  await game.settings.set(M, "dropCyberlimbs", false);
+  await game.settings.set(M, "dropHeld", false);
+  dialogs.shown.length = 0;
+  const [arm] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body" } }]);
+  await MaintOps.onInjury(actor, arm);
+  assert.equal(dialogs.shown.length, 0);
+  await game.settings.set(M, "dropCyberlimbs", true);
+  await game.settings.set(M, "dropHeld", true);
+});
+
+test("the lost-limb prompt shows the chosen side's cyberware and ticks what the hand surely held", async () => {
+  asUser(true);
+  const actor = chromed();
+  actor.items.get("pistol").system.handsReq = 2;
+  dialogs.shown.length = 0;
+  dialogs.next = null;
+  await MaintOps._askLimb(actor, "arm", "R", MaintOps.held(actor), MaintOps.severedChrome(actor, "arm"), []);
+  const { content, render } = dialogs.shown[0];
+  // a small stand-in for the dialog's form, built from its content
+  globalThis.HTMLElement ??= class {};
+  const input = (name, value) => ({ name, value, checked: /checked/.test(content.split(`value="${value}"`)[1]?.slice(0, 10) ?? ""), disabled: false });
+  const rows = [...content.matchAll(/<label class="nah-check" (data-(hands|side))="([^"]+)"><input type="checkbox" name="(\w+)" value="([^"]+)"/g)]
+    .map((m) => ({ dataset: m[2] === "hands" ? { hands: m[3] } : { side: m[3] }, hidden: false, input: input(m[4], m[5]), querySelector() { return this.input; } }));
+  const select = { value: "R", listeners: [], addEventListener(type, fn) { this.listeners.push(fn); } };
+  const none = { hidden: false };
+  const form = {
+    querySelector: (sel) => (sel === "[name=side]" ? select : sel === ".nah-no-chrome" ? none : null),
+    querySelectorAll: (sel) => rows.filter((r) => (sel === "[data-hands]" ? r.dataset.hands : r.dataset.side))
+  };
+  const root = Object.assign(new HTMLElement(), { querySelector: (sel) => (sel === "form" ? form : null) });
+  render(null, root);
+  const shown = () => rows.filter((r) => r.dataset.side && !r.hidden).map((r) => r.input.value);
+  assert.deepEqual(shown(), ["armR", "glove"], "the right side");
+  assert.equal(rows.find((r) => r.input.value === "pistol").input.checked, true, "a two-handed weapon goes");
+  assert.equal(none.hidden, true);
+  select.value = "L";
+  select.listeners[0]();
+  assert.deepEqual(shown(), ["grip"], "the left side: the meat arm's Subdermal Grip");
+  assert.equal(rows.find((r) => r.input.value === "armR").input.disabled, true, "the other side's isn't sent");
+});
+
+test("a meat arm's Dismembered injury gets no Cybertech note", async () => {
+  asUser(true);
+  const actor = chromed();
+  dialogs.next = { side: "L", held: [], chrome: ["grip"] };
+  const [injury] = await actor.createEmbeddedDocuments("Item", [{ name: "Dismembered Arm", type: "criticalInjury", system: { location: "body", description: { value: "<p>Arm removed.</p>" } } }]);
+  await MaintOps.onInjury(actor, injury);
+  assert.equal(injury.system.description.value, "<p>Arm removed.</p>");
+});
+
+test("EMP lasts a minute of world time, then the gear is back online", async () => {
+  asUser(true);
+  const actor = chromed();
+  game.time.worldTime = 500;
+  await HomeOps.setEmp(actor, "armR", true);
+  assert.equal(actor.items.get("armR").flags[M].item.empUntil, 560);
+  assert.equal(HomeOps.offlineState(actor, "popup"), "emp");
+  game.time.worldTime = 559;
+  await MaintOps.expireMalfunctions();
+  assert.equal(HomeOps.offlineState(actor, "armR"), "emp", "not yet");
+  game.time.worldTime = 560;
+  chat.length = 0;
+  await MaintOps.expireMalfunctions();
+  assert.equal(HomeOps.offlineState(actor, "armR"), "");
+  assert.equal(actor.items.get("armR").flags[M].item.empUntil, null);
+  assert.match(chat.at(-1).content, /back online/);
+  game.time.worldTime = 0;
 });

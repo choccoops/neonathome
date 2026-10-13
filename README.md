@@ -226,7 +226,8 @@ can't change it; Damaged can be kept from them). Damaged cyberware still works b
 Destroyed or EMP'd cyberware is non-functional, and takes everything installed in it offline too:
 
 - it shows orange (Damaged), flickers yellow (EMP), red (Destroyed) or dead grey (Beyond Repair)
-  on the scan and in the list;
+  on the scan and in the list; EMP wears off after a minute of game time (Cyberpunk RED p.345), or
+  when the GM brings it back;
 - its bonuses (Active Effects) switch off until it works again;
 - its weapons can't be rolled from the character sheet (a warning says why);
 - an offline **cyberarm or cyberleg** counts as a lost limb: the character gets Cyberpunk RED's
@@ -314,8 +315,21 @@ world and edit it (for instance with the DLC's own text) and Neon At Home rolls 
 an offline cyberarm, drops what that hand held: two-handed weapons always (one arm can't hold
 them), everything if both arms are gone, and the GM is asked about one-handed items (and which arm,
 if that isn't known). With **Item Piles** on, dropped items land in a pile beside the token, with
-their attachments, which go back on when someone picks the item up; without it, they're simply no
-longer carried.
+their attachments, which go back on when someone picks the item up, and the pile goes once it's
+empty; without it, they're simply no longer carried. Item Piles needs its System Specific settings
+for Cyberpunk RED (an actor class type, and `system.amount` as the item quantity attribute): Neon At
+Home says so when they're missing.
+
+**Lost limbs and their cyberware.** A Dismembered Arm, Hand or Leg asks the GM which side was
+lost, and what comes off with it drops too (in the same pile): a cyberarm with every option in it,
+or a hand's cyberhand, cyberfingers and other hand options, or a cyberleg with its feet; the options
+in a meat limb, and a glove on a lost hand, go as well. The GM can untick anything. Torn off, the cyberware is Destroyed until it's repaired with
+Cybertech (Cyberpunk RED p.226); a cyberarm picked up again comes with its options installed. On a
+cyberlimb, the injury notes that Cybertech can Quick Fix or Treat it (p.223).
+
+**Holding things with a lost hand.** With an arm or hand gone, a character has one hand left:
+equipping a two-handed weapon, or another weapon or shield when that hand is full, is stopped with
+a pop-up (the GM can equip it anyway). With both gone, nothing can be held.
 
 ## Item settings (GM)
 
@@ -339,7 +353,7 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   attachments**, **Syndromes & Inspiration**, **Catharsis takes Humanity Loss first**.
 - **Maintenance tab**, **Maintenance months** (Neon Hub's Rent Day, or monthly or weekly started by
   the GM), **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
-  **Lost hands drop what they hold**.
+  **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 
 ## For macros and other modules
 
