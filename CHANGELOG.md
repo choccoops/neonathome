@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2
+
+- **Dropping into Item Piles checks Item Piles' setup first.** Item Piles makes piles as actors of the type in its System Specific settings ("Actor class type"). When that's blank (it can be, in worlds where Item Piles' Cyberpunk RED defaults were never applied) or isn't a Cyberpunk RED actor type, Item Piles fails with "Unsupported Entity type for create()" and "pileActor is undefined". Neon At Home now doesn't hand the item to Item Piles then: the GM is told which setting to fix (reset Item Piles' System Specific settings to Cyberpunk RED's defaults), and the item is simply no longer carried.
+
 ## 1.4.1
 
 - **Fixed: dropping into an Item Piles pile failed** ("pileActor is undefined") the first time Item Piles had to make its Default Item Pile actor. Cyberpunk RED's `Actor.create` doesn't hand back the actor it made for container actors (which Item Piles uses for piles), nor for mooks, demons or Black ICE; Neon At Home now makes it return the new actor, which also helps other modules that create those actors. Each failed attempt left an unconfigured "Default Item Pile" container actor in the Actors list: those can be deleted.

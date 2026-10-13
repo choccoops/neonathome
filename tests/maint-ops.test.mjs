@@ -423,6 +423,33 @@ test("dropping into an Item Piles pile takes the attachments along, and picking 
   }
 });
 
+test("Item Piles with no actor type for its piles isn't asked; the GM is told which setting to fix", async () => {
+  asUser(true);
+  const actor = gearhead();
+  withPiles(actor);
+  piles.length = 0;
+  game.settings.register("item-piles", "actorClassType", { default: "" });
+  game.documentTypes = { Actor: ["base", "character", "container", "mook"] };
+  const warned = [];
+  const warn = ui.notifications.warn;
+  ui.notifications.warn = (m) => warned.push(m);
+  try {
+    await MaintOps.dropItem(actor, actor.items.get("pistol"));
+    assert.equal(piles.length, 0);
+    assert.equal(actor.items.get("pistol").system.equipped, "owned", "it's still dropped: no longer carried");
+    assert.match(warned[0], /System Specific/);
+    assert.match(warned[0], /character, container, mook/);
+    // fixed: piles work
+    await game.settings.set("item-piles", "actorClassType", "character");
+    await MaintOps.dropItem(actor, actor.items.get("rifle"));
+    assert.equal(piles.length, 1);
+  } finally {
+    ui.notifications.warn = warn;
+    delete game.documentTypes;
+    noPiles();
+  }
+});
+
 test("without Item Piles (or a token) a dropped item is just no longer carried", async () => {
   asUser(true);
   const actor = gearhead();

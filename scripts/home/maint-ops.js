@@ -500,6 +500,23 @@ export const MaintOps = {
   },
 
   /**
+   * What's wrong with Item Piles' setup for making piles, or null. Item Piles makes piles as actors
+   * of the type in its System Specific settings ("Actor class type"); blank or not one of Cyberpunk
+   * RED's types, it fails (and can leave half-made actors behind), so Neon At Home doesn't ask it.
+   */
+  itemPilesProblem() {
+    let type;
+    try {
+      type = game.settings.get(ITEM_PILES_ID, "actorClassType");
+    } catch {
+      return null;
+    }
+    const types = (game.documentTypes?.Actor ?? Object.keys(game.system?.documentTypes?.Actor ?? {})).filter((t) => t !== "base");
+    if (type && (!types.length || types.includes(type))) return null;
+    return L("NEONHOME.Drop.PilesSetting", { type: type || "—", types: types.join(", ") });
+  },
+
+  /**
    * Drop an item where the character stands: an Item Piles pile beside their token when Item Piles
    * is on and they're on the scene (attachments go with it, and come back on when it's picked
    * up), otherwise it's just no longer on them (owned, not carried).
@@ -509,7 +526,11 @@ export const MaintOps = {
     const api = game.modules.get(ITEM_PILES_ID)?.active ? game.itempiles?.API : null;
     const token = actor.isToken ? actor.token?.object : actor.getActiveTokens?.()?.[0] ?? null;
     let piled = false;
-    if (api?.createItemPile && token?.document?.parent) {
+    const problem = api?.createItemPile && token?.document?.parent ? this.itemPilesProblem() : null;
+    if (problem) {
+      ui.notifications.warn(problem);
+      console.warn(`${MODULE_ID} | ${problem}`);
+    } else if (api?.createItemPile && token?.document?.parent) {
       const data = item.toObject();
       delete data._id;
       if (data.system?.equipped) data.system.equipped = "owned";
@@ -522,7 +543,9 @@ export const MaintOps = {
       }
       const grid = Number(token.document.parent.grid?.size ?? canvas?.grid?.size) || 100;
       try {
-        await api.createItemPile({ position: { x: token.document.x + grid, y: token.document.y }, sceneId: token.document.parent.id, items: [data] });
+        const made = await api.createItemPile({ position: { x: token.document.x + grid, y: token.document.y }, sceneId: token.document.parent.id, items: [data] });
+        // false: a hook stopped it; nothing was made
+        if (!made) throw new Error("Item Piles made no pile");
         if (item.type === "armor" && item.system.equipped === "equipped") await CPR.setEquipped(actor, item, "owned");
         await CPR.removeWithInstalled(item);
         piled = true;
