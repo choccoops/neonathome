@@ -107,7 +107,26 @@ const syncAll = () => {
   for (const actor of game.actors) if (actor.type === "character") queueEffectSync(actor);
 };
 Hooks.on(`${MODULE_ID}.rulesChanged`, syncAll);
-Hooks.once("ready", syncAll);
+Hooks.once("ready", async () => {
+  if (HomeOps.isLeadGM) {
+    try {
+      await HomeOps.repairEffects();
+    } catch (err) {
+      console.warn(`${MODULE_ID} | effect repair failed`, err);
+    }
+  }
+  syncAll();
+});
+
+/**
+ * Safety net: an effect carrying Neon At Home's MOVE change (or its statuses), however it's made
+ * (token HUD, Condition Lab, a macro), gets CPR's bookkeeping so the character sheet can read it.
+ */
+Hooks.on("preCreateActiveEffect", (effect, data, options, userId) => {
+  if (userId !== game.user.id) return;
+  if (!HomeOps._carriesOurChange(effect) || !CPR.needsEffectFlags(effect)) return;
+  effect.updateSource({ [`flags.${SYSTEM_ID}.changes`]: CPR.effectFlags(effect.changes, effect.flags?.[SYSTEM_ID]?.changes) });
+});
 
 /**
  * Encumbrance on MOVE (an ActiveEffect change in CUSTOM mode whose value names the level). It runs

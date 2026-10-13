@@ -303,8 +303,9 @@ export function makeActor(data, items = []) {
     for (const i of actor.items) if (i.system.installedItems?.list) i.system.installedItems.list = i.system.installedItems.list.filter((x) => !ids.includes(x));
   };
   actor.updateEmbeddedDocuments = async (type, updates) => {
+    const docs = type === "ActiveEffect" ? actor.effects : actor.items;
     for (const u of updates) {
-      const item = actor.items.get(u._id);
+      const item = docs.get(u._id);
       for (const [k, v] of Object.entries(u)) if (k !== "_id") setProperty(item, k, clone(v));
     }
   };

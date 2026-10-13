@@ -1,4 +1,4 @@
-import { MODULE_ID, CHECKED } from "./constants.js";
+import { MODULE_ID, CHECKED, SYSTEM_ID } from "./constants.js";
 
 /** Operation options for writes Neon At Home has already checked against the carry rules. */
 const checked = (extra = {}) => ({ ...extra, [MODULE_ID]: { [CHECKED]: true } });
@@ -177,6 +177,27 @@ export const CPR = {
       }
     }
     return applied;
+  },
+
+  /**
+   * CPR's bookkeeping for an effect's changes, which its character sheet reads for every effect
+   * and crashes without: flags["cyberpunk-red-core"].changes.cats, a category per change.
+   * Keeps any categories already there and fills in the rest (stats for system.stats.*, else skill).
+   */
+  effectFlags(changes, existing = {}) {
+    const cats = { ...(existing?.cats ?? {}) };
+    (changes ?? []).forEach((c, i) => {
+      cats[i] ??= String(c?.key ?? "").startsWith("system.stats.") ? "stat" : "skill";
+    });
+    return { ...(existing ?? {}), cats };
+  },
+
+  /** Does this effect (document or data) have changes but not CPR's bookkeeping for them? */
+  needsEffectFlags(effect) {
+    const changes = effect?.changes ?? [];
+    if (!changes.length) return false;
+    const cats = effect?.flags?.[SYSTEM_ID]?.changes?.cats ?? null;
+    return !cats || changes.some((c, i) => cats[i] === undefined);
   },
 
   /** LUCK value and max. */

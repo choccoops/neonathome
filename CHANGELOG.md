@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+
+- **Fixed: the character sheet wouldn't open** ("can't access property \"changes\"") after Encumbered or Overloaded was applied through Condition Lab & Triggler, or placed from the token HUD. Cyberpunk RED's sheet needs its own bookkeeping on every effect change, and the MOVE penalty added to those effects didn't have it. Every effect carrying the penalty now does, however it's made, and effects already broken in your world are repaired when the GM loads it.
+
 ## 1.3.0
 
 - **Subdermal Pockets give carry slots.** Each Subdermal Pocket installed as cyberware adds 2 bonus slots that take gear/utility or a one-handed weapon, shown in the Loadout like a Gear bag (two pockets: two bars, numbered). It's found by name, so the core item works as is; an uninstalled pocket gives nothing.

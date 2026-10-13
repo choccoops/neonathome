@@ -12,6 +12,12 @@ const { Settings } = await import("../scripts/settings.js");
 Settings.register(class {});
 const { HomeOps, RuleBlock } = await import("../scripts/home/ops.js");
 const { HomeStore } = await import("../scripts/home/store.js");
+const { CPR } = await import("../scripts/cpr.js");
+
+/** CPR's character sheet reads flags["cyberpunk-red-core"].changes.cats for every change of every effect. */
+const assertCprReadable = (actor) => {
+  for (const e of actor.effects) assert.equal(CPR.needsEffectFlags(e), false, `${e.name} lacks CPR's change flags`);
+};
 
 const mods = () => ({ attackmod: { type: "modifier", value: null }, magazine: { type: "modifier", value: null }, rof: { type: "modifier", value: null }, damage: { type: "modifier", value: null }, slots: { type: "modifier", value: null } });
 const rifle = (id, equipped = "carried") => ({ _id: id, name: `Rifle ${id}`, type: "weapon", system: { equipped, weaponType: "assaultRifle", handsReq: 2, installedItems: { list: [], slots: 3, allowed: true, allowedTypes: ["itemUpgrade"] } } });
@@ -126,6 +132,7 @@ test("encumbrance: over the weight limit, then over double, then back", async ()
   assert.equal(effect().getFlag(M, "encumbrance"), "half");
   assert.deepEqual(effect().statuses, ["neonhome-encumbered"], "shown as the Encumbered status");
   assert.deepEqual(effect().changes.map((c) => [c.key, c.mode, c.value]), [["system.stats.move.value", 0, `${M}.half`]]);
+  assertCprReadable(actor);
   await actor.createEmbeddedDocuments("Item", [crate("Crate 2")]);
   await HomeOps.syncEncumbrance(actor);
   assert.equal(effect().getFlag(M, "encumbrance"), "one");
@@ -169,6 +176,8 @@ test("with Condition Lab & Triggler, its condition is applied and removed, with 
     const e = actor.effects.find((x) => x.getFlag(M, "encumbrance"));
     assert.equal(e.getFlag(CLT, "conditionId"), "cltEnc");
     assert.deepEqual(e.changes.map((c) => c.key), ["bonuses.allActions", "system.stats.move.value"], "the GM's own changes are kept");
+    assertCprReadable(actor);
+    assert.deepEqual(e.flags["cyberpunk-red-core"].changes.cats, { 0: "skill", 1: "stat" });
     await actor.createEmbeddedDocuments("Item", [crate("Crate 2")]);
     await HomeOps.syncEncumbrance(actor);
     assert.deepEqual(calls, [["add", "Encumbered"], ["remove", "Encumbered"], ["add", "Overloaded"]]);
@@ -265,4 +274,18 @@ test("Inspiration: spending one restores 2 LUCK", async () => {
   await HomeOps.spendInspiration(actor, "luck");
   assert.equal(actor.system.stats.luck.value, 4);
   await assert.rejects(() => HomeOps.spendInspiration(actor, "luck"), RuleBlock);
+});
+
+test("the token-HUD status carries CPR's change flags, and broken effects from 1.2.0-1.3.0 are repaired", async () => {
+  const status = HomeOps.encumbranceStatus("half");
+  assert.deepEqual(status.flags["cyberpunk-red-core"].changes.cats, { 0: "stat" });
+  const { actor } = setup();
+  // what CLT + 1.3.0 left behind: our change on an effect without CPR's flags
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: "Encumbered", changes: [HomeOps.encumbranceChange("half")], flags: { "condition-lab-triggler": { conditionId: "x" } } }]);
+  // someone else's effect without flags is left alone
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: "Other", changes: [{ key: "bonuses.stealth", value: "1" }], flags: {} }]);
+  await HomeOps.repairEffects();
+  const fixed = actor.effects.find((e) => e.name === "Encumbered");
+  assert.equal(CPR.needsEffectFlags(fixed), false);
+  assert.equal(CPR.needsEffectFlags(actor.effects.find((e) => e.name === "Other")), true);
 });
