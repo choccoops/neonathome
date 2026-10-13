@@ -424,7 +424,7 @@
       "None": "Nothing installed.",
       "NoLink": "No Neural Link: neuralware needs one.",
       "Weapon": "Cyberweapon",
-      "Hint": "Mark cyberware EMP'd or broken / worn out: it goes offline with everything installed in it, and its bonuses switch off until it's marked working again.",
+      "Hint": "EMP'd or broken / worn out cyberware is offline with everything installed in it: its bonuses switch off, its weapons can't be rolled, and an offline cyberarm or cyberleg counts as a Dismembered Arm / Leg until it works again. Only the GM changes this.",
       "State": {
         "ok": "Working",
         "emp": "EMP'd",
@@ -446,6 +446,19 @@
         "ok": "<b>{name}</b>'s <b>{item}</b> is working again.",
         "emp": "<b>{name}</b>'s <b>{item}</b> is knocked out by EMP: offline, with everything installed in it.",
         "broken": "<b>{name}</b>'s <b>{item}</b> is broken / worn out: offline, with everything installed in it, until it's repaired."
+      },
+      "GMOnly": "Only the GM can mark cyberware working, EMP'd or broken.",
+      "Blocked": {
+        "emp": "{item} is offline (EMP'd) and can't be used until it's working again.",
+        "broken": "{item} is broken / worn out and can't be used until it's repaired."
+      },
+      "Injury": {
+        "emp": "{injury} (EMP'd {limb})",
+        "broken": "{injury} (Broken {limb})"
+      },
+      "InjuryNote": {
+        "emp": "{limb} is knocked out by EMP. This goes away by itself when the GM marks it working again.",
+        "broken": "{limb} is broken / worn out. This goes away by itself when the GM marks it repaired."
       }
     },
     "Bench": {

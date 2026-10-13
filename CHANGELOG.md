@@ -3,7 +3,9 @@
 ## 1.4.0
 
 - **Cyberware monitor in the Biomonitor.** A Vitals / Cyberware switch at the top of the tab. The cyberware view shows every piece installed in the body by type, in the character sheet's order (neuralware, cybereyes, cyberaudio, cyberarms, cyberlegs, internal, external, fashionware, borgware): each foundational piece or built-in container with its option slots as sockets (used and total, with slot upgrades), and what's installed in it, nested. A scan marks each piece on the body and draws cyberlimbs in chrome on their side (meat limbs stay flesh).
-- **EMP'd and broken / worn-out cyberware.** Any piece can be marked working, EMP'd or broken. Offline cyberware, and everything installed in it, flickers yellow (EMP) or shows red (broken) on the scan and in the list, its bonuses switch off until it's marked working again, and the player and GM are told in chat. The Cyberware switch shows how many pieces are offline.
+- **EMP'd and broken / worn-out cyberware.** The GM can mark any piece working, EMP'd or broken (players see it, but can't change it). Offline cyberware, and everything installed in it, flickers yellow (EMP) or shows red (broken) on the scan and in the list, and the player and GM are told in chat. The Cyberware switch shows how many pieces are offline.
+- **Offline cyberware doesn't work.** Its bonuses switch off until it's marked working again, and its weapons can't be rolled from the character sheet.
+- **An offline cyberarm or cyberleg is a lost limb.** The character gets Cyberpunk RED's Dismembered Arm or Dismembered Leg critical injury, with its effects (e.g. -6 MOVE), named for the cause ("Dismembered Leg (Broken Cyberleg)") and shown on that side of the trauma map. It's removed by itself when the limb works again or is uninstalled, and doesn't raise the Death Save penalty. Meat limbs aren't affected.
 
 ## 1.3.1
 

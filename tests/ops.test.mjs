@@ -304,3 +304,78 @@ test("EMP'd cyberware switches off its effects and its options', and they come b
   assert.equal(actor.items.get("grip").effects.get("e2").disabled, false);
   assert.equal(actor.items.get("grip").effects.get("e3").disabled, true, "an effect someone else switched off stays off");
 });
+
+test("only the GM marks cyberware EMP'd, broken or working", async () => {
+  const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["link"] } } }, [
+    { _id: "link", name: "Neural Link", type: "cyberware", system: { type: "neuralWare", isFoundational: true, installedItems: { list: [] } } }
+  ]);
+  asUser(false);
+  await assert.rejects(HomeOps.setCyberState(actor, "link", "emp"), RuleBlock);
+  assert.equal(actor.items.get("link").getFlag(M, "item")?.cyberState, undefined);
+  asUser(true);
+  await HomeOps.setCyberState(actor, "link", "emp");
+  assert.equal(actor.items.get("link").getFlag(M, "item").cyberState, "emp");
+});
+
+test("an offline cyberarm or cyberleg is a Dismembered Arm / Leg until it works again", async () => {
+  asUser(true);
+  const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["armR", "armL", "legR", "meatLeg"] } } }, [
+    { _id: "armR", name: "Cyberarm", type: "cyberware", system: { type: "cyberArm", isFoundational: true, installedItems: { list: ["gun"], slots: 4 } } },
+    { _id: "gun", name: "Popup Gun", type: "cyberware", system: { type: "cyberArm", installedItems: { list: [] } } },
+    { _id: "armL", name: "Cyberarm", type: "cyberware", system: { type: "cyberArm", isFoundational: true, installedItems: { list: [], slots: 4 } } },
+    { _id: "legR", name: "Cyberleg", type: "cyberware", system: { type: "cyberLeg", isFoundational: true, installedItems: { list: [], slots: 3 } } },
+    { _id: "meatLeg", name: "Meat Leg", type: "cyberware", system: { type: "cyberLeg", isFoundational: true, installedItems: { list: [], slots: 3 } } }
+  ]);
+  const injuries = () => actor.items.filter((i) => i.type === "criticalInjury");
+
+  // An EMP'd gun in a working arm isn't a lost arm.
+  await HomeOps.setCyberState(actor, "gun", "emp");
+  assert.equal(injuries().length, 0);
+  assert.equal(HomeOps.isCyberOffline(actor, "gun"), "emp");
+  assert.equal(HomeOps.isCyberOffline(actor, "armR"), "");
+
+  // The left arm (the second one) is EMP'd: CPR's Dismembered Arm, on the left, without the Death Save.
+  await HomeOps.setCyberState(actor, "armL", "emp");
+  let [arm] = injuries();
+  assert.equal(arm.name, "Dismembered Arm (EMP'd Cyberarm)");
+  assert.equal(arm.getFlag(M, "cyberLimb"), "armL");
+  assert.equal(arm.getFlag(M, "side"), "L");
+  assert.equal(arm.system.deathSaveIncrease, false);
+  assert.match(arm.system.description.value, /Arm removed/);
+
+  // Broken instead of EMP'd: the injury follows; a broken meat leg is no lost leg, a broken cyberleg is.
+  await HomeOps.setCyberState(actor, "armL", "broken");
+  await HomeOps.setCyberState(actor, "meatLeg", "broken");
+  await HomeOps.setCyberState(actor, "legR", "broken");
+  assert.deepEqual(injuries().map((i) => i.name).sort(), ["Dismembered Arm (Broken Cyberarm)", "Dismembered Leg (Broken Cyberleg)"]);
+  const leg = injuries().find((i) => i.getFlag(M, "cyberLimb") === "legR");
+  assert.equal(leg.getFlag(M, "side"), "R");
+  assert.equal(leg.effects.contents?.[0]?.changes?.[0]?.value ?? [...leg.effects][0].changes[0].value, "-6", "with its -6 MOVE");
+  assertCprReadable(actor);
+
+  // Repaired: gone. Uninstalled while broken: gone too.
+  await HomeOps.setCyberState(actor, "armL", "");
+  assert.deepEqual(injuries().map((i) => i.getFlag(M, "cyberLimb")), ["legR"]);
+  actor.system.installedItems.list = ["armR", "armL", "meatLeg"];
+  await HomeOps.syncCyberLimbs(actor);
+  assert.equal(injuries().length, 0);
+});
+
+test("the Dismembered injury comes from CPR's compendium when it's there", async () => {
+  asUser(true);
+  const fromPack = { name: "Dismembered Leg", type: "criticalInjury", img: "pack.svg", system: { deathSaveIncrease: true, description: { value: "<p>From the pack.</p>" } }, effects: [] };
+  game.packs = new Map([["cyberpunk-red-core.core_critical-injuries-body", { getDocument: async (id) => (id === "vRhxMWgOHYROHeHm" ? { toObject: () => structuredClone({ _id: id, ...fromPack }) } : null) }]]);
+  try {
+    const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["leg"] } } }, [
+      { _id: "leg", name: "Cyberleg", type: "cyberware", system: { type: "cyberLeg", isFoundational: true, installedItems: { list: [], slots: 3 } } }
+    ]);
+    await HomeOps.setCyberState(actor, "leg", "emp");
+    const [injury] = actor.items.filter((i) => i.type === "criticalInjury");
+    assert.equal(injury.img, "pack.svg");
+    assert.equal(injury.name, "Dismembered Leg (EMP'd Cyberleg)");
+    assert.equal(injury.system.deathSaveIncrease, false, "an offline limb doesn't bleed");
+    assert.match(injury.system.description.value, /From the pack/);
+  } finally {
+    delete game.packs;
+  }
+});

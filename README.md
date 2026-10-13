@@ -215,10 +215,21 @@ Fashionware) with its option slots as sockets (used and total, counting slot upg
 cyberware installed in it, nested. The scan marks each piece on the body and draws cyberlimbs in
 chrome.
 
-Each piece can be marked **working**, **EMP'd** or **broken / worn out**. Offline cyberware takes
-everything installed in it offline too; it flickers yellow (EMP) or shows red (broken), its bonuses
-(Active Effects) switch off until it's marked working again, and the player and GM are told in
-chat. Owners and the GM can change it.
+The GM can mark each piece **working**, **EMP'd** or **broken / worn out** (players see the state but
+can't change it). Offline cyberware is non-functional, and takes everything installed in it offline
+too:
+
+- it flickers yellow (EMP) or shows red (broken) on the scan and in the list;
+- its bonuses (Active Effects) switch off until it's marked working again;
+- its weapons can't be rolled from the character sheet (a warning says why);
+- an offline **cyberarm or cyberleg** counts as a lost limb: the character gets Cyberpunk RED's
+  **Dismembered Arm** or **Dismembered Leg** critical injury (from the core compendium, with its
+  effects, e.g. -6 MOVE for a leg), named for the cause, e.g. "Dismembered Arm (EMP'd Cyberarm)",
+  and on the right side of the trauma map. It goes away by itself when the limb works again or is
+  uninstalled. It doesn't raise the Death Save penalty, since nothing was actually cut off. Meat
+  limbs aren't affected.
+
+The player and GM are told in chat.
 
 ## Weaponbench
 

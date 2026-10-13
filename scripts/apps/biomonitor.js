@@ -137,7 +137,7 @@ function cyberContext(actor, isGM) {
     offline: m.offline,
     emp: m.emp,
     broken: m.broken,
-    canEdit: isGM || actor.isOwner,
+    canEdit: isGM,
     marks: m.marks.map((k) => ({
       ...onFigure(k.anchor, k.side),
       state: stateKey(k.state),
@@ -365,7 +365,7 @@ export const Biomonitor = {
       this.uiState.bio = { ...(this.uiState.bio ?? {}), view: target.dataset.view };
       this.render();
     },
-    /** Mark a piece of cyberware working, EMP'd or broken (owners and the GM). */
+    /** Mark a piece of cyberware working, EMP'd or broken (the GM only). */
     cyberState(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
       return this.act(() => HomeOps.setCyberState(this.actor, id, target.dataset.state || ""));

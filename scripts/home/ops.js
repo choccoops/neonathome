@@ -1,4 +1,4 @@
-import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, SYSTEM_ID } from "../constants.js";
+import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, SYSTEM_ID, CHECKED } from "../constants.js";
 import { Compat } from "../compat.js";
 import { HomeSocket } from "../socket.js";
 import { CPR } from "../cpr.js";
@@ -472,12 +472,14 @@ export const HomeOps = {
    * @param {string} state - "" (working), "emp" or "broken"
    */
   async setCyberState(actor, itemId, state) {
+    if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
     const item = actor.items.get(itemId);
     if (!item || item.type !== "cyberware") return;
     const was = item.getFlag(MODULE_ID, "item")?.cyberState ?? "";
     if (was === state) return;
     await item.setFlag(MODULE_ID, "item", { ...(item.getFlag(MODULE_ID, "item") ?? {}), cyberState: state });
     await this.syncCyberEffects(actor);
+    await this.syncCyberLimbs(actor);
     const key = state ? `NEONHOME.Cyber.Card.${state}` : "NEONHOME.Cyber.Card.ok";
     await ChatMessage.create({
       content: this._card("fa-solid fa-microchip", L(key, { name: esc(actor.name), item: esc(item.name) })),
@@ -503,6 +505,76 @@ export const HomeOps = {
       }
       if (updates.length) await item.updateEmbeddedDocuments("ActiveEffect", updates);
     }
+  },
+
+  /** Is this cyberware offline (EMP'd, broken, or installed in something that is)? */
+  isCyberOffline(actor, itemId) {
+    const n = flatten(this.cyberware(actor).types.flatMap((t) => t.roots)).find((x) => x.id === itemId);
+    return n?.state || "";
+  },
+
+  /** CPR's core Dismembered Arm / Leg critical injuries, by limb. */
+  DISMEMBERED: {
+    arm: { pack: `${SYSTEM_ID}.core_critical-injuries-body`, id: "9N6yHeVwiGg2MkeL", name: "Dismembered Arm" },
+    leg: { pack: `${SYSTEM_ID}.core_critical-injuries-body`, id: "vRhxMWgOHYROHeHm", name: "Dismembered Leg" }
+  },
+
+  /** The Dismembered Arm / Leg injury data, from CPR's compendium (or a stand-in if it's missing). */
+  async _dismemberedData(limb) {
+    const ref = this.DISMEMBERED[limb];
+    try {
+      const pack = game.packs?.get(ref.pack);
+      const doc = pack ? (await pack.getDocument(ref.id)) ?? (await pack.getDocuments({ name: ref.name }))[0] : null;
+      if (doc) return doc.toObject();
+    } catch (err) {
+      console.warn(`${MODULE_ID} | couldn't read ${ref.name} from ${ref.pack}`, err);
+    }
+    const leg = limb === "leg";
+    const changes = leg ? [{ key: "system.stats.move.value", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-6" }] : [];
+    return {
+      name: ref.name,
+      type: "criticalInjury",
+      img: "icons/svg/bones.svg",
+      system: {
+        location: "body",
+        usage: "toggled",
+        deathSaveIncrease: false,
+        description: { value: leg ? "<p>Leg is removed. Cannot Dodge. -6 MOVE (minimum MOVE of 1).</p>" : "<p>Arm removed, drop anything it was holding.</p>" },
+        quickFix: { type: "notApplicable", dvFirstAid: 0, dvParamedic: 0 },
+        treatment: { type: "surgery", dvParamedic: 0, dvSurgery: 17 }
+      },
+      effects: changes.length ? [{ name: ref.name, changes, flags: { [SYSTEM_ID]: { changes: CPR.effectFlags(changes) } } }] : []
+    };
+  },
+
+  /**
+   * GM: an EMP'd or broken cyberarm or cyberleg works like a lost limb. Give the character CPR's
+   * Dismembered Arm / Leg injury for it (its effects included, on that side), and take it away
+   * when the limb works again or is gone. Meat limbs aren't affected.
+   */
+  async syncCyberLimbs(actor) {
+    if (!game.user.isGM || actor?.type !== "character") return;
+    const offline = this.cyberware(actor).types
+      .filter((t) => t.type === "cyberArm" || t.type === "cyberLeg")
+      .flatMap((t) => t.roots.map((r) => ({ ...r, limb: t.type === "cyberArm" ? "arm" : "leg" })))
+      .filter((r) => !r.meat && r.state);
+    const ours = actor.items.filter((i) => i.type === "criticalInjury" && i.getFlag(MODULE_ID, "cyberLimb"));
+    const stale = ours.filter((i) => !offline.some((r) => r.id === i.getFlag(MODULE_ID, "cyberLimb") && r.state === i.getFlag(MODULE_ID, "cyberState")));
+    if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale.map((i) => i.id));
+    const have = new Set(ours.filter((i) => !stale.includes(i)).map((i) => i.getFlag(MODULE_ID, "cyberLimb")));
+    const create = [];
+    for (const r of offline) {
+      if (have.has(r.id)) continue;
+      const data = await this._dismemberedData(r.limb);
+      delete data._id;
+      data.name = L(`NEONHOME.Cyber.Injury.${r.state}`, { injury: data.name, limb: r.name });
+      // Not a wound: an offline limb doesn't bleed, so it doesn't raise the Death Save.
+      foundry.utils.setProperty(data, "system.deathSaveIncrease", false);
+      foundry.utils.setProperty(data, "system.description.value", `<p><em>${L(`NEONHOME.Cyber.InjuryNote.${r.state}`, { limb: esc(r.name) })}</em></p>${data.system?.description?.value ?? ""}`);
+      data.flags = { ...(data.flags ?? {}), [MODULE_ID]: { cyberLimb: r.id, cyberState: r.state, side: r.side ?? "R" } };
+      create.push(data);
+    }
+    if (create.length) await actor.createEmbeddedDocuments("Item", create, { [MODULE_ID]: { [CHECKED]: true } });
   },
 
   /* ---------------------------------------- */

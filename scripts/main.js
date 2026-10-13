@@ -93,9 +93,29 @@ function queueEffectSync(actor) {
   }, 250));
 }
 
+const limbsPending = new Map();
+/**
+ * The lead GM keeps offline cyberlimbs' Dismembered injuries in step with the cyberware, whoever
+ * changed it (a player uninstalling an EMP'd arm takes its injury with it).
+ */
+function queueLimbSync(actor) {
+  if (!actor || actor.type !== "character" || !HomeOps.isLeadGM) return;
+  clearTimeout(limbsPending.get(actor.id));
+  limbsPending.set(actor.id, setTimeout(async () => {
+    limbsPending.delete(actor.id);
+    try {
+      await HomeOps.syncCyberLimbs(actor);
+    } catch (err) {
+      console.warn(`${MODULE_ID} | cyberlimb sync failed for ${actor.name}`, err);
+    }
+  }, 300));
+}
+
 const onItem = (item, userId) => {
   HomeApp.refreshFor(item);
-  if (userId === game.user.id && item.parent instanceof Actor) queueEffectSync(item.parent);
+  if (!(item.parent instanceof Actor)) return;
+  if (userId === game.user.id) queueEffectSync(item.parent);
+  if (item.type === "cyberware" || item.getFlag?.(MODULE_ID, "cyberLimb")) queueLimbSync(item.parent);
 };
 Hooks.on("createItem", (item, options, userId) => onItem(item, userId));
 Hooks.on("updateItem", (item, changes, options, userId) => onItem(item, userId));
@@ -104,7 +124,11 @@ Hooks.on("deleteItem", (item, options, userId) => onItem(item, userId));
 // The GM brings everyone up to date when the rules change, and once at the start.
 const syncAll = () => {
   if (!HomeOps.isLeadGM) return;
-  for (const actor of game.actors) if (actor.type === "character") queueEffectSync(actor);
+  for (const actor of game.actors) {
+    if (actor.type !== "character") continue;
+    queueEffectSync(actor);
+    queueLimbSync(actor);
+  }
 };
 Hooks.on(`${MODULE_ID}.rulesChanged`, syncAll);
 Hooks.once("ready", async () => {
@@ -188,10 +212,38 @@ Hooks.on("preUpdateActor", (actor, changes, options) => {
 
 Hooks.on("updateActor", (actor, changes, options) => {
   HomeApp.refreshFor(actor);
+  if (foundry.utils.hasProperty(changes, "system.installedItems")) queueLimbSync(actor);
   const before = options?.[MODULE_ID]?.before;
   if (before === undefined || options[MODULE_ID]?.humanity || !HomeOps.isLeadGM) return;
   HomeOps.onHumanityChanged(actor, before).catch((err) => console.warn(`${MODULE_ID} | Humanity follow-up failed for ${actor.name}`, err));
 });
+
+/* ------------------------------------------ */
+/*  Offline cyberware doesn't work            */
+/* ------------------------------------------ */
+
+/**
+ * Cyberpunk RED has no hook before a roll, so the sheet's roll buttons are caught first (capture
+ * phase): rolling with EMP'd or broken cyberware, or anything installed in it, is stopped.
+ */
+function guardOfflineRolls(sheet, element) {
+  const actor = sheet.actor ?? sheet.document;
+  const root = element?.[0] ?? element;
+  if (actor?.type !== "character" || !root?.addEventListener || root.dataset?.nahOffline) return;
+  root.dataset.nahOffline = "1";
+  root.addEventListener("click", (ev) => {
+    const roll = ev.target?.closest?.(".rollable, [data-action='roll'], [data-roll-type]");
+    const id = roll?.closest("[data-item-id]")?.dataset.itemId ?? roll?.dataset.itemId;
+    if (!id || actor.items.get(id)?.type !== "cyberware") return;
+    const state = HomeOps.isCyberOffline(actor, id);
+    if (!state) return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    ui.notifications.warn(L(`NEONHOME.Cyber.Blocked.${state}`, { item: actor.items.get(id).name }));
+  }, true);
+}
+Hooks.on("renderActorSheet", (sheet, html) => guardOfflineRolls(sheet, sheet.element ?? html));
+Hooks.on("renderActorSheetV2", (sheet, element) => guardOfflineRolls(sheet, element));
 
 /* ------------------------------------------ */
 /*  Entry points                              */
