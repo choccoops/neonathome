@@ -189,6 +189,15 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   const shop = await renderTab("downtime");
   assert.ok(shop.ctx.dt.selected.workshop.due.some((e) => e.name === "Tsunami Arms Helix"));
   assert.ok(!/NEONHOME\./.test(shop.html));
+  // projects: the meter with its halfway mark
+  actor.flags["cpr-neon-at-home"].projects = [{ id: "p1", kind: "fabricate", label: "Fabricate a thing", skill: "Basic Tech", dv: 13, minutes: 360, done: 180 }];
+  app.uiState.downtime = { action: "projects", params: {} };
+  const proj = await renderTab("downtime");
+  const row = proj.ctx.dt.selected.projects[0];
+  assert.deepEqual([row.stage, row.pct, row.half, row.checkDue], ["check", 50, 50, true]);
+  assert.ok(proj.html.includes('data-action="dtProjRoll"'));
+  assert.ok(!/NEONHOME\./.test(proj.html));
+  delete actor.flags["cpr-neon-at-home"].projects;
   await game.settings.set("cpr-neon-at-home", "downtimeOn", false);
 });
 

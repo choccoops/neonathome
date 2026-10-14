@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -88,6 +88,12 @@ app.uiState.downtime = { action: "hustle", params: { hustle: { role: "tech" } } 
 await writeFile(path.join(out, "downtime.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 app.uiState.downtime = { action: "fabricate", params: { fabricate: { item: "x", itemInfo: { name: "Militech Avenger", img: "../tools/preview-item.svg", price: 500, skill: "Weaponstech", category: "Expensive" } } } };
 await writeFile(path.join(out, "downtime-fab.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+actor.flags["cpr-neon-at-home"].projects = [
+  { id: "p1", kind: "fabricate", label: "Fabricate Militech Avenger", img: "../tools/preview-item.svg", skill: "Weaponstech", ability: "Fabrication Expertise", dv: 21, minutes: 10080, done: 5040, check: null, restarts: 1, materials: 100, data: {} },
+  { id: "p2", kind: "upgrade", label: "Upgrade Tsunami Arms Helix: One more option/attachment/program slot", img: "../tools/preview-item.svg", skill: "Weaponstech", ability: "Upgrade Expertise", dv: 21, minutes: 10080, done: 7200, check: "passed", restarts: 0, materials: 500, data: {} }
+];
+app.uiState.downtime = { action: "projects", params: {} };
+await writeFile(path.join(out, "downtime-projects.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 game.modules.delete("cpr-neon-hub");
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));

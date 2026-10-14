@@ -15,6 +15,7 @@ import { Bench } from "./apps/bench.js";
 import { Maintenance } from "./apps/maintenance.js";
 import { DowntimeTab } from "./apps/downtime.js";
 import { DowntimeOps } from "./home/downtime-ops.js";
+import { ProjectOps } from "./home/project-ops.js";
 import { MaintOps } from "./home/maint-ops.js";
 import { Downtime } from "./home/downtime.js";
 import { ItemConfig } from "./apps/item-config.js";
@@ -79,8 +80,14 @@ Hooks.once("init", () => {
     newMaintenanceCycle: () => MaintOps.newCycle(),
     /** Downtime: { active, source, label, total, spent, left } for a character (Neon Hub's call, or the GM's switch). */
     downtime: (actor) => (actor ? Downtime.state(actor) : Downtime.current()),
-    /** Do a downtime action for a character (see scripts/home/downtime-ops.js). */
-    downtimeAction: (actor, id, params = {}) => DowntimeOps.perform(actor, id, params),
+    /** Do a downtime action for a character (see scripts/home/downtime-ops.js); Maker work starts a project. */
+    downtimeAction: (actor, id, params = {}) => (["fabricate", "upgrade", "invent"].includes(id)
+      ? ProjectOps.start(actor, id, params, { minutes: params.now ?? "all" })
+      : DowntimeOps.perform(actor, id, params)),
+    /** A character's projects under way (Maker work, repairs): { id, kind, label, dv, minutes, done, check }. */
+    projects: (actor) => ProjectOps.list(actor),
+    /** Put downtime into a project: "check" (to the halfway check), "all", or minutes. */
+    workOnProject: (actor, id, minutes = "all") => ProjectOps.work(actor, id, minutes),
     /** Drop an item where the character stands (an Item Piles pile when it's on). */
     drop: (actor, itemId) => MaintOps.dropItem(actor, actor.items.get(itemId)),
     /** Open Neon At Home's settings for an item (GM). */

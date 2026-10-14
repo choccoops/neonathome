@@ -4,6 +4,9 @@ import { Settings } from "../settings.js";
 import { MaintOps } from "../home/maint-ops.js";
 import { Downtime, formatMinutes } from "../home/downtime.js";
 import { DowntimeOps, workSkill } from "../home/downtime-ops.js";
+import { ProjectOps } from "../home/project-ops.js";
+import { stage, meter, needed, remaining } from "../data/projects.js";
+import { Compat } from "../compat.js";
 import { KINDS, PRICE_CATEGORIES, priceCategory, flattenList, isMaintainable } from "../data/maintenance.js";
 import {
   MIN, HUSTLES, makerJob, fabricationMaterials, upgradeMaterials, UPGRADES, INVENT_CATEGORIES,
@@ -21,7 +24,8 @@ const ACTIONS = {
     { id: "hustle", icon: "fa-solid fa-sack-dollar", time: MIN.week },
     { id: "rest", icon: "fa-solid fa-bed", time: MIN.day },
     { id: "treat", icon: "fa-solid fa-kit-medical", time: TREATMENT_MINUTES },
-    { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" }
+    { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" },
+    { id: "projects", icon: "fa-solid fa-diagram-project" }
   ],
   tech: [
     { id: "fabricate", icon: "fa-solid fa-industry" },
@@ -38,6 +42,40 @@ const ACTIONS = {
   ],
   fixer: [{ id: "nightMarket", icon: "fa-solid fa-store", time: MIN.day }]
 };
+
+/** The actions that start a project. */
+const MAKER = ["fabricate", "upgrade", "invent"];
+
+/** A project for the Projects panel: its meter, where it stands, and the time buttons. */
+function projectRow(p, state) {
+  const st = stage(p);
+  const m = meter(p);
+  const left = state.active && state.source === "hub" ? state.left : null;
+  const steps = [];
+  if (st === "build") steps.push({ minutes: "check", label: L("NEONHOME.Project.ToCheck", { time: formatMinutes(needed(p)) }) });
+  if (st === "build" || st === "finish") steps.push({ minutes: "all", label: L("NEONHOME.Project.AllOfIt", { time: formatMinutes(remaining(p)) }) });
+  for (const [n, key] of [[MIN.hour, "hour"], [MIN.day, "day"], [MIN.week, "week"]]) if (n < needed(p)) steps.push({ minutes: n, label: L(`NEONHOME.Project.One.${key}`) });
+  return {
+    id: p.id,
+    label: p.label,
+    img: p.img,
+    icon: ProjectOps.icon(p.kind),
+    kind: L(`NEONHOME.Project.Kind.${p.kind}`),
+    dv: p.dv,
+    skill: p.skill,
+    done: formatMinutes(p.done),
+    total: formatMinutes(p.minutes),
+    pct: m.pct,
+    half: m.half,
+    stage: st,
+    stageLabel: L(`NEONHOME.Project.Stage.${st}`, { left: formatMinutes(p.minutes - p.done) }),
+    restarts: p.restarts,
+    checkDue: st === "check",
+    passed: p.check === "passed",
+    steps: left === 0 ? [] : steps,
+    noTime: left === 0
+  };
+}
 
 /** The skills a rumor can be chased with (STAT + skill). */
 const RUMOR_SKILLS = ["Library Search", "Conversation", "Interrogation", "Human Perception", "Streetwise"];
@@ -58,6 +96,9 @@ function panel(actor, id, p, { roles, state }) {
   let blocked = "";
   let time = null;
   let table = null;
+  // Maker work is a project: its time can be spread over several downtimes
+  let spread = false;
+  const startNow = () => fields.push(field("now", "NEONHOME.Downtime.Field.now", { select: true, options: opt(["all", "check", "none"], p.now ?? "all", (v) => L(`NEONHOME.Project.Now.${v}`)) }));
   const fact = (label, value) => facts.push({ label: L(label), value });
   switch (id) {
     case "hustle": {
@@ -111,6 +152,8 @@ function panel(actor, id, p, { roles, state }) {
     }
     case "workshop":
       return { workshop: true, facts, fields, time: null, blocked };
+    case "projects":
+      return { projects: true, facts, fields, time: null, blocked };
     case "fabricate": {
       fields.push(field("item", "NEONHOME.Downtime.Field.item", { drop: true, value: p.itemInfo ?? null }));
       if (!p.itemInfo) {
@@ -119,6 +162,8 @@ function panel(actor, id, p, { roles, state }) {
       }
       const job = makerJob(p.itemInfo.price);
       time = job.minutes;
+      spread = true;
+      startNow();
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.materials", eb(fabricationMaterials(p.itemInfo.price)));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: p.itemInfo.skill, rank: CPR.abilityRank(actor, "Fabrication Expertise"), expertise: L("NEONHOME.Downtime.Expertise.fabrication") }));
@@ -138,6 +183,8 @@ function panel(actor, id, p, { roles, state }) {
       const price = Number(item.system?.price?.market) || 0;
       const job = makerJob(price, { vehicle });
       time = job.minutes;
+      spread = true;
+      startNow();
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.materials", eb(upgradeMaterials(price, { vehicle })));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: workSkill(item.toObject()), rank: CPR.abilityRank(actor, "Upgrade Expertise"), expertise: L("NEONHOME.Downtime.Expertise.upgrade") }));
@@ -153,6 +200,8 @@ function panel(actor, id, p, { roles, state }) {
       fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
       const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
       time = job.minutes;
+      spread = true;
+      startNow();
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, "Invention Expertise"), expertise: L("NEONHOME.Downtime.Expertise.invention") }));
       fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InventNote"));
@@ -218,8 +267,9 @@ function panel(actor, id, p, { roles, state }) {
       break;
     }
   }
-  if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
-  return { fields, facts, time, blocked, table };
+  if (spread) fact("NEONHOME.Downtime.Fact.project", L("NEONHOME.Project.HowItGoes"));
+  else if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
+  return { fields, facts, time, blocked, table, maker: spread };
 }
 
 export const DowntimeTab = {
@@ -242,6 +292,8 @@ export const DowntimeTab = {
         label: key === "anyone" ? L("NEONHOME.Downtime.Anyone") : L(`NEONHOME.Downtime.Role.${key}`),
         actions: actions.map((a) => ({ ...a, label: L(`NEONHOME.Downtime.Action.${a.id}`), timeLabel: a.time ? formatMinutes(a.time) : "", selected: a.id === ui.action }))
       }));
+    const projects = ProjectOps.list(actor);
+    for (const g of groups) for (const a of g.actions) if (a.id === "projects" && projects.length) a.timeLabel = String(projects.length);
     if (!groups.some((g) => g.actions.some((a) => a.selected))) ui.action = "hustle";
     for (const g of groups) for (const a of g.actions) a.selected = a.id === ui.action;
     const params = (ui.params[ui.action] ??= {});
@@ -253,9 +305,14 @@ export const DowntimeTab = {
       const flat = flattenList(await MaintOps.list(actor));
       workshop = {
         due: flat.filter((e) => e.status === "due" && e.condition !== "destroyed" && e.condition !== "dbr").map((e) => ({ id: e.id, name: e.name, img: e.img, dv: e.dv, time: formatMinutes(e.minutes), skill: e.skill })),
-        broken: flat.filter((e) => e.condition === "destroyed").map((e) => ({ id: e.id, name: e.name, img: e.img, dv: e.repair.dv, time: formatMinutes(e.repair.minutes), skill: e.skill }))
+        broken: flat.filter((e) => e.condition === "destroyed").map((e) => {
+          const under = ProjectOps.repairOf(actor, actor, e.id);
+          return { id: e.id, name: e.name, img: e.img, dv: e.repair.dv, time: formatMinutes(e.repair.minutes), skill: e.skill, pct: under ? meter(under).pct : null };
+        })
       };
     }
+    // projects under way: the meter, the halfway mark, and what can be done next
+    const projectRows = sel.projects ? projects.map((pr) => projectRow(pr, state)) : null;
     const others = Object.keys(roles).filter((r) => !ACTIONS[r]).map((r) => L(`NEONHOME.Downtime.Role.${r}`));
     return {
       dt: {
@@ -281,7 +338,8 @@ export const DowntimeTab = {
           timeLabel: sel.time ? formatMinutes(sel.time) : "",
           ...sel,
           workshop,
-          canDo: can && !sel.blocked && !sel.workshop
+          projects: projectRows,
+          canDo: can && !sel.blocked && !sel.workshop && !sel.projects
         },
         log: Downtime.log(actor).map((e) => ({ label: e.label, time: formatMinutes(e.minutes), ours: e.source === MODULE_ID }))
       }
@@ -296,13 +354,46 @@ export const DowntimeTab = {
     },
     dtPerform(event) {
       const ui = this.uiState.downtime;
-      const params = { ...(ui.params[ui.action] ?? {}) };
-      return this.act(() => DowntimeOps.perform(this.actor, ui.action, params, { event }));
+      const id = ui.action;
+      const params = { ...(ui.params[id] ?? {}) };
+      if (MAKER.includes(id)) {
+        return this.act(async () => {
+          const now = params.now === "none" ? 0 : params.now ?? "all";
+          const started = await ProjectOps.start(this.actor, id, params, { minutes: now, event });
+          if (started) {
+            ui.params[id] = {};
+            ui.action = "projects";
+          }
+        });
+      }
+      return this.act(() => DowntimeOps.perform(this.actor, id, params, { event }));
     },
     dtWork(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
       const mode = target.dataset.mode;
+      if (mode === "repair") return this.act(() => ProjectOps.repair(this.actor, this.actor, id, { event }));
       return this.act(() => MaintOps.check(this.actor, id, { mode, event }));
+    },
+    dtProjWork(event, target) {
+      const id = target.closest("[data-project]")?.dataset.project;
+      const m = target.dataset.minutes;
+      return this.act(() => ProjectOps.work(this.actor, id, m === "check" || m === "all" ? m : Number(m), { event }));
+    },
+    dtProjRoll(event, target) {
+      const id = target.closest("[data-project]")?.dataset.project;
+      return this.act(() => ProjectOps.roll(this.actor, id, { event }));
+    },
+    dtProjAbandon(event, target) {
+      const id = target.closest("[data-project]")?.dataset.project;
+      return this.act(async () => {
+        const ok = await Compat.DialogV2.confirm({
+          window: { title: L("NEONHOME.Project.Abandon"), icon: "fa-solid fa-trash" },
+          content: `<p>${L("NEONHOME.Project.AbandonAsk")}</p>`,
+          classes: ["neon-home-dialog"],
+          rejectClose: false
+        });
+        if (ok) await ProjectOps.abandon(this.actor, id);
+      });
     },
     dtOpenHub() {
       Downtime.open();

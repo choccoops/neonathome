@@ -1142,3 +1142,26 @@
 }
 .neon-home-chat .nah-card-actions { margin-top: 6px; }
 .neon-home-chat .nah-card-actions button { width: 100%; font-size: 12px; }
+
+/* projects: a meter with the halfway check */
+.neon-home .nah-dt-projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.neon-home .nah-proj { --st: var(--nah-cyan); display: grid; gap: 6px; padding: 8px 10px; border: 1px solid var(--nah-line-2); border-left: 3px solid var(--st); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-card); }
+.neon-home .nah-proj.stage-check { --st: var(--nah-yellow); }
+.neon-home .nah-proj.stage-finish { --st: var(--nah-green); }
+.neon-home .nah-proj header { display: flex; align-items: center; gap: 8px; }
+.neon-home .nah-proj header img { width: 32px; height: 32px; object-fit: contain; }
+.neon-home .nah-proj header > i { width: 32px; text-align: center; font-size: 18px; color: var(--st); }
+.neon-home .nah-proj header > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-proj header b { font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; }
+.neon-home .nah-proj header small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-proj-stage { font-family: var(--nah-display); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--st); border: 1px solid currentColor; padding: 2px 6px; white-space: nowrap; }
+.neon-home .nah-proj.stage-check .nah-proj-stage { animation: nah-emp 1.4s steps(2) infinite; }
+.neon-home .nah-proj-meter { position: relative; height: 16px; border: 1px solid var(--nah-line-2); background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 6px, transparent 6px 12px), var(--nah-bg); }
+.neon-home .nah-proj-meter > b { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, color-mix(in srgb, var(--st) 50%, transparent), var(--st)); box-shadow: 0 0 10px var(--st); }
+.neon-home .nah-proj-half { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--nah-yellow); box-shadow: 0 0 6px var(--nah-yellow); }
+.neon-home .nah-proj-half.is-passed { background: var(--nah-green); box-shadow: 0 0 6px var(--nah-green); }
+.neon-home .nah-proj-meter span { position: absolute; right: 6px; top: 0; font-family: var(--nah-display); font-size: 10px; line-height: 14px; color: #fff; text-shadow: 0 0 3px #000; }
+.neon-home .nah-proj footer { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.neon-home .nah-proj footer button { height: 26px; font-size: 11px; }
+.neon-home .nah-proj footer .is-danger { margin-left: auto; }
+@media (prefers-reduced-motion: reduce) { .neon-home .nah-proj.stage-check .nah-proj-stage { animation: none; } }

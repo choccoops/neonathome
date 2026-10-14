@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.0
+
+- **Maker work and repairs are projects.** Fabrication, Upgrade, Invention and repairs can take weeks or a month, so they're kept on the character with a meter, and carried over between downtimes. Downtime credits go into the meter; at the halfway mark the check comes up (the corebook: on a failure, "halfway through" the Tech realizes they have to start over, pp.140, 148-149). A failure empties the meter, the materials unharmed; a pass lets the rest of the time in; a full meter makes the item, applies the upgrade, writes up the invention, or gets the repaired item working. Materials are bought when a Maker project starts.
+- **The Projects panel** in the Downtime tab shows each project's meter with its halfway mark, where it stands (building to the check, check due, passed), restarts, and buttons to put in time (to the check, all of it, an hour, a day, a week), roll a due check, or abandon it.
+- **Repairs** from the Maintenance tab and the Downtime workshop start or carry on a repair project for whoever does the work, at the corebook's DV and time (p.140); a Tech adds Field Expertise.
+
 ## 1.5.0
 
 - **The Biomonitor has a window of its own**, with its own button on the character sheet (owners and the GM) and in the Actors sidebar, out of the home's tabs.

@@ -372,15 +372,35 @@ ledger. Role actions appear only for the character's Roles (from the role items 
 | Anyone | **The Hustle** | A week; 1d6 on the Role's table, paid by Role Ability Rank (p.381) |
 | Anyone | **Rest and recover** | Days of rest, BODY HP a day (p.222) |
 | Anyone | **Treat a critical injury** | Four hours; the injury's skill and DV (Cybertech on a cyberlimb); not on yourself (pp.222-223) |
-| Anyone | **Maintenance and repairs** | What's due and what's Destroyed, from the Maintenance tab (repairs: p.140) |
-| Tech | **Fabricate** | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
-| Tech | **Upgrade** | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
-| Tech | **Invent** | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149) |
+| Anyone | **Maintenance and repairs** | What's due, and repair projects for what's Destroyed (p.140) |
+| Anyone | **Projects** | Maker work and repairs under way, with their meters |
+| Tech | **Fabricate** (a project) | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
+| Tech | **Upgrade** (a project) | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
+| Tech | **Invent** (a project) | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149) |
 | Medtech | **Synthesize pharmaceuticals** | An hour, DV13 Medical Tech, 200eb: doses equal to the skill (p.149) |
 | Medtech | **Therapy** | A week for both; Addiction, or Standard/Extreme Humanity Loss (2d6/4d6 Humanity) (p.229) |
 | Media | **Chase a rumor** | An information skill against the Active DV (p.151) |
 | Media | **Publish a story** | 1d10 against Believability, by Credibility and evidence (pp.151-153) |
 | Fixer | **Set up a Night Market** | Operator Rank 5, once a month (p.160) |
+
+**Projects.** Maker work and repairs can take a week, two, a month or more, so they're projects,
+kept on the character and carried over from one downtime to the next. The corebook gives them all
+the same failure: halfway through, the Tech realizes they have to start over (pp.140, 148-149). So:
+
+- Starting one buys the materials (Maker work). Each project has a meter with the halfway mark.
+- Downtime is put into the meter (all it needs, up to the check, or an hour, a day, a week). Time
+  goes in up to the halfway mark first.
+- At the halfway mark, the check comes up: Cyberpunk RED's roll for the project's skill, with the
+  Expertise rank (Field Expertise for a Tech's repair).
+  - **Failed**: the meter empties and it starts over. The materials are fine (not bought again).
+  - **Passed**: the rest of the time can go in.
+- A full meter finishes it: the item is made, the upgrade applied, the invention written up, or the
+  repaired item works again.
+- A cancelled roll leaves the check due (**Roll the check** on the project). Projects can be
+  abandoned; what's been spent stays spent.
+
+Repairs are started from the Maintenance tab's **Repair** or the Downtime tab's workshop, by
+whoever does the work (anyone with the skill).
 
 Other Roles' abilities aren't downtime work; they Hustle. A Tech also adds Field Expertise to
 maintenance, inspection and repair checks (p.147). The corebook doesn't say how long chasing a
@@ -419,7 +439,9 @@ const home = game.modules.get("cpr-neon-at-home").api;
 home.open(actor, "bench");          // open a tab: loadout, bay, bench, maintenance, downtime
 home.biomonitor(actor);             // open the Biomonitor window
 home.downtime(actor);               // { active, source, label, total, spent, left } (minutes)
-home.downtimeAction(actor, "rest", { days: 2 }); // do a downtime action
+home.downtimeAction(actor, "rest", { days: 2 }); // do a downtime action (Maker work starts a project)
+home.projects(actor);               // projects under way
+home.workOnProject(actor, id, "all"); // put downtime in: "check", "all" or minutes
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }
