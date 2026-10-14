@@ -14,6 +14,8 @@ await import("../scripts/main.js");
 const { HomeOps, RuleBlock } = await import("../scripts/home/ops.js");
 const { MaintOps } = await import("../scripts/home/maint-ops.js");
 const { CPR } = await import("../scripts/cpr.js");
+// These tests run in downtime (the GM's switch: no Neon Hub here); the downtime tests turn it off.
+await game.settings.set("cpr-neon-at-home", "downtimeOn", true);
 
 const flagOf = (item) => item.getFlag(M, "item") ?? {};
 /** The skill roll comes out at `total` (and is recorded). */

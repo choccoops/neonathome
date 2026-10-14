@@ -4,6 +4,7 @@ import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeStore, docFrom } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
+import { Downtime } from "../home/downtime.js";
 import { canInstallUpgrade, armorEffects } from "../data/capacity.js";
 import { computeWeight, encumbrance } from "../data/weight.js";
 import { itemFlag } from "../data/item-flag.js";
@@ -197,6 +198,8 @@ export const Loadout = {
         uuid: store.uuid,
         name: store.doc.name,
         isStash: store.doc === stash,
+        // the stash is at home: reached in downtime (the GM's setting)
+        locked: store.doc === stash && !Downtime.allows(actor, "stash"),
         canOpen: store.doc.testUserPermission(game.user, "OBSERVER"),
         cargo: cargo && weightRules.enabled ? { current: cargo.current, max: cargo.max, pct: Math.min(100, cargo.pct), status: cargo.status } : null,
         rows: items.sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name)).map((i) => ({
@@ -233,7 +236,8 @@ export const Loadout = {
         notCarried: notCarried.sort((a, b) => a.name.localeCompare(b.name)).map(row),
         stores: stores.map((s) => ({ uuid: s.uuid, name: s.name, selected: s.uuid === st.store })),
         store: storeCtx,
-        hasStash: !!stash
+        hasStash: !!stash,
+        stashLocked: !!stash && !Downtime.allows(actor, "stash")
       }
     };
   },

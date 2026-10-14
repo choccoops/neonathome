@@ -13,6 +13,7 @@ const { RulesConfig } = await import("../scripts/apps/rules-config.js");
 Settings.register(RulesConfig);
 await import("../scripts/main.js");
 const { HomeApp } = await import("../scripts/apps/home-app.js");
+const { BiomonitorApp } = await import("../scripts/apps/biomonitor-app.js");
 const { ItemConfig } = await import("../scripts/apps/item-config.js");
 loadTemplates();
 const { actor } = buildFixture();
@@ -37,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -50,7 +51,10 @@ await mkdir(out, { recursive: true });
 const app = new HomeApp();
 app.actorId = actor.id;
 app.uiState.maint = { selected: "rifle0000000000a" };
-for (const tab of ["loadout", "bay", "biomonitor", "bench", "maintenance"]) {
+const bio = new BiomonitorApp();
+bio.actorId = actor.id;
+await writeFile(path.join(out, "biomonitor.html"), page(`Biomonitor: ${actor.name}`, render("shell.hbs", await bio._prepareContext())));
+for (const tab of ["loadout", "bay", "bench", "maintenance"]) {
   app.tab = tab;
   await writeFile(path.join(out, `${tab}.html`), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 }
@@ -64,10 +68,27 @@ game.modules.set("cpr-neon-hub", {
 app.tab = "maintenance";
 await writeFile(path.join(out, "maintenance-rent.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 game.modules.delete("cpr-neon-hub");
-app.tab = "biomonitor";
-app.uiState.bio = { view: "cyber" };
-await writeFile(path.join(out, "cyberware.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
-app.uiState.bio = { view: "vitals" };
+bio.uiState.bio = { view: "cyber" };
+await writeFile(path.join(out, "cyberware.html"), page(`Biomonitor: ${actor.name}`, render("shell.hbs", await bio._prepareContext())));
+bio.uiState.bio = { view: "vitals" };
+
+// Downtime: Vex as a Tech and Medtech, in a Neon Hub downtime with 4 days 6 hours left of a week
+await actor.createEmbeddedDocuments("Item", [
+  { name: "Tech", type: "role", system: { rank: 4, abilities: [{ name: "Field Expertise", rank: 1 }, { name: "Fabrication Expertise", rank: 2 }, { name: "Upgrade Expertise", rank: 1 }] } },
+  { name: "Medtech", type: "role", system: { rank: 2, abilities: [{ name: "Medical Tech Skill", rank: 2 }, { name: "Surgery Skill", rank: 2 }] } }
+]);
+actor.system.wealth = { value: 2400, transactions: [] };
+const call = { id: "c", label: "After the Arasaka job", total: 10080, status: "open", participants: [actor.uuid] };
+const log = [{ label: "Hustle (Tech)", minutes: 0, source: "x" }, { label: "Maintenance: Tsunami Arms Helix", minutes: 60, source: "cpr-neon-at-home" }, { label: "Rest and recover", minutes: 2820, source: "cpr-neon-at-home" }];
+game.modules.set("cpr-neon-hub", { active: true, api: { downtime: {
+  current: () => call, balance: () => ({ total: 10080, spent: 3960, left: 6120, taking: true }), log: () => log, spend: async () => null, open: () => null
+} } });
+app.tab = "downtime";
+app.uiState.downtime = { action: "hustle", params: { hustle: { role: "tech" } } };
+await writeFile(path.join(out, "downtime.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+app.uiState.downtime = { action: "fabricate", params: { fabricate: { item: "x", itemInfo: { name: "Militech Avenger", img: "../tools/preview-item.svg", price: 500, skill: "Weaponstech", category: "Expensive" } } } };
+await writeFile(path.join(out, "downtime-fab.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+game.modules.delete("cpr-neon-hub");
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));
 const rules = new RulesConfig();

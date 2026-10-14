@@ -1,0 +1,132 @@
+{{#with dt}}
+<div class="nah-dt">
+  {{!-- ================= STATUS STRIP ================= --}}
+  <header class="nah-dt-strip {{#if state.active}}is-on{{/if}}">
+    <div class="nah-dt-status">
+      <span class="nah-kicker">{{localize "NEONHOME.Downtime.Title"}}</span>
+      {{#if call}}
+        <b>{{call.label}}</b>
+        {{#if state.active}}
+          {{#if state.timed}}
+          <div class="nah-dt-clock" data-tooltip="{{localize 'NEONHOME.Downtime.SpentTip' spent=state.spent}}">
+            <div class="nah-meter"><b style="width:{{state.pct}}%"></b></div>
+            <small><i class="fa-regular fa-clock"></i> {{localize "NEONHOME.Downtime.Left" left=state.left}}</small>
+          </div>
+          {{/if}}
+        {{else}}
+          <small class="nah-dt-off">{{localize "NEONHOME.Downtime.NotTaking"}}</small>
+        {{/if}}
+      {{else}}
+        <b class="nah-dt-off">{{localize "NEONHOME.Downtime.None"}}</b>
+      {{/if}}
+    </div>
+    {{#if isGM}}
+    <div class="nah-dt-gm">
+      {{#if hub}}
+      <button type="button" data-action="dtOpenHub"><i class="fa-solid fa-mug-hot"></i> {{#if call}}{{localize "NEONHOME.Downtime.OpenHub"}}{{else}}{{localize "NEONHOME.Downtime.CallHub"}}{{/if}}</button>
+      {{else}}
+      <button type="button" data-action="dtSwitch" data-on="{{#if manualOn}}0{{else}}1{{/if}}" class="{{#if manualOn}}on{{/if}}"><i class="fa-solid fa-power-off"></i> {{#if manualOn}}{{localize "NEONHOME.Downtime.End"}}{{else}}{{localize "NEONHOME.Downtime.Start"}}{{/if}}</button>
+      {{/if}}
+    </div>
+    {{/if}}
+  </header>
+
+  <div class="nah-dt-body">
+    {{!-- ================= ACTIONS ================= --}}
+    <aside class="nah-dt-list nah-scroll">
+      {{#each groups}}
+      <h3 class="nah-kicker">{{label}}</h3>
+      <ul>
+        {{#each actions}}
+        <li class="nah-dt-action {{#if selected}}selected{{/if}}" data-dt="{{id}}" data-action="dtSelect">
+          <i class="{{icon}}"></i>
+          <b>{{label}}</b>
+          {{#if timeLabel}}<small>{{timeLabel}}</small>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+      {{/each}}
+      {{#if roleNote}}<p class="nah-hint">{{roleNote}}</p>{{/if}}
+    </aside>
+
+    {{!-- ================= THE ACTION ================= --}}
+    <main class="nah-dt-panel nah-scroll">
+      {{#with selected}}
+      <header class="nah-dt-head">
+        <h2>{{label}}</h2>
+        {{#if timeLabel}}<span class="nah-dt-time"><i class="fa-regular fa-clock"></i> {{timeLabel}}</span>{{/if}}
+      </header>
+      <p class="nah-dt-blurb">{{blurb}}</p>
+
+      {{#if fields.length}}
+      <div class="nah-dt-fields">
+        {{#each fields}}
+        <div class="nah-dt-field {{#if textarea}}is-wide{{/if}} {{#if drop}}is-wide{{/if}}">
+          <label>{{label}}</label>
+          {{#if select}}<select data-dt-field="{{name}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}
+          {{#if number}}<input type="number" data-dt-field="{{name}}" value="{{value}}" min="{{min}}" max="{{max}}">{{/if}}
+          {{#if text}}<input type="text" data-dt-field="{{name}}" value="{{value}}">{{/if}}
+          {{#if textarea}}<textarea data-dt-field="{{name}}" rows="4">{{value}}</textarea>{{/if}}
+          {{#if drop}}
+          <div class="nah-dt-drop" data-drop="fabricate">
+            {{#if value}}<img src="{{value.img}}" alt=""><span><b>{{value.name}}</b><small>{{value.category}} &middot; {{value.skill}}</small></span>
+            {{else}}<i class="fa-solid fa-arrow-down-to-bracket"></i><span>{{localize "NEONHOME.Downtime.DropHere"}}</span>{{/if}}
+          </div>
+          {{/if}}
+          {{#if hint}}<small class="nah-hint">{{hint}}</small>{{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+
+      {{#if facts.length}}
+      <dl class="nah-dt-facts">
+        {{#each facts}}<div><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/each}}
+      </dl>
+      {{/if}}
+
+      {{#if table}}
+      <table class="nah-dt-table">
+        <tbody>{{#each table}}<tr><td>{{n}}</td><td>{{text}}</td><td>{{eb}}</td></tr>{{/each}}</tbody>
+      </table>
+      {{/if}}
+
+      {{#if workshop}}
+      <div class="nah-dt-workshop">
+        <h4>{{localize "NEONHOME.Downtime.Due"}}</h4>
+        <ul class="nah-dt-jobs">
+          {{#each workshop.due}}
+          <li data-item-id="{{id}}"><img src="{{img}}" alt=""><span><b>{{name}}</b><small>{{skill}} &middot; DV{{dv}} &middot; {{time}}</small></span>
+            <button type="button" data-action="dtWork" data-mode="maintain" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-screwdriver-wrench"></i> {{localize "NEONHOME.Maint.Do.maintain"}}</button></li>
+          {{else}}<li class="nah-hint">{{localize "NEONHOME.Downtime.NothingDue"}}</li>{{/each}}
+        </ul>
+        <h4>{{localize "NEONHOME.Downtime.Broken"}}</h4>
+        <ul class="nah-dt-jobs">
+          {{#each workshop.broken}}
+          <li data-item-id="{{id}}"><img src="{{img}}" alt=""><span><b>{{name}}</b><small>{{skill}} &middot; DV{{dv}} &middot; {{time}}</small></span>
+            <button type="button" data-action="dtWork" data-mode="repair" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-toolbox"></i> {{localize "NEONHOME.Maint.Do.repair"}}</button></li>
+          {{else}}<li class="nah-hint">{{localize "NEONHOME.Downtime.NothingBroken"}}</li>{{/each}}
+        </ul>
+      </div>
+      {{/if}}
+
+      {{#if blocked}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-circle-exclamation"></i> {{blocked}}</p>{{/if}}
+      {{#unless @root.dt.can}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.actions"}}</p>{{/unless}}
+      {{#unless workshop}}
+      <div class="nah-maint-actions">
+        <button type="button" class="nah-primary" data-action="dtPerform" {{#unless canDo}}disabled{{/unless}}><i class="fa-solid fa-dice-d10"></i> {{localize "NEONHOME.Downtime.Do"}}{{#if timeLabel}} <small>{{timeLabel}}</small>{{/if}}</button>
+      </div>
+      {{/unless}}
+      {{/with}}
+
+      <details class="nah-dt-log" open>
+        <summary><i class="fa-solid fa-list"></i> {{localize "NEONHOME.Downtime.Log"}}</summary>
+        <ul>
+          {{#each log}}<li class="{{#if ours}}is-ours{{/if}}"><span>{{label}}</span><small>{{time}}</small></li>
+          {{else}}<li class="nah-hint">{{localize "NEONHOME.Downtime.LogEmpty"}}</li>{{/each}}
+        </ul>
+      </details>
+    </main>
+  </div>
+</div>
+{{/with}}

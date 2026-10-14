@@ -4,6 +4,7 @@ import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeStore } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
+import { Downtime, GATES, formatMinutes } from "../home/downtime.js";
 import { features, feature, featureActions } from "./features.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -11,16 +12,38 @@ const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 
 /**
  * Neon At Home: a character's home suite. One window, a tab per sub-feature (Loadout, Vehicle Bay,
- * Biomonitor, Weaponbench). The shell renders the current tab's template as a partial (feature
- * templates are preloaded, which registers them as partials by path).
+ * Weaponbench, Maintenance, Downtime). The shell renders the current tab's template as a partial
+ * (feature templates are preloaded, which registers them as partials by path).
+ *
+ * Other windows reuse the shell for features that stand on their own (the Biomonitor): a subclass
+ * sets APP_ID, TITLE, ICON and which features it shows.
  */
 export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static instance = null;
+  static _opening = null;
+
+  /** Every window built on this shell, for refreshing them all. */
+  static windows = [];
+
+  /** The window's id (after the module id), title and header icon. */
+  static APP_ID = "home";
+  static TITLE = "NEONHOME.Title";
+  static ICON = "fa-solid fa-house-chimney-window";
+
+  /** The features (tabs) this window shows: everything that doesn't stand on its own. */
+  static featureList() {
+    return features().filter((f) => !f.standalone);
+  }
+
+  /** The tab it opens on. */
+  static defaultTab() {
+    return Settings.get("tab") || "loadout";
+  }
 
   constructor(options = {}) {
-    super(foundry.utils.mergeObject({ id: `${MODULE_ID}-home`, actions: featureActions() }, options, { inplace: false }));
+    super(foundry.utils.mergeObject({ id: `${MODULE_ID}-${new.target.APP_ID}`, actions: featureActions(), window: { title: new.target.TITLE, icon: new.target.ICON } }, options, { inplace: false }));
     this.actorId = null;
-    this.tab = Settings.get("tab") || "loadout";
+    this.tab = new.target.defaultTab();
     /** Per-feature UI state (selected weapon, armor, store), kept across renders. Not "state": ApplicationV2 has a read-only one. */
     this.uiState = {};
     this.busy = false;
@@ -47,7 +70,7 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = {
     body: {
       template: `${TEMPLATE_PATH}/shell.hbs`,
-      scrollable: [".nah-col-doll", ".nah-col-carry", ".nah-col-store", ".nah-bay", ".nah-bio", ".nah-rack", ".nah-mat", ".nah-drawer", ".nah-cyber-list", ".nah-scroll"]
+      scrollable: [".nah-col-doll", ".nah-col-carry", ".nah-col-store", ".nah-bay", ".nah-bio", ".nah-rack", ".nah-mat", ".nah-drawer", ".nah-cyber-list", ".nah-maint-list", ".nah-maint-bench", ".nah-dt-list", ".nah-dt-panel", ".nah-scroll"]
     }
   };
 
@@ -60,21 +83,19 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static open(actor = null, { tab } = {}) {
     // A second click while the window is still opening waits for the first instead of racing it.
-    if (this.#opening) return this.#opening;
-    this.#opening = this.#open(actor, { tab })
+    if (this._opening) return this._opening;
+    this._opening = this._open(actor, { tab })
       .catch((err) => {
-        console.error(`${MODULE_ID} | could not open the home window`, err);
+        console.error(`${MODULE_ID} | could not open the ${this.APP_ID} window`, err);
         ui.notifications.error(L("NEONHOME.Error.Open"));
       })
       .finally(() => {
-        this.#opening = null;
+        this._opening = null;
       });
-    return this.#opening;
+    return this._opening;
   }
 
-  static #opening = null;
-
-  static async #open(actor, { tab }) {
+  static async _open(actor, { tab }) {
     if (typeof actor === "string") actor = await fromUuid(actor);
     if (actor?.isToken) actor = actor.baseActor ?? actor;
     const chars = HomeStore.characters();
@@ -83,19 +104,23 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!actor) return ui.notifications.info(L("NEONHOME.NoCharacter"));
     const app = (this.instance ??= new this());
     app.actorId = actor.id;
-    if (tab && feature(tab)) app.tab = tab;
+    if (tab && this.featureList().some((f) => f.id === tab)) app.tab = tab;
     await app.render({ force: true });
     app.bringToFront?.();
     return app;
   }
 
-  /** Re-render if open. */
+  /** Re-render every window that's open. */
   static refresh() {
-    if (this.instance?.rendered) this.instance.render();
+    for (const W of HomeApp.windows) if (W.instance?.rendered) W.instance.render();
   }
 
-  /** Re-render only when the change touches the character on screen (or their home). */
+  /** Re-render the windows showing the character a change touches (or their home). */
   static refreshFor(doc) {
+    for (const W of HomeApp.windows) W._refreshFor(doc);
+  }
+
+  static _refreshFor(doc) {
     const app = this.instance;
     if (!app?.rendered || !doc) return;
     const actor = app.actor;
@@ -115,12 +140,18 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   get title() {
     const actor = this.actor;
-    return actor ? `${L("NEONHOME.Title")}: ${actor.name}` : L("NEONHOME.Title");
+    const title = L(this.constructor.TITLE);
+    return actor ? `${title}: ${actor.name}` : title;
+  }
+
+  /** This window's features that are on for the character. */
+  _features(actor) {
+    return this.constructor.featureList().filter((f) => !f.available || f.available(actor));
   }
 
   #validTab() {
     const actor = this.actor;
-    const list = features().filter((f) => !f.available || f.available(actor));
+    const list = this._features(actor);
     if (!list.some((f) => f.id === this.tab)) this.tab = list[0]?.id ?? "loadout";
     return this.tab;
   }
@@ -144,7 +175,12 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
       tab,
       actor: actor ? { id: actor.id, uuid: actor.uuid, name: actor.name, img: actor.img } : null,
       characters: HomeStore.characters().map((a) => ({ id: a.id, name: a.name, selected: a.id === this.actorId })),
-      tabs: features().filter((f) => !f.available || f.available(actor)).map((f) => ({ id: f.id, icon: f.icon, label: L(f.label), active: f.id === tab })),
+      tabs: this._features(actor).map((f) => ({ id: f.id, icon: f.icon, label: L(f.label), active: f.id === tab })),
+      // a window of one feature has no tab bar, and a header of its own
+      single: this.constructor.featureList().length <= 1,
+      homeHeader: this.constructor.APP_ID === "home",
+      windowTitle: this.constructor.TITLE,
+      windowIcon: this.constructor.ICON,
       homeName: bay?.homeName || L("NEONHOME.Home.Unnamed"),
       bays: bay?.slots ?? 0,
       hasStash: !!stash,
@@ -157,7 +193,8 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
         humMax: hum.max,
         humPct: pct(hum.value, hum.max)
       },
-      featureTemplate: f?.template ?? null
+      featureTemplate: f?.template ?? null,
+      downtime: actor && this.constructor.APP_ID === "home" ? downtimeBadge(actor) : null
     };
     if (f && actor) {
       // A tab that fails shows why instead of leaving the window blank.
@@ -218,7 +255,7 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const tab = target.dataset.tab;
     if (!feature(tab) || tab === this.tab) return;
     this.tab = tab;
-    game.settings.set(MODULE_ID, "tab", tab).catch(() => null);
+    if (this.constructor === HomeApp) game.settings.set(MODULE_ID, "tab", tab).catch(() => null);
     this.render();
   }
 
@@ -236,6 +273,20 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!item.testUserPermission(game.user, "OBSERVER")) return ui.notifications.warn(L("NEONHOME.Error.NoPermission"));
     item.sheet.render(true);
   }
+}
+
+HomeApp.windows.push(HomeApp);
+
+/** The home's downtime badge: time left in downtime, or that it isn't downtime (when something waits for it). */
+function downtimeBadge(actor) {
+  const st = Downtime.state(actor);
+  if (st.active) {
+    const label = st.left === null ? L("NEONHOME.Downtime.Badge.on") : L("NEONHOME.Downtime.Badge.left", { left: formatMinutes(st.left) });
+    return { active: true, label, tip: st.label ? `${st.label}: ${label}` : label };
+  }
+  if (!GATES.some((g) => Downtime.gated(g))) return null;
+  const label = Downtime.current() ? L("NEONHOME.Downtime.Badge.notTaking") : L("NEONHOME.Downtime.Badge.off");
+  return { active: false, label, tip: L("NEONHOME.Downtime.Badge.tip") };
 }
 
 /** Drag-and-drop helpers shared by the features. */

@@ -57,7 +57,8 @@
 </article>
 {{/inline}}
 
-<div class="nah-bay nah-scroll">
+<div class="nah-bay nah-scroll {{#if bay.locked}}is-locked{{/if}}">
+  {{#if bay.locked}}<p class="nah-lockbar"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.bay"}}</p>{{/if}}
   <section class="nah-bay-head">
     <div>
       <h3 class="nah-kicker">{{localize "NEONHOME.Bay.Garage"}} <span>{{bay.homeName}}</span></h3>

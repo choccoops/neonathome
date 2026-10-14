@@ -5,11 +5,16 @@
     </div>
     <div class="nah-title">
       <h1>{{#if actor}}{{actor.name}}{{else}}{{localize "NEONHOME.Title"}}{{/if}}</h1>
+      {{#unless homeHeader}}
+      <p><span><i class="{{windowIcon}}"></i> {{localize windowTitle}}</span></p>
+      {{else}}
       <p>
         <span><i class="fa-solid fa-house-chimney-window"></i> {{homeName}}</span>
         <span><i class="fa-solid fa-box-archive"></i> {{#if hasStash}}{{localize "NEONHOME.Stash.Count" n=stashCount}}{{else}}{{localize "NEONHOME.Stash.None"}}{{/if}}</span>
         <span><i class="fa-solid fa-warehouse"></i> {{localize "NEONHOME.Bay.Count" n=bays}}</span>
+        {{#if downtime.label}}<span class="nah-downtime-badge {{#if downtime.active}}on{{/if}}" data-tooltip="{{downtime.tip}}"><i class="fa-solid fa-mug-hot"></i> {{downtime.label}}</span>{{/if}}
       </p>
+      {{/unless}}
     </div>
     {{#if actor}}
     <div class="nah-vitals">
@@ -30,6 +35,7 @@
     {{/if}}
   </header>
 
+  {{#unless single}}
   <nav class="nah-tabs" role="tablist">
     {{#each tabs}}
     <button type="button" role="tab" class="{{#if active}}active{{/if}}" data-action="view" data-tab="{{id}}" aria-selected="{{#if active}}true{{else}}false{{/if}}">
@@ -37,6 +43,7 @@
     </button>
     {{/each}}
   </nav>
+  {{/unless}}
 
   <section class="nah-feature nah-feature-{{tab}}">
     {{#if actor}}

@@ -11,6 +11,8 @@ const M = "cpr-neon-at-home";
 const { Settings } = await import("../scripts/settings.js");
 Settings.register(class {});
 const { HomeOps, RuleBlock } = await import("../scripts/home/ops.js");
+// These tests run in downtime (the GM's switch: no Neon Hub here); the downtime tests turn it off.
+await game.settings.set("cpr-neon-at-home", "downtimeOn", true);
 const { HomeStore } = await import("../scripts/home/store.js");
 const { CPR } = await import("../scripts/cpr.js");
 

@@ -57,6 +57,30 @@ export const TIERS = [
   { gear: 5000, vehicle: 100000, dv: 21, time: "1d" }
 ];
 
+/** How long each maintenance tier's Check takes, in minutes. */
+export const TIER_MINUTES = { "30m": 30, "1h": 60, "3h": 180, "1d": 1440 };
+
+/**
+ * Repairing Destroyed gear to perfect condition (Cyberpunk RED p.140, Item Repair): DV and time by
+ * price category. Vehicles go by their damage instead; a destroyed one is DV17 and a week.
+ * @returns {{dv: number, minutes: number, time: string}}
+ */
+export function repairOf(price, vehicle = false) {
+  if (vehicle) return { dv: 17, minutes: 10080, time: "1w" };
+  const p = Number(price) || 0;
+  if (p >= 10000) {
+    // Super Luxury: a month per 10,000eb of its price
+    const months = Math.max(1, Math.ceil(p / 10000));
+    return { dv: 29, minutes: months * 43200, time: `${months}mo` };
+  }
+  if (p >= 5000) return { dv: 29, minutes: 43200, time: "1mo" };
+  if (p >= 1000) return { dv: 24, minutes: 20160, time: "2w" };
+  if (p >= 500) return { dv: 21, minutes: 10080, time: "1w" };
+  if (p >= 100) return { dv: 17, minutes: 1440, time: "1d" };
+  if (p >= 50) return { dv: 13, minutes: 360, time: "6h" };
+  return { dv: 9, minutes: 60, time: "1h" };
+}
+
 /** The tier a piece of gear needs: its value against the table (drones and vehicles have their own). */
 export function tierOf(price, vehicleLike = false) {
   const p = Math.max(0, Number(price) || 0);
@@ -468,6 +492,8 @@ export function maintenanceList(items, { moduleId, cycle = { scheme: "own", n: 1
       tier,
       dv: TIERS[tier].dv,
       time: TIERS[tier].time,
+      minutes: TIER_MINUTES[TIERS[tier].time],
+      repair: repairOf(price, !!k.vehicle && kind.startsWith("vehicle")),
       roleBonus: bonus,
       covered,
       ...maintenanceStatus(flag, { cycle, covered }),

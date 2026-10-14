@@ -4,6 +4,7 @@ import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeStore, docFrom } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
+import { Downtime } from "../home/downtime.js";
 import { effectiveWeapon, socketLayout, benefits, canAttach, canDetach } from "../data/attachments.js";
 import { excerpt } from "../data/util.js";
 import { DnD } from "./home-app.js";
@@ -134,6 +135,8 @@ export const Bench = {
 
     return {
       bench: {
+        // workbench jobs are done at home, in downtime (the GM's setting)
+        locked: !Downtime.allows(actor, "bench"),
         rack,
         canCraft,
         drawer,

@@ -18,8 +18,10 @@ const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
 const { deepClone, randomID } = foundry.utils;
 
-/** Thrown for a rule the GM set to block; shown to the user as a warning, not an error. */
-export class RuleBlock extends Error {}
+import { RuleBlock } from "./rule-block.js";
+import { Downtime } from "./downtime.js";
+
+export { RuleBlock };
 
 /**
  * Everything that changes a character's home. Players do what they own directly; moving items to
@@ -240,6 +242,9 @@ export const HomeOps = {
     const to = docFrom(toUuid);
     const item = from?.items?.get(itemId);
     if (!from || !to || !item) throw new Error(L("NEONHOME.Error.NotFound"));
+    // The home stash is at home: reached in downtime.
+    const stash = HomeStore.home(actor).stash;
+    if (stash && (fromUuid === stash || toUuid === stash)) Downtime.check(actor, "stash");
     // Coming onto the character: check the rules as it would arrive.
     if (to === actor && check) {
       const arriving = item.toObject();
@@ -334,6 +339,7 @@ export const HomeOps = {
    * The armor's upgrade slots are set from its class before CPR checks them.
    */
   async installArmorUpgrade(actor, armorId, upgradeId, fromUuid = null) {
+    Downtime.check(actor, "bench");
     let upgrade = fromUuid && fromUuid !== actor.uuid ? docFrom(fromUuid)?.items.get(upgradeId) : actor.items.get(upgradeId);
     const armor = actor.items.get(armorId);
     if (!armor || !upgrade) throw new Error(L("NEONHOME.Error.NotFound"));
@@ -352,6 +358,7 @@ export const HomeOps = {
   },
 
   async removeArmorUpgrade(actor, armorId, upgradeId) {
+    Downtime.check(actor, "bench");
     const armor = actor.items.get(armorId);
     const upgrade = actor.items.get(upgradeId);
     if (!armor || !upgrade) return;
@@ -712,6 +719,7 @@ export const HomeOps = {
   /* ---------------------------------------- */
 
   async attach(actor, weaponId, upgradeId, fromUuid = null) {
+    Downtime.check(actor, "bench");
     const weapon = actor.items.get(weaponId);
     let upgrade = fromUuid && fromUuid !== actor.uuid ? docFrom(fromUuid)?.items.get(upgradeId) : actor.items.get(upgradeId);
     if (!weapon || !upgrade) throw new Error(L("NEONHOME.Error.NotFound"));
@@ -727,6 +735,7 @@ export const HomeOps = {
   },
 
   async detach(actor, weaponId, upgradeId, { stow = false } = {}) {
+    Downtime.check(actor, "bench");
     const weapon = actor.items.get(weaponId);
     const upgrade = actor.items.get(upgradeId);
     if (!weapon || !upgrade) return;
@@ -737,6 +746,7 @@ export const HomeOps = {
 
   /** Make a custom attachment item on the character (GM, or players if the GM allows it). */
   async createAttachment(actor, data) {
+    Downtime.check(actor, "bench");
     if (!game.user.isGM && !Settings.get("playerCrafting")) throw new RuleBlock(L("NEONHOME.Bench.NoCrafting"));
     const mod = (v) => ({ type: v?.override ? "override" : "modifier", value: Number(v?.value) || null, isSituational: false, onByDefault: false });
     const itemData = {
@@ -761,6 +771,7 @@ export const HomeOps = {
   /* ---------------------------------------- */
 
   async addVehicle(actor, uuid) {
+    Downtime.check(actor, "bay");
     const doc = docFrom(uuid);
     const isVehicle = doc?.documentName === "Item" ? doc.type === "vehicle" : doc?.documentName === "Actor" && doc !== actor && doc.type !== "container";
     if (!isVehicle) throw new Error(L("NEONHOME.Bay.NotVehicle"));
@@ -774,6 +785,7 @@ export const HomeOps = {
   },
 
   async removeVehicle(actor, uuid) {
+    Downtime.check(actor, "bay");
     const home = HomeStore.home(actor);
     home.vehicles = home.vehicles.filter((v) => v.uuid !== uuid);
     await this.updateHome(actor, home);
@@ -781,6 +793,7 @@ export const HomeOps = {
 
   /** Park a vehicle in a bay (swapping with whatever is there) or on the street (bay null). */
   async park(actor, uuid, bay) {
+    Downtime.check(actor, "bay");
     const all = HomeStore.vehicles(actor).map(({ uuid: u, bay: b, active }) => ({ uuid: u, bay: b, active }));
     const v = all.find((x) => x.uuid === uuid);
     if (!v) return;
@@ -792,6 +805,7 @@ export const HomeOps = {
 
   /** The ride the character is using: one at a time. */
   async setActive(actor, uuid) {
+    Downtime.check(actor, "bay");
     const all = HomeStore.vehicles(actor).map(({ uuid: u, bay, active }) => ({ uuid: u, bay, active: u === uuid ? !active : false }));
     await this.updateHome(actor, { vehicles: all });
   },

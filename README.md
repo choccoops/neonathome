@@ -1,22 +1,28 @@
-# Neon At Home: Loadout, Vehicle Bay, Biomonitor, Weaponbench & Maintenance for Cyberpunk RED
+# Neon At Home: Loadout, Vehicle Bay, Weaponbench, Maintenance, Downtime & Biomonitor for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
-from the character sheet, with a tab for each part of their home.
+from the character sheet, with a tab for each part of their home, and the **Biomonitor** in a
+window of its own. Players reach their home whenever they like; what's done at home (the stash,
+the workbench, the garage, maintenance) can wait for **downtime**.
 
 - **Loadout.** What the character wears and carries, against the carry slots their armor gives
   them (the *Armor & Carrying 2.0* homebrew), plus a weight limit. Equip, carry or store things,
   move them to and from a **home stash**, and fit **armor upgrades**.
 - **Vehicle Bay.** Their vehicles parked in the home's bays: HP, SP, speed, crew seats, mounted
   weapons, upgrades and cargo. Bays come from the home's parking in Neon Hub.
-- **Biomonitor.** HP and wounds, armor, critical injuries, Humanity and Empathy, and the
-  *Syndromes & Inspiration* homebrew: Empathy tiers, Syndromes and their Stressors, Catharsis,
-  Antipathy, In The System and Inspiration.
+- **Biomonitor** (its own window). HP and wounds, armor, critical injuries, the cyberware
+  monitor, Humanity and Empathy, and the *Syndromes & Inspiration* homebrew: Empathy tiers,
+  Syndromes and their Stressors, Catharsis, Antipathy, In The System and Inspiration.
 - **Weaponbench.** A weapon's attachment slots, what each attachment does to it, and attaching
   and detaching them, including custom attachments.
 - **Maintenance.** R. Talsorian's *Breaking Your Stuff* DLC: what the character's Lifestyle
   maintains, monthly maintenance Checks for the rest, Damaged, Destroyed and Destroyed Beyond
   Repair gear, inspections, repairs, jury rigs, and malfunctions from the DLC's tables (on a GM's
   call or a natural 1 with poorly maintained gear).
+- **Downtime.** Spend downtime (Neon Hub's downtime credits) on the core rulebook's downtime
+  actions: the Hustle, rest, treating injuries, maintenance and repairs, and each Role's work
+  (fabricating, upgrading and inventing, pharmaceuticals and therapy, rumors and stories, Night
+  Markets).
 
 | Requirement | Version |
 | --- | --- |
@@ -43,10 +49,12 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
 
 ## Opening it
 
-- The **Home** button in a character sheet's header (owners and the GM).
-- The **Home** button at the top of the Actors sidebar.
+- The **Home** and **Biomonitor** buttons in a character sheet's header (owners and the GM).
+- The **Home** and **Biomonitor** buttons at the top of the Actors sidebar.
 - The house button in the Token Controls toolbar.
-- A macro, or a Neon Hub page button running one: `game.modules.get("cpr-neon-at-home").api.open()`.
+- **Go home** on the chat card players get when downtime starts.
+- A macro, or a Neon Hub page button running one: `game.modules.get("cpr-neon-at-home").api.open()`
+  (or `.biomonitor()`).
 
 Players see their own characters; the GM can pick anyone from the list in the header.
 
@@ -175,6 +183,9 @@ actors also appear as storage in the Loadout, with a cargo weight limit (the rul
 vehicle's own `flags.cpr-neon-at-home.cargo`, or MMuton's per-vehicle capacity).
 
 ## Biomonitor
+
+The Biomonitor has a window of its own (it isn't part of the home, and downtime doesn't hold it
+back): the **Biomonitor** button on the character sheet or in the Actors sidebar.
 
 The left side is the body: a heartbeat that speeds up as wounds get worse, the HP bar with the
 Seriously Wounded mark, armor SP, and a **trauma map**. Each critical injury is marked where it
@@ -331,6 +342,50 @@ cyberlimb, the injury notes that Cybertech can Quick Fix or Treat it (p.223).
 equipping a two-handed weapon, or another weapon or shield when that hand is full, is stopped with
 a pop-up (the GM can equip it anyway). With both gone, nothing can be held.
 
+## Downtime
+
+**Downtime** is when the crew can go home: Neon Hub's downtime (the GM calls it, with time for
+each character taking part to spend), or, without Neon Hub, the GM's **Start downtime** switch on
+the Downtime tab (untimed). The home's header shows whether a character is in downtime and how
+much time they have left.
+
+**What waits for downtime.** Players can open their home any time and look at everything; the GM
+decides, in the module settings, what's only done in downtime (all of these by default, and never
+for the GM):
+
+- the **home stash** (taking things out, putting things in, upgrades from it);
+- the **Weaponbench and armor upgrades** (attaching, detaching, custom attachments, fitting armor
+  upgrades);
+- the **Vehicle Bay** (parking, swapping, adding and removing vehicles);
+- **maintenance and repairs**, which also spend the time they take.
+
+When downtime starts, the players taking part get a card with a **Go home** button.
+
+**The Downtime tab.** Each action shows what it takes (time, DV, materials, the roll) and spends
+the character's downtime: with Neon Hub, into its downtime log (the tab shows this downtime's log,
+and the time is given back if a roll is cancelled). Rolls are Cyberpunk RED's own skill rolls, with
+its dialog, LUCK and modifiers. Materials come out of the character's eurobucks, in the wealth
+ledger. Role actions appear only for the character's Roles (from the role items on their sheet).
+
+| Who | Action | What it takes (Cyberpunk RED core rulebook) |
+| --- | --- | --- |
+| Anyone | **The Hustle** | A week; 1d6 on the Role's table, paid by Role Ability Rank (p.381) |
+| Anyone | **Rest and recover** | Days of rest, BODY HP a day (p.222) |
+| Anyone | **Treat a critical injury** | Four hours; the injury's skill and DV (Cybertech on a cyberlimb); not on yourself (pp.222-223) |
+| Anyone | **Maintenance and repairs** | What's due and what's Destroyed, from the Maintenance tab (repairs: p.140) |
+| Tech | **Fabricate** | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
+| Tech | **Upgrade** | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
+| Tech | **Invent** | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149) |
+| Medtech | **Synthesize pharmaceuticals** | An hour, DV13 Medical Tech, 200eb: doses equal to the skill (p.149) |
+| Medtech | **Therapy** | A week for both; Addiction, or Standard/Extreme Humanity Loss (2d6/4d6 Humanity) (p.229) |
+| Media | **Chase a rumor** | An information skill against the Active DV (p.151) |
+| Media | **Publish a story** | 1d10 against Believability, by Credibility and evidence (pp.151-153) |
+| Fixer | **Set up a Night Market** | Operator Rank 5, once a month (p.160) |
+
+Other Roles' abilities aren't downtime work; they Hustle. A Tech also adds Field Expertise to
+maintenance, inspection and repair checks (p.147). The corebook doesn't say how long chasing a
+rumor or writing a story takes; the player sets it (a day by default).
+
 ## Item settings (GM)
 
 Every item sheet has a **Home** button for the GM, with Neon At Home's settings for that item:
@@ -354,12 +409,17 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - **Maintenance tab**, **Maintenance months** (Neon Hub's Rent Day, or monthly or weekly started by
   the GM), **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
+- **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
+  upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
 
 ## For macros and other modules
 
 ```js
 const home = game.modules.get("cpr-neon-at-home").api;
-home.open(actor, "bench");          // open a tab: loadout, bay, biomonitor, bench, maintenance
+home.open(actor, "bench");          // open a tab: loadout, bay, bench, maintenance, downtime
+home.biomonitor(actor);             // open the Biomonitor window
+home.downtime(actor);               // { active, source, label, total, spent, left } (minutes)
+home.downtimeAction(actor, "rest", { days: 2 }); // do a downtime action
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }

@@ -6,13 +6,17 @@ import { CPR } from "./cpr.js";
 import { HomeStore } from "./home/store.js";
 import { HomeOps } from "./home/ops.js";
 import { HomeApp } from "./apps/home-app.js";
+import { BiomonitorApp } from "./apps/biomonitor-app.js";
 import { registerFeature, features } from "./apps/features.js";
 import { Loadout } from "./apps/loadout.js";
 import { Bay } from "./apps/bay.js";
 import { Biomonitor } from "./apps/biomonitor.js";
 import { Bench } from "./apps/bench.js";
 import { Maintenance } from "./apps/maintenance.js";
+import { DowntimeTab } from "./apps/downtime.js";
+import { DowntimeOps } from "./home/downtime-ops.js";
 import { MaintOps } from "./home/maint-ops.js";
+import { Downtime } from "./home/downtime.js";
 import { ItemConfig } from "./apps/item-config.js";
 import { RulesConfig } from "./apps/rules-config.js";
 import { isVasVehicle } from "./data/vehicles.js";
@@ -27,6 +31,7 @@ registerFeature(Bay);
 registerFeature(Biomonitor);
 registerFeature(Bench);
 registerFeature(Maintenance);
+registerFeature(DowntimeTab);
 
 // Item Piles makes its pile actors (containers in Cyberpunk RED) with Actor.create; see CPR.fixActorCreate.
 Hooks.once("ready", () => CPR.fixActorCreate());
@@ -39,8 +44,10 @@ Hooks.once("init", () => {
   CONFIG.statusEffects.push(HomeOps.encumbranceStatus("half"), HomeOps.encumbranceStatus("one"));
 
   game.modules.get(MODULE_ID).api = {
-    /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, biomonitor, bench, maintenance. */
-    open: (actor = null, tab = null) => HomeApp.open(actor, { tab }),
+    /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, bench, maintenance, downtime (biomonitor opens its own window). */
+    open: (actor = null, tab = null) => (tab === "biomonitor" ? BiomonitorApp.open(actor) : HomeApp.open(actor, { tab })),
+    /** Open the Biomonitor on this client (an Actor or uuid; default: your own character). */
+    biomonitor: (actor = null) => BiomonitorApp.open(actor),
     /** GM: open each listed user's own home suite (default: every connected player). */
     show: (tab = null, userIds = null) => HomeSocket.emit("openHome", { tab }, userIds ?? game.users.filter((u) => u.active && !u.isGM).map((u) => u.id)),
     /** Carry slots and weight for a character: { carry, weight }. */
@@ -70,6 +77,10 @@ Hooks.once("init", () => {
     maintenanceCycle: (actor) => MaintOps.cycleFor(actor),
     /** GM: start the next maintenance month (or week) when the GM keeps them (not Neon Hub's Rent Day). */
     newMaintenanceCycle: () => MaintOps.newCycle(),
+    /** Downtime: { active, source, label, total, spent, left } for a character (Neon Hub's call, or the GM's switch). */
+    downtime: (actor) => (actor ? Downtime.state(actor) : Downtime.current()),
+    /** Do a downtime action for a character (see scripts/home/downtime-ops.js). */
+    downtimeAction: (actor, id, params = {}) => DowntimeOps.perform(actor, id, params),
     /** Drop an item where the character stands (an Item Piles pile when it's on). */
     drop: (actor, itemId) => MaintOps.dropItem(actor, actor.items.get(itemId)),
     /** Open Neon At Home's settings for an item (GM). */
@@ -85,7 +96,8 @@ Hooks.once("ready", () => {
   Compat.loadTemplates(features().map((f) => f.template));
   HomeSocket.init();
   HomeOps.init();
-  HomeSocket.on("openHome", ({ tab }) => HomeApp.open(null, { tab }));
+  DowntimeOps.init();
+  HomeSocket.on("openHome", ({ tab }) => (tab === "biomonitor" ? BiomonitorApp.open() : HomeApp.open(null, { tab })));
   if (game.user.isGM && game.system.id !== SYSTEM_ID) ui.notifications.warn(L("NEONHOME.Error.WrongSystem", { system: game.system.title }));
 });
 
@@ -357,6 +369,50 @@ Hooks.on(`${NEON_HUB_ID}.calendarChanged`, watchRent);
 Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, watchRent);
 Hooks.once("ready", () => MaintOps.primeRent());
 
+/**
+ * Downtime starts (a Neon Hub call, or the GM's switch): the players taking part get a card to open
+ * their home, where the stash, the workbench and the garage are.
+ */
+async function announceDowntime(label, actors) {
+  const owners = [...new Set(actors.flatMap((a) => HomeOps._owners(a)))];
+  const names = actors.map((a) => esc(a.name)).join(", ");
+  await ChatMessage.create({
+    content: HomeOps._card("fa-solid fa-mug-hot", `${L("NEONHOME.Downtime.Started", { label: esc(label || L("NEONHOME.Downtime.Title")), names })}`
+      + `<p class="nah-card-actions"><button type="button" data-nah-home="downtime"><i class="fa-solid fa-house-chimney-window"></i> ${esc(L("NEONHOME.Downtime.GoHome"))}</button></p>`),
+    speaker: { alias: L("NEONHOME.Title") },
+    whisper: owners,
+    flags: { [MODULE_ID]: { homeCard: true } }
+  });
+}
+Hooks.on(`${NEON_HUB_ID}.downtimeStarted`, (call) => {
+  if (!HomeOps.isLeadGM) return;
+  const actors = (call?.participants ?? []).map((uuid) => fromUuidSync(uuid)).filter((a) => a?.type === "character");
+  if (actors.length) announceDowntime(call.label, actors).catch((err) => console.warn(`${MODULE_ID} | downtime card failed`, err));
+});
+Hooks.on(`${MODULE_ID}.downtimeSwitched`, (on) => {
+  if (!on || !HomeOps.isLeadGM) return;
+  const actors = MaintOps.players();
+  if (actors.length) announceDowntime("", actors).catch((err) => console.warn(`${MODULE_ID} | downtime card failed`, err));
+});
+for (const hook of [`${NEON_HUB_ID}.downtimeChanged`, `${NEON_HUB_ID}.downtimeStarted`, `${NEON_HUB_ID}.downtimeCompleted`, `${NEON_HUB_ID}.downtimeCancelled`, `${NEON_HUB_ID}.downtimeSpent`, `${NEON_HUB_ID}.downtimeRefunded`]) {
+  Hooks.on(hook, () => HomeApp.refresh());
+}
+
+/** The "open your home" button on downtime cards. */
+function bindHomeCard(message, html) {
+  const root = html?.[0] ?? html;
+  if (!root?.querySelectorAll || !message.getFlag?.(MODULE_ID, "homeCard") || root.dataset?.nahHome) return;
+  if (root.dataset) root.dataset.nahHome = "1";
+  for (const button of root.querySelectorAll("[data-nah-home]")) {
+    button.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      HomeApp.open(null, { tab: button.dataset.nahHome });
+    });
+  }
+}
+Hooks.on("renderChatMessage", (message, html) => bindHomeCard(message, html));
+Hooks.on("renderChatMessageHTML", (message, html) => bindHomeCard(message, html));
+
 /** The GM's buttons on malfunction cards (v12 passes jQuery, v13 an element). */
 function bindMalfunctionCard(message, html) {
   const root = html?.[0] ?? html;
@@ -390,7 +446,10 @@ const configForItem = (item) => game.user.isGM && !["skill", "role", "criticalIn
 Hooks.on("getActorSheetHeaderButtons", (sheet, buttons) => {
   const actor = sheet.actor ?? sheet.document;
   if (!homeForActor(actor)) return;
-  buttons.unshift({ label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) });
+  buttons.unshift(
+    { label: "NEONHOME.Bio.Short", class: "neon-home-bio", icon: "fa-solid fa-heart-pulse", onclick: () => BiomonitorApp.open(actor) },
+    { label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) }
+  );
 });
 Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
   const item = sheet.item ?? sheet.document;
@@ -400,7 +459,10 @@ Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
 // Application V2 sheets (a later CPR release on Foundry v13+).
 Hooks.on("getHeaderControlsActorSheetV2", (sheet, controls) => {
   if (!homeForActor(sheet.document)) return;
-  controls.unshift({ label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) });
+  controls.unshift(
+    { label: "NEONHOME.Bio.Short", icon: "fa-solid fa-heart-pulse", action: "neonHomeBio", onClick: () => BiomonitorApp.open(sheet.document) },
+    { label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) }
+  );
 });
 Hooks.on("getHeaderControlsItemSheetV2", (sheet, controls) => {
   if (!configForItem(sheet.document)) return;
@@ -412,15 +474,19 @@ Hooks.on("renderActorDirectory", (app, html) => {
   const root = Compat.element(html);
   const actions = root?.querySelector(".header-actions");
   if (!actions || actions.querySelector(".neon-home-open")) return;
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "neon-home-open";
-  btn.innerHTML = `<i class="fa-solid fa-house-chimney-window"></i> ${esc(L("NEONHOME.Short"))}`;
-  btn.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    HomeApp.open();
-  });
-  actions.appendChild(btn);
+  const button = (cls, icon, label, open) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = cls;
+    btn.innerHTML = `<i class="${icon}"></i> ${esc(L(label))}`;
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      open();
+    });
+    actions.appendChild(btn);
+  };
+  button("neon-home-open", "fa-solid fa-house-chimney-window", "NEONHOME.Short", () => HomeApp.open());
+  button("neon-home-bio", "fa-solid fa-heart-pulse", "NEONHOME.Bio.Short", () => BiomonitorApp.open());
 });
 
 /** A home button in the left toolbar's Token Controls. v12 passes an array, v13 an object. */

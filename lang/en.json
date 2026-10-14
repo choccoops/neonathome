@@ -80,6 +80,26 @@
       "DropCyberlimbs": {
         "Name": "Lost limbs drop their cyberware",
         "Hint": "A Dismembered Arm, Hand or Leg takes the cyberware in it along: a cyberarm or cyberleg with its options, or a hand's cyberhand, cyberfingers and other hand options, dropped where the character stands (an Item Piles pile when it's on). The GM picks the side."
+      },
+      "DowntimeStash": {
+        "Name": "Home stash only in downtime",
+        "Hint": "Players reach their home stash (from the Loadout, or for upgrades and attachments) only while they're in downtime. The GM always can."
+      },
+      "DowntimeBench": {
+        "Name": "Weaponbench and armor upgrades only in downtime",
+        "Hint": "Attaching and detaching weapon attachments, making custom ones, and fitting or removing armor upgrades happen at home, in downtime. The GM always can."
+      },
+      "DowntimeBay": {
+        "Name": "Vehicle Bay changes only in downtime",
+        "Hint": "Parking, swapping, adding and removing vehicles happen in downtime; anyone can look at the bay any time. The GM always can."
+      },
+      "DowntimeMaintenance": {
+        "Name": "Maintenance and repairs only in downtime",
+        "Hint": "Maintenance Checks and repairs happen in downtime, and spend the time they take (Breaking Your Stuff; Cyberpunk RED p.140). Inspecting and jury-rigging don't. The GM always can."
+      },
+      "DowntimeTab": {
+        "Name": "Downtime tab",
+        "Hint": "Downtime actions from the core rulebook (the Hustle, resting, treatment, repairs, and each Role's work), spending Neon Hub's downtime credits."
       }
     },
     "State": {
@@ -412,7 +432,8 @@
       "GMTools": "GM",
       "Therapy": "Intensive Therapy",
       "TherapyConfirm": "A month of Intensive Therapy (5,000eb): Syndromes lingering at this Humanity are removed, and the scars reset to the current tier. Go ahead?",
-      "TherapyCard": "<b>{name}</b> completes a month of Intensive Therapy. The old scars fade."
+      "TherapyCard": "<b>{name}</b> completes a month of Intensive Therapy. The old scars fade.",
+      "Short": "Biomonitor"
     },
     "Syndrome": {
       "selfSocialDetachment": "Self-Social Detachment",
@@ -823,7 +844,11 @@
         "30m": "30 minutes",
         "1h": "1 hour",
         "3h": "3 hours",
-        "1d": "1 day"
+        "1d": "1 day",
+        "6h": "6 hours",
+        "1w": "1 week",
+        "2w": "2 weeks",
+        "1mo": "1 month"
       },
       "Kind": {
         "armor": "Armor",
@@ -890,7 +915,7 @@
       "NoExpertise": "{name} needs Field Expertise (a Tech's Maker ability) to jury-rig a malfunction.",
       "BeyondRepair": "{item} is Destroyed Beyond Repair.",
       "RepairTitle": "Repair",
-      "RepairHint": "Destroyed gear is repaired with the appropriate Tech skill (Cyberpunk RED, p.140). Set the DV; it defaults to the gear's maintenance DV.",
+      "RepairHint": "Destroyed gear is repaired to perfect condition with its Tech skill, at a DV and time set by its price (Cyberpunk RED, p.140); a destroyed vehicle is DV17 and a week. On a failure the work starts over.",
       "Roll": "Roll",
       "RentKicker": "Rent month",
       "RentIn": "Rent Day in {n} days ({calendar})",
@@ -901,7 +926,9 @@
       "FollowsRent": "Maintenance months start on Neon Hub's Rent Day. Move the calendar on, or change Maintenance months in the module settings.",
       "ToRentDay": "To Rent Day",
       "ToRentDayAsk": "Jump this character's Neon Hub calendar to its next Rent Day? Neon Hub starts the new month for everyone on that calendar (Lifestyle bills, Headquarters), and maintenance falls due.",
-      "NothingDue": "Nothing needs a maintenance Check."
+      "NothingDue": "Nothing needs a maintenance Check.",
+      "FieldExpertise": "Field Expertise",
+      "RepairTakes": "Takes {time} of downtime."
     },
     "Malfunction": {
       "Title": "Malfunction: {item}",
@@ -986,6 +1013,229 @@
       "Hint": "Put something down first. A replacement limb, or the cyberarm working again, gives the hand back.",
       "Ok": "OK",
       "Override": "Equip anyway (GM)"
+    },
+    "Downtime": {
+      "Only": {
+        "stash": "The home stash is reached in downtime.",
+        "bench": "Workbench jobs (attachments and armor upgrades) are done at home, in downtime.",
+        "bay": "Parking and swapping vehicles is done in downtime.",
+        "maintenance": "Maintenance and repairs are done in downtime.",
+        "actions": "Downtime actions are taken in downtime."
+      },
+      "NotEnough": "{name} needs {need} of downtime and has {left} left.",
+      "Badge": {
+        "on": "Downtime",
+        "left": "Downtime: {left} left",
+        "notTaking": "Not in this downtime",
+        "off": "Not in downtime",
+        "tip": "The home stash, the workbench, vehicle parking and maintenance wait for downtime (the GM's settings)."
+      },
+      "Title": "Downtime",
+      "Started": "<b>{label}</b>: downtime for {names}. Home's open: the stash, the workbench, the garage, maintenance and downtime actions.",
+      "GoHome": "Go home",
+      "None": "No downtime called",
+      "NotTaking": "Not taking part in this downtime",
+      "Left": "{left} left",
+      "SpentTip": "{spent} spent so far",
+      "OpenHub": "Downtime log",
+      "CallHub": "Call downtime",
+      "Start": "Start downtime",
+      "End": "End downtime",
+      "Anyone": "Anyone",
+      "HustleOnly": "{roles}: the Hustle (Role Abilities that aren't downtime work).",
+      "Do": "Spend the time and roll",
+      "DropHere": "Drop an item here (from the Items sidebar or a compendium)",
+      "Log": "This downtime",
+      "LogEmpty": "Nothing spent yet.",
+      "Due": "Due for maintenance",
+      "Broken": "Destroyed, to repair",
+      "NothingDue": "Nothing to maintain.",
+      "NothingBroken": "Nothing to repair.",
+      "NoEb": "{name} needs {eb} for the materials.",
+      "NoRole": "{name} has no Role.",
+      "NeedsRole": "Only a {role} can do this; {name} isn't one.",
+      "NotYourself": "Nobody can do that on themselves (only a Quick Fix).",
+      "NoInjuries": "{name} has no critical injuries.",
+      "NoTreatment": "{injury} has no Treatment to roll.",
+      "NeedsSurgery": "{name} has no Surgery (a Medtech's Medicine).",
+      "NeedsMedTech": "{name} has no Medical Tech (a Medtech's Medicine).",
+      "DropItem": "Drop the item to make.",
+      "PickItem": "Pick an item to upgrade.",
+      "PickUpgrade": "Pick an upgrade.",
+      "AlreadyUpgraded": "{item} already has its Maker upgrade (one per item).",
+      "DescribeIt": "Describe the invention for the GM.",
+      "PickDrug": "Pick a pharmaceutical.",
+      "PickPatient": "Pick a patient.",
+      "NightMarketRank": "{name} needs Operator Rank 5 to set up a Night Market.",
+      "NightMarketMonth": "A Night Market has already been set up this month.",
+      "Surgery": "Surgery",
+      "MedicalTech": "Medical Tech",
+      "TimeYours": "The corebook doesn't time this; set how long it takes.",
+      "Chance": "{n} in 10",
+      "OperatorRank": "Operator {n}",
+      "Doses": "{n} doses",
+      "HealsHp": "{n} HP (BODY {body} a day)",
+      "HustleRoll": "1d6 on the {role} table (Rank {rank})",
+      "MakerRoll": "TECH + {skill} + {expertise} {rank} + 1d10",
+      "UpgradeNoted": "Noted on the item for the GM to apply.",
+      "InventNote": "Describe it to the GM first; the GM sets its price category (Expensive at the least) and writes its rules.",
+      "TherapyBoth": "A week for the Medtech and for {patient} (from their downtime too, if they're in it).",
+      "Fact": {
+        "roll": "Roll",
+        "heals": "Heals",
+        "dv": "DV",
+        "materials": "Materials",
+        "note": "Note",
+        "makes": "Makes",
+        "effect": "Effect",
+        "humanity": "Their Humanity",
+        "chance": "Believed",
+        "rank": "Rank"
+      },
+      "Field": {
+        "role": "Role",
+        "days": "Days",
+        "patient": "Patient",
+        "injury": "Injury",
+        "treatment": "Treatment",
+        "item": "Item",
+        "upgrade": "Upgrade",
+        "invention": "The invention",
+        "category": "Price category",
+        "skill": "Skill",
+        "drug": "Pharmaceutical",
+        "therapy": "Therapy",
+        "depth": "How much",
+        "hours": "Hours",
+        "title": "Headline",
+        "evidence": "Pieces of hard evidence"
+      },
+      "Action": {
+        "hustle": "The Hustle",
+        "rest": "Rest and recover",
+        "treat": "Treat a critical injury",
+        "workshop": "Maintenance and repairs",
+        "fabricate": "Fabricate",
+        "upgrade": "Upgrade",
+        "invent": "Invent",
+        "pharma": "Synthesize pharmaceuticals",
+        "therapy": "Therapy",
+        "rumor": "Chase a rumor",
+        "story": "Publish a story",
+        "nightMarket": "Set up a Night Market"
+      },
+      "Blurb": {
+        "hustle": "A week of work on the side between Jobs: roll 1d6 on your Role's table; the pay goes by your Role Ability Rank (Cyberpunk RED, p.381).",
+        "rest": "Each full day of rest heals HP equal to BODY, once stabilized (p.222).",
+        "treat": "A Treatment takes four hours and removes the injury for good, with the skill and DV the injury lists; Cybertech works in their place on a cyberlimb. Nobody can Treat themselves (pp.222-223).",
+        "workshop": "Maintenance Checks and repairs, from the Maintenance tab: each spends its time (Breaking Your Stuff; repairs, p.140).",
+        "fabricate": "Make an item from materials a price category lower: TECH + the skill it's repaired with + Fabrication Expertise against its DV, over its time. A failure starts over, the materials untouched (p.148).",
+        "upgrade": "One upgrade per item, from materials of its price category (a vehicle's: Very Expensive). A failure starts over (p.148).",
+        "invent": "Invent an upgrade or an item. The GM sets its price category, which sets the DV and time; once invented, Fabrication or Upgrade makes it real (pp.148-149).",
+        "pharma": "An hour and 200eb of materials make as many doses as your Medical Tech Skill, on a DV13 Medical Tech Check; a failure wastes the materials (p.149).",
+        "therapy": "A week for you and your patient, materials bought from Biotechnica, a Medical Tech Check at the end; a failure wastes the week and the materials. You can't treat yourself (p.229).",
+        "rumor": "Hunt a rumor down with an information skill, against the Active DV for how detailed it is (p.151).",
+        "story": "Publish: 1d10 against your Believability, set by Credibility and raised by hard evidence. LUCK can't help (pp.151-153).",
+        "nightMarket": "With Operator Rank 5, once a month, gather other Fixers into a Night Market where anything can be found (p.160)."
+      },
+      "Role": {
+        "rockerboy": "Rockerboy",
+        "solo": "Solo",
+        "netrunner": "Netrunner",
+        "tech": "Tech",
+        "medtech": "Medtech",
+        "media": "Media",
+        "exec": "Exec",
+        "lawman": "Lawman",
+        "fixer": "Fixer",
+        "nomad": "Nomad"
+      },
+      "Expertise": {
+        "fabrication": "Fabrication Expertise",
+        "upgrade": "Upgrade Expertise",
+        "invention": "Invention Expertise"
+      },
+      "Upgrade": {
+        "humanity": "Lower cyberware's Humanity Loss by 1d6",
+        "slot": "One more option/attachment/program slot",
+        "simplify": "Simplify: future repairs take half the time",
+        "conceal": "Make a one-handed weapon concealable",
+        "quality": "Average to Excellent Quality",
+        "exoticSlot": "An attachment slot for an Exotic Weapon",
+        "exoticAmmo": "An Exotic Weapon fires one Non-Basic Ammunition",
+        "sp": "+1 SP (armor that has SP)",
+        "vehicle": "A vehicle upgrade needing Nomad Rank 1",
+        "invented": "An upgrade the Tech invented"
+      },
+      "Drug": {
+        "antibiotic": "Antibiotic",
+        "rapidetox": "Rapidetox",
+        "speedheal": "Speedheal",
+        "stim": "Stim",
+        "surge": "Surge"
+      },
+      "Therapy": {
+        "addiction": "Addiction",
+        "standard": "Standard Humanity Loss",
+        "extreme": "Extreme Humanity Loss"
+      },
+      "TherapyEffect": {
+        "addiction": "Frees the patient of one addiction (they fail its Secondary Effect rolls for a year after).",
+        "standard": "Restores 2d6 Humanity (never past the maximum their cyberware leaves).",
+        "extreme": "Restores 4d6 Humanity (never past the maximum their cyberware leaves)."
+      },
+      "Rumor": {
+        "vague": "Vague rumor",
+        "typical": "Typical rumor",
+        "substantial": "Substantial rumor",
+        "detailed": "Detailed rumor"
+      },
+      "HustleLedger": "Hustle ({role})",
+      "HustleCard": "<b>{name}</b> hustled for a week ({role}), rolled <b>{roll}</b>: {text} <b>{eb}</b>.",
+      "RestCard": "<b>{name}</b> rested for {days} day(s) and healed <b>{hp}</b> HP.",
+      "TreatLabel": "Treat {injury} ({patient})",
+      "Treat": {
+        "ok": "<b>{name}</b> treats {patient}'s <b>{injury}</b>: it's healed.",
+        "fail": "<b>{name}</b> couldn't treat {patient}'s <b>{injury}</b> this time."
+      },
+      "FabricateLabel": "Fabricate {item}",
+      "Fabricate": {
+        "ok": "<b>{name}</b> makes <b>{item}</b> from {eb} of materials ({time}).",
+        "fail": "Halfway through, <b>{name}</b> has to start <b>{item}</b> over. The materials are fine."
+      },
+      "UpgradeLabel": "Upgrade {item}: {upgrade}",
+      "UpgradeResult": {
+        "ok": "<b>{name}</b> upgrades <b>{item}</b> ({eb} of materials).",
+        "noted": "<b>{name}</b> upgrades <b>{item}</b> ({eb} of materials); the GM applies what it does.",
+        "fail": "Halfway through, <b>{name}</b> has to start the upgrade to <b>{item}</b> over. The materials and the item are fine."
+      },
+      "InventLabel": "Invent",
+      "Invent": {
+        "ok": "<b>{name}</b> works it out ({category}): the GM writes up how it works. Fabrication or Upgrade makes it real.",
+        "fail": "<b>{name}</b> has to go back to the drawing board."
+      },
+      "PharmaLabel": "Synthesize {drug}",
+      "Pharma": {
+        "ok": "<b>{name}</b> makes <b>{n} doses of {drug}</b>.",
+        "fail": "<b>{name}</b>'s batch of {drug} is ruined; the materials are wasted."
+      },
+      "TherapyLabel": "{therapy} therapy for {patient}",
+      "TherapyResult": {
+        "ok": "<b>{name}</b>'s week of therapy works: <b>{patient}</b> regains <b>{n}</b> Humanity.",
+        "addiction": "<b>{name}</b>'s week of therapy works: <b>{patient}</b> is free of an addiction (the GM notes which).",
+        "fail": "<b>{name}</b>'s week with <b>{patient}</b> was for nothing; the materials are lost."
+      },
+      "RumorLabel": "Chase a {depth}",
+      "RumorResult": {
+        "ok": "<b>{name}</b> runs down a <b>{depth}</b>: the GM says what it is.",
+        "fail": "<b>{name}</b> comes up empty."
+      },
+      "StoryLabel": "Publish a story",
+      "StoryResult": {
+        "ok": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience buys it.</b>",
+        "fail": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience doesn't buy it.</b>"
+      },
+      "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while."
     }
   }
 }

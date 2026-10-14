@@ -26,7 +26,7 @@
     <button type="button" class="{{#if state.equipped}}on{{/if}}" data-action="loadoutEquip" data-state="equipped" data-tooltip="{{localize 'NEONHOME.State.equipped'}}"><i class="fa-solid fa-hand-fist"></i></button>
   </div>
   {{/if}}
-  {{#if canStow}}<button type="button" class="nah-icon-btn" data-action="loadoutStow" data-tooltip="{{localize 'NEONHOME.Loadout.Stow'}}"><i class="fa-solid fa-box-archive"></i></button>{{/if}}
+  {{#if canStow}}{{#unless @root.loadout.stashLocked}}<button type="button" class="nah-icon-btn" data-action="loadoutStow" data-tooltip="{{localize 'NEONHOME.Loadout.Stow'}}"><i class="fa-solid fa-box-archive"></i></button>{{/unless}}{{/if}}
 </li>
 {{/inline}}
 
@@ -189,6 +189,7 @@
     </div>
     {{/unless}}
     {{#with loadout.store}}
+    {{#if locked}}<p class="nah-callout nah-locked"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.stash"}}</p>{{/if}}
     {{#if cargo}}
     <div class="nah-weight status-{{cargo.status}}">
       <span><i class="fa-solid fa-truck-ramp-box"></i> {{localize "NEONHOME.Bay.Cargo"}}</span>
@@ -205,8 +206,10 @@
           <b class="nah-row-name" data-action="openItem">{{name}}{{#if amount}} <em>&times;{{amount}}</em>{{/if}}</b>
           <small><i class="{{icon}}"></i> {{typeLabel}}</small>
         </div>
+        {{#unless ../locked}}
         <button type="button" class="nah-icon-btn" data-action="loadoutRetrieve" data-state="carried" data-tooltip="{{localize 'NEONHOME.Loadout.Take'}}"><i class="fa-solid fa-suitcase"></i></button>
         {{#if equippable}}<button type="button" class="nah-icon-btn" data-action="loadoutRetrieve" data-state="equipped" data-tooltip="{{localize 'NEONHOME.Loadout.TakeEquip'}}"><i class="fa-solid fa-hand-fist"></i></button>{{/if}}
+        {{/unless}}
       </li>
       {{else}}
       <li class="nah-hint nah-dropzone">{{localize "NEONHOME.Stash.Empty"}}</li>
