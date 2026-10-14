@@ -39,10 +39,16 @@ function mechanics(actor) {
   return list;
 }
 
-function row(e, isGM, selected) {
+/** The actor a row's or card's item is on: the character, or (data-holder="stash") their home stash. */
+function holderOf(app, target) {
+  return target.closest("[data-holder]")?.dataset.holder === "stash" ? HomeStore.stash(app.actor) ?? app.actor : app.actor;
+}
+
+function row(e, isGM, selected, stash = false) {
   const condition = seen(e, isGM);
   return {
     id: e.id,
+    stash,
     name: e.name,
     img: e.img,
     depth: e.depth,
@@ -60,7 +66,7 @@ function row(e, isGM, selected) {
   };
 }
 
-function detail(actor, e, { isGM, mechanic, lifestyle }) {
+function detail(actor, e, { isGM, mechanic, lifestyle, holder = actor }) {
   const condition = seen(e, isGM);
   const tier = TIERS[e.tier];
   const m = e.malfunction;
@@ -69,6 +75,8 @@ function detail(actor, e, { isGM, mechanic, lifestyle }) {
   const cat = e.worth.category ? L(`NEONHOME.Maint.Price.${e.worth.category}`) : "";
   return {
     ...e,
+    stash: holder !== actor,
+    holderUuid: holder.uuid,
     condition,
     conditionLabel: L(`NEONHOME.Condition.${condition || "ok"}`),
     hiddenDamage: isGM && e.condition === "damaged" && e.hidden,
@@ -110,11 +118,11 @@ function detail(actor, e, { isGM, mechanic, lifestyle }) {
     repairTime: formatMinutes(e.repair.minutes),
     // a repair under way by whoever's working on it
     repairPct: (() => {
-      const under = ProjectOps.repairOf(mechanic, actor, e.id);
+      const under = ProjectOps.repairOf(mechanic, holder, e.id);
       return under ? meter(under).pct : null;
     })(),
     // maintenance and repairs wait for downtime (the GM's setting)
-    locked: !Downtime.allows(actor, "maintenance"),
+    locked: !Downtime.allows(actor, "maintenance") || (holder !== actor && !Downtime.allows(actor, "stash")),
     conditions: ["", "damaged", "destroyed", "dbr"].map((c) => ({ key: c, label: L(`NEONHOME.Condition.${c || "ok"}`), on: e.condition === c })),
     tables: TABLE_KEYS.map((k) => ({ key: k, label: L(`NEONHOME.Malfunction.Table.${k}`), selected: k === e.table }))
   };
@@ -133,16 +141,21 @@ export const Maintenance = {
     const cycle = await MaintOps.cycleFor(actor);
     const list = await MaintOps.list(actor, cycle);
     const flat = flattenList(list);
-    if (!flat.some((e) => e.id === ui.selected)) ui.selected = flat[0]?.id ?? null;
+    // the home stash: kept up by the character's Lifestyle too (Breaking Your Stuff: "anything you own")
+    const stored = await MaintOps.stashList(actor, cycle);
+    const stashFlat = flattenList(stored?.list ?? []);
+    if (![...flat, ...stashFlat].some((e) => e.id === ui.selected)) ui.selected = flat[0]?.id ?? stashFlat[0]?.id ?? null;
     const crew = mechanics(actor);
     const mechanic = crew.find((a) => a.id === ui.mechanic) ?? actor;
     const lifestyle = MaintOps.lifestyle(actor);
-    const t = tally(list);
+    const t = tally([...list, ...(stored?.list ?? [])]);
     const groups = GROUPS.map((g) => {
       const tops = list.filter((e) => groupOf(e.kind) === g);
       return { key: g, label: L(`NEONHOME.Maint.Group.${g}`), rows: flattenList(tops).map((e) => row(e, isGM, ui.selected)) };
     }).filter((g) => g.rows.length);
-    const sel = flat.find((e) => e.id === ui.selected);
+    if (stashFlat.length) groups.push({ key: "stash", label: L("NEONHOME.Maint.Group.stash"), stash: true, rows: stashFlat.map((e) => row(e, isGM, ui.selected, true)) });
+    const inStash = !flat.some((e) => e.id === ui.selected) && stashFlat.some((e) => e.id === ui.selected);
+    const sel = (inStash ? stashFlat : flat).find((e) => e.id === ui.selected);
     const mode = MaintOps.mode;
     const period = mode === "week" ? "week" : "month";
     return {
@@ -169,8 +182,8 @@ export const Maintenance = {
         mechanicName: mechanic.name,
         tally: t,
         groups,
-        empty: !flat.length,
-        selected: sel ? detail(actor, sel, { isGM, mechanic, lifestyle }) : null,
+        empty: !flat.length && !stashFlat.length,
+        selected: sel ? detail(actor, sel, { isGM, mechanic, lifestyle, holder: inStash ? stored.stash : actor }) : null,
         tiers: TIERS.slice(1).map((tier, i) => ({ label: L(`NEONHOME.Maint.Lifestyle.${LIFESTYLES[i + 1]}`), gear: eb(tier.gear), vehicle: eb(tier.vehicle), dv: tier.dv, time: L(`NEONHOME.Maint.Time.${tier.time}`), on: lifestyle.tier === i + 1 }))
       }
     };
@@ -188,29 +201,30 @@ export const Maintenance = {
       const mode = target.dataset.mode;
       const mechanic = game.actors.get(this.uiState.maint?.mechanic) ?? this.actor;
       // a repair is a project (it can take weeks): started or carried on by whoever does the work
-      if (mode === "repair") return this.act(() => ProjectOps.repair(mechanic, this.actor, id, { event }));
-      return this.act(() => MaintOps.check(this.actor, id, { mode, mechanic, event }));
+      const holder = holderOf(this, target);
+      if (mode === "repair") return this.act(() => ProjectOps.repair(mechanic, holder, id, { event }));
+      return this.act(() => MaintOps.check(holder, id, { mode, mechanic, event }));
     },
     maintCondition(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
-      return this.act(() => HomeOps.setCondition(this.actor, id, target.dataset.condition || ""));
+      return this.act(() => HomeOps.setCondition(holderOf(this, target), id, target.dataset.condition || ""));
     },
     maintHidden(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
-      return this.act(() => HomeOps.setHidden(this.actor, id, target.dataset.hidden === "1"));
+      return this.act(() => HomeOps.setHidden(holderOf(this, target), id, target.dataset.hidden === "1"));
     },
     maintEmp(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
-      return this.act(() => HomeOps.setEmp(this.actor, id, target.dataset.on === "1"));
+      return this.act(() => HomeOps.setEmp(holderOf(this, target), id, target.dataset.on === "1"));
     },
     maintMalfunction(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
       const table = target.closest(".nah-maint-gm")?.querySelector("[name=malfTable]")?.value ?? null;
-      return this.act(() => MaintOps.malfunction(this.actor, id, { table, reason: "gm" }));
+      return this.act(() => MaintOps.malfunction(holderOf(this, target), id, { table, reason: "gm" }));
     },
     maintClear(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
-      return this.act(() => MaintOps.clearMalfunction(this.actor, id));
+      return this.act(() => MaintOps.clearMalfunction(holderOf(this, target), id));
     },
     maintDrop(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.1
+
+- **The home stash is maintained too.** *Breaking Your Stuff* has everything a character owns maintained, so the Maintenance tab now lists the home stash's gear under *In the home stash*: covered by the character's Lifestyle and Role, due on their Rent Day (and counted on the Rent Day card), and maintained, inspected, repaired or marked by the GM like the rest. Working on it is done at home: the GM's downtime settings for the stash and for maintenance both apply. The Downtime tab's workshop lists it as well. Each item is still judged on its own price, never the total.
+- **Any amount of downtime into a project.** Each project under way has a slider (in half hours, or type the hours) to put in exactly as much as the player wants, alongside the quick buttons; starting a Fabrication, Upgrade or Invention can put in an amount of the player's choosing too.
+
 ## 1.6.0
 
 - **Maker work and repairs are projects.** Fabrication, Upgrade, Invention and repairs can take weeks or a month, so they're kept on the character with a meter, and carried over between downtimes. Downtime credits go into the meter; at the halfway mark the check comes up (the corebook: on a failure, "halfway through" the Tech realizes they have to start over, pp.140, 148-149). A failure empties the meter, the materials unharmed; a pass lets the rest of the time in; a full meter makes the item, applies the upgrade, writes up the invention, or gets the repaired item working.

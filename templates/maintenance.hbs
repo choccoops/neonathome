@@ -39,10 +39,10 @@
     {{!-- ================= GEAR LIST ================= --}}
     <aside class="nah-maint-list nah-scroll">
       {{#each groups}}
-      <h3 class="nah-kicker">{{label}}</h3>
+      <h3 class="nah-kicker">{{#if stash}}<i class="fa-solid fa-box-archive"></i> {{/if}}{{label}}</h3>
       <ul>
         {{#each rows}}
-        <li class="nah-maint-row cond-{{condition}} st-{{status}} {{#if selected}}selected{{/if}} {{#if offline}}is-offline{{/if}} {{#if malfunction}}is-malf{{/if}}" style="--depth: {{depth}}" data-item-id="{{id}}" data-action="maintSelect">
+        <li class="nah-maint-row cond-{{condition}} st-{{status}} {{#if selected}}selected{{/if}} {{#if offline}}is-offline{{/if}} {{#if malfunction}}is-malf{{/if}}" style="--depth: {{depth}}" data-item-id="{{id}}" {{#if stash}}data-holder="stash"{{/if}} data-action="maintSelect">
           <img src="{{img}}" alt="">
           <div class="nah-maint-name">
             <b>{{name}}</b>
@@ -59,7 +59,7 @@
     {{!-- ================= WORKBENCH ================= --}}
     <main class="nah-maint-bench nah-scroll">
       {{#with selected}}
-      <section class="nah-maint-card cond-{{condition}} {{#if state}}is-offline{{/if}}" data-item-id="{{id}}">
+      <section class="nah-maint-card cond-{{condition}} {{#if state}}is-offline{{/if}}" data-item-id="{{id}}" {{#if stash}}data-holder="stash" data-owner="{{holderUuid}}"{{/if}}>
         <header class="nah-mat-head">
           <div class="nah-mat-art" data-action="openItem"><img src="{{img}}" alt=""></div>
           <div>

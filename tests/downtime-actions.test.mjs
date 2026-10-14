@@ -304,3 +304,23 @@ test("repairs are projects too: anyone with the skill, the item working again at
   assert.equal(owner.items.get("deck").flags[M].item.condition, "");
   assert.equal(ProjectOps.list(tech).length, 0);
 });
+
+test("any amount of downtime into a project, a bit at a time", async () => {
+  const tech = character("Gearhead", [["Tech", 4]]);
+  const call = downtime(tech, 10080);
+  try {
+    rolls(30);
+    // an invention, Expensive: DV21 and a week. Put in 90 minutes, then 30
+    const p = await ProjectOps.start(tech, "invent", { text: "A quieter suppressor", category: "expensive", skill: "Weaponstech" }, { minutes: 90 });
+    assert.equal(ProjectOps.get(tech, p.id).done, 90);
+    await ProjectOps.work(tech, p.id, 30);
+    assert.equal(ProjectOps.get(tech, p.id).done, 120);
+    assert.deepEqual(call.entries.map((e) => e.minutes), [90, 30]);
+    // more than the downtime left only takes what's left
+    call.total = 200;
+    await ProjectOps.work(tech, p.id, 600);
+    assert.equal(ProjectOps.get(tech, p.id).done, 200);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
+});

@@ -2,6 +2,7 @@ import { MODULE_ID, TEMPLATE_PATH } from "../constants.js";
 import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { MaintOps } from "../home/maint-ops.js";
+import { HomeStore } from "../home/store.js";
 import { Downtime, formatMinutes } from "../home/downtime.js";
 import { DowntimeOps, workSkill } from "../home/downtime-ops.js";
 import { ProjectOps } from "../home/project-ops.js";
@@ -51,8 +52,18 @@ const ACTIONS = {
 /** The actions that start a project. */
 const MAKER = ["fabricate", "upgrade", "invent"];
 
+/**
+ * A time picker (a slider in half hours, and the same in hours to type): any amount from nothing
+ * to `max` minutes.
+ */
+function timePick(max, value, name = "") {
+  const m = Math.max(0, Math.floor(max));
+  const v = Math.min(m, Math.max(0, Math.round((Number(value) || 0) / 30) * 30));
+  return { name, max: m, value: v, hours: v / 60, hoursMax: m / 60, label: formatMinutes(v) };
+}
+
 /** A project for the Projects panel: its meter, where it stands, and the time buttons. */
-function projectRow(p, state) {
+function projectRow(p, state, picked) {
   const st = stage(p);
   const m = meter(p);
   const left = state.active && state.source === "hub" ? state.left : null;
@@ -78,7 +89,9 @@ function projectRow(p, state) {
     checkDue: st === "check",
     passed: p.check === "passed",
     steps: left === 0 ? [] : steps,
-    noTime: left === 0
+    noTime: left === 0,
+    // any amount: up to all it still needs, or the downtime left
+    pick: left === 0 || st === "check" || st === "done" ? null : timePick(Math.min(remaining(p), left ?? Infinity), picked ?? Math.min(needed(p), left ?? Infinity))
   };
 }
 
@@ -103,7 +116,13 @@ function panel(actor, id, p, { roles, state }) {
   let table = null;
   // Maker work is a project: its time can be spread over several downtimes
   let spread = false;
-  const startNow = () => fields.push(field("now", "NEONHOME.Downtime.Field.now", { select: true, options: opt(["all", "check", "none"], p.now ?? "all", (v) => L(`NEONHOME.Project.Now.${v}`)) }));
+  // how much of the project's time goes in now: all, to the check, none, or any amount
+  const startNow = (total) => {
+    fields.push(field("now", "NEONHOME.Downtime.Field.now", { select: true, options: opt(["all", "check", "custom", "none"], p.now ?? "all", (v) => L(`NEONHOME.Project.Now.${v}`)) }));
+    if (p.now !== "custom") return;
+    const left = state.active && state.source === "hub" ? state.left : Infinity;
+    fields.push(field("nowMinutes", "NEONHOME.Downtime.Field.nowMinutes", { pick: timePick(Math.min(total, left), p.nowMinutes ?? Math.min(Math.ceil(total / 2), left), "nowMinutes") }));
+  };
   const fact = (label, value) => facts.push({ label: L(label), value });
   // Maker work is paid for in Tech Materials (items), not eb
   const materials = (need) => {
@@ -175,7 +194,7 @@ function panel(actor, id, p, { roles, state }) {
       const job = makerJob(p.itemInfo.price);
       time = job.minutes;
       spread = true;
-      startNow();
+      startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       materials(fabricationNeeds(p.itemInfo.price));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: p.itemInfo.skill, rank: CPR.abilityRank(actor, "Fabrication Expertise"), expertise: L("NEONHOME.Downtime.Expertise.fabrication") }));
@@ -196,7 +215,7 @@ function panel(actor, id, p, { roles, state }) {
       const job = makerJob(price, { vehicle });
       time = job.minutes;
       spread = true;
-      startNow();
+      startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       materials(upgradeNeeds(price, { vehicle }));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: workSkill(item.toObject()), rank: CPR.abilityRank(actor, "Upgrade Expertise"), expertise: L("NEONHOME.Downtime.Expertise.upgrade") }));
@@ -213,7 +232,7 @@ function panel(actor, id, p, { roles, state }) {
       const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
       time = job.minutes;
       spread = true;
-      startNow();
+      startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, "Invention Expertise"), expertise: L("NEONHOME.Downtime.Expertise.invention") }));
       fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InventNote"));
@@ -348,12 +367,17 @@ export const DowntimeTab = {
     // the workshop: what needs maintaining or repairing
     let workshop = null;
     if (sel.workshop) {
-      const flat = flattenList(await MaintOps.list(actor));
+      // the character's gear, then what's in their home stash
+      const stored = await MaintOps.stashList(actor);
+      const flat = [
+        ...flattenList(await MaintOps.list(actor)).map((e) => ({ ...e, holder: actor })),
+        ...flattenList(stored?.list ?? []).map((e) => ({ ...e, holder: stored.stash, stash: true }))
+      ];
       workshop = {
-        due: flat.filter((e) => e.status === "due" && e.condition !== "destroyed" && e.condition !== "dbr").map((e) => ({ id: e.id, name: e.name, img: e.img, dv: e.dv, time: formatMinutes(e.minutes), skill: e.skill })),
+        due: flat.filter((e) => e.status === "due" && e.condition !== "destroyed" && e.condition !== "dbr").map((e) => ({ id: e.id, name: e.name, img: e.img, dv: e.dv, time: formatMinutes(e.minutes), skill: e.skill, stash: !!e.stash })),
         broken: flat.filter((e) => e.condition === "destroyed").map((e) => {
-          const under = ProjectOps.repairOf(actor, actor, e.id);
-          return { id: e.id, name: e.name, img: e.img, dv: e.repair.dv, time: formatMinutes(e.repair.minutes), skill: e.skill, pct: under ? meter(under).pct : null };
+          const under = ProjectOps.repairOf(actor, e.holder, e.id);
+          return { id: e.id, name: e.name, img: e.img, dv: e.repair.dv, time: formatMinutes(e.repair.minutes), skill: e.skill, pct: under ? meter(under).pct : null, stash: !!e.stash };
         })
       };
     }
@@ -375,7 +399,7 @@ export const DowntimeTab = {
       });
     }
     // projects under way: the meter, the halfway mark, and what can be done next
-    const projectRows = sel.projects ? projects.map((pr) => projectRow(pr, state)) : null;
+    const projectRows = sel.projects ? projects.map((pr) => projectRow(pr, state, ui.picks?.[pr.id])) : null;
     const others = Object.keys(roles).filter((r) => !ACTIONS[r]).map((r) => L(`NEONHOME.Downtime.Role.${r}`));
     return {
       dt: {
@@ -422,7 +446,7 @@ export const DowntimeTab = {
       const params = { ...(ui.params[id] ?? {}) };
       if (MAKER.includes(id)) {
         return this.act(async () => {
-          const now = params.now === "none" ? 0 : params.now ?? "all";
+          const now = params.now === "none" ? 0 : params.now === "custom" ? Math.max(0, Math.floor(Number(params.nowMinutes) || 0)) : params.now ?? "all";
           const started = await ProjectOps.start(this.actor, id, params, { minutes: now, event });
           if (started) {
             ui.params[id] = {};
@@ -440,14 +464,19 @@ export const DowntimeTab = {
       return this.act(() => DowntimeOps.perform(this.actor, id, params, { event }));
     },
     dtWork(event, target) {
-      const id = target.closest("[data-item-id]")?.dataset.itemId;
+      const el = target.closest("[data-item-id]");
+      const id = el?.dataset.itemId;
       const mode = target.dataset.mode;
-      if (mode === "repair") return this.act(() => ProjectOps.repair(this.actor, this.actor, id, { event }));
-      return this.act(() => MaintOps.check(this.actor, id, { mode, event }));
+      const holder = el?.dataset.holder === "stash" ? HomeStore.stash(this.actor) ?? this.actor : this.actor;
+      if (mode === "repair") return this.act(() => ProjectOps.repair(this.actor, holder, id, { event }));
+      return this.act(() => MaintOps.check(holder, id, { mode, mechanic: this.actor, event }));
     },
     dtProjWork(event, target) {
-      const id = target.closest("[data-project]")?.dataset.project;
-      const m = target.dataset.minutes;
+      const row = target.closest("[data-project]");
+      const id = row?.dataset.project;
+      // the slider's amount, or a step button's
+      const m = target.dataset.minutes === "pick" ? row.querySelector("[data-tp-range]")?.value : target.dataset.minutes;
+      if (target.dataset.minutes === "pick" && this.uiState.downtime?.picks) delete this.uiState.downtime.picks[id];
       return this.act(() => ProjectOps.work(this.actor, id, m === "check" || m === "all" ? m : Number(m), { event }));
     },
     dtProjRoll(event, target) {
@@ -495,6 +524,8 @@ export const DowntimeTab = {
     const params = () => (ui.params[ui.action] ??= {});
     for (const el of root.querySelectorAll("[data-dt-field]")) {
       const name = el.dataset.dtField;
+      // a time picker's slider is kept as it moves (below), without redrawing the panel
+      if (el.type === "range") continue;
       // text keeps its focus: stored as typed; choices re-work the panel
       if (el.tagName === "TEXTAREA" || el.type === "text") {
         el.addEventListener("input", () => (params()[name] = el.value));
@@ -504,6 +535,27 @@ export const DowntimeTab = {
           app.render();
         });
       }
+    }
+    // Time pickers: the slider and the hours box move together; a project's pick is kept across renders
+    for (const tp of root.querySelectorAll(".nah-timepick")) {
+      const range = tp.querySelector("[data-tp-range]");
+      const hours = tp.querySelector("[data-tp-hours]");
+      const label = tp.querySelector("[data-tp-label]");
+      const keep = () => {
+        label.textContent = formatMinutes(range.value);
+        const pid = tp.closest("[data-project]")?.dataset.project;
+        if (pid) (ui.picks ??= {})[pid] = Number(range.value);
+        if (range.dataset.dtField) params()[range.dataset.dtField] = Number(range.value);
+      };
+      range.addEventListener("input", () => {
+        hours.value = Number(range.value) / 60;
+        keep();
+      });
+      hours.addEventListener("change", () => {
+        range.value = String(Math.min(Number(range.max), Math.max(0, Math.round((Number(hours.value) || 0) * 2) * 30)));
+        hours.value = Number(range.value) / 60;
+        keep();
+      });
     }
     // Strip for parts: tick items, and how many of a stack
     const picks = () => (params().picks ??= {});

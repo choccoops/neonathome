@@ -272,6 +272,12 @@ tab lists everything the character owns that needs looking after, grouped by kin
 weapon's attachments, each armor's upgrades and each cyberlimb's options as their own entries
 (they're maintained separately).
 
+**Each item on its own.** What a character's gear is worth in total doesn't matter: each item is
+checked against its own price, so a pile of cheap gear never needs a better Lifestyle. **The home
+stash** counts too ("anything you own"): its gear is listed under *In the home stash*, covered by
+the character's Lifestyle and Role and due on their Rent Day, and worked on at home (the GM's
+downtime settings for the stash and for maintenance both apply).
+
 **Lifestyle.** Gear is maintained as part of your Lifestyle when the Lifestyle is good enough for
 its value: Kibble covers gear under 500eb, Generic Prepak under 1,000eb, Good Prepak under
 5,000eb, Fresh Food everything (drones and vehicles: 20,000 / 50,000 / 100,000eb). The Lifestyle is
@@ -391,8 +397,9 @@ kept on the character and carried over from one downtime to the next. The corebo
 the same failure: halfway through, the Tech realizes they have to start over (pp.140, 148-149). So:
 
 - Starting one uses its Tech Materials (Maker work). Each project has a meter with the halfway mark.
-- Downtime is put into the meter (all it needs, up to the check, or an hour, a day, a week). Time
-  goes in up to the halfway mark first.
+- Downtime is put into the meter in any amount: all it needs, up to the check, an hour, a day, a
+  week, or exactly as much as the player picks on the project's slider (or types in hours). Starting
+  a project can put in any amount too, or nothing yet. Time goes in up to the halfway mark first.
 - At the halfway mark, the check comes up: Cyberpunk RED's roll for the project's skill, with the
   Expertise rank (Field Expertise for a Tech's repair).
   - **Failed**: the meter empties and it starts over. The materials are fine (not used again).

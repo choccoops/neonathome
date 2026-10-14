@@ -877,7 +877,8 @@
         "electronics": "Personal electronics",
         "gear": "Gear",
         "drone": "Drones",
-        "vehicle": "Vehicles"
+        "vehicle": "Vehicles",
+        "stash": "In the home stash"
       },
       "Price": {
         "cheap": "Cheap",
@@ -1117,7 +1118,8 @@
         "hours": "Hours",
         "title": "Headline",
         "evidence": "Pieces of hard evidence",
-        "now": "Put in now"
+        "now": "Put in now",
+        "nowMinutes": "How much now"
       },
       "Action": {
         "hustle": "The Hustle",
@@ -1250,7 +1252,8 @@
         "ok": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience buys it.</b>",
         "fail": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience doesn't buy it.</b>"
       },
-      "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while."
+      "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while.",
+      "InStash": "in the stash"
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
@@ -1258,6 +1261,7 @@
       "Now": {
         "all": "All it needs (as much downtime as I have)",
         "check": "Up to the halfway check",
+        "custom": "An amount I choose",
         "none": "Nothing yet"
       },
       "Kind": {
@@ -1300,7 +1304,10 @@
         "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again."
       },
       "Abandoned": "<b>{name}</b> gives up on <b>{label}</b>.",
-      "NoMaterials": "no materials"
+      "NoMaterials": "no materials",
+      "Pick": "How much downtime to put in",
+      "Hours": "Hours",
+      "PutIn": "Put this in"
     },
     "Materials": {
       "Have": "{materials} (has {have})",
