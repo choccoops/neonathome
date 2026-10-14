@@ -167,6 +167,20 @@ export const Settings = {
       default: true,
       onChange: changed
     });
+    reg("salvageEra", {
+      name: "NEONHOME.Settings.SalvageEra.Name",
+      hint: "NEONHOME.Settings.SalvageEra.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      choices: {
+        auto: "NEONHOME.Settings.SalvageEra.auto",
+        2045: "NEONHOME.Settings.SalvageEra.2045",
+        2070: "NEONHOME.Settings.SalvageEra.2070"
+      },
+      default: "auto",
+      onChange: changed
+    });
     // Downtime: what's kept to it, and (without Neon Hub) whether it's on
     for (const [key, name, hint] of [
       ["downtimeStash", "NEONHOME.Settings.DowntimeStash.Name", "NEONHOME.Settings.DowntimeStash.Hint"],

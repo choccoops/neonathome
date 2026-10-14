@@ -4,12 +4,18 @@ import { Settings } from "../settings.js";
 import { MaintOps } from "../home/maint-ops.js";
 import { Downtime, formatMinutes } from "../home/downtime.js";
 import { DowntimeOps, workSkill } from "../home/downtime-ops.js";
+import { ProjectOps } from "../home/project-ops.js";
+import { SalvageOps } from "../home/salvage-ops.js";
+import { stage, meter, needed, remaining } from "../data/projects.js";
+import { Compat } from "../compat.js";
 import { KINDS, PRICE_CATEGORIES, priceCategory, flattenList, isMaintainable } from "../data/maintenance.js";
 import {
-  MIN, HUSTLES, makerJob, fabricationMaterials, upgradeMaterials, UPGRADES, INVENT_CATEGORIES,
+  MIN, HUSTLES, makerJob, UPGRADES, INVENT_CATEGORIES,
   PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
+import { SALVAGE_MINUTES, CATEGORIES, WORTH, locationsOf, locationOf, haulLeft } from "../data/salvage.js";
+import { TIERS, TIER_NAMES, tierEb, fabricationNeeds, upgradeNeeds, stripPlan, unitsFor } from "../data/materials.js";
 import { DnD } from "./home-app.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -21,12 +27,15 @@ const ACTIONS = {
     { id: "hustle", icon: "fa-solid fa-sack-dollar", time: MIN.week },
     { id: "rest", icon: "fa-solid fa-bed", time: MIN.day },
     { id: "treat", icon: "fa-solid fa-kit-medical", time: TREATMENT_MINUTES },
-    { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" }
+    { id: "salvage", icon: "fa-solid fa-dumpster", time: SALVAGE_MINUTES },
+    { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" },
+    { id: "projects", icon: "fa-solid fa-diagram-project" }
   ],
   tech: [
     { id: "fabricate", icon: "fa-solid fa-industry" },
     { id: "upgrade", icon: "fa-solid fa-microchip" },
-    { id: "invent", icon: "fa-solid fa-lightbulb" }
+    { id: "invent", icon: "fa-solid fa-lightbulb" },
+    { id: "strip", icon: "fa-solid fa-gears" }
   ],
   medtech: [
     { id: "pharma", icon: "fa-solid fa-syringe", time: MIN.hour },
@@ -38,6 +47,40 @@ const ACTIONS = {
   ],
   fixer: [{ id: "nightMarket", icon: "fa-solid fa-store", time: MIN.day }]
 };
+
+/** The actions that start a project. */
+const MAKER = ["fabricate", "upgrade", "invent"];
+
+/** A project for the Projects panel: its meter, where it stands, and the time buttons. */
+function projectRow(p, state) {
+  const st = stage(p);
+  const m = meter(p);
+  const left = state.active && state.source === "hub" ? state.left : null;
+  const steps = [];
+  if (st === "build") steps.push({ minutes: "check", label: L("NEONHOME.Project.ToCheck", { time: formatMinutes(needed(p)) }) });
+  if (st === "build" || st === "finish") steps.push({ minutes: "all", label: L("NEONHOME.Project.AllOfIt", { time: formatMinutes(remaining(p)) }) });
+  for (const [n, key] of [[MIN.hour, "hour"], [MIN.day, "day"], [MIN.week, "week"]]) if (n < needed(p)) steps.push({ minutes: n, label: L(`NEONHOME.Project.One.${key}`) });
+  return {
+    id: p.id,
+    label: p.label,
+    img: p.img,
+    icon: ProjectOps.icon(p.kind),
+    kind: L(`NEONHOME.Project.Kind.${p.kind}`),
+    dv: p.dv,
+    skill: p.skill,
+    done: formatMinutes(p.done),
+    total: formatMinutes(p.minutes),
+    pct: m.pct,
+    half: m.half,
+    stage: st,
+    stageLabel: L(`NEONHOME.Project.Stage.${st}`, { left: formatMinutes(p.minutes - p.done) }),
+    restarts: p.restarts,
+    checkDue: st === "check",
+    passed: p.check === "passed",
+    steps: left === 0 ? [] : steps,
+    noTime: left === 0
+  };
+}
 
 /** The skills a rumor can be chased with (STAT + skill). */
 const RUMOR_SKILLS = ["Library Search", "Conversation", "Interrogation", "Human Perception", "Streetwise"];
@@ -58,7 +101,17 @@ function panel(actor, id, p, { roles, state }) {
   let blocked = "";
   let time = null;
   let table = null;
+  // Maker work is a project: its time can be spread over several downtimes
+  let spread = false;
+  const startNow = () => fields.push(field("now", "NEONHOME.Downtime.Field.now", { select: true, options: opt(["all", "check", "none"], p.now ?? "all", (v) => L(`NEONHOME.Project.Now.${v}`)) }));
   const fact = (label, value) => facts.push({ label: L(label), value });
+  // Maker work is paid for in Tech Materials (items), not eb
+  const materials = (need) => {
+    const line = SalvageOps.needLine(actor, need);
+    fact("NEONHOME.Downtime.Fact.materials", L("NEONHOME.Materials.Have", { materials: line.text, have: line.have }));
+    if (!line.ok) blocked ||= L("NEONHOME.Materials.Short", { name: actor.name, materials: line.text });
+  };
+  let strip = null;
   switch (id) {
     case "hustle": {
       const keys = Object.keys(roles).filter((r) => HUSTLES[r]);
@@ -111,6 +164,8 @@ function panel(actor, id, p, { roles, state }) {
     }
     case "workshop":
       return { workshop: true, facts, fields, time: null, blocked };
+    case "projects":
+      return { projects: true, facts, fields, time: null, blocked };
     case "fabricate": {
       fields.push(field("item", "NEONHOME.Downtime.Field.item", { drop: true, value: p.itemInfo ?? null }));
       if (!p.itemInfo) {
@@ -119,8 +174,10 @@ function panel(actor, id, p, { roles, state }) {
       }
       const job = makerJob(p.itemInfo.price);
       time = job.minutes;
+      spread = true;
+      startNow();
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
-      fact("NEONHOME.Downtime.Fact.materials", eb(fabricationMaterials(p.itemInfo.price)));
+      materials(fabricationNeeds(p.itemInfo.price));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: p.itemInfo.skill, rank: CPR.abilityRank(actor, "Fabrication Expertise"), expertise: L("NEONHOME.Downtime.Expertise.fabrication") }));
       break;
     }
@@ -138,8 +195,10 @@ function panel(actor, id, p, { roles, state }) {
       const price = Number(item.system?.price?.market) || 0;
       const job = makerJob(price, { vehicle });
       time = job.minutes;
+      spread = true;
+      startNow();
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
-      fact("NEONHOME.Downtime.Fact.materials", eb(upgradeMaterials(price, { vehicle })));
+      materials(upgradeNeeds(price, { vehicle }));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: workSkill(item.toObject()), rank: CPR.abilityRank(actor, "Upgrade Expertise"), expertise: L("NEONHOME.Downtime.Expertise.upgrade") }));
       if (!UPGRADES[up].apply) fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.UpgradeNoted"));
       break;
@@ -153,9 +212,45 @@ function panel(actor, id, p, { roles, state }) {
       fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
       const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
       time = job.minutes;
+      spread = true;
+      startNow();
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, "Invention Expertise"), expertise: L("NEONHOME.Downtime.Expertise.invention") }));
       fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InventNote"));
+      break;
+    }
+    case "salvage": {
+      const era = SalvageOps.era();
+      const places = locationsOf(era);
+      const loc = places.includes(p.location) ? p.location : places[0];
+      const cat = CATEGORIES.includes(p.category) ? p.category : "any";
+      const specific = cat !== "any";
+      fields.push(field("location", "NEONHOME.Salvage.Field.location", { select: true, options: places.map((k) => ({ value: k, label: SalvageOps.placeName(era, k), selected: k === loc })) }));
+      fields.push(field("category", "NEONHOME.Salvage.Field.category", { select: true, options: opt(["any", ...CATEGORIES], cat, (c) => (c === "any" ? L("NEONHOME.Salvage.Any") : SalvageOps.categoryName(c))) }));
+      time = SALVAGE_MINUTES;
+      fact("NEONHOME.Salvage.Fact.era", L(`NEONHOME.Salvage.Era.${era}`));
+      fact("NEONHOME.Salvage.Fact.place", L(`NEONHOME.Salvage.About.${era}.${loc}`));
+      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Salvage.Roll"));
+      if (!specific) fact("NEONHOME.Salvage.Fact.finds", locationOf(era, loc).categories.map((c, i) => `${i + 1} ${SalvageOps.categoryName(c)}`).join(" · "));
+      fact("NEONHOME.Salvage.Fact.fumble", L("NEONHOME.Salvage.FumbleNote"));
+      table = WORTH.filter((w) => (specific ? w.specific : w.any) !== null).map((w) => ({ n: `DV${specific ? w.specific : w.any}`, text: L("NEONHOME.Salvage.WorthRow"), eb: eb(w.eb) }));
+      break;
+    }
+    case "strip": {
+      const tier = TIERS.includes(p.tier) ? p.tier : "costly";
+      const count = Math.min(99, Math.max(1, Math.floor(Number(p.count) || 1)));
+      fields.push(field("tier", "NEONHOME.Strip.Field.tier", { select: true, options: opt(TIERS, tier, (t) => `${TIER_NAMES[t]} (${eb(tierEb(t))})`) }));
+      fields.push(field("count", "NEONHOME.Strip.Field.count", { number: true, value: count, min: 1, max: 99 }));
+      const picks = p.picks ?? {};
+      const list = SalvageOps.strippable(actor);
+      const qty = (s) => Math.min(s.amount, Math.max(1, Math.floor(Number(picks[s.item.id]) || 1)));
+      const plan = stripPlan(list.filter((s) => picks[s.item.id]).map((s) => ({ value: s.value, qty: qty(s) })), tier, count);
+      strip = list.map((s) => ({ id: s.item.id, name: s.item.name, img: s.item.img, value: eb(s.value), multi: s.amount > 1, amount: s.amount, picked: !!picks[s.item.id], qty: qty(s) }));
+      fact("NEONHOME.Strip.Fact.parts", eb(plan.total));
+      fact("NEONHOME.Strip.Fact.need", `${eb(plan.need)} (${count} × ${TIER_NAMES[tier]})`);
+      if (plan.ok && plan.waste) fact("NEONHOME.Strip.Fact.waste", eb(plan.waste));
+      if (!list.length) blocked = L("NEONHOME.Strip.Nothing", { name: actor.name });
+      else if (!plan.ok) blocked = plan.total ? L("NEONHOME.Strip.Short", { have: eb(plan.total), need: eb(plan.need), materials: `${count} × ${TIER_NAMES[tier]} Tech Materials` }) : L("NEONHOME.Strip.PickSome");
       break;
     }
     case "pharma": {
@@ -218,8 +313,9 @@ function panel(actor, id, p, { roles, state }) {
       break;
     }
   }
-  if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
-  return { fields, facts, time, blocked, table };
+  if (spread) fact("NEONHOME.Downtime.Fact.project", L("NEONHOME.Project.HowItGoes"));
+  else if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
+  return { fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip" };
 }
 
 export const DowntimeTab = {
@@ -242,6 +338,8 @@ export const DowntimeTab = {
         label: key === "anyone" ? L("NEONHOME.Downtime.Anyone") : L(`NEONHOME.Downtime.Role.${key}`),
         actions: actions.map((a) => ({ ...a, label: L(`NEONHOME.Downtime.Action.${a.id}`), timeLabel: a.time ? formatMinutes(a.time) : "", selected: a.id === ui.action }))
       }));
+    const projects = ProjectOps.list(actor);
+    for (const g of groups) for (const a of g.actions) if (a.id === "projects" && projects.length) a.timeLabel = String(projects.length);
     if (!groups.some((g) => g.actions.some((a) => a.selected))) ui.action = "hustle";
     for (const g of groups) for (const a of g.actions) a.selected = a.id === ui.action;
     const params = (ui.params[ui.action] ??= {});
@@ -253,9 +351,31 @@ export const DowntimeTab = {
       const flat = flattenList(await MaintOps.list(actor));
       workshop = {
         due: flat.filter((e) => e.status === "due" && e.condition !== "destroyed" && e.condition !== "dbr").map((e) => ({ id: e.id, name: e.name, img: e.img, dv: e.dv, time: formatMinutes(e.minutes), skill: e.skill })),
-        broken: flat.filter((e) => e.condition === "destroyed").map((e) => ({ id: e.id, name: e.name, img: e.img, dv: e.repair.dv, time: formatMinutes(e.repair.minutes), skill: e.skill }))
+        broken: flat.filter((e) => e.condition === "destroyed").map((e) => {
+          const under = ProjectOps.repairOf(actor, actor, e.id);
+          return { id: e.id, name: e.name, img: e.img, dv: e.repair.dv, time: formatMinutes(e.repair.minutes), skill: e.skill, pct: under ? meter(under).pct : null };
+        })
       };
     }
+    // salvage waiting to be picked out (any time: the trip's already made)
+    let hauls = null;
+    if (ui.action === "salvage") {
+      hauls = SalvageOps.hauls(actor).map((h) => {
+        const left = haulLeft(h);
+        return {
+          id: h.id,
+          title: L("NEONHOME.Salvage.HaulTitle", { category: SalvageOps.categoryName(h.category), place: SalvageOps.placeName(h.era, h.location), era: h.era }),
+          worth: eb(h.worth),
+          left: eb(left),
+          pct: h.worth ? Math.round((left / h.worth) * 100) : 0,
+          taken: h.taken.map((t) => t.name).join(", "),
+          tiers: TIERS.filter((t) => unitsFor(left, t) >= 1).map((t) => ({ tier: t, label: `${TIER_NAMES[t]} (${eb(tierEb(t))})` })),
+          category: SalvageOps.categoryName(h.category)
+        };
+      });
+    }
+    // projects under way: the meter, the halfway mark, and what can be done next
+    const projectRows = sel.projects ? projects.map((pr) => projectRow(pr, state)) : null;
     const others = Object.keys(roles).filter((r) => !ACTIONS[r]).map((r) => L(`NEONHOME.Downtime.Role.${r}`));
     return {
       dt: {
@@ -281,7 +401,9 @@ export const DowntimeTab = {
           timeLabel: sel.time ? formatMinutes(sel.time) : "",
           ...sel,
           workshop,
-          canDo: can && !sel.blocked && !sel.workshop
+          projects: projectRows,
+          hauls,
+          canDo: can && !sel.blocked && !sel.workshop && !sel.projects
         },
         log: Downtime.log(actor).map((e) => ({ label: e.label, time: formatMinutes(e.minutes), ours: e.source === MODULE_ID }))
       }
@@ -296,13 +418,69 @@ export const DowntimeTab = {
     },
     dtPerform(event) {
       const ui = this.uiState.downtime;
-      const params = { ...(ui.params[ui.action] ?? {}) };
-      return this.act(() => DowntimeOps.perform(this.actor, ui.action, params, { event }));
+      const id = ui.action;
+      const params = { ...(ui.params[id] ?? {}) };
+      if (MAKER.includes(id)) {
+        return this.act(async () => {
+          const now = params.now === "none" ? 0 : params.now ?? "all";
+          const started = await ProjectOps.start(this.actor, id, params, { minutes: now, event });
+          if (started) {
+            ui.params[id] = {};
+            ui.action = "projects";
+          }
+        });
+      }
+      if (id === "salvage") return this.act(() => SalvageOps.trip(this.actor, params, { event }));
+      if (id === "strip") {
+        return this.act(async () => {
+          const res = await SalvageOps.strip(this.actor, params.picks, params.tier ?? "costly", params.count ?? 1);
+          if (res) ui.params.strip = { tier: params.tier, count: params.count };
+        });
+      }
+      return this.act(() => DowntimeOps.perform(this.actor, id, params, { event }));
     },
     dtWork(event, target) {
       const id = target.closest("[data-item-id]")?.dataset.itemId;
       const mode = target.dataset.mode;
+      if (mode === "repair") return this.act(() => ProjectOps.repair(this.actor, this.actor, id, { event }));
       return this.act(() => MaintOps.check(this.actor, id, { mode, event }));
+    },
+    dtProjWork(event, target) {
+      const id = target.closest("[data-project]")?.dataset.project;
+      const m = target.dataset.minutes;
+      return this.act(() => ProjectOps.work(this.actor, id, m === "check" || m === "all" ? m : Number(m), { event }));
+    },
+    dtProjRoll(event, target) {
+      const id = target.closest("[data-project]")?.dataset.project;
+      return this.act(() => ProjectOps.roll(this.actor, id, { event }));
+    },
+    dtProjAbandon(event, target) {
+      const id = target.closest("[data-project]")?.dataset.project;
+      return this.act(async () => {
+        const ok = await Compat.DialogV2.confirm({
+          window: { title: L("NEONHOME.Project.Abandon"), icon: "fa-solid fa-trash" },
+          content: `<p>${L("NEONHOME.Project.AbandonAsk")}</p>`,
+          classes: ["neon-home-dialog"],
+          rejectClose: false
+        });
+        if (ok) await ProjectOps.abandon(this.actor, id);
+      });
+    },
+    dtHaulTier(event, target) {
+      const id = target.closest("[data-haul]")?.dataset.haul;
+      return this.act(() => SalvageOps.takeMaterials(this.actor, id, target.dataset.tier, 1));
+    },
+    dtHaulLeave(event, target) {
+      const id = target.closest("[data-haul]")?.dataset.haul;
+      return this.act(async () => {
+        const ok = await Compat.DialogV2.confirm({
+          window: { title: L("NEONHOME.Salvage.Leave"), icon: "fa-solid fa-dumpster" },
+          content: `<p>${L("NEONHOME.Salvage.LeaveAsk")}</p>`,
+          classes: ["neon-home-dialog"],
+          rejectClose: false
+        });
+        if (ok) await SalvageOps.leave(this.actor, id);
+      });
     },
     dtOpenHub() {
       Downtime.open();
@@ -327,9 +505,31 @@ export const DowntimeTab = {
         });
       }
     }
-    // Fabrication: drop the item to make (from the sidebar or a compendium)
-    DnD.targets(root, async (data) => {
+    // Strip for parts: tick items, and how many of a stack
+    const picks = () => (params().picks ??= {});
+    for (const el of root.querySelectorAll("[data-strip-pick]")) {
+      el.addEventListener("change", () => {
+        const id = el.dataset.stripPick;
+        if (el.checked) picks()[id] = Number(root.querySelector(`[data-strip-qty="${id}"]`)?.value) || 1;
+        else delete picks()[id];
+        app.render();
+      });
+    }
+    for (const el of root.querySelectorAll("[data-strip-qty]")) {
+      el.addEventListener("change", () => {
+        const id = el.dataset.stripQty;
+        if (!(id in picks())) return;
+        picks()[id] = Math.max(1, Number(el.value) || 1);
+        app.render();
+      });
+    }
+    // Fabrication: drop the item to make; a haul: drop what was found (from the sidebar or a compendium)
+    DnD.targets(root, async (data, target) => {
       if (data?.type !== "Item" || !data.uuid) return;
+      if (target?.dataset.drop === "haul") {
+        const id = target.closest("[data-haul]")?.dataset.haul;
+        return app.act(() => SalvageOps.takeItem(app.actor, id, data.uuid));
+      }
       const item = await fromUuid(data.uuid);
       if (!item) return;
       const o = item.toObject();

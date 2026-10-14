@@ -100,6 +100,13 @@
       "DowntimeTab": {
         "Name": "Downtime tab",
         "Hint": "Downtime actions from the core rulebook (the Hustle, resting, treatment, repairs, and each Role's work), spending Neon Hub's downtime credits."
+      },
+      "SalvageEra": {
+        "Name": "Salvage tables",
+        "Hint": "Which Night City salvaging happens in: 2045 (Salvaging Night City's places) or 2070 (one Combat Zone, in Pacifica, and no Hot Zone: the Combat Zone, the scrapyards, the Perimeter and the Badlands, each with its own tables). Automatic follows Neon Hub's lifestyle era.",
+        "auto": "Automatic (Neon Hub's era, else 2045)",
+        "2045": "2045 (Time of the Red)",
+        "2070": "2070 (Edgerunner's Handbook)"
       }
     },
     "State": {
@@ -1090,7 +1097,8 @@
         "effect": "Effect",
         "humanity": "Their Humanity",
         "chance": "Believed",
-        "rank": "Rank"
+        "rank": "Rank",
+        "project": "Project"
       },
       "Field": {
         "role": "Role",
@@ -1108,7 +1116,8 @@
         "depth": "How much",
         "hours": "Hours",
         "title": "Headline",
-        "evidence": "Pieces of hard evidence"
+        "evidence": "Pieces of hard evidence",
+        "now": "Put in now"
       },
       "Action": {
         "hustle": "The Hustle",
@@ -1122,21 +1131,27 @@
         "therapy": "Therapy",
         "rumor": "Chase a rumor",
         "story": "Publish a story",
-        "nightMarket": "Set up a Night Market"
+        "nightMarket": "Set up a Night Market",
+        "projects": "Projects",
+        "salvage": "Salvage",
+        "strip": "Strip for parts"
       },
       "Blurb": {
         "hustle": "A week of work on the side between Jobs: roll 1d6 on your Role's table; the pay goes by your Role Ability Rank (Cyberpunk RED, p.381).",
         "rest": "Each full day of rest heals HP equal to BODY, once stabilized (p.222).",
         "treat": "A Treatment takes four hours and removes the injury for good, with the skill and DV the injury lists; Cybertech works in their place on a cyberlimb. Nobody can Treat themselves (pp.222-223).",
         "workshop": "Maintenance Checks and repairs, from the Maintenance tab: each spends its time (Breaking Your Stuff; repairs, p.140).",
-        "fabricate": "Make an item from materials a price category lower: TECH + the skill it's repaired with + Fabrication Expertise against its DV, over its time. A failure starts over, the materials untouched (p.148).",
-        "upgrade": "One upgrade per item, from materials of its price category (a vehicle's: Very Expensive). A failure starts over (p.148).",
-        "invent": "Invent an upgrade or an item. The GM sets its price category, which sets the DV and time; once invented, Fabrication or Upgrade makes it real (pp.148-149).",
+        "fabricate": "Make an item from Tech Materials a price category lower, used when you start. TECH + the skill it's repaired with + Fabrication Expertise against its DV, rolled halfway through its time; a failure there starts it over, the materials unharmed (p.148).",
+        "upgrade": "One upgrade per item, from Tech Materials of its price category (a vehicle's: Very Expensive), used when you start. The check comes halfway; a failure there starts it over, the materials and the item unharmed (p.148).",
+        "invent": "Invent an upgrade or an item. The GM sets its price category, which sets the DV and time; the check comes halfway, and a failure sends you back to the drawing board. Once invented, Fabrication or Upgrade makes it real (pp.148-149).",
         "pharma": "An hour and 200eb of materials make as many doses as your Medical Tech Skill, on a DV13 Medical Tech Check; a failure wastes the materials (p.149).",
         "therapy": "A week for you and your patient, materials bought from Biotechnica, a Medical Tech Check at the end; a failure wastes the week and the materials. You can't treat yourself (p.229).",
         "rumor": "Hunt a rumor down with an information skill, against the Active DV for how detailed it is (p.151).",
         "story": "Publish: 1d10 against your Believability, set by Credibility and raised by hard evidence. LUCK can't help (pp.151-153).",
-        "nightMarket": "With Operator Rank 5, once a month, gather other Fixers into a Night Market where anything can be found (p.160)."
+        "nightMarket": "With Operator Rank 5, once a month, gather other Fixers into a Night Market where anything can be found (p.160).",
+        "projects": "Long work kept going over downtimes: Maker projects and repairs. Put downtime in; the check comes due halfway. Fail it and you realize you have to start over (the materials are fine); pass it and the rest of the time finishes it (Cyberpunk RED pp.140, 148-149).",
+        "salvage": "A week picking through the ruins, and no other downtime that week. Take whatever turns up (1d6 on the place's table) or hunt one category (a harder DV). A Basic Tech Check sets the worth found: pick out Destroyed items of that category (to repair later) or Tech Materials, up to that worth; the rest is lost. A Critical Failure finds nothing and runs into the place's perils (Salvaging Night City).",
+        "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost."
       },
       "Role": {
         "rockerboy": "Rockerboy",
@@ -1236,6 +1251,166 @@
         "fail": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience doesn't buy it.</b>"
       },
       "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while."
+    },
+    "Project": {
+      "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
+      "Start": "Start the project",
+      "Now": {
+        "all": "All it needs (as much downtime as I have)",
+        "check": "Up to the halfway check",
+        "none": "Nothing yet"
+      },
+      "Kind": {
+        "fabricate": "Fabrication",
+        "upgrade": "Upgrade",
+        "invent": "Invention",
+        "repair": "Repair"
+      },
+      "Stage": {
+        "build": "Building to the check",
+        "check": "Check due",
+        "finish": "Passed: {left} to go",
+        "done": "Done"
+      },
+      "Halfway": "Halfway: the check",
+      "Roll": "Roll the check",
+      "ToCheck": "To the check ({time})",
+      "AllOfIt": "All of it ({time})",
+      "One": {
+        "hour": "1 hour",
+        "day": "1 day",
+        "week": "1 week"
+      },
+      "NoTime": "No downtime left to put in.",
+      "None": "No projects under way. Start one from Fabricate, Upgrade, Invent, or a repair.",
+      "Abandon": "Abandon the project",
+      "AbandonAsk": "Give up on this project? The time and materials already spent stay spent.",
+      "CarryOn": "Carry on ({pct}%)",
+      "RepairLabel": "Repair {item}",
+      "Started": "<b>{name}</b> starts a project: <b>{label}</b> ({time}, DV{dv}; {materials}).",
+      "Check": {
+        "ok": "Halfway through <b>{label}</b>, it's going right for <b>{name}</b>: {left} more finishes it.",
+        "fail": "Halfway through <b>{label}</b>, <b>{name}</b> realizes it has to start over ({lost} lost; the materials are fine)."
+      },
+      "Done": {
+        "fabricate": "<b>{name}</b> finishes making <b>{item}</b>.",
+        "upgrade": "<b>{name}</b> finishes upgrading <b>{item}</b>.",
+        "upgradeNoted": "<b>{name}</b> finishes upgrading <b>{item}</b>; the GM applies what it does.",
+        "invent": "<b>{name}</b> has a working design ({category}): the GM writes up how it works. Fabrication or Upgrade makes it real.",
+        "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again."
+      },
+      "Abandoned": "<b>{name}</b> gives up on <b>{label}</b>.",
+      "NoMaterials": "no materials"
+    },
+    "Materials": {
+      "Have": "{materials} (has {have})",
+      "Short": "{name} needs {materials}: strip gear for parts, salvage some, or source it.",
+      "From": "Materials from: {from}"
+    },
+    "Salvage": {
+      "Label": "Salvage: {place}",
+      "Field": {
+        "location": "Where",
+        "category": "Looking for"
+      },
+      "Fact": {
+        "era": "Night City",
+        "place": "The place",
+        "finds": "Finds (1d6)",
+        "fumble": "Critical Failure"
+      },
+      "Era": {
+        "2045": "2045 (Time of the Red)",
+        "2070": "2070 (Edgerunner's Handbook)"
+      },
+      "Any": "Whatever turns up (1d6)",
+      "Roll": "TECH + Basic Tech + 1d10: the total sets the worth",
+      "WorthRow": "finds a worth of",
+      "FumbleNote": "Nothing found, and a roll on the place's Perils of Salvaging.",
+      "Category": {
+        "cyberware": "Cyberware",
+        "weapons": "Weapons",
+        "gear": "General Gear",
+        "armor": "Armor",
+        "cyberdecks": "Cyberdecks & Programs"
+      },
+      "Place": {
+        "2045": {
+          "hotZone": "The Hot Zone",
+          "combatZone": "A Combat Zone",
+          "scrapyards": "The Scrapyards",
+          "perimeter": "The Perimeter"
+        },
+        "2070": {
+          "combatZone": "The Combat Zone (Pacifica)",
+          "scrapyards": "The Scrapyards",
+          "perimeter": "The Perimeter",
+          "badlands": "The Badlands"
+        }
+      },
+      "About": {
+        "2045": {
+          "hotZone": "What the 2023 bomb left of the old Corp Plaza in the middle of the city: rubble, and radiation.",
+          "combatZone": "South Night City, the Old Combat Zone, Old Japantown or Little China: picked over for years, and every block is somebody's turf.",
+          "scrapyards": "Junk waiting on recycling that's always behind, owned by Corps whose security shoots first.",
+          "perimeter": "Ghost towns, service stations, motels and factories at the city's edge and out in the Badlands. Nomads, who let you be if you don't want what they want."
+        },
+        "2070": {
+          "combatZone": "Night City's only Combat Zone: Pacifica's dead resort district, the Voodoo Boys' turf and BARGHEST's Dogtown, worked by gangs and scavs alike.",
+          "scrapyards": "Coronado Dam's dump in Santo Domingo and Northside's gutted factories: Corp security, NCPD sweeps, and Maelstrom next door.",
+          "perimeter": "Where the city gives out: abandoned motels, service stations and Unification War leftovers. Raiders, and Nomads.",
+          "badlands": "Climate-wrecked desert past the Perimeter: wrecks, old war sites, Nomad clans, and raiders like the Wraiths."
+        }
+      },
+      "CritFail": "<b>{name}</b> rolls a Critical Failure: nothing salvaged, and trouble.",
+      "Nothing": "<b>{name}</b> spends the week in {place} and finds nothing worth hauling home.",
+      "Found": "<b>{name}</b> hauls <b>{eb}</b> of {category} out of {place}. Pick it out in Downtime, Salvage: Destroyed items of that category, or Tech Materials.",
+      "FoundRolled": "<b>{name}</b> hauls <b>{eb}</b> of {category} (rolled {roll}) out of {place}. Pick it out in Downtime, Salvage: Destroyed items of that category, or Tech Materials.",
+      "Peril": "Perils of Salvaging: {name}",
+      "Negated": "{name}'s {item} keeps it off.",
+      "Saved": "{name}'s {item} saves them.",
+      "Damage": "{n} damage ({dice}); armor soaks it as usual.",
+      "OrSave": "A DV{dv} {skill} Check avoids it.",
+      "Rounds": "{rounds} rounds in it: {n} damage straight to HP.",
+      "Resist": "Beat DV{dv} {skill}, or take {dice} straight to HP.",
+      "Injury": "{name} also takes {injury} (Critical Injury to the Body).",
+      "RollInjury": "Roll a Critical Injury to the Body from the character sheet.",
+      "Source": "Salvaging Night City p.5, summarized; Cyberpunk RED pp.180-181, 221, 355",
+      "SourceLine": "a {category} haul, {place} ({era}), by {name}",
+      "TooDear": "That's more than the {left} left in the haul.",
+      "DropFind": "Drop an item from the Items sidebar or a compendium.",
+      "WrongCategory": "{item} isn't {category}.",
+      "Taken": "<b>{name}</b> picks <b>{item}</b> out of the haul ({left} left).",
+      "TakenLast": "<b>{name}</b> picks <b>{item}</b> out of the haul: that's all of it.",
+      "Left": "<b>{name}</b> leaves the rest of the haul behind ({left} lost).",
+      "HaulTitle": "{category} · {place} ({era})",
+      "Hauls": "Hauls to pick out",
+      "LeftOf": "{left} of {worth} left",
+      "TakenSoFar": "Taken: {items}",
+      "DropHere": "Drop a find here ({category}): it comes Destroyed, to repair later",
+      "AsMaterials": "Or as Tech Materials:",
+      "Leave": "Leave the rest",
+      "LeaveAsk": "Leave what's left of this haul behind? Unspent worth is lost."
+    },
+    "Strip": {
+      "Field": {
+        "tier": "Materials",
+        "count": "How many"
+      },
+      "Fact": {
+        "parts": "Parts picked",
+        "need": "Needed",
+        "waste": "Lost (too small to use)"
+      },
+      "Nothing": "{name} has no gear to strip (it can't be equipped, installed, or holding anything installed).",
+      "PickSome": "Pick the gear to strip.",
+      "Short": "{have} of parts doesn't make {materials} ({need}).",
+      "Each": "each",
+      "HowMany": "How many of the {n}",
+      "Do": "Strip for parts",
+      "SourceLine": "{items}, stripped for parts by {name}",
+      "Card": "<b>{name}</b> strips {items} for parts: <b>{materials}</b>.",
+      "CardWaste": "<b>{name}</b> strips {items} for parts: <b>{materials}</b> ({waste} of it too small to use)."
     }
   }
 }

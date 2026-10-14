@@ -1,0 +1,106 @@
+{
+  "_id": "pLJbr8ptdwC8cSxx",
+  "_key": "!tables!pLJbr8ptdwC8cSxx",
+  "name": "Salvage Categories (2045)",
+  "img": "icons/svg/item-bag.svg",
+  "description": "<p>Salvaging Night City (R. Talsorian Games), pp.3, 5. A short summary by Neon At Home; the DLC has the full text. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result to another category's name (Cyberware, Weapons, General Gear, Armor, Cyberdecks & Programs) to change what's found.</p>",
+  "results": [
+    {
+      "_id": "SNgjzy25H4vha3wf",
+      "_key": "!tables.results!pLJbr8ptdwC8cSxx.SNgjzy25H4vha3wf",
+      "type": "text",
+      "text": "Cyberware",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "UWi9zdH7YpZYQ5Wg",
+      "_key": "!tables.results!pLJbr8ptdwC8cSxx.UWi9zdH7YpZYQ5Wg",
+      "type": "text",
+      "text": "Weapons",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "pqyHtinqwswpbey9",
+      "_key": "!tables.results!pLJbr8ptdwC8cSxx.pqyHtinqwswpbey9",
+      "type": "text",
+      "text": "General Gear",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "uNvKy2kJCyG3gZNa",
+      "_key": "!tables.results!pLJbr8ptdwC8cSxx.uNvKy2kJCyG3gZNa",
+      "type": "text",
+      "text": "General Gear",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "QadCQzycFoeYy2Zv",
+      "_key": "!tables.results!pLJbr8ptdwC8cSxx.QadCQzycFoeYy2Zv",
+      "type": "text",
+      "text": "Armor",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "46NcIJ5pbwtaRu2y",
+      "_key": "!tables.results!pLJbr8ptdwC8cSxx.46NcIJ5pbwtaRu2y",
+      "type": "text",
+      "text": "Cyberdecks & Programs",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 100,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2045.categories"
+    }
+  }
+}

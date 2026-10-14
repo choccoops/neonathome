@@ -1,0 +1,106 @@
+{
+  "_id": "YCEKAQ5nJbbHXPtK",
+  "_key": "!tables!YCEKAQ5nJbbHXPtK",
+  "name": "Perils of Salvaging (The Scrapyards, 2070)",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours; the peril's dice stay the module's.</p>",
+  "results": [
+    {
+      "_id": "jJXUhTZI6a8iWUME",
+      "_key": "!tables.results!YCEKAQ5nJbbHXPtK.jJXUhTZI6a8iWUME",
+      "type": "text",
+      "text": "A slope of scrap comes down on you. 6d6 damage (armor soaks it), and a Critical Injury to the Body.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "aKODQxMgOWqqhoAC",
+      "_key": "!tables.results!YCEKAQ5nJbbHXPtK.aKODQxMgOWqqhoAC",
+      "type": "text",
+      "text": "A Corp security or NCPD sweep of the yard. 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "b0lRrY7RK51DDLwM",
+      "_key": "!tables.results!YCEKAQ5nJbbHXPtK.b0lRrY7RK51DDLwM",
+      "type": "text",
+      "text": "A hot spot left by an old reactor core. High Level Radiation for 1d10 rounds: each, 2 damage straight to HP, as if Mildly On Fire. A Radiation Suit keeps it off.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "nIYajhCaxrN9p7uL",
+      "_key": "!tables.results!YCEKAQ5nJbbHXPtK.nIYajhCaxrN9p7uL",
+      "type": "text",
+      "text": "Into a compactor pit. A 30m fall when the ground gives: 6d6 damage (armor soaks it), unless a Grapple Hand or Gun, or a DV15 Athletics Check to grab the edge, saves you.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Z58eY6pXacBTcZ67",
+      "_key": "!tables.results!YCEKAQ5nJbbHXPtK.Z58eY6pXacBTcZ67",
+      "type": "text",
+      "text": "Crushed chemical drums, leaking. A pocket of toxic gas for a round, as a Vial of Biotoxin: beat DV15 Resist Torture/Drugs or take 3d6 straight to HP. An Anti-Smog Breathing Mask or an air supply keeps it off.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "iy8kqPwGrmg8PU0e",
+      "_key": "!tables.results!YCEKAQ5nJbbHXPtK.iy8kqPwGrmg8PU0e",
+      "type": "text",
+      "text": "A scrapyard crane's cable, still live. A live wire: electrocuted for a round, 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 600,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.scrapyards.perils"
+    }
+  }
+}

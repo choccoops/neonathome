@@ -15,6 +15,8 @@ import { Bench } from "./apps/bench.js";
 import { Maintenance } from "./apps/maintenance.js";
 import { DowntimeTab } from "./apps/downtime.js";
 import { DowntimeOps } from "./home/downtime-ops.js";
+import { ProjectOps } from "./home/project-ops.js";
+import { SalvageOps } from "./home/salvage-ops.js";
 import { MaintOps } from "./home/maint-ops.js";
 import { Downtime } from "./home/downtime.js";
 import { ItemConfig } from "./apps/item-config.js";
@@ -79,8 +81,29 @@ Hooks.once("init", () => {
     newMaintenanceCycle: () => MaintOps.newCycle(),
     /** Downtime: { active, source, label, total, spent, left } for a character (Neon Hub's call, or the GM's switch). */
     downtime: (actor) => (actor ? Downtime.state(actor) : Downtime.current()),
-    /** Do a downtime action for a character (see scripts/home/downtime-ops.js). */
-    downtimeAction: (actor, id, params = {}) => DowntimeOps.perform(actor, id, params),
+    /** Do a downtime action for a character (see scripts/home/downtime-ops.js); Maker work starts a project. */
+    downtimeAction: (actor, id, params = {}) => {
+      if (["fabricate", "upgrade", "invent"].includes(id)) return ProjectOps.start(actor, id, params, { minutes: params.now ?? "all" });
+      if (id === "salvage") return SalvageOps.trip(actor, params);
+      if (id === "strip") return SalvageOps.strip(actor, params.picks, params.tier, params.count);
+      return DowntimeOps.perform(actor, id, params);
+    },
+    /** A character's projects under way (Maker work, repairs): { id, kind, label, dv, minutes, done, check }. */
+    projects: (actor) => ProjectOps.list(actor),
+    /** Put downtime into a project: "check" (to the halfway check), "all", or minutes. */
+    workOnProject: (actor, id, minutes = "all") => ProjectOps.work(actor, id, minutes),
+    /** A week of salvaging: { location, category ("any" or a category) }. The era: salvageEra(). */
+    salvage: (actor, params = {}) => SalvageOps.trip(actor, params),
+    /** The era the salvage tables are for: "2045" or "2070". */
+    salvageEra: () => SalvageOps.era(),
+    /** What a character's salvaging trips found, still to pick out: { id, category, worth, spent }. */
+    hauls: (actor) => SalvageOps.hauls(actor),
+    /** Take Tech Materials of a tier out of a haul. */
+    haulMaterials: (actor, haulId, tier, count = 1) => SalvageOps.takeMaterials(actor, haulId, tier, count),
+    /** Take an item (a uuid) out of a haul, Destroyed. */
+    haulItem: (actor, haulId, uuid) => SalvageOps.takeItem(actor, haulId, uuid),
+    /** A Tech strips gear for Tech Materials: picks { itemId: how many }, the tier, how many units. */
+    stripForParts: (actor, picks, tier, count = 1) => SalvageOps.strip(actor, picks, tier, count),
     /** Drop an item where the character stands (an Item Piles pile when it's on). */
     drop: (actor, itemId) => MaintOps.dropItem(actor, actor.items.get(itemId)),
     /** Open Neon At Home's settings for an item (GM). */
@@ -367,6 +390,8 @@ const watchRent = () => {
 };
 Hooks.on(`${NEON_HUB_ID}.calendarChanged`, watchRent);
 Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, watchRent);
+// Neon Hub's lifestyle era sets the salvage tables (unless the GM picked an era)
+Hooks.on(`${NEON_HUB_ID}.lifestyleEraChanged`, () => HomeApp.refresh());
 Hooks.once("ready", () => MaintOps.primeRent());
 
 /**

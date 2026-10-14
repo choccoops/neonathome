@@ -1,0 +1,106 @@
+{
+  "_id": "XC2Bqt7L4r58Vf0d",
+  "_key": "!tables!XC2Bqt7L4r58Vf0d",
+  "name": "Perils of Salvaging (The Combat Zone (Pacifica), 2070)",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours; the peril's dice stay the module's.</p>",
+  "results": [
+    {
+      "_id": "q63kLqQfqRL4NSS4",
+      "_key": "!tables.results!XC2Bqt7L4r58Vf0d.q63kLqQfqRL4NSS4",
+      "type": "text",
+      "text": "A floor of a half-built hotel gives way under you. 6d6 damage (armor soaks it), and a Critical Injury to the Body.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "fvsMO2v88k6uxYdp",
+      "_key": "!tables.results!XC2Bqt7L4r58Vf0d.fvsMO2v88k6uxYdp",
+      "type": "text",
+      "text": "A Voodoo Boys or BARGHEST patrol calls it trespassing. 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "NGqhScWcdaMXrmMy",
+      "_key": "!tables.results!XC2Bqt7L4r58Vf0d.NGqhScWcdaMXrmMy",
+      "type": "text",
+      "text": "A scav cell decides your chrome is worth more than their haul. 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "EgtxgcDETpDA1gxB",
+      "_key": "!tables.results!XC2Bqt7L4r58Vf0d.EgtxgcDETpDA1gxB",
+      "type": "text",
+      "text": "Down a dead elevator shaft in the Grand Imperial Mall. A 30m fall when the ground gives: 6d6 damage (armor soaks it), unless a Grapple Hand or Gun, or a DV15 Athletics Check to grab the edge, saves you.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "u1jTGVIjPpnoiuEP",
+      "_key": "!tables.results!XC2Bqt7L4r58Vf0d.u1jTGVIjPpnoiuEP",
+      "type": "text",
+      "text": "Rot gas built up in a sealed parking garage. A pocket of toxic gas for a round, as a Vial of Biotoxin: beat DV15 Resist Torture/Drugs or take 3d6 straight to HP. An Anti-Smog Breathing Mask or an air supply keeps it off.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "MiSw6yMcZUWV6a8o",
+      "_key": "!tables.results!XC2Bqt7L4r58Vf0d.MiSw6yMcZUWV6a8o",
+      "type": "text",
+      "text": "A Voodoo Boys power tap, live. A live wire: electrocuted for a round, 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 400,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.combatZone.perils"
+    }
+  }
+}

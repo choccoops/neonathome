@@ -22,7 +22,8 @@ the workbench, the garage, maintenance) can wait for **downtime**.
 - **Downtime.** Spend downtime (Neon Hub's downtime credits) on the core rulebook's downtime
   actions: the Hustle, rest, treating injuries, maintenance and repairs, and each Role's work
   (fabricating, upgrading and inventing, pharmaceuticals and therapy, rumors and stories, Night
-  Markets).
+  Markets). Salvaging from R. Talsorian's *Salvaging Night City* DLC, in 2045 or a 2070 version.
+  Maker work is paid for in **Tech Materials** items, salvaged, stripped from gear, or sourced.
 
 | Requirement | Version |
 | --- | --- |
@@ -364,23 +365,86 @@ When downtime starts, the players taking part get a card with a **Go home** butt
 **The Downtime tab.** Each action shows what it takes (time, DV, materials, the roll) and spends
 the character's downtime: with Neon Hub, into its downtime log (the tab shows this downtime's log,
 and the time is given back if a roll is cancelled). Rolls are Cyberpunk RED's own skill rolls, with
-its dialog, LUCK and modifiers. Materials come out of the character's eurobucks, in the wealth
-ledger. Role actions appear only for the character's Roles (from the role items on their sheet).
+its dialog, LUCK and modifiers. A Medtech's materials come out of the character's eurobucks, in the
+wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appear only for the character's Roles (from the role items on their sheet).
 
 | Who | Action | What it takes (Cyberpunk RED core rulebook) |
 | --- | --- | --- |
 | Anyone | **The Hustle** | A week; 1d6 on the Role's table, paid by Role Ability Rank (p.381) |
 | Anyone | **Rest and recover** | Days of rest, BODY HP a day (p.222) |
 | Anyone | **Treat a critical injury** | Four hours; the injury's skill and DV (Cybertech on a cyberlimb); not on yourself (pp.222-223) |
-| Anyone | **Maintenance and repairs** | What's due and what's Destroyed, from the Maintenance tab (repairs: p.140) |
-| Tech | **Fabricate** | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
-| Tech | **Upgrade** | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
-| Tech | **Invent** | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149) |
+| Anyone | **Salvage** | A week; Basic Tech sets the worth found; picked out as Destroyed items or Tech Materials (*Salvaging Night City*) |
+| Anyone | **Maintenance and repairs** | What's due, and repair projects for what's Destroyed (p.140) |
+| Anyone | **Projects** | Maker work and repairs under way, with their meters |
+| Tech | **Fabricate** (a project) | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
+| Tech | **Upgrade** (a project) | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
+| Tech | **Invent** (a project) | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149) |
+| Tech | **Strip for parts** | Gear broken down into Tech Materials, several items' worth toward one tier |
 | Medtech | **Synthesize pharmaceuticals** | An hour, DV13 Medical Tech, 200eb: doses equal to the skill (p.149) |
 | Medtech | **Therapy** | A week for both; Addiction, or Standard/Extreme Humanity Loss (2d6/4d6 Humanity) (p.229) |
 | Media | **Chase a rumor** | An information skill against the Active DV (p.151) |
 | Media | **Publish a story** | 1d10 against Believability, by Credibility and evidence (pp.151-153) |
 | Fixer | **Set up a Night Market** | Operator Rank 5, once a month (p.160) |
+
+**Projects.** Maker work and repairs can take a week, two, a month or more, so they're projects,
+kept on the character and carried over from one downtime to the next. The corebook gives them all
+the same failure: halfway through, the Tech realizes they have to start over (pp.140, 148-149). So:
+
+- Starting one uses its Tech Materials (Maker work). Each project has a meter with the halfway mark.
+- Downtime is put into the meter (all it needs, up to the check, or an hour, a day, a week). Time
+  goes in up to the halfway mark first.
+- At the halfway mark, the check comes up: Cyberpunk RED's roll for the project's skill, with the
+  Expertise rank (Field Expertise for a Tech's repair).
+  - **Failed**: the meter empties and it starts over. The materials are fine (not used again).
+  - **Passed**: the rest of the time can go in.
+- A full meter finishes it: the item is made, the upgrade applied, the invention written up, or the
+  repaired item works again.
+- A cancelled roll leaves the check due (**Roll the check** on the project). Projects can be
+  abandoned; what's been spent stays spent.
+
+Repairs are started from the Maintenance tab's **Repair** or the Downtime tab's workshop, by
+whoever does the work (anyone with the skill).
+
+**Tech Materials.** Maker work isn't paid for in eurobucks but in items: **Cheap** through **Super
+Luxury Tech Materials**, one item per price category, in the *Neon At Home: Tech Materials*
+compendium. Fabrication takes materials a category below the item (a Super Luxury item, half its
+price in Super Luxury units), an Upgrade the item's own category (a vehicle's, Very Expensive)
+(p.148). They're used when the project starts, oldest first, and the start card lists where they
+came from. Each materials item's description says where it came from (*Salvaged from: ...*), so the
+GM can keep the books: hand them out or sell them from the compendium and fill that line in, or
+let the character get them by:
+
+- **Salvaging**: a haul's worth can be picked out as materials of any category it covers.
+- **Stripping for parts** (Techs): tick items whose worth adds up to the materials wanted, of any
+  mix of prices (a Heavy Pistol, a Radio Scanner and two Flashlights toward a Premium unit). Damaged
+  gear is worth a category less, Destroyed two, Destroyed Beyond Repair nothing (*Breaking Your
+  Stuff*). Stacks of materials break down or combine the same way (an Expensive unit into five
+  Premium). What's past the materials' worth is lost. Gear that's equipped, installed, or holding
+  installed items can't be stripped.
+
+**Salvaging** (R. Talsorian's *Salvaging Night City* DLC). A week picking through the ruins,
+and no other downtime that week. Take whatever turns up (1d6 on the place's category table) or hunt
+one category at a harder DV. A Basic Tech Check sets the worth found (DV9 for 10eb up to DV29 for
+1,000eb; hunting a category, DV13 up to DV29 for 500eb). The haul waits on the character in the
+Salvage panel, to be picked out up to its worth: **Destroyed** items of its category, dropped in
+from the sidebar or a compendium (to be repaired, p.140), or Tech Materials. Leaving the rest loses
+it. A Critical Failure finds nothing and rolls the place's **Perils of Salvaging**: the card rolls
+the damage (6d6 armor soaks, radiation by the round, toxic gas to resist), names gear that keeps it
+off (a Radiation Suit, an Anti-Smog Breathing Mask, a Grapple Gun or Hand), and a collapse draws a
+Critical Injury to the Body from Cyberpunk RED's own tables.
+
+- **2045**: the DLC's places (the Hot Zone, a Combat Zone, the Scrapyards, the Perimeter), all
+  rolling the DLC's tables.
+- **2070** (the Night City of the *Edgerunner's Handbook*): one Combat Zone, in Pacifica, and no
+  Hot Zone. **The Combat Zone** (Pacifica's dead resorts, the Voodoo Boys, BARGHEST's Dogtown, scavs)
+  turns up more weapons and chrome; **the Scrapyards** (Coronado Dam's dump in Santo Domingo,
+  Northside's gutted factories) mostly general gear and old decks; **the Perimeter** and **the
+  Badlands** weapons and armor, with raiders, Nomads, old war leftovers and the desert for perils.
+
+The era follows Neon Hub's lifestyle era, or the **Salvage tables** setting. The tables are
+summaries in Neon At Home's own words (the 2070 ones are Neon At Home's own); the *Neon At Home:
+Salvage Tables* compendium has them all as roll tables: import one and edit it, and Neon At Home
+uses your wording (a category table's results can be renamed to other categories).
 
 Other Roles' abilities aren't downtime work; they Hustle. A Tech also adds Field Expertise to
 maintenance, inspection and repair checks (p.147). The corebook doesn't say how long chasing a
@@ -409,6 +473,7 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - **Maintenance tab**, **Maintenance months** (Neon Hub's Rent Day, or monthly or weekly started by
   the GM), **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
+- **Salvage tables**: 2045 or 2070, or Neon Hub's lifestyle era (automatic).
 - **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
   upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
 
@@ -419,7 +484,13 @@ const home = game.modules.get("cpr-neon-at-home").api;
 home.open(actor, "bench");          // open a tab: loadout, bay, bench, maintenance, downtime
 home.biomonitor(actor);             // open the Biomonitor window
 home.downtime(actor);               // { active, source, label, total, spent, left } (minutes)
-home.downtimeAction(actor, "rest", { days: 2 }); // do a downtime action
+home.downtimeAction(actor, "rest", { days: 2 }); // do a downtime action (Maker work starts a project)
+home.projects(actor);               // projects under way
+home.workOnProject(actor, id, "all"); // put downtime in: "check", "all" or minutes
+home.salvage(actor, { location: "badlands", category: "any" }); // a week of salvage
+home.hauls(actor);                  // what salvage trips found, still to pick out
+home.haulMaterials(actor, haulId, "premium"); // take Tech Materials out of a haul
+home.stripForParts(actor, { [itemId]: 1 }, "premium", 1); // a Tech strips gear for materials
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }

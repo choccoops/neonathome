@@ -4,10 +4,9 @@ import { CPR } from "../cpr.js";
 import { HomeOps, RuleBlock } from "./ops.js";
 import { MaintOps } from "./maint-ops.js";
 import { Downtime, formatMinutes } from "./downtime.js";
-import { KINDS, kindOf, PRICE_CATEGORIES } from "../data/maintenance.js";
+import { KINDS, kindOf } from "../data/maintenance.js";
 import {
-  MIN, hustle, makerJob, fabricationMaterials, upgradeMaterials, UPGRADES, INVENT_CATEGORIES,
-  PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
+  MIN, hustle, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
 
@@ -76,7 +75,8 @@ export const DowntimeOps = {
 
   /**
    * Do a downtime action.
-   * @param {string} id - hustle, rest, treat, fabricate, upgrade, invent, pharma, therapy, rumor, story, nightMarket
+   * @param {string} id - hustle, rest, treat, pharma, therapy, rumor, story, nightMarket (Maker work and
+   *   repairs are projects: ProjectOps)
    * @param {object} p - the action's choices (see each)
    */
   async perform(actor, id, p = {}, { event = null } = {}) {
@@ -155,7 +155,7 @@ export const DowntimeOps = {
   },
 
   /* ---------------------------------------- */
-  /*  Tech: Maker (pp.147-149)                */
+  /*  Roles                                   */
   /* ---------------------------------------- */
 
   _requireRole(actor, role) {
@@ -163,73 +163,9 @@ export const DowntimeOps = {
   },
 
   /**
-   * Fabrication Expertise: make an item from materials a price category lower. TECH + the item's
-   * repair skill + Fabrication Expertise against its DV, over its time. A failure starts over, the
-   * materials untouched; a success pays for them and makes the item.
-   * @param {object} p - { item: the uuid of the item to make }
+   * The item changes an Upgrade Expertise upgrade makes (Maker work is a project: see
+   * project-ops.js): an option slot, concealable, Excellent Quality, +1 SP.
    */
-  async _fabricate(actor, { item: uuid } = {}, event) {
-    this._requireRole(actor, "tech");
-    const source = uuid ? await fromUuid(uuid) : null;
-    if (!source || source.documentName !== "Item") throw new RuleBlock(L("NEONHOME.Downtime.DropItem"));
-    const data = source.toObject();
-    const price = Number(data.system?.price?.market) || 0;
-    const job = makerJob(price);
-    const materials = fabricationMaterials(price);
-    this._canAfford(actor, materials);
-    const skill = workSkill(data);
-    const label = L("NEONHOME.Downtime.FabricateLabel", { item: data.name });
-    const rank = CPR.abilityRank(actor, "Fabrication Expertise");
-    const res = await this._timedRoll(actor, job.minutes, label, { action: "fabricate", item: uuid }, () => CPR.skillCheck(actor, skill, { event, mods: [{ value: rank, source: L("NEONHOME.Downtime.Expertise.fabrication") }] }));
-    if (!res) return null;
-    const ok = res.total >= job.dv;
-    if (ok) {
-      await this._pay(actor, materials, label);
-      delete data._id;
-      if (data.system?.equipped) data.system.equipped = "owned";
-      await actor.createEmbeddedDocuments("Item", [data], { [MODULE_ID]: { checked: true } });
-    }
-    await this._post(actor, res.html, {
-      icon: "fa-solid fa-industry", title: label, dv: job.dv, total: res.total, ok,
-      verdict: L(`NEONHOME.Downtime.Fabricate.${ok ? "ok" : "fail"}`, { name: esc(actor.name), item: esc(data.name), eb: eb(materials), time: formatMinutes(job.minutes) })
-    });
-    return { ok, materials };
-  },
-
-  /**
-   * Upgrade Expertise: one upgrade per item, with materials of its price category (a vehicle's: Very
-   * Expensive). A success pays for them and makes the change Neon At Home can make (an option slot,
-   * concealable, Excellent Quality, +1 SP); the others are noted on the item for the GM.
-   * @param {object} p - { item: an owned item's id, upgrade: a key of UPGRADES }
-   */
-  async _upgrade(actor, { item: itemId, upgrade } = {}, event) {
-    this._requireRole(actor, "tech");
-    const item = actor.items.get(itemId);
-    if (!item) throw new RuleBlock(L("NEONHOME.Downtime.PickItem"));
-    if (!UPGRADES[upgrade]) throw new RuleBlock(L("NEONHOME.Downtime.PickUpgrade"));
-    if (item.getFlag(MODULE_ID, "makerUpgrade")) throw new RuleBlock(L("NEONHOME.Downtime.AlreadyUpgraded", { item: item.name }));
-    const vehicle = item.type === "vehicle";
-    const price = Number(item.system?.price?.market) || 0;
-    const job = makerJob(price, { vehicle });
-    const materials = upgradeMaterials(price, { vehicle });
-    this._canAfford(actor, materials);
-    const label = L("NEONHOME.Downtime.UpgradeLabel", { item: item.name, upgrade: L(`NEONHOME.Downtime.Upgrade.${upgrade}`) });
-    const rank = CPR.abilityRank(actor, "Upgrade Expertise");
-    const res = await this._timedRoll(actor, job.minutes, label, { action: "upgrade", item: item.uuid, upgrade }, () => CPR.skillCheck(actor, workSkill(item.toObject()), { event, mods: [{ value: rank, source: L("NEONHOME.Downtime.Expertise.upgrade") }] }));
-    if (!res) return null;
-    const ok = res.total >= job.dv;
-    if (ok) {
-      await this._pay(actor, materials, label);
-      await item.update({ ...this._upgradeChanges(item, UPGRADES[upgrade].apply), [`flags.${MODULE_ID}.makerUpgrade`]: upgrade });
-    }
-    await this._post(actor, res.html, {
-      icon: "fa-solid fa-microchip", title: label, dv: job.dv, total: res.total, ok,
-      verdict: L(`NEONHOME.Downtime.UpgradeResult.${ok ? (UPGRADES[upgrade].apply ? "ok" : "noted") : "fail"}`, { name: esc(actor.name), item: esc(item.name), eb: eb(materials) })
-    });
-    return { ok, materials };
-  },
-
-  /** The item changes an upgrade makes. */
   _upgradeChanges(item, apply) {
     const s = item.system ?? {};
     switch (apply) {
@@ -247,29 +183,6 @@ export const DowntimeOps = {
       default:
         return {};
     }
-  },
-
-  /**
-   * Invention Expertise: describe it to the GM, who sets its price category (Expensive at the least);
-   * that sets the DV and time. A success makes a working prototype idea the GM writes up.
-   * @param {object} p - { text, category, skill }
-   */
-  async _invent(actor, { text = "", category = "expensive", skill = "Basic Tech" } = {}, event) {
-    this._requireRole(actor, "tech");
-    const desc = String(text).trim();
-    if (!desc) throw new RuleBlock(L("NEONHOME.Downtime.DescribeIt"));
-    const cat = INVENT_CATEGORIES.includes(category) ? category : "expensive";
-    const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
-    const label = L("NEONHOME.Downtime.InventLabel");
-    const rank = CPR.abilityRank(actor, "Invention Expertise");
-    const res = await this._timedRoll(actor, job.minutes, label, { action: "invent", category: cat }, () => CPR.skillCheck(actor, skill, { event, mods: [{ value: rank, source: L("NEONHOME.Downtime.Expertise.invention") }] }));
-    if (!res) return null;
-    const ok = res.total >= job.dv;
-    await this._post(actor, res.html, {
-      icon: "fa-solid fa-lightbulb", title: label, dv: job.dv, total: res.total, ok,
-      verdict: `${L(`NEONHOME.Downtime.Invent.${ok ? "ok" : "fail"}`, { name: esc(actor.name), category: L(`NEONHOME.Maint.Price.${cat}`) })}<br><em>${esc(desc)}</em>`
-    });
-    return { ok };
   },
 
   /* ---------------------------------------- */
@@ -426,8 +339,9 @@ export const DowntimeOps = {
   /* ---------------------------------------- */
 
   /**
-   * Change a patient: take away a treated injury, or restore Humanity. Directly when this user owns
-   * them, otherwise through the GM.
+   * Change a patient (or the owner of something repaired): take away a treated injury, restore
+   * Humanity, or set a repaired item working. Directly when this user owns them, otherwise through
+   * the GM.
    * @returns {Promise<number>} for Humanity, how much came back
    */
   async _patient(doctor, patient, change) {
@@ -435,12 +349,19 @@ export const DowntimeOps = {
     return HomeSocket.request("downtimePatient", { doctor: doctor.uuid, patient: patient.uuid, change });
   },
 
-  async _applyPatient(patient, { op, injury, amount = 0, reason = "" }) {
+  async _applyPatient(patient, { op, injury, item, amount = 0, reason = "" }) {
     if (op === "deleteInjury") {
       if (patient.items.get(injury)) await patient.deleteEmbeddedDocuments("Item", [injury]);
       return 0;
     }
     if (op === "humanity") return CPR.changeHumanity(patient, Math.max(0, Math.floor(Number(amount) || 0)), reason);
+    if (op === "repair") {
+      const it = patient.items.get(item);
+      if (!it) return 0;
+      await HomeOps._patchFlag(it, { condition: "", hidden: false, cause: "", malfunction: null });
+      await HomeOps.syncOfflineEffects(patient);
+      return 0;
+    }
     throw new Error(`Unknown patient change: ${op}`);
   },
 
@@ -450,7 +371,7 @@ export const DowntimeOps = {
     const patient = await fromUuid(patientUuid);
     if (!doctor || !patient) throw new Error(L("NEONHOME.Error.NotFound"));
     if (!doctor.testUserPermission(user, "OWNER")) throw new Error(L("NEONHOME.Error.NoPermission"));
-    if (!["deleteInjury", "humanity"].includes(change?.op)) throw new Error("Not allowed");
+    if (!["deleteInjury", "humanity", "repair"].includes(change?.op)) throw new Error("Not allowed");
     return this._applyPatient(patient, change);
   }
 };

@@ -1,0 +1,106 @@
+{
+  "_id": "jiTfiMKKxxvJe48J",
+  "_key": "!tables!jiTfiMKKxxvJe48J",
+  "name": "Salvage Categories (The Badlands, 2070)",
+  "img": "icons/svg/item-bag.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result to another category's name (Cyberware, Weapons, General Gear, Armor, Cyberdecks & Programs) to change what's found.</p>",
+  "results": [
+    {
+      "_id": "ghuIS27fQPLLzpKg",
+      "_key": "!tables.results!jiTfiMKKxxvJe48J.ghuIS27fQPLLzpKg",
+      "type": "text",
+      "text": "Weapons",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "qpICIl2aywNgXmL6",
+      "_key": "!tables.results!jiTfiMKKxxvJe48J.qpICIl2aywNgXmL6",
+      "type": "text",
+      "text": "Weapons",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Igbx69n5iPsjKHtY",
+      "_key": "!tables.results!jiTfiMKKxxvJe48J.Igbx69n5iPsjKHtY",
+      "type": "text",
+      "text": "Armor",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "ETbyT7fXMDyDEyDT",
+      "_key": "!tables.results!jiTfiMKKxxvJe48J.ETbyT7fXMDyDEyDT",
+      "type": "text",
+      "text": "General Gear",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Cer9LWdwR0EKLPp9",
+      "_key": "!tables.results!jiTfiMKKxxvJe48J.Cer9LWdwR0EKLPp9",
+      "type": "text",
+      "text": "General Gear",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "tudRRzDxEzbvgAUW",
+      "_key": "!tables.results!jiTfiMKKxxvJe48J.tudRRzDxEzbvgAUW",
+      "type": "text",
+      "text": "Cyberware",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 900,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.badlands.categories"
+    }
+  }
+}
