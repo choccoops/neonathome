@@ -167,6 +167,8 @@ function cyberContext(actor, isGM) {
 
 export const Biomonitor = {
   id: "biomonitor",
+  // its own window (BiomonitorApp), not a tab of the home
+  standalone: true,
   icon: "fa-solid fa-heart-pulse",
   label: "NEONHOME.Bio.Title",
   template: `${TEMPLATE_PATH}/biomonitor.hbs`,

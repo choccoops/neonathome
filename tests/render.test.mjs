@@ -12,6 +12,7 @@ const { RulesConfig } = await import("../scripts/apps/rules-config.js");
 Settings.register(RulesConfig);
 await import("../scripts/main.js");
 const { HomeApp } = await import("../scripts/apps/home-app.js");
+const { BiomonitorApp } = await import("../scripts/apps/biomonitor-app.js");
 const { ItemConfig } = await import("../scripts/apps/item-config.js");
 loadTemplates();
 
@@ -19,13 +20,31 @@ const { actor } = buildFixture();
 
 const app = new HomeApp();
 app.actorId = actor.id;
+const bio = new BiomonitorApp();
+bio.actorId = actor.id;
 
 async function renderTab(tab) {
-  app.tab = tab;
-  const ctx = await app._prepareContext();
+  const win = tab === "biomonitor" ? bio : app;
+  win.tab = tab;
+  const ctx = await win._prepareContext();
   assert.equal(ctx.tab, tab);
   return { ctx, html: render("shell.hbs", ctx) };
 }
+
+test("the Biomonitor is a window of its own, not a tab of the home", async () => {
+  app.tab = "loadout";
+  const home = await app._prepareContext();
+  assert.ok(!home.tabs.some((t) => t.id === "biomonitor"));
+  assert.ok(home.homeHeader);
+  const ctx = await bio._prepareContext();
+  assert.equal(ctx.tab, "biomonitor");
+  assert.equal(ctx.single, true);
+  const html = render("shell.hbs", ctx);
+  assert.ok(!html.includes('class="nah-tabs"'), "no tab bar");
+  assert.ok(!html.includes("nah-downtime-badge"), "nor the home's header");
+  assert.equal(bio.title, "Biomonitor: Vex");
+  assert.equal(bio.id, "cpr-neon-at-home-biomonitor");
+});
 
 test("Loadout renders carry slots, the doll, upgrades and the stash", async () => {
   const { ctx, html } = await renderTab("loadout");
@@ -94,9 +113,9 @@ test("Biomonitor shows HP, injuries, the tier and Syndromes", async () => {
 });
 
 test("Biomonitor's cyberware view: types, slots, the chrome arm and the EMP'd gun", async () => {
-  app.uiState.bio = { view: "cyber" };
+  bio.uiState.bio = { view: "cyber" };
   const { ctx, html } = await renderTab("biomonitor");
-  app.uiState.bio = { view: "vitals" };
+  bio.uiState.bio = { view: "vitals" };
   const c = ctx.bio.cyber;
   assert.equal(c.total, 4, "neural link, cyberarm, popup gun, subdermal pocket");
   assert.equal(c.emp, 1);

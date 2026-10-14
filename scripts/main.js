@@ -6,6 +6,7 @@ import { CPR } from "./cpr.js";
 import { HomeStore } from "./home/store.js";
 import { HomeOps } from "./home/ops.js";
 import { HomeApp } from "./apps/home-app.js";
+import { BiomonitorApp } from "./apps/biomonitor-app.js";
 import { registerFeature, features } from "./apps/features.js";
 import { Loadout } from "./apps/loadout.js";
 import { Bay } from "./apps/bay.js";
@@ -40,7 +41,9 @@ Hooks.once("init", () => {
 
   game.modules.get(MODULE_ID).api = {
     /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, biomonitor, bench, maintenance. */
-    open: (actor = null, tab = null) => HomeApp.open(actor, { tab }),
+    open: (actor = null, tab = null) => (tab === "biomonitor" ? BiomonitorApp.open(actor) : HomeApp.open(actor, { tab })),
+    /** Open the Biomonitor on this client (an Actor or uuid; default: your own character). */
+    biomonitor: (actor = null) => BiomonitorApp.open(actor),
     /** GM: open each listed user's own home suite (default: every connected player). */
     show: (tab = null, userIds = null) => HomeSocket.emit("openHome", { tab }, userIds ?? game.users.filter((u) => u.active && !u.isGM).map((u) => u.id)),
     /** Carry slots and weight for a character: { carry, weight }. */
@@ -85,7 +88,7 @@ Hooks.once("ready", () => {
   Compat.loadTemplates(features().map((f) => f.template));
   HomeSocket.init();
   HomeOps.init();
-  HomeSocket.on("openHome", ({ tab }) => HomeApp.open(null, { tab }));
+  HomeSocket.on("openHome", ({ tab }) => (tab === "biomonitor" ? BiomonitorApp.open() : HomeApp.open(null, { tab })));
   if (game.user.isGM && game.system.id !== SYSTEM_ID) ui.notifications.warn(L("NEONHOME.Error.WrongSystem", { system: game.system.title }));
 });
 
@@ -390,7 +393,10 @@ const configForItem = (item) => game.user.isGM && !["skill", "role", "criticalIn
 Hooks.on("getActorSheetHeaderButtons", (sheet, buttons) => {
   const actor = sheet.actor ?? sheet.document;
   if (!homeForActor(actor)) return;
-  buttons.unshift({ label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) });
+  buttons.unshift(
+    { label: "NEONHOME.Bio.Short", class: "neon-home-bio", icon: "fa-solid fa-heart-pulse", onclick: () => BiomonitorApp.open(actor) },
+    { label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) }
+  );
 });
 Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
   const item = sheet.item ?? sheet.document;
@@ -400,7 +406,10 @@ Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
 // Application V2 sheets (a later CPR release on Foundry v13+).
 Hooks.on("getHeaderControlsActorSheetV2", (sheet, controls) => {
   if (!homeForActor(sheet.document)) return;
-  controls.unshift({ label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) });
+  controls.unshift(
+    { label: "NEONHOME.Bio.Short", icon: "fa-solid fa-heart-pulse", action: "neonHomeBio", onClick: () => BiomonitorApp.open(sheet.document) },
+    { label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) }
+  );
 });
 Hooks.on("getHeaderControlsItemSheetV2", (sheet, controls) => {
   if (!configForItem(sheet.document)) return;
@@ -412,15 +421,19 @@ Hooks.on("renderActorDirectory", (app, html) => {
   const root = Compat.element(html);
   const actions = root?.querySelector(".header-actions");
   if (!actions || actions.querySelector(".neon-home-open")) return;
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "neon-home-open";
-  btn.innerHTML = `<i class="fa-solid fa-house-chimney-window"></i> ${esc(L("NEONHOME.Short"))}`;
-  btn.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    HomeApp.open();
-  });
-  actions.appendChild(btn);
+  const button = (cls, icon, label, open) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = cls;
+    btn.innerHTML = `<i class="${icon}"></i> ${esc(L(label))}`;
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      open();
+    });
+    actions.appendChild(btn);
+  };
+  button("neon-home-open", "fa-solid fa-house-chimney-window", "NEONHOME.Short", () => HomeApp.open());
+  button("neon-home-bio", "fa-solid fa-heart-pulse", "NEONHOME.Bio.Short", () => BiomonitorApp.open());
 });
 
 /** A home button in the left toolbar's Token Controls. v12 passes an array, v13 an object. */

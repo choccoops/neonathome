@@ -80,6 +80,22 @@
       "DropCyberlimbs": {
         "Name": "Lost limbs drop their cyberware",
         "Hint": "A Dismembered Arm, Hand or Leg takes the cyberware in it along: a cyberarm or cyberleg with its options, or a hand's cyberhand, cyberfingers and other hand options, dropped where the character stands (an Item Piles pile when it's on). The GM picks the side."
+      },
+      "DowntimeStash": {
+        "Name": "Home stash only in downtime",
+        "Hint": "Players reach their home stash (from the Loadout, or for upgrades and attachments) only while they're in downtime. The GM always can."
+      },
+      "DowntimeBench": {
+        "Name": "Weaponbench and armor upgrades only in downtime",
+        "Hint": "Attaching and detaching weapon attachments, making custom ones, and fitting or removing armor upgrades happen at home, in downtime. The GM always can."
+      },
+      "DowntimeBay": {
+        "Name": "Vehicle Bay changes only in downtime",
+        "Hint": "Parking, swapping, adding and removing vehicles happen in downtime; anyone can look at the bay any time. The GM always can."
+      },
+      "DowntimeMaintenance": {
+        "Name": "Maintenance and repairs only in downtime",
+        "Hint": "Maintenance Checks and repairs happen in downtime, and spend the time they take (Breaking Your Stuff; Cyberpunk RED p.140). Inspecting and jury-rigging don't. The GM always can."
       }
     },
     "State": {
@@ -412,7 +428,8 @@
       "GMTools": "GM",
       "Therapy": "Intensive Therapy",
       "TherapyConfirm": "A month of Intensive Therapy (5,000eb): Syndromes lingering at this Humanity are removed, and the scars reset to the current tier. Go ahead?",
-      "TherapyCard": "<b>{name}</b> completes a month of Intensive Therapy. The old scars fade."
+      "TherapyCard": "<b>{name}</b> completes a month of Intensive Therapy. The old scars fade.",
+      "Short": "Biomonitor"
     },
     "Syndrome": {
       "selfSocialDetachment": "Self-Social Detachment",
@@ -823,7 +840,11 @@
         "30m": "30 minutes",
         "1h": "1 hour",
         "3h": "3 hours",
-        "1d": "1 day"
+        "1d": "1 day",
+        "6h": "6 hours",
+        "1w": "1 week",
+        "2w": "2 weeks",
+        "1mo": "1 month"
       },
       "Kind": {
         "armor": "Armor",
@@ -890,7 +911,7 @@
       "NoExpertise": "{name} needs Field Expertise (a Tech's Maker ability) to jury-rig a malfunction.",
       "BeyondRepair": "{item} is Destroyed Beyond Repair.",
       "RepairTitle": "Repair",
-      "RepairHint": "Destroyed gear is repaired with the appropriate Tech skill (Cyberpunk RED, p.140). Set the DV; it defaults to the gear's maintenance DV.",
+      "RepairHint": "Destroyed gear is repaired to perfect condition with its Tech skill, at a DV and time set by its price (Cyberpunk RED, p.140); a destroyed vehicle is DV17 and a week. On a failure the work starts over.",
       "Roll": "Roll",
       "RentKicker": "Rent month",
       "RentIn": "Rent Day in {n} days ({calendar})",
@@ -901,7 +922,9 @@
       "FollowsRent": "Maintenance months start on Neon Hub's Rent Day. Move the calendar on, or change Maintenance months in the module settings.",
       "ToRentDay": "To Rent Day",
       "ToRentDayAsk": "Jump this character's Neon Hub calendar to its next Rent Day? Neon Hub starts the new month for everyone on that calendar (Lifestyle bills, Headquarters), and maintenance falls due.",
-      "NothingDue": "Nothing needs a maintenance Check."
+      "NothingDue": "Nothing needs a maintenance Check.",
+      "FieldExpertise": "Field Expertise",
+      "RepairTakes": "Takes {time} of downtime."
     },
     "Malfunction": {
       "Title": "Malfunction: {item}",
@@ -986,6 +1009,15 @@
       "Hint": "Put something down first. A replacement limb, or the cyberarm working again, gives the hand back.",
       "Ok": "OK",
       "Override": "Equip anyway (GM)"
+    },
+    "Downtime": {
+      "Only": {
+        "stash": "The home stash is reached in downtime.",
+        "bench": "Workbench jobs (attachments and armor upgrades) are done at home, in downtime.",
+        "bay": "Parking and swapping vehicles is done in downtime.",
+        "maintenance": "Maintenance and repairs are done in downtime."
+      },
+      "NotEnough": "{name} needs {need} of downtime and has {left} left."
     }
   }
 }

@@ -199,16 +199,20 @@ export const CPR = {
    * Roll a skill check through Cyberpunk RED's own roll: its roll dialog (unless Ctrl-clicked,
    * per the system's setting), LUCK, situational modifiers, critical dice, and its roll card.
    * Without the skill it's the skill's STAT alone.
-   * @param {object} [opts] - { event: the click, for the dialog; stat: when the skill is missing }
+   * @param {object} [opts] - { event: the click, for the dialog; stat: when the skill is missing;
+   *   mods: extra bonuses [{ value, source }] }
    * @returns {Promise<{total: number, html: string, critFail: boolean, critSuccess: boolean}|null>}
    *   null when the dialog was cancelled
    */
-  async skillCheck(actor, skillName, { event = null, stat = "tech" } = {}) {
+  async skillCheck(actor, skillName, { event = null, stat = "tech", mods = [] } = {}) {
     const skill = this.skill(actor, skillName);
     let roll = null;
     if (skill && typeof skill.createRoll === "function") roll = skill.createRoll("skill", actor);
     else if (typeof actor.createRoll === "function") roll = actor.createRoll("stat", stat);
     if (!roll) throw new Error(game.i18n.format("NEONHOME.Error.NoSkill", { skill: skillName }));
+    // Extra bonuses (a Tech's Expertise, a Role Ability rank), shown in the roll dialog like any modifier.
+    const extra = mods.filter((m) => Number(m?.value));
+    if (extra.length && typeof roll.addMod === "function") roll.addMod(extra.map((m) => ({ value: Number(m.value), source: String(m.source ?? "") })));
     const ev = event ?? { type: "click", ctrlKey: false, metaKey: false };
     if (typeof roll.handleRollDialog === "function") {
       const go = await roll.handleRollDialog(ev, actor, skill);

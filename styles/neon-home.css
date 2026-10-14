@@ -760,7 +760,7 @@
 .neon-home-chat b { color: var(--nah-cyan); }
 
 /* ---------- sidebar button ---------- */
-#actors .header-actions .neon-home-open { flex: 1 1 100%; }
+#actors .header-actions :is(.neon-home-open, .neon-home-bio) { flex: 1 1 45%; }
 
 /* ==========================================================================
    Biomonitor: the Vitals / Cyberware switch and the cyberware monitor

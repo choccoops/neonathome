@@ -4,6 +4,7 @@ import { Settings } from "../settings.js";
 import { HomeStore } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
 import { MaintOps, INSPECT_DV } from "../home/maint-ops.js";
+import { Downtime, formatMinutes } from "../home/downtime.js";
 import { LIFESTYLES, TIERS, GROUPS, TABLE_KEYS, groupOf, flattenList, tally, fieldExpertise } from "../data/maintenance.js";
 import { DAMAGE_CAUSES } from "../data/item-flag.js";
 
@@ -103,6 +104,10 @@ function detail(actor, e, { isGM, mechanic, lifestyle }) {
       emp: e.electronic
     },
     inspectDv: INSPECT_DV,
+    repairDv: e.repair.dv,
+    repairTime: formatMinutes(e.repair.minutes),
+    // maintenance and repairs wait for downtime (the GM's setting)
+    locked: !Downtime.allows(actor, "maintenance"),
     conditions: ["", "damaged", "destroyed", "dbr"].map((c) => ({ key: c, label: L(`NEONHOME.Condition.${c || "ok"}`), on: e.condition === c })),
     tables: TABLE_KEYS.map((k) => ({ key: k, label: L(`NEONHOME.Malfunction.Table.${k}`), selected: k === e.table }))
   };
@@ -179,7 +184,7 @@ export const Maintenance = {
         let dv = null;
         if (mode === "repair") {
           const e = await MaintOps.entry(this.actor, id);
-          dv = await askDv(e?.dv ?? 13);
+          dv = await askDv(e?.repair?.dv ?? 13, e?.repair?.minutes ?? 60);
           if (dv === null) return;
         }
         await MaintOps.check(this.actor, id, { mode, mechanic, event, dv });
@@ -255,10 +260,11 @@ export const Maintenance = {
 };
 
 /** The DV for repairing a Destroyed item: the gear's maintenance DV unless the GM says otherwise. */
-function askDv(dv) {
+function askDv(dv, minutes) {
   return Compat.DialogV2.prompt({
     window: { title: L("NEONHOME.Maint.RepairTitle"), icon: "fa-solid fa-toolbox" },
-    content: `<p class="hint">${esc(L("NEONHOME.Maint.RepairHint"))}</p><div class="form-group"><label>DV</label><input type="number" name="dv" value="${dv}" min="1" max="40"></div>`,
+    content: `<p class="hint">${esc(L("NEONHOME.Maint.RepairHint"))}</p><div class="form-group"><label>DV</label><input type="number" name="dv" value="${dv}" min="1" max="40"></div>`
+      + `<p class="hint"><i class="fa-regular fa-clock"></i> ${esc(L("NEONHOME.Maint.RepairTakes", { time: formatMinutes(minutes) }))}</p>`,
     classes: ["neon-home-dialog"],
     rejectClose: false,
     ok: { label: L("NEONHOME.Maint.Roll"), callback: (event, button) => Number(button.form.elements.dv.value) || dv }

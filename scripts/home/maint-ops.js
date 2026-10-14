@@ -3,6 +3,7 @@ import { Compat } from "../compat.js";
 import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeOps, RuleBlock } from "./ops.js";
+import { Downtime } from "./downtime.js";
 import { itemFlag } from "../data/item-flag.js";
 import { traumaMap, placeInjury } from "../data/injuries.js";
 import { flatten, HAND_OPTION } from "../data/cyberware.js";
@@ -153,9 +154,29 @@ export const MaintOps = {
       if (flag.condition === "dbr") throw new RuleBlock(L("NEONHOME.Maint.BeyondRepair", { item: esc(item.name) }));
       if (flag.condition !== "destroyed") return null;
     }
-    const target = mode === "inspect" ? INSPECT_DV : Math.max(1, Math.floor(Number(dv) || e.dv));
-    const res = await CPR.skillCheck(who, e.skill, { event });
-    if (!res) return null;
+    const target = mode === "inspect" ? INSPECT_DV : Math.max(1, Math.floor(Number(dv) || (mode === "repair" ? e.repair.dv : e.dv)));
+    // Maintenance and repairs take the worker's downtime (when the GM keeps them to it, and spends it
+    // with Neon Hub): the tier's time for maintenance, the item's repair time (p.140) for a repair.
+    let spent = null;
+    if (mode === "maintain" || mode === "repair") {
+      Downtime.check(who, "maintenance");
+      const minutes = mode === "repair" ? e.repair.minutes : e.minutes;
+      spent = await Downtime.spend(who, minutes, { label: L(`NEONHOME.Maint.Check.${mode}`, { item: item.name }), data: { kind: mode, item: item.uuid } });
+    }
+    // A Tech adds Field Expertise to TECH Skill Checks outside Maker work (Cyberpunk RED p.147).
+    const fe = fieldExpertise(who.items.map((i) => i.toObject()));
+    const mods = fe ? [{ value: fe, source: L("NEONHOME.Maint.FieldExpertise") }] : [];
+    let res;
+    try {
+      res = await CPR.skillCheck(who, e.skill, { event, mods });
+    } catch (err) {
+      await Downtime.refund(spent);
+      throw err;
+    }
+    if (!res) {
+      await Downtime.refund(spent);
+      return null;
+    }
     const ok = res.total >= target;
     let outcome = `${mode}.${ok ? "ok" : "fail"}`;
     if (ok) {
