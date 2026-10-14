@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0
+
+- **The Biomonitor has a window of its own**, with its own button on the character sheet (owners and the GM) and in the Actors sidebar, out of the home's tabs.
+- **Downtime.** A character is in downtime when Neon Hub has a downtime with them taking part (or, without Neon Hub, when the GM switches it on). The home's header shows it and the time left. Players can open their home any time; the GM chooses what waits for downtime: the home stash, the Weaponbench and armor upgrades, Vehicle Bay changes, and maintenance and repairs (all by default; the GM is never held back). When downtime starts, the players taking part get a card with a **Go home** button.
+- **The Downtime tab** spends Neon Hub's downtime credits on the core rulebook's downtime actions, with Cyberpunk RED's own rolls and the character's eurobucks for materials: the **Hustle** (a week, 1d6 on the Role's table, paid by Role Ability Rank), **rest**, **treating critical injuries** (the injury's skill and DV; Cybertech on cyberlimbs), **maintenance and repairs**; for Techs, **Fabricate** (drop an item in), **Upgrade** and **Invent** with the Maker table and their Expertise; for Medtechs, **pharmaceuticals** (doses straight into their gear) and **therapy** for another character (Humanity restored, or an addiction); for Medias, **rumors** and **stories**; for Fixers, a monthly **Night Market**. Role actions appear for the character's Roles.
+- **Maintenance and repairs in downtime** spend the time they take: the maintenance tier's time, and for repairs the corebook's DV and time by price (p.140; a destroyed vehicle, DV17 and a week), which the Repair dialog now starts from. A Tech adds Field Expertise to maintenance, inspection and repair checks.
+
 ## 1.4.2
 
 - **Piles clear themselves.** A pile Neon At Home drops an item into goes away once the item is picked up out of it (Item Piles' own "delete when empty" can't tell on character-type piles, which carry Cyberpunk RED's skills and built-in cyberware). The pile token shows the dropped item.

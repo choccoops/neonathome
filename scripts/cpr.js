@@ -142,6 +142,55 @@ export const CPR = {
   },
 
   /* ---------------------------------------- */
+  /*  Roles and wealth                        */
+  /* ---------------------------------------- */
+
+  /** A character's Roles with their Role Ability Ranks: { tech: 4, medtech: 2 } (by role item name). */
+  roles(actor) {
+    const out = {};
+    for (const r of actor?.items ?? []) {
+      if (r.type !== "role") continue;
+      const key = String(r.name ?? "").toLowerCase().replace(/[^a-z]/g, "");
+      out[key] = Math.max(out[key] ?? 0, Number(r.system?.rank) || 0);
+    }
+    return out;
+  },
+
+  /** The rank of a role's sub-ability (Fabrication Expertise, Surgery Skill...), 0 without it. */
+  abilityRank(actor, name) {
+    const want = String(name).toLowerCase();
+    let rank = 0;
+    for (const r of actor?.items ?? []) {
+      if (r.type !== "role") continue;
+      for (const a of r.system?.abilities ?? []) if (String(a?.name ?? "").toLowerCase() === want) rank = Math.max(rank, Number(a.rank) || 0);
+    }
+    return rank;
+  },
+
+  /** A character's eurobucks. */
+  wealth(actor) {
+    return Number(getProperty(actor, "system.wealth.value")) || 0;
+  },
+
+  /** Add or take eurobucks, recorded in Cyberpunk RED's wealth ledger. */
+  async changeWealth(actor, delta, reason) {
+    const d = Math.round(Number(delta) || 0);
+    if (!d || !hasProperty(actor, "system.wealth.value")) return 0;
+    const next = this.wealth(actor) + d;
+    const update = { "system.wealth.value": next };
+    const ledger = getProperty(actor, "system.wealth.transactions");
+    if (Array.isArray(ledger)) {
+      const key = d > 0 ? "CPR.ledger.increaseSentence" : "CPR.ledger.decreaseSentence";
+      const sentence = game.i18n.has(key)
+        ? game.i18n.format(key, { property: "wealth", amount: Math.abs(d), total: next })
+        : `wealth ${d > 0 ? "increased" : "decreased"} by ${Math.abs(d)} to ${next}`;
+      update["system.wealth.transactions"] = [...deepClone(ledger), [sentence, `${reason} - ${game.user.name}`]];
+    }
+    await actor.update(update);
+    return d;
+  },
+
+  /* ---------------------------------------- */
   /*  Creating actors                         */
   /* ---------------------------------------- */
 

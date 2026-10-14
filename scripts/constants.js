@@ -31,4 +31,4 @@ export const CLT_ID = "condition-lab-triggler";
 export const CHECKED = "checked";
 
 /** The sub-features of the home suite, in tab order. New ones register here (see apps/features.js). */
-export const FEATURE_ORDER = ["loadout", "bay", "biomonitor", "bench", "maintenance"];
+export const FEATURE_ORDER = ["loadout", "bay", "bench", "maintenance", "downtime", "biomonitor"];

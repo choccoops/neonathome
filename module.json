@@ -1,8 +1,8 @@
 {
   "id": "cpr-neon-at-home",
-  "title": "Neon At Home: Loadout, Vehicle Bay, Biomonitor, Weaponbench & Maintenance for Cyberpunk RED",
-  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Vehicle Bay with bays from the character's home; a Biomonitor for HP, injuries, Humanity, Empathy tiers and Syndromes; a Weaponbench for attachments; and Maintenance from the Breaking Your Stuff DLC: Lifestyle maintenance, maintenance Checks, Damaged and Destroyed gear, and malfunctions.",
-  "version": "1.4.2",
+  "title": "Neon At Home: Loadout, Vehicle Bay, Weaponbench, Maintenance, Downtime & Biomonitor for Cyberpunk RED",
+  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Vehicle Bay with bays from the character's home; a Weaponbench for attachments; Maintenance from the Breaking Your Stuff DLC; Downtime actions from the core rulebook, spending Neon Hub's downtime; and a Biomonitor for HP, injuries, cyberware, Humanity, Empathy tiers and Syndromes.",
+  "version": "1.5.0",
   "authors": [
     {
       "name": "Neon At Home contributors"
@@ -27,7 +27,7 @@
       {
         "id": "cpr-neon-hub",
         "type": "module",
-        "reason": "Vehicle bays come from the parking of the character's Neon Hub home or household."
+        "reason": "Vehicle bays come from the parking of the character's Neon Hub home or household; maintenance months follow its Rent Day; downtime actions spend its downtime credits."
       },
       {
         "id": "mmutons-cyberpunk-red-vas",

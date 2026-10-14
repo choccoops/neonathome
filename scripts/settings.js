@@ -158,19 +158,36 @@ export const Settings = {
       type: Boolean,
       default: true
     });
+    reg("downtimeTab", {
+      name: "NEONHOME.Settings.DowntimeTab.Name",
+      hint: "NEONHOME.Settings.DowntimeTab.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: changed
+    });
     // Downtime: what's kept to it, and (without Neon Hub) whether it's on
-    for (const [key, def] of [["Stash", true], ["Bench", true], ["Bay", true], ["Maintenance", true]]) {
-      reg(`downtime${key}`, {
-        name: `NEONHOME.Settings.Downtime${key}.Name`,
-        hint: `NEONHOME.Settings.Downtime${key}.Hint`,
+    for (const [key, name, hint] of [
+      ["downtimeStash", "NEONHOME.Settings.DowntimeStash.Name", "NEONHOME.Settings.DowntimeStash.Hint"],
+      ["downtimeBench", "NEONHOME.Settings.DowntimeBench.Name", "NEONHOME.Settings.DowntimeBench.Hint"],
+      ["downtimeBay", "NEONHOME.Settings.DowntimeBay.Name", "NEONHOME.Settings.DowntimeBay.Hint"],
+      ["downtimeMaintenance", "NEONHOME.Settings.DowntimeMaintenance.Name", "NEONHOME.Settings.DowntimeMaintenance.Hint"]
+    ]) {
+      reg(key, {
+        name,
+        hint,
         scope: "world",
         config: true,
         type: Boolean,
-        default: def,
+        default: true,
         onChange: changed
       });
     }
-    reg("downtimeOn", { scope: "world", config: false, type: Boolean, default: false, onChange: changed });
+    reg("downtimeOn", { scope: "world", config: false, type: Boolean, default: false, onChange: (on) => {
+      changed();
+      Hooks.callAll(`${MODULE_ID}.downtimeSwitched`, on);
+    } });
     // the GM's own maintenance counter: { n }
     reg("maintCycle", { scope: "world", config: false, type: Object, default: { n: 1 }, onChange: changed });
     reg("tab", { scope: "client", config: false, type: String, default: "loadout" });

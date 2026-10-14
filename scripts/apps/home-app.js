@@ -4,6 +4,7 @@ import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeStore } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
+import { Downtime, GATES, formatMinutes } from "../home/downtime.js";
 import { features, feature, featureActions } from "./features.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -69,7 +70,7 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = {
     body: {
       template: `${TEMPLATE_PATH}/shell.hbs`,
-      scrollable: [".nah-col-doll", ".nah-col-carry", ".nah-col-store", ".nah-bay", ".nah-bio", ".nah-rack", ".nah-mat", ".nah-drawer", ".nah-cyber-list", ".nah-scroll"]
+      scrollable: [".nah-col-doll", ".nah-col-carry", ".nah-col-store", ".nah-bay", ".nah-bio", ".nah-rack", ".nah-mat", ".nah-drawer", ".nah-cyber-list", ".nah-maint-list", ".nah-maint-bench", ".nah-dt-list", ".nah-dt-panel", ".nah-scroll"]
     }
   };
 
@@ -192,7 +193,8 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
         humMax: hum.max,
         humPct: pct(hum.value, hum.max)
       },
-      featureTemplate: f?.template ?? null
+      featureTemplate: f?.template ?? null,
+      downtime: actor && this.constructor.APP_ID === "home" ? downtimeBadge(actor) : null
     };
     if (f && actor) {
       // A tab that fails shows why instead of leaving the window blank.
@@ -274,6 +276,18 @@ export class HomeApp extends HandlebarsApplicationMixin(ApplicationV2) {
 }
 
 HomeApp.windows.push(HomeApp);
+
+/** The home's downtime badge: time left in downtime, or that it isn't downtime (when something waits for it). */
+function downtimeBadge(actor) {
+  const st = Downtime.state(actor);
+  if (st.active) {
+    const label = st.left === null ? L("NEONHOME.Downtime.Badge.on") : L("NEONHOME.Downtime.Badge.left", { left: formatMinutes(st.left) });
+    return { active: true, label, tip: st.label ? `${st.label}: ${label}` : label };
+  }
+  if (!GATES.some((g) => Downtime.gated(g))) return null;
+  const label = Downtime.current() ? L("NEONHOME.Downtime.Badge.notTaking") : L("NEONHOME.Downtime.Badge.off");
+  return { active: false, label, tip: L("NEONHOME.Downtime.Badge.tip") };
+}
 
 /** Drag-and-drop helpers shared by the features. */
 export const DnD = {

@@ -2,6 +2,7 @@ import { MODULE_ID, TEMPLATE_PATH, NEON_HUB_ID } from "../constants.js";
 import { Settings } from "../settings.js";
 import { HomeStore, docFrom } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
+import { Downtime } from "../home/downtime.js";
 import { computeWeight } from "../data/weight.js";
 import { DnD } from "./home-app.js";
 
@@ -83,6 +84,8 @@ export const Bay = {
     const active = [...bays.map((b) => b.vehicle), ...street].find((v) => v?.active);
     return {
       bay: {
+        // parking and swapping vehicles is done in downtime (the GM's setting)
+        locked: !Downtime.allows(actor, "bay"),
         homeName: bay.homeName || L("NEONHOME.Home.Unnamed"),
         slots: bay.slots,
         used: bays.filter((b) => b.vehicle).length,

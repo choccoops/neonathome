@@ -169,6 +169,29 @@ test("Maintenance shows the cycle, the Lifestyle, the gear and the workbench", a
   assert.ok(!/NEONHOME\./.test(html));
 });
 
+test("Downtime lists what anyone and each of the character's Roles can do, with the chosen action's terms", async () => {
+  await game.settings.set("cpr-neon-at-home", "downtimeOn", true);
+  app.uiState.downtime = { action: "hustle", params: {} };
+  const { ctx, html } = await renderTab("downtime");
+  const dt = ctx.dt;
+  assert.equal(dt.state.active, true);
+  assert.deepEqual(dt.groups.map((g) => g.key), ["anyone"], "no Role actions without a Role");
+  assert.ok(dt.selected.blocked, "no Role, no Hustle");
+  assert.ok(html.includes('data-action="dtPerform"'));
+  assert.ok(html.includes("Start downtime") || html.includes("End downtime"), "the GM's switch, without Neon Hub");
+  // rest: days and what it heals
+  app.uiState.downtime = { action: "rest", params: { rest: { days: 2 } } };
+  const rest = (await renderTab("downtime")).ctx.dt.selected;
+  assert.equal(rest.timeLabel, "2d");
+  assert.ok(rest.canDo);
+  // the workshop lists what needs work
+  app.uiState.downtime = { action: "workshop", params: {} };
+  const shop = await renderTab("downtime");
+  assert.ok(shop.ctx.dt.selected.workshop.due.some((e) => e.name === "Tsunami Arms Helix"));
+  assert.ok(!/NEONHOME\./.test(shop.html));
+  await game.settings.set("cpr-neon-at-home", "downtimeOn", false);
+});
+
 test("item and rules config windows render", async () => {
   for (const id of ["bodyArmor000000a", "ammoBag00000000a", "extMag000000000a", "agent0000000000a"]) {
     const cfg = new ItemConfig(actor.items.get(id));

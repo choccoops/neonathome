@@ -4,7 +4,8 @@
 </ul>
 {{/inline}}
 
-<div class="nah-bench">
+{{#if bench.locked}}<p class="nah-lockbar"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.bench"}}</p>{{/if}}
+<div class="nah-bench {{#if bench.locked}}is-locked{{/if}}">
   {{!-- ================= RACK ================= --}}
   <aside class="nah-rack nah-scroll">
     <h3 class="nah-kicker">{{localize "NEONHOME.Bench.Rack"}}</h3>
