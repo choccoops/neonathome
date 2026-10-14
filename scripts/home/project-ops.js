@@ -132,6 +132,7 @@ export const ProjectOps = {
    */
   async repair(worker, owner, itemId, { minutes = "all", event = null } = {}) {
     Downtime.check(worker, "maintenance");
+    if (MaintOps.isStash(owner)) Downtime.check(worker, "stash");
     const existing = this.repairOf(worker, owner, itemId);
     if (existing) return this.work(worker, existing.id, minutes, { event });
     const item = owner.items.get(itemId);

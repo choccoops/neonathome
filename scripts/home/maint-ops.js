@@ -4,6 +4,7 @@ import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
 import { HomeOps, RuleBlock } from "./ops.js";
 import { Downtime } from "./downtime.js";
+import { HomeStore } from "./store.js";
 import { itemFlag } from "../data/item-flag.js";
 import { traumaMap, placeInjury } from "../data/injuries.js";
 import { flatten, HAND_OPTION } from "../data/cyberware.js";
@@ -53,11 +54,27 @@ export const MaintOps = {
   },
 
   /**
+   * Whose gear it is: a home stash's character (their Lifestyle, Rent Day and Role keep up what's
+   * stored at home too), or the actor itself.
+   */
+  ownerOf(actor) {
+    if (!actor || actor.type === "character") return actor;
+    // the stash's own note of whose it is, else the character whose home points at it
+    return HomeStore.ownerOfStash(actor) ?? game.actors?.find?.((a) => a.type === "character" && HomeStore.home(a).stash === actor.uuid) ?? actor;
+  },
+
+  /** Whether an actor is a character's home stash. */
+  isStash(actor) {
+    return !!actor && this.ownerOf(actor) !== actor;
+  },
+
+  /**
    * A character's maintenance cycle: { scheme, n, label, next, calendar }.
    * With Neon Hub's calendars, it's their calendar's rent month (it starts on Rent Day, as their
    * Lifestyle bill does); without calendars, Neon Hub's month counter; otherwise the GM's counter.
    */
   async cycleFor(actor) {
+    actor = this.ownerOf(actor);
     if (this.mode === "rent") {
       try {
         const billing = (await this.hub.lifestyleBill(actor))?.billing;
@@ -90,6 +107,7 @@ export const MaintOps = {
    * comes from: the GM's override, their Neon Hub lifestyle package (2045 or 2070), or the sheet.
    */
   lifestyle(actor) {
+    actor = this.ownerOf(actor);
     const override = actor.getFlag(MODULE_ID, "maint")?.lifestyle;
     if (override !== undefined && override !== null && override !== "" && Number.isFinite(Number(override))) {
       return { tier: Math.max(0, Math.min(4, Math.floor(Number(override)))), source: "gm" };
@@ -106,17 +124,27 @@ export const MaintOps = {
     await actor.setFlag(MODULE_ID, "maint", { ...(actor.getFlag(MODULE_ID, "maint") ?? {}), lifestyle: value });
   },
 
-  /** Everything the character owns that needs looking after, as trees (see data/maintenance.js). */
+  /**
+   * Everything an actor holds that needs looking after, as trees (see data/maintenance.js): a
+   * character's gear, or what's in their home stash, kept up by the character's Lifestyle and Role.
+   */
   async list(actor, cycle = null) {
     cycle ??= await this.cycleFor(actor);
+    const owner = this.ownerOf(actor);
     const items = actor.items.map((i) => i.toObject());
     return maintenanceList(items, {
       moduleId: MODULE_ID,
       cycle,
-      lifestyle: this.lifestyle(actor).tier,
-      roles: rolesOf(items),
+      lifestyle: this.lifestyle(owner).tier,
+      roles: rolesOf(owner.items.map((i) => i.toObject())),
       now: this.now()
     });
+  },
+
+  /** What's in a character's home stash that needs looking after: { stash, list }, or null. */
+  async stashList(actor, cycle = null) {
+    const stash = HomeStore.stash(actor);
+    return stash ? { stash, list: await this.list(stash, cycle) } : null;
   },
 
   async entry(actor, itemId, cycle = null) {
@@ -160,6 +188,8 @@ export const MaintOps = {
     let spent = null;
     if (mode === "maintain" || mode === "repair") {
       Downtime.check(who, "maintenance");
+      // gear in the home stash is worked on at home
+      if (this.isStash(actor)) Downtime.check(who, "stash");
       const minutes = mode === "repair" ? e.repair.minutes : e.minutes;
       spent = await Downtime.spend(who, minutes, { label: L(`NEONHOME.Maint.Check.${mode}`, { item: item.name }), data: { kind: mode, item: item.uuid } });
     }
@@ -392,7 +422,8 @@ export const MaintOps = {
   async _dueRows(actors) {
     const rows = [];
     for (const a of actors) {
-      const due = flattenList(await this.list(a)).filter((e) => e.status === "due").length;
+      const stored = await this.stashList(a);
+      const due = [...flattenList(await this.list(a)), ...flattenList(stored?.list ?? [])].filter((e) => e.status === "due").length;
       if (due) rows.push(`<li>${esc(a.name)}: ${L("NEONHOME.Maint.DueCount", { n: due })}</li>`);
     }
     return rows.length ? `<ul>${rows.join("")}</ul>` : "";

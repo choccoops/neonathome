@@ -155,6 +155,9 @@ test("Maintenance shows the cycle, the Lifestyle, the gear and the workbench", a
   assert.equal(m.lifestyle.label, "Kibble");
   assert.equal(m.lifestyle.source, "(Neon Hub)");
   assert.ok(m.groups.some((g) => g.key === "weapon"));
+  const stashGroup = m.groups.find((g) => g.key === "stash");
+  assert.ok(stashGroup?.rows.some((r) => r.name === "Assault Rifle" && r.stash), "the home stash's gear, kept up by the character's Lifestyle");
+  assert.ok(html.includes('data-holder="stash"'));
   assert.ok(!html.includes("Kibble</b></small>"), "Neon Hub's lifestyle items aren't gear");
   const sel = m.selected;
   assert.equal(sel.name, "Tsunami Arms Helix");
@@ -195,8 +198,16 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   const proj = await renderTab("downtime");
   const row = proj.ctx.dt.selected.projects[0];
   assert.deepEqual([row.stage, row.pct, row.half, row.checkDue], ["check", 50, 50, true]);
+  assert.equal(row.pick, null, "no slider while the check is due");
   assert.ok(proj.html.includes('data-action="dtProjRoll"'));
   assert.ok(!/NEONHOME\./.test(proj.html));
+  // any amount into a project: a slider up to all it still needs
+  actor.flags["cpr-neon-at-home"].projects = [{ id: "p2", kind: "fabricate", label: "Fabricate a thing", skill: "Basic Tech", dv: 17, minutes: 1440, done: 60 }];
+  const slid = await renderTab("downtime");
+  assert.deepEqual([slid.ctx.dt.selected.projects[0].pick.max, slid.ctx.dt.selected.projects[0].pick.value], [1380, 660], "up to 23h; to the check by default");
+  assert.ok(slid.html.includes('data-minutes="pick"') && slid.html.includes("data-tp-range"));
+  app.uiState.downtime.picks = { p2: 90 };
+  assert.equal((await renderTab("downtime")).ctx.dt.selected.projects[0].pick.label, "1h 30m", "the player's pick is kept");
   delete actor.flags["cpr-neon-at-home"].projects;
   // salvage: the place's tables, the worth DVs, and a haul to pick out
   await game.settings.set("cpr-neon-at-home", "salvageEra", "2070");
@@ -216,6 +227,12 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   delete actor.flags["cpr-neon-at-home"].hauls;
   // a Tech strips gear: the list, the parts picked against the tier
   const [role] = await actor.createEmbeddedDocuments("Item", [{ name: "Tech", type: "role", system: { rank: 4, abilities: [] } }]);
+  // starting one: an amount of my choosing
+  app.uiState.downtime = { action: "invent", params: { invent: { text: "x", category: "expensive", now: "custom", nowMinutes: 600 } } };
+  const inv = await renderTab("downtime");
+  const f = inv.ctx.dt.selected.fields.find((x) => x.name === "nowMinutes");
+  assert.deepEqual([f.pick.max, f.pick.value], [10080, 600]);
+  assert.ok(!/NEONHOME\./.test(inv.html));
   app.uiState.downtime = { action: "strip", params: { strip: { tier: "premium" } } };
   const strip = await renderTab("downtime");
   assert.ok(strip.ctx.dt.selected.strip.length > 0, "gear to strip");

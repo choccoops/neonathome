@@ -804,3 +804,33 @@ test("EMP lasts a minute of world time, then the gear is back online", async () 
   assert.match(chat.at(-1).content, /back online/);
   game.time.worldTime = 0;
 });
+
+test("the home stash is maintained too, by its character's Lifestyle, Role and month", async () => {
+  asUser(true);
+  const actor = gearhead({ lifestyle: "Kibble", roles: [{ name: "Tech" }] });
+  const stash = makeActor({ name: "Gearhead's Stash", type: "container", flags: { [M]: { stashOf: actor.uuid } } }, [
+    { _id: "deck", name: "Cyberdeck", type: "cyberdeck", system: { equipped: "owned", price: { market: 500 } } },
+    { _id: "launcher", name: "Grenade Launcher", type: "weapon", system: { equipped: "owned", price: { market: 1000 } } },
+    { _id: "junk", name: "Busted Agent", type: "gear", system: { equipped: "owned", price: { market: 100 } }, flags: { [M]: { item: { condition: "destroyed" } } } }
+  ]);
+  await actor.setFlag(M, "home", { stash: stash.uuid, vehicles: [] });
+  assert.equal(MaintOps.ownerOf(stash), actor);
+  assert.equal(MaintOps.lifestyle(stash).tier, 1, "the character's Kibble");
+  const stored = await MaintOps.stashList(actor);
+  const by = Object.fromEntries(stored.list.map((e) => [e.id, e]));
+  // a Tech counts as a Lifestyle higher for all their gear: Generic Prepak covers the 500eb deck, not the 1,000eb launcher
+  assert.equal(by.deck.status, "covered");
+  assert.equal(by.launcher.status, "due");
+  // Rent Day's list counts what's due in the stash
+  assert.match(await MaintOps._dueRows([actor]), /Gearhead: 1/);
+  // maintained on the stash, by the character, this month
+  rollsTotal(30);
+  const res = await MaintOps.check(stash, "launcher", { mechanic: actor });
+  assert.equal(res.ok, true);
+  assert.equal((await MaintOps.entry(stash, "launcher")).status, "maintained");
+  // an older stash without its note is still found from the character's home
+  const old = makeActor({ name: "Old Stash", type: "container" }, []);
+  const other = gearhead();
+  await other.setFlag(M, "home", { stash: old.uuid, vehicles: [] });
+  assert.equal(MaintOps.ownerOf(old), other);
+});

@@ -1187,3 +1187,12 @@
 .neon-home .nah-dt-strip-list span { display: grid; min-width: 0; }
 .neon-home .nah-dt-strip-list small { font-size: 10px; color: var(--nah-dim); }
 .neon-home .nah-dt-strip-list input[type="number"] { width: 56px; flex: 0 0 56px; height: 22px; }
+
+/* Time pickers: any amount of downtime into a project */
+.neon-home .nah-timepick { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.neon-home .nah-timepick input[type="range"] { flex: 1; min-width: 80px; accent-color: var(--nah-cyan); }
+.neon-home .nah-timepick input[type="number"] { width: 64px; flex: 0 0 64px; height: 24px; }
+.neon-home .nah-timepick span { color: var(--nah-dim); font-size: 11px; }
+.neon-home .nah-timepick b { min-width: 70px; font-family: var(--nah-display); font-weight: 400; font-size: 12px; color: #fff; white-space: nowrap; }
+.neon-home .nah-proj-pick { display: flex; align-items: center; gap: 8px; flex: 1 1 100%; }
+.neon-home .nah-proj-pick button { flex: 0 0 auto; width: auto; }
