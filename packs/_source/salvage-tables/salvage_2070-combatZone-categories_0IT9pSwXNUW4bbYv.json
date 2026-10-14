@@ -1,0 +1,106 @@
+{
+  "_id": "0IT9pSwXNUW4bbYv",
+  "_key": "!tables!0IT9pSwXNUW4bbYv",
+  "name": "Salvage Categories (The Combat Zone (Pacifica), 2070)",
+  "img": "icons/svg/item-bag.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result to another category's name (Cyberware, Weapons, General Gear, Armor, Cyberdecks & Programs) to change what's found.</p>",
+  "results": [
+    {
+      "_id": "rWvMHMgWvYDviYLR",
+      "_key": "!tables.results!0IT9pSwXNUW4bbYv.rWvMHMgWvYDviYLR",
+      "type": "text",
+      "text": "Cyberware",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "f5BWE3nKkcGOq8fs",
+      "_key": "!tables.results!0IT9pSwXNUW4bbYv.f5BWE3nKkcGOq8fs",
+      "type": "text",
+      "text": "Weapons",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "MxccekN4Ch0IASJO",
+      "_key": "!tables.results!0IT9pSwXNUW4bbYv.MxccekN4Ch0IASJO",
+      "type": "text",
+      "text": "Weapons",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "ZSGQdLc4DOrU2Orz",
+      "_key": "!tables.results!0IT9pSwXNUW4bbYv.ZSGQdLc4DOrU2Orz",
+      "type": "text",
+      "text": "General Gear",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "ZcBLUXk3UeSV8cct",
+      "_key": "!tables.results!0IT9pSwXNUW4bbYv.ZcBLUXk3UeSV8cct",
+      "type": "text",
+      "text": "Armor",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "5cs8HoKnUAreR9v5",
+      "_key": "!tables.results!0IT9pSwXNUW4bbYv.5cs8HoKnUAreR9v5",
+      "type": "text",
+      "text": "Cyberdecks & Programs",
+      "img": "icons/svg/item-bag.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 300,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.combatZone.categories"
+    }
+  }
+}

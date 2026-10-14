@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -94,6 +94,15 @@ actor.flags["cpr-neon-at-home"].projects = [
 ];
 app.uiState.downtime = { action: "projects", params: {} };
 await writeFile(path.join(out, "downtime-projects.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+// Salvage in 2070's Badlands, with a haul half picked out
+await game.settings.set("cpr-neon-at-home", "salvageEra", "2070");
+actor.flags["cpr-neon-at-home"].hauls = [{ id: "h1", era: "2070", location: "badlands", category: "weapons", worth: 500, spent: 100, taken: [{ name: "Heavy Pistol", eb: 100 }] }];
+app.uiState.downtime = { action: "salvage", params: { salvage: { location: "badlands" } } };
+await writeFile(path.join(out, "downtime-salvage.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+// Strip for parts: two items picked toward a Premium unit
+const picks = Object.fromEntries((await import("../scripts/home/salvage-ops.js")).SalvageOps.strippable(actor).slice(0, 2).map((s) => [s.item.id, 1]));
+app.uiState.downtime = { action: "strip", params: { strip: { tier: "premium", picks } } };
+await writeFile(path.join(out, "downtime-strip.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 game.modules.delete("cpr-neon-hub");
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));

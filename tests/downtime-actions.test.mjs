@@ -14,6 +14,13 @@ const { ProjectOps } = await import("../scripts/home/project-ops.js");
 const projects = await import("../scripts/data/projects.js");
 const { CPR } = await import("../scripts/cpr.js");
 const data = await import("../scripts/data/downtime.js");
+const { materialsItemData } = await import("../scripts/data/materials.js");
+
+/** Tech Materials items: [tier, how many, where from]. */
+const mats = (...list) => list.map(([tier, amount = 1, source = ""], i) => {
+  const d = materialsItemData(tier, M, { source });
+  return { ...d, _id: `mat${tier}${i}`, system: { ...d.system, amount } };
+});
 
 await game.settings.set(M, "downtimeOn", true);
 
@@ -198,7 +205,7 @@ function downtime(actor, total) {
 }
 
 test("fabricating over two downtimes: materials up front, the check at halfway, the item at the end", async () => {
-  const tech = character("Gearhead", [["Tech", 4, [{ name: "Fabrication Expertise", rank: 2 }]]]);
+  const tech = character("Gearhead", [["Tech", 4, [{ name: "Fabrication Expertise", rank: 2 }]]], mats(["premium", 2, "an old rifle"]));
   const shop = makeActor({ name: "Shop", type: "container" }, [{ _id: "rifle", name: "Assault Rifle", type: "weapon", system: { price: { market: 500 }, equipped: "carried" } }]);
   // an Expensive item: DV21 and a week; this downtime has 3 days
   let call = downtime(tech, 3 * 1440);
@@ -206,7 +213,10 @@ test("fabricating over two downtimes: materials up front, the check at halfway, 
     rolls(25);
     const before = rolled.length;
     const p = await ProjectOps.start(tech, "fabricate", { item: shop.items.get("rifle").uuid });
-    assert.equal(tech.system.wealth.value, 900, "Premium materials bought when it starts");
+    assert.equal(tech.system.wealth.value, 1000, "no eb: materials are items");
+    assert.equal(tech.items.find((i) => i.flags?.[M]?.materials === "premium").system.amount, 1, "a Premium unit used when it starts");
+    assert.deepEqual(p.data.sources, ["an old rifle"], "where the materials came from, for the books");
+    assert.match(chat.find((m) => /starts a project/.test(m.content)).content, /1 × Premium Tech Materials/);
     assert.deepEqual([p.done, p.check, projects.stage(p)], [4320, null, "build"], "3 days in, short of the halfway mark");
     assert.equal(rolled.length, before, "no check yet");
     // the next downtime: a week; it reaches halfway, rolls, passes, and finishes
@@ -224,7 +234,7 @@ test("fabricating over two downtimes: materials up front, the check at halfway, 
 });
 
 test("a failed halfway check starts the project over; the materials aren't bought again", async () => {
-  const tech = character("Gearhead", [["Tech", 4]]);
+  const tech = character("Gearhead", [["Tech", 4]], mats(["costly"]));
   const shop = makeActor({ name: "Shop", type: "container" }, [{ _id: "agent", name: "Agent", type: "gear", system: { price: { market: 100 } } }]);
   const call = downtime(tech, 10080);
   try {
@@ -233,11 +243,10 @@ test("a failed halfway check starts the project over; the materials aren't bough
     const p = await ProjectOps.start(tech, "fabricate", { item: shop.items.get("agent").uuid });
     assert.deepEqual([p.done, p.restarts], [0, 1], "back to the start");
     assert.deepEqual(call.entries.map((e) => e.minutes), [720], "only the first half was spent");
-    assert.equal(tech.system.wealth.value, 950);
+    assert.equal(tech.items.filter((i) => i.flags?.[M]?.materials).length, 0, "the Costly unit went in");
     rolls(17);
     const done = await ProjectOps.work(tech, p.id, "all");
-    assert.equal(done.done, true);
-    assert.equal(tech.system.wealth.value, 950, "the same materials");
+    assert.equal(done.done, true, "the same materials, nothing more needed");
   } finally {
     game.modules.delete("cpr-neon-hub");
   }
@@ -263,6 +272,7 @@ test("a cancelled check leaves it due, and no time goes past the halfway mark", 
 
 test("Upgrade projects: one per item, applied when done", async () => {
   const tech = character("Gearhead", [["Tech", 4, [{ name: "Upgrade Expertise", rank: 1 }]]], [
+    ...mats(["premium"]),
     { _id: "pistol", name: "Pistol", type: "weapon", system: { price: { market: 100 }, quality: "standard", installedItems: { slots: 3, list: [] }, concealable: { concealable: false } } }
   ]);
   rolls(20);
@@ -272,6 +282,10 @@ test("Upgrade projects: one per item, applied when done", async () => {
   await ProjectOps.work(tech, p.id, "all");
   assert.equal(tech.items.get("pistol").system.installedItems.slots, 4);
   await assert.rejects(ProjectOps.start(tech, "upgrade", { item: "pistol", upgrade: "quality" }), /one per item/);
+  // no materials, no project
+  const broke = character("Broke", [["Tech", 4]], [{ _id: "smg", name: "SMG", type: "weapon", system: { price: { market: 100 } } }]);
+  await assert.rejects(ProjectOps.start(broke, "upgrade", { item: "smg", upgrade: "slot" }), /needs 1 × Premium Tech Materials/);
+  assert.equal(ProjectOps.list(broke).length, 0);
   // not a Tech
   await assert.rejects(ProjectOps.start(character("Rook", [["Solo", 4]]), "invent", { text: "x" }), /Only a Tech/);
 });

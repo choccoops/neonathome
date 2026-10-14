@@ -5,12 +5,13 @@ import { MaintOps } from "./maint-ops.js";
 import { Downtime, formatMinutes } from "./downtime.js";
 import { DowntimeOps, workSkill } from "./downtime-ops.js";
 import { PRICE_CATEGORIES, fieldExpertise } from "../data/maintenance.js";
-import { makerJob, fabricationMaterials, upgradeMaterials, UPGRADES, INVENT_CATEGORIES } from "../data/downtime.js";
+import { makerJob, UPGRADES, INVENT_CATEGORIES } from "../data/downtime.js";
+import { fabricationNeeds, upgradeNeeds, tierEb, needsLabel } from "../data/materials.js";
+import { SalvageOps } from "./salvage-ops.js";
 import { normalizeProject, stage, plan, needed, halfway, remaining } from "../data/projects.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
-const eb = (n) => `${Number(n || 0).toLocaleString()}eb`;
 
 /** Actor flag: a character's projects under way. */
 export const PROJECTS_FLAG = "projects";
@@ -79,7 +80,7 @@ export const ProjectOps = {
         delete data._id;
         const price = Number(data.system?.price?.market) || 0;
         const job = makerJob(price);
-        project = { kind, label: L("NEONHOME.Downtime.FabricateLabel", { item: data.name }), img: data.img, skill: workSkill(data), dv: job.dv, minutes: job.minutes, materials: fabricationMaterials(price), data: { item: data } };
+        project = { kind, label: L("NEONHOME.Downtime.FabricateLabel", { item: data.name }), img: data.img, skill: workSkill(data), dv: job.dv, minutes: job.minutes, data: { item: data, need: fabricationNeeds(price) } };
         break;
       }
       case "upgrade": {
@@ -94,7 +95,7 @@ export const ProjectOps = {
         const job = makerJob(price, { vehicle });
         project = {
           kind, label: L("NEONHOME.Downtime.UpgradeLabel", { item: item.name, upgrade: L(`NEONHOME.Downtime.Upgrade.${p.upgrade}`) }), img: item.img,
-          skill: workSkill(item.toObject()), dv: job.dv, minutes: job.minutes, materials: upgradeMaterials(price, { vehicle }), data: { item: item.id, upgrade: p.upgrade }
+          skill: workSkill(item.toObject()), dv: job.dv, minutes: job.minutes, data: { item: item.id, upgrade: p.upgrade, need: upgradeNeeds(price, { vehicle }) }
         };
         break;
       }
@@ -103,18 +104,22 @@ export const ProjectOps = {
         if (!text) throw new RuleBlock(L("NEONHOME.Downtime.DescribeIt"));
         const cat = INVENT_CATEGORIES.includes(p.category) ? p.category : "expensive";
         const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
-        project = { kind, label: L("NEONHOME.Downtime.InventLabel"), img: "", skill: p.skill || "Basic Tech", dv: job.dv, minutes: job.minutes, materials: 0, data: { text, category: cat } };
+        project = { kind, label: L("NEONHOME.Downtime.InventLabel"), img: "", skill: p.skill || "Basic Tech", dv: job.dv, minutes: job.minutes, data: { text, category: cat } };
         break;
       }
       default:
         throw new Error(`Not a Maker project: ${kind}`);
     }
-    project = normalizeProject({ ...project, id: foundry.utils.randomID(), ability: KIND[kind].ability });
-    // the Tech buys the materials up front (a failure leaves them unharmed for the next try)
-    await DowntimeOps._pay(actor, project.materials, project.label);
+    const need = project.data.need ?? null;
+    project = normalizeProject({ ...project, id: foundry.utils.randomID(), ability: KIND[kind].ability, materials: need ? tierEb(need.tier) * need.count : 0 });
+    // the Tech's Tech Materials go in up front (a failure leaves them unharmed for the next try)
+    const sources = await SalvageOps.useMaterials(actor, need);
+    project.data.sources = sources;
     await this._put(actor, project);
+    const materials = need ? needsLabel(need) : L("NEONHOME.Project.NoMaterials");
+    const from = sources.length ? `<br><small>${L("NEONHOME.Materials.From", { from: esc(sources.join("; ")) })}</small>` : "";
     await ChatMessage.create({
-      content: HomeOps._card(KIND[kind].icon, L("NEONHOME.Project.Started", { name: esc(actor.name), label: esc(project.label), time: formatMinutes(project.minutes), dv: project.dv, eb: eb(project.materials) })),
+      content: HomeOps._card(KIND[kind].icon, L("NEONHOME.Project.Started", { name: esc(actor.name), label: esc(project.label), time: formatMinutes(project.minutes), dv: project.dv, materials: esc(materials) }) + from),
       speaker: ChatMessage.getSpeaker({ actor })
     });
     await this.work(actor, project.id, minutes, { event });

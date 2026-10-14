@@ -198,6 +198,36 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   assert.ok(proj.html.includes('data-action="dtProjRoll"'));
   assert.ok(!/NEONHOME\./.test(proj.html));
   delete actor.flags["cpr-neon-at-home"].projects;
+  // salvage: the place's tables, the worth DVs, and a haul to pick out
+  await game.settings.set("cpr-neon-at-home", "salvageEra", "2070");
+  actor.flags["cpr-neon-at-home"].hauls = [{ id: "h1", era: "2070", location: "badlands", category: "weapons", worth: 500, spent: 100, taken: [{ name: "Heavy Pistol", eb: 100 }] }];
+  app.uiState.downtime = { action: "salvage", params: { salvage: { location: "badlands" } } };
+  const sal = await renderTab("downtime");
+  assert.equal(sal.ctx.dt.selected.timeLabel, "7d");
+  assert.deepEqual(sal.ctx.dt.selected.table.map((r) => r.n), ["DV9", "DV13", "DV15", "DV17", "DV24", "DV29"]);
+  const haul = sal.ctx.dt.selected.hauls[0];
+  assert.equal(haul.left, "400eb");
+  assert.deepEqual(haul.tiers.map((t) => t.tier), ["cheap", "everyday", "costly", "premium"], "materials the 400eb left covers");
+  assert.ok(sal.html.includes("The Badlands") && sal.html.includes('data-drop="haul"') && sal.html.includes('data-action="dtHaulTier"'));
+  assert.ok(!/NEONHOME\./.test(sal.html));
+  app.uiState.downtime = { action: "salvage", params: { salvage: { location: "badlands", category: "cyberdecks" } } };
+  const hunt = (await renderTab("downtime")).ctx.dt.selected;
+  assert.deepEqual(hunt.table.map((r) => r.n), ["DV13", "DV15", "DV17", "DV21", "DV29"], "a category: harder, and no 1,000eb");
+  delete actor.flags["cpr-neon-at-home"].hauls;
+  // a Tech strips gear: the list, the parts picked against the tier
+  const [role] = await actor.createEmbeddedDocuments("Item", [{ name: "Tech", type: "role", system: { rank: 4, abilities: [] } }]);
+  app.uiState.downtime = { action: "strip", params: { strip: { tier: "premium" } } };
+  const strip = await renderTab("downtime");
+  assert.ok(strip.ctx.dt.selected.strip.length > 0, "gear to strip");
+  assert.ok(strip.ctx.dt.selected.blocked, "nothing picked yet");
+  assert.ok(strip.html.includes("data-strip-pick") && strip.html.includes("Strip for parts"));
+  assert.ok(!/NEONHOME\./.test(strip.html));
+  // Fabricate shows the materials it takes and how many the Tech has
+  app.uiState.downtime = { action: "fabricate", params: { fabricate: { item: "x", itemInfo: { name: "Rifle", img: "", price: 500, skill: "Weaponstech", category: "Expensive" } } } };
+  const fab = (await renderTab("downtime")).ctx.dt.selected;
+  assert.ok(fab.facts.some((f) => f.value === "1 × Premium Tech Materials (has 0)"));
+  assert.match(fab.blocked, /needs 1 × Premium Tech Materials/);
+  await actor.deleteEmbeddedDocuments("Item", [role.id]);
   await game.settings.set("cpr-neon-at-home", "downtimeOn", false);
 });
 

@@ -86,6 +86,27 @@
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "tech-materials",
+      "label": "Neon At Home: Tech Materials",
+      "path": "packs/tech-materials",
+      "type": "Item",
+      "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "salvage-tables",
+      "label": "Neon At Home: Salvage Tables",
+      "path": "packs/salvage-tables",
+      "type": "RollTable",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
     }
   ],
   "packFolders": [
@@ -95,7 +116,10 @@
       "color": "#ff2a6d",
       "packs": [
         "armor-upgrades",
-        "carry-gear"
+        "carry-gear",
+        "tech-materials",
+        "malfunction-tables",
+        "salvage-tables"
       ]
     }
   ],

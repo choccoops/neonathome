@@ -1,0 +1,42 @@
+{
+  "_id": "hK7zF1XNRcpFbEx2",
+  "name": "Premium Tech Materials",
+  "type": "gear",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Sourced from / salvaged from:</b> <em>(GM: note where these came from)</em></p><p>Parts, stock and components worth 100eb (Premium), for a Tech's Maker work: Fabrication takes materials a tier below the item, Upgrades the item's own tier (Cyberpunk RED, p.148). Sourced like any gear, or salvaged from gear.</p>"
+    },
+    "price": {
+      "market": 100
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "isElectronic": false,
+    "providesHardening": false,
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "materials": "premium",
+      "item": {
+        "category": "utility"
+      }
+    }
+  },
+  "_key": "!items!hK7zF1XNRcpFbEx2",
+  "folder": null,
+  "sort": 400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

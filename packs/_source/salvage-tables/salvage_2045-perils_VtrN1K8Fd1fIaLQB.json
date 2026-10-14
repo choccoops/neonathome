@@ -1,0 +1,106 @@
+{
+  "_id": "VtrN1K8Fd1fIaLQB",
+  "_key": "!tables!VtrN1K8Fd1fIaLQB",
+  "name": "Perils of Salvaging (2045)",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Salvaging Night City (R. Talsorian Games), pp.3, 5. A short summary by Neon At Home; the DLC has the full text. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours; the peril's dice stay the module's.</p>",
+  "results": [
+    {
+      "_id": "wtrPN84aRZr2xbyi",
+      "_key": "!tables.results!VtrN1K8Fd1fIaLQB.wtrPN84aRZr2xbyi",
+      "type": "text",
+      "text": "A structure comes down on you. 6d6 damage (armor soaks it), and a Critical Injury to the Body.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "ztkVTNmk87QxlIOB",
+      "_key": "!tables.results!VtrN1K8Fd1fIaLQB.ztkVTNmk87QxlIOB",
+      "type": "text",
+      "text": "You walk into a firefight. 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "EGY1zEdPUK030SDU",
+      "_key": "!tables.results!VtrN1K8Fd1fIaLQB.EGY1zEdPUK030SDU",
+      "type": "text",
+      "text": "A radiation hot spot. High Level Radiation for 1d10 rounds: each, 2 damage straight to HP, as if Mildly On Fire. A Radiation Suit keeps it off.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "cHX9L4deuB3F81ON",
+      "_key": "!tables.results!VtrN1K8Fd1fIaLQB.cHX9L4deuB3F81ON",
+      "type": "text",
+      "text": "The ground gives way under you. A 30m fall when the ground gives: 6d6 damage (armor soaks it), unless a Grapple Hand or Gun, or a DV15 Athletics Check to grab the edge, saves you.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "Ld10JESEspe4BsoD",
+      "_key": "!tables.results!VtrN1K8Fd1fIaLQB.Ld10JESEspe4BsoD",
+      "type": "text",
+      "text": "A pocket of toxic gas. A pocket of toxic gas for a round, as a Vial of Biotoxin: beat DV15 Resist Torture/Drugs or take 3d6 straight to HP. An Anti-Smog Breathing Mask or an air supply keeps it off.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "lM5zHilbWhzSmpvo",
+      "_key": "!tables.results!VtrN1K8Fd1fIaLQB.lM5zHilbWhzSmpvo",
+      "type": "text",
+      "text": "You grab a live wire. A live wire: electrocuted for a round, 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 200,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2045.perils"
+    }
+  }
+}

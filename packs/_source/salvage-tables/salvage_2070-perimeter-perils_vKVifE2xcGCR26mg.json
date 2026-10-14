@@ -1,0 +1,106 @@
+{
+  "_id": "vKVifE2xcGCR26mg",
+  "_key": "!tables!vKVifE2xcGCR26mg",
+  "name": "Perils of Salvaging (The Perimeter, 2070)",
+  "img": "icons/svg/hazard.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours; the peril's dice stay the module's.</p>",
+  "results": [
+    {
+      "_id": "aBwXIVLakq4gCjAy",
+      "_key": "!tables.results!vKVifE2xcGCR26mg.aBwXIVLakq4gCjAy",
+      "type": "text",
+      "text": "An abandoned motel's roof caves in on you. 6d6 damage (armor soaks it), and a Critical Injury to the Body.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "3FK2xUfIvHJDEhBF",
+      "_key": "!tables.results!vKVifE2xcGCR26mg.3FK2xUfIvHJDEhBF",
+      "type": "text",
+      "text": "Raiders, or a Nomad family who found it first. 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "4bYtEV6pa0isa9vQ",
+      "_key": "!tables.results!vKVifE2xcGCR26mg.4bYtEV6pa0isa9vQ",
+      "type": "text",
+      "text": "Unexploded ordnance from the Unification War. 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "uwHvImBNwtumEV4I",
+      "_key": "!tables.results!vKVifE2xcGCR26mg.uwHvImBNwtumEV4I",
+      "type": "text",
+      "text": "Into a dry well or a service pit. A 30m fall when the ground gives: 6d6 damage (armor soaks it), unless a Grapple Hand or Gun, or a DV15 Athletics Check to grab the edge, saves you.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "lqiwQkQ8tWmyD7Bt",
+      "_key": "!tables.results!vKVifE2xcGCR26mg.lqiwQkQ8tWmyD7Bt",
+      "type": "text",
+      "text": "A ruptured CHOOH2 tank. A pocket of toxic gas for a round, as a Vial of Biotoxin: beat DV15 Resist Torture/Drugs or take 3d6 straight to HP. An Anti-Smog Breathing Mask or an air supply keeps it off.",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "8LSKoPgas5P5axi3",
+      "_key": "!tables.results!vKVifE2xcGCR26mg.8LSKoPgas5P5axi3",
+      "type": "text",
+      "text": "A \"dead\" substation that isn't. A live wire: electrocuted for a round, 6d6 damage (armor soaks it).",
+      "img": "icons/svg/hazard.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 800,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.perimeter.perils"
+    }
+  }
+}

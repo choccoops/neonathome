@@ -1165,3 +1165,25 @@
 .neon-home .nah-proj footer button { height: 26px; font-size: 11px; }
 .neon-home .nah-proj footer .is-danger { margin-left: auto; }
 @media (prefers-reduced-motion: reduce) { .neon-home .nah-proj.stage-check .nah-proj-stage { animation: none; } }
+
+/* Salvage hauls and stripping for parts */
+.neon-home .nah-dt-hauls { display: grid; gap: 8px; margin-top: 10px; }
+.neon-home .nah-dt-hauls h4 { margin: 0; font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--nah-yellow); }
+.neon-home .nah-haul { display: grid; gap: 6px; padding: 8px 10px; border: 1px solid var(--nah-line-2); border-left: 3px solid var(--nah-yellow); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-card); }
+.neon-home .nah-haul header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.neon-home .nah-haul header b { color: #fff; font-weight: 400; }
+.neon-home .nah-haul header span { font-size: 11px; color: var(--nah-dim); white-space: nowrap; }
+.neon-home .nah-haul .nah-meter b { background: var(--nah-yellow); box-shadow: 0 0 8px var(--nah-yellow); }
+.neon-home .nah-haul .nah-dt-drop { min-height: 40px; }
+.neon-home .nah-haul-tiers { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.neon-home .nah-haul-tiers small { color: var(--nah-dim); font-size: 11px; margin-right: 4px; }
+.neon-home .nah-haul-tiers button, .neon-home .nah-haul footer button { height: 24px; font-size: 11px; width: auto; flex: 0 0 auto; }
+.neon-home .nah-haul footer { display: flex; justify-content: flex-end; }
+.neon-home .nah-dt-strip-list { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-dt-strip-list li { display: flex; align-items: center; gap: 8px; padding: 3px 6px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.7); }
+.neon-home .nah-dt-strip-list li.is-picked { border-color: var(--nah-cyan); }
+.neon-home .nah-dt-strip-list label { flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 0; }
+.neon-home .nah-dt-strip-list img { width: 24px; height: 24px; object-fit: contain; }
+.neon-home .nah-dt-strip-list span { display: grid; min-width: 0; }
+.neon-home .nah-dt-strip-list small { font-size: 10px; color: var(--nah-dim); }
+.neon-home .nah-dt-strip-list input[type="number"] { width: 56px; flex: 0 0 56px; height: 22px; }
