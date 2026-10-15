@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.4
+
+- **Inventions make blueprints.** A finished Invention gives the inventor a *Blueprint: (name)* item holding the design as the player described it, its price category, and who invented it, priced at that category: it can be sold or handed over like any gear. The Invent panel has a name for the invention.
+- **Maker panels keep to themselves.** Each panel's Start button only ever starts its own kind of project (a stale click carried over from another panel did nothing before it could start, say, an Invention typed in but not submitted). The Fabricate, Upgrade and Invent panels list the projects of their kind already under way with a button to carry on in Projects, and say that Start begins a new one.
+- **Typed numbers read white** in the Downtime tab's fields (they were a dim grey).
+
 ## 1.6.3
 
 - **No treating yourself.** *Treat a critical injury* offered the character themselves as the patient (first, and by default). Cyberpunk RED (p.222): nobody can do a Treatment on themselves, though anyone can Quick Fix themselves. Now the patient list starts with the other characters, and the character only appears as "yourself: Quick Fix only" when they have an injury a Quick Fix cures for good (Torn Muscle, Foreign Object, Concussion), with only those injuries to pick.

@@ -307,6 +307,13 @@ test("a cancelled check leaves it due, and no time goes past the halfway mark", 
     assert.equal(ProjectOps.get(tech, p.id).check, "passed");
     await ProjectOps.work(tech, p.id, "all");
     assert.match(chat.at(-1).content, /self-cleaning rifle/);
+    // a blueprint of it, at the price category it was invented at
+    const bp = tech.items.find((i) => i.flags?.[M]?.blueprint);
+    assert.equal(bp.name, "Blueprint: Untitled Invention");
+    assert.equal(bp.system.price.market, 500, "Expensive");
+    assert.match(bp.system.description.value, /A self-cleaning rifle/);
+    assert.deepEqual([bp.flags[M].blueprint.category, bp.flags[M].blueprint.inventor], ["expensive", "Gearhead"]);
+    assert.match(chat.at(-1).content, /Blueprint: Untitled Invention/);
   } finally {
     game.modules.delete("cpr-neon-hub");
   }
@@ -353,7 +360,8 @@ test("any amount of downtime into a project, a bit at a time", async () => {
   try {
     rolls(30);
     // an invention, Expensive: DV21 and a week. Put in 90 minutes, then 30
-    const p = await ProjectOps.start(tech, "invent", { text: "A quieter suppressor", category: "expensive", skill: "Weaponstech" }, { minutes: 90 });
+    const p = await ProjectOps.start(tech, "invent", { name: "Whisper Can", text: "A quieter suppressor", category: "expensive", skill: "Weaponstech" }, { minutes: 90 });
+    assert.equal(p.label, "Invent Whisper Can");
     assert.equal(ProjectOps.get(tech, p.id).done, 90);
     await ProjectOps.work(tech, p.id, 30);
     assert.equal(ProjectOps.get(tech, p.id).done, 120);

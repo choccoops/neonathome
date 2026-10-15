@@ -246,6 +246,7 @@ function panel(actor, id, p, { roles, state }) {
       const cat = INVENT_CATEGORIES.includes(p.category) ? p.category : "expensive";
       const skills = [...new Set(Object.values(KINDS).map((k) => k.skill))];
       const skill = skills.includes(p.skill) ? p.skill : "Basic Tech";
+      fields.push(field("name", "NEONHOME.Downtime.Field.inventionName", { text: true, value: p.name ?? "" }));
       fields.push(field("text", "NEONHOME.Downtime.Field.invention", { textarea: true, value: p.text ?? "" }));
       fields.push(field("category", "NEONHOME.Downtime.Field.category", { select: true, options: opt(INVENT_CATEGORIES, cat, (c) => L(`NEONHOME.Maint.Price.${c}`)) }));
       fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
@@ -256,6 +257,7 @@ function panel(actor, id, p, { roles, state }) {
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, "Invention Expertise"), expertise: L("NEONHOME.Downtime.Expertise.invention") }));
       fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InventNote"));
+      fact("NEONHOME.Downtime.Fact.makes", L("NEONHOME.Downtime.MakesBlueprint"));
       break;
     }
     case "salvage": {
@@ -359,8 +361,12 @@ function panel(actor, id, p, { roles, state }) {
   }
   if (spread) fact("NEONHOME.Downtime.Fact.project", L("NEONHOME.Project.HowItGoes"));
   else if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
+  // a Maker panel starts new work: what's already under way of the kind is carried on in Projects
+  const underway = MAKER.includes(id)
+    ? ProjectOps.list(actor).filter((x) => x.kind === id).map((x) => ({ label: x.label, pct: meter(x).pct, stage: L(`NEONHOME.Project.Stage.${stage(x)}`, { left: formatMinutes(x.minutes - x.done) }) }))
+    : [];
   // nothing to roll: just the time spent
-  return { fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" };
+  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" };
 }
 
 export const DowntimeTab = {
@@ -468,9 +474,11 @@ export const DowntimeTab = {
       ui.action = target.closest("[data-dt]")?.dataset.dt ?? ui.action;
       this.render();
     },
-    dtPerform(event) {
+    dtPerform(event, target) {
       const ui = this.uiState.downtime;
-      const id = ui.action;
+      // the button does its own panel's action, never another one's (a stale click after a redraw)
+      const id = target?.dataset.dtPerform ?? ui.action;
+      if (id !== ui.action) return this.render();
       const params = { ...(ui.params[id] ?? {}) };
       if (MAKER.includes(id)) {
         return this.act(async () => {

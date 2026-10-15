@@ -388,7 +388,7 @@ wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appea
 | Anyone | **Projects** | Maker work and repairs under way, with their meters |
 | Tech | **Fabricate** (a project) | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
 | Tech | **Upgrade** (a project) | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
-| Tech | **Invent** (a project) | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149) |
+| Tech | **Invent** (a project) | Described for the GM, who sets its price category, which sets the DV and time (pp.148-149); makes a **blueprint** item, sellable and transferable |
 | Tech | **Strip for parts** | Gear broken down into Tech Materials, several items' worth toward one tier |
 | Medtech | **Synthesize pharmaceuticals** | An hour, DV13 Medical Tech, 200eb: doses equal to the skill (p.149) |
 | Medtech | **Therapy** | A week for both; Addiction, or Standard/Extreme Humanity Loss (2d6/4d6 Humanity) (p.229) |
