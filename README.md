@@ -382,7 +382,7 @@ wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appea
 | --- | --- | --- |
 | Anyone | **The Hustle** | A week; 1d6 on the Role's table, paid by Role Ability Rank (p.381) |
 | Anyone | **Rest and recover** | Days of rest, BODY HP a day (p.222) |
-| Anyone | **Treat a critical injury** | Four hours; the injury's skill and DV (Cybertech on a cyberlimb); not on yourself (pp.222-223) |
+| Anyone | **Treat a critical injury** | Four hours; the injury's skill and DV (Cybertech on a cyberlimb); not on yourself, except the injuries a Quick Fix cures (a minute) (pp.222-223) |
 | Anyone | **Salvage** | A week; Basic Tech sets the worth found; picked out as Destroyed items or Tech Materials (*Salvaging Night City*) |
 | Anyone | **Maintenance and repairs** | What's due, and repair projects for what's Destroyed (p.140) |
 | Anyone | **Projects** | Maker work and repairs under way, with their meters |

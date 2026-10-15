@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.3
+
+- **No treating yourself.** *Treat a critical injury* offered the character themselves as the patient (first, and by default). Cyberpunk RED (p.222): nobody can do a Treatment on themselves, though anyone can Quick Fix themselves. Now the patient list starts with the other characters, and the character only appears as "yourself: Quick Fix only" when they have an injury a Quick Fix cures for good (Torn Muscle, Foreign Object, Concussion), with only those injuries to pick.
+
 ## 1.6.2
 
 - **Downtime actions always cost the character's downtime.** The GM could take a downtime action (Rest, the Hustle, Treatment, ...) for a character who wasn't taking part in Neon Hub's downtime, and it happened for free: a day of Rest healed without a day spent. Now every action needs the character in the downtime with the time it takes left, whoever clicks it, and it's logged in Neon Hub's downtime log; the buttons are off until then. Without Neon Hub, the GM's downtime switch has to be on. Maintenance and repairs work the same way when the GM keeps them to downtime.

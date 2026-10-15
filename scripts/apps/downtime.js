@@ -169,10 +169,18 @@ function panel(actor, id, p, { roles, state }) {
       break;
     }
     case "treat": {
-      const list = patients(actor);
-      const who = list.find((a) => a.id === p.patient) ?? actor;
-      fields.push(field("patient", "NEONHOME.Downtime.Field.patient", { select: true, options: list.map((a) => ({ value: a.id, label: a.name, selected: a === who })) }));
-      const injuries = who.items.filter((i) => i.type === "criticalInjury");
+      // Nobody can do a Treatment on themselves; a Quick Fix, yes (p.222). The few injuries a Quick
+      // Fix cures for good are the only ones a character can see to on themselves.
+      const quickFix = (i) => i.type === "criticalInjury" && i.system?.treatment?.type === "quickFix";
+      const selfOk = actor.items.some(quickFix);
+      const list = patients(actor, { self: selfOk });
+      const who = list.find((a) => a.id === p.patient) ?? list.find((a) => a !== actor) ?? list[0];
+      if (!who) {
+        blocked = L("NEONHOME.Downtime.PickPatient");
+        break;
+      }
+      fields.push(field("patient", "NEONHOME.Downtime.Field.patient", { select: true, options: list.map((a) => ({ value: a.id, label: a === actor ? L("NEONHOME.Downtime.YourselfQuickFix", { name: a.name }) : a.name, selected: a === who })) }));
+      const injuries = who.items.filter((i) => i.type === "criticalInjury" && (who !== actor || quickFix(i)));
       const hurt = injuries.find((i) => i.id === p.injury) ?? injuries[0];
       if (!hurt) {
         blocked = L("NEONHOME.Downtime.NoInjuries", { name: who.name });

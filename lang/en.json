@@ -1062,7 +1062,7 @@
       "NoEb": "{name} needs {eb} for the materials.",
       "NoRole": "{name} has no Role.",
       "NeedsRole": "Only a {role} can do this; {name} isn't one.",
-      "NotYourself": "Nobody can do that on themselves (only a Quick Fix).",
+      "NotYourself": "Nobody can do a Treatment on themselves, only a Quick Fix (p.222).",
       "NoInjuries": "{name} has no critical injuries.",
       "NoTreatment": "{injury} has no Treatment to roll.",
       "NeedsSurgery": "{name} has no Surgery (a Medtech's Medicine).",
@@ -1141,7 +1141,7 @@
       "Blurb": {
         "hustle": "A week of work on the side between Jobs: roll 1d6 on your Role's table; the pay goes by your Role Ability Rank (Cyberpunk RED, p.381).",
         "rest": "Each full day of rest heals HP equal to BODY, once stabilized (p.222).",
-        "treat": "A Treatment takes four hours and removes the injury for good, with the skill and DV the injury lists; Cybertech works in their place on a cyberlimb. Nobody can Treat themselves (pp.222-223).",
+        "treat": "A Treatment takes four hours and removes the injury for good, with the skill and DV the injury lists; Cybertech works in their place on a cyberlimb. Nobody can Treat themselves. A few injuries (Torn Muscle, Foreign Object, Concussion) are cured by a Quick Fix, a minute's work you can do on yourself (pp.222-223).",
         "workshop": "Maintenance Checks and repairs, from the Maintenance tab: each spends its time (Breaking Your Stuff; repairs, p.140).",
         "fabricate": "Make an item from Tech Materials a price category lower, used when you start. TECH + the skill it's repaired with + Fabrication Expertise against its DV, rolled halfway through its time; a failure there starts it over, the materials unharmed (p.148).",
         "upgrade": "One upgrade per item, from Tech Materials of its price category (a vehicle's: Very Expensive), used when you start. The check comes halfway; a failure there starts it over, the materials and the item unharmed (p.148).",
@@ -1255,7 +1255,8 @@
       "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while.",
       "InStash": "in the stash",
       "Spend": "Spend the time",
-      "NotIn": "{name} isn't taking part in this downtime: downtime actions spend their own downtime."
+      "NotIn": "{name} isn't taking part in this downtime: downtime actions spend their own downtime.",
+      "YourselfQuickFix": "{name} (yourself: Quick Fix only)"
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
