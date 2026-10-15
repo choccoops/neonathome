@@ -189,6 +189,16 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   assert.equal(rest.timeLabel, "2d");
   assert.ok(rest.canDo);
   assert.ok(restView.html.includes("Spend the time") && !restView.html.includes("Spend the time and roll"), "nothing to roll for rest");
+  // treating: not yourself (a Treatment), only what a Quick Fix cures (p.222): Vex's Concussion
+  app.uiState.downtime = { action: "treat", params: { treat: { patient: actor.id } } };
+  const treat = (await renderTab("downtime")).ctx.dt.selected;
+  assert.match(treat.fields.find((f) => f.name === "patient").options.find((o) => o.value === actor.id).label, /Quick Fix only/);
+  assert.deepEqual(treat.fields.find((f) => f.name === "injury").options.map((o) => o.label), ["Concussion"], "not the Broken Ribs or the Dismembered Hand");
+  const crit = actor.items.get("crit00000000000d");
+  actor.items.delete(crit.id);
+  const none = (await renderTab("downtime")).ctx.dt.selected;
+  assert.ok(!none.fields.find((f) => f.name === "patient")?.options.some((o) => o.value === actor.id), "nothing a Quick Fix cures: not offered to themselves at all");
+  actor.items.set(crit.id, crit);
   // the workshop lists what needs work
   app.uiState.downtime = { action: "workshop", params: {} };
   const shop = await renderTab("downtime");
