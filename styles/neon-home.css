@@ -1202,3 +1202,16 @@
 .neon-home .nah-tp-msg { flex: 1 1 100%; font-size: 11px; color: var(--nah-dim); }
 .neon-home .nah-timepick.is-over .nah-tp-msg { color: var(--nah-red); }
 .neon-home .nah-timepick.is-over input[type="number"] { border-color: var(--nah-red); }
+
+/* Typed values read white (Foundry's number fields default to a dim grey here) */
+.neon-home :is(.nah-dt-field, .nah-timepick, .nah-dt-strip-list) :is(input[type="number"], input[type="text"], textarea, select) { color: #fff; }
+.neon-home :is(.nah-dt-field, .nah-timepick, .nah-dt-strip-list) input::placeholder { color: var(--nah-dim); }
+
+/* Maker work already under way of the panel's kind */
+.neon-home .nah-dt-underway { display: grid; gap: 6px; margin: 4px 0 10px; padding: 8px 10px; border: 1px solid var(--nah-line-2); border-left: 3px solid var(--nah-cyan); background: rgba(13, 13, 21, 0.7); }
+.neon-home .nah-dt-underway h4 { margin: 0; font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--nah-cyan); font-size: 12px; }
+.neon-home .nah-dt-underway ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.neon-home .nah-dt-underway li { display: flex; justify-content: space-between; gap: 8px; }
+.neon-home .nah-dt-underway li b { color: #fff; font-weight: 400; }
+.neon-home .nah-dt-underway li small { color: var(--nah-dim); white-space: nowrap; }
+.neon-home .nah-dt-underway button { justify-self: start; width: auto; height: 26px; font-size: 11px; }

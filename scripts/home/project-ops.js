@@ -5,13 +5,43 @@ import { MaintOps } from "./maint-ops.js";
 import { Downtime, formatMinutes } from "./downtime.js";
 import { DowntimeOps, workSkill } from "./downtime-ops.js";
 import { PRICE_CATEGORIES, fieldExpertise } from "../data/maintenance.js";
-import { makerJob, UPGRADES, INVENT_CATEGORIES } from "../data/downtime.js";
+import { makerJob, UPGRADES, inventPrice } from "../data/downtime.js";
 import { fabricationNeeds, upgradeNeeds, tierEb, needsLabel } from "../data/materials.js";
 import { SalvageOps } from "./salvage-ops.js";
 import { normalizeProject, stage, plan, needed, halfway, remaining } from "../data/projects.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
+
+/**
+ * A finished invention's blueprint: a gear item holding the design (the player's description),
+ * its price category and who invented it, priced at that category. Blueprints can be sold or handed
+ * on like any gear; the GM writes up how the invention works.
+ */
+export function blueprintData(p, actor) {
+  const cat = p.data?.category ?? "expensive";
+  const price = Number(p.data?.value) || (PRICE_CATEGORIES.find((c) => c.key === cat)?.eb ?? 0);
+  const title = p.data?.name || L("NEONHOME.Blueprint.Untitled");
+  return {
+    name: L("NEONHOME.Blueprint.Name", { name: title }),
+    type: "gear",
+    img: "icons/svg/book.svg",
+    system: {
+      description: {
+        value: `<p><b>${esc(L("NEONHOME.Blueprint.Category"))}:</b> ${esc(L(`NEONHOME.Maint.Price.${cat}`))} (${price.toLocaleString()}eb)</p>`
+          + `<p><b>${esc(L("NEONHOME.Blueprint.Inventor"))}:</b> ${esc(actor.name)} &middot; ${esc(p.skill)} DV${p.dv}</p>`
+          + `<p>${esc(p.data?.text ?? "").replace(/\n/g, "<br>")}</p>`
+          + `<p><em>${esc(L("NEONHOME.Blueprint.Note"))}</em></p>`
+      },
+      price: { market: price },
+      amount: 1,
+      equipped: "owned",
+      isElectronic: false,
+      concealable: { concealable: true, isConcealed: false }
+    },
+    flags: { [MODULE_ID]: { blueprint: { name: title, category: cat, text: p.data?.text ?? "", skill: p.skill, dv: p.dv, inventor: actor.name }, item: { category: "utility" } } }
+  };
+}
 
 /** Actor flag: a character's projects under way. */
 export const PROJECTS_FLAG = "projects";
@@ -102,9 +132,16 @@ export const ProjectOps = {
       case "invent": {
         const text = String(p.text ?? "").trim();
         if (!text) throw new RuleBlock(L("NEONHOME.Downtime.DescribeIt"));
-        const cat = INVENT_CATEGORIES.includes(p.category) ? p.category : "expensive";
-        const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
-        project = { kind, label: L("NEONHOME.Downtime.InventLabel"), img: "", skill: p.skill || "Basic Tech", dv: job.dv, minutes: job.minutes, data: { text, category: cat } };
+        // the GM's planned value sets the category; Super Luxury takes a month per 10,000eb (p.149)
+        const price = inventPrice(p.category, p.value);
+        if (!price.ok) throw new RuleBlock(L("NEONHOME.Downtime.InventTooCheap"));
+        const cat = price.category;
+        const job = makerJob(price.value);
+        const name = String(p.name ?? "").trim().slice(0, 100);
+        project = {
+          kind, label: name ? L("NEONHOME.Downtime.InventNamed", { name }) : L("NEONHOME.Downtime.InventLabel"), img: "", skill: p.skill || "Basic Tech",
+          dv: job.dv, minutes: job.minutes, data: { text, category: cat, value: price.value, name }
+        };
         break;
       }
       default:
@@ -253,9 +290,13 @@ export const ProjectOps = {
         verdict = L(`NEONHOME.Project.Done.${UPGRADES[p.data.upgrade]?.apply ? "upgrade" : "upgradeNoted"}`, { name: esc(actor.name), item: esc(item?.name ?? "") });
         break;
       }
-      case "invent":
-        verdict = `${L("NEONHOME.Project.Done.invent", { name: esc(actor.name), category: L(`NEONHOME.Maint.Price.${p.data.category}`) })}<br><em>${esc(p.data.text)}</em>`;
+      case "invent": {
+        // the design, as a blueprint the character keeps (and can sell or hand over)
+        const data = blueprintData(p, actor);
+        await actor.createEmbeddedDocuments("Item", [data], { [MODULE_ID]: { checked: true } });
+        verdict = `${L("NEONHOME.Project.Done.invent", { name: esc(actor.name), category: L(`NEONHOME.Maint.Price.${p.data.category}`), blueprint: esc(data.name) })}<br><em>${esc(p.data.text)}</em>`;
         break;
+      }
       case "repair": {
         const owner = await fromUuid(p.data.owner);
         const item = owner?.items?.get(p.data.item);

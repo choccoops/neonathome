@@ -86,6 +86,7 @@ game.modules.set("cpr-neon-hub", { active: true, api: { downtime: {
 app.tab = "downtime";
 app.uiState.downtime = { action: "hustle", params: { hustle: { role: "tech" } } };
 await writeFile(path.join(out, "downtime.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+actor.flags["cpr-neon-at-home"].projects = [{ id: "p0", kind: "fabricate", label: "Fabricate Militech Avenger", skill: "Weaponstech", dv: 21, minutes: 10080, done: 5040 }];
 app.uiState.downtime = { action: "fabricate", params: { fabricate: { item: "x", itemInfo: { name: "Militech Avenger", img: "../tools/preview-item.svg", price: 500, skill: "Weaponstech", category: "Expensive" } } } };
 await writeFile(path.join(out, "downtime-fab.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 actor.flags["cpr-neon-at-home"].projects = [

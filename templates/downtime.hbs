@@ -158,6 +158,15 @@
       </ul>
       {{/if}}
 
+      {{#if underway.length}}
+      <div class="nah-dt-underway">
+        <h4><i class="fa-solid fa-diagram-project"></i> {{localize "NEONHOME.Project.UnderWay"}}</h4>
+        <ul>{{#each underway}}<li><b>{{label}}</b><small>{{stage}} &middot; {{pct}}%</small></li>{{/each}}</ul>
+        <button type="button" data-action="dtSelect" data-dt="projects"><i class="fa-solid fa-arrow-right"></i> {{localize "NEONHOME.Project.CarryOnThere"}}</button>
+        <small class="nah-hint">{{localize "NEONHOME.Project.StartIsNew"}}</small>
+      </div>
+      {{/if}}
+
       {{#if strip}}
       <ul class="nah-dt-strip-list">
         {{#each strip}}
@@ -173,7 +182,7 @@
       {{#unless @root.dt.can}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.actions"}}</p>{{/unless}}
       {{#unless workshop}}{{#unless projects}}
       <div class="nah-maint-actions">
-        <button type="button" class="nah-primary" data-action="dtPerform" {{#unless canDo}}disabled{{/unless}}>
+        <button type="button" class="nah-primary" data-action="dtPerform" data-dt-perform="{{id}}" {{#unless canDo}}disabled{{/unless}}>
           {{#if maker}}<i class="fa-solid fa-diagram-project"></i> {{localize "NEONHOME.Project.Start"}}{{else if stripping}}<i class="fa-solid fa-gears"></i> {{localize "NEONHOME.Strip.Do"}}{{else if noRoll}}<i class="fa-regular fa-clock"></i> {{localize "NEONHOME.Downtime.Spend"}}{{else}}<i class="fa-solid fa-dice-d10"></i> {{localize "NEONHOME.Downtime.Do"}}{{/if}}{{#if timeLabel}} <small>{{timeLabel}}</small>{{/if}}
         </button>
       </div>

@@ -1099,7 +1099,9 @@
         "humanity": "Their Humanity",
         "chance": "Believed",
         "rank": "Rank",
-        "project": "Project"
+        "project": "Project",
+        "value": "Value",
+        "time": "Time"
       },
       "Field": {
         "role": "Role",
@@ -1119,7 +1121,9 @@
         "title": "Headline",
         "evidence": "Pieces of hard evidence",
         "now": "Put in now",
-        "nowMinutes": "How much now"
+        "nowMinutes": "How much now",
+        "inventionName": "Name of the invention",
+        "inventValue": "Planned value (eb)"
       },
       "Action": {
         "hustle": "The Hustle",
@@ -1145,7 +1149,7 @@
         "workshop": "Maintenance Checks and repairs, from the Maintenance tab: each spends its time (Breaking Your Stuff; repairs, p.140).",
         "fabricate": "Make an item from Tech Materials a price category lower, used when you start. TECH + the skill it's repaired with + Fabrication Expertise against its DV, rolled halfway through its time; a failure there starts it over, the materials unharmed (p.148).",
         "upgrade": "One upgrade per item, from Tech Materials of its price category (a vehicle's: Very Expensive), used when you start. The check comes halfway; a failure there starts it over, the materials and the item unharmed (p.148).",
-        "invent": "Invent an upgrade or an item. The GM sets its price category, which sets the DV and time; the check comes halfway, and a failure sends you back to the drawing board. Once invented, Fabrication or Upgrade makes it real (pp.148-149).",
+        "invent": "Invent an upgrade or an item. The GM sets its price category, which sets the DV and time; the check comes halfway, and a failure sends you back to the drawing board. A finished invention is a blueprint item the character keeps, and can sell or hand over; Fabrication or Upgrade makes it real (pp.148-149).",
         "pharma": "An hour and 200eb of materials make as many doses as your Medical Tech Skill, on a DV13 Medical Tech Check; a failure wastes the materials (p.149).",
         "therapy": "A week for you and your patient, materials bought from Biotechnica, a Medical Tech Check at the end; a failure wastes the week and the materials. You can't treat yourself (p.229).",
         "rumor": "Hunt a rumor down with an information skill, against the Active DV for how detailed it is (p.151).",
@@ -1256,13 +1260,18 @@
       "InStash": "in the stash",
       "Spend": "Spend the time",
       "NotIn": "{name} isn't taking part in this downtime: downtime actions spend their own downtime.",
-      "YourselfQuickFix": "{name} (yourself: Quick Fix only)"
+      "YourselfQuickFix": "{name} (yourself: Quick Fix only)",
+      "MakesBlueprint": "A blueprint of it, kept by the inventor (sellable and transferable)",
+      "InventNamed": "Invent {name}",
+      "InventValueHint": "The figure the GM gives for the idea; it sets the price category. Leave it empty to go by the category. Super Luxury takes a month per 10,000eb.",
+      "InventTooCheap": "An invention is Expensive (500eb) at the least.",
+      "SuperLuxuryTime": "{n} month(s): a month per 10,000eb (p.149)"
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
       "Start": "Start the project",
       "Now": {
-        "all": "All it needs (as much downtime as I have)",
+        "all": "All my downtime allows",
         "check": "Up to the halfway check",
         "custom": "An amount I choose",
         "none": "Nothing yet"
@@ -1303,7 +1312,7 @@
         "fabricate": "<b>{name}</b> finishes making <b>{item}</b>.",
         "upgrade": "<b>{name}</b> finishes upgrading <b>{item}</b>.",
         "upgradeNoted": "<b>{name}</b> finishes upgrading <b>{item}</b>; the GM applies what it does.",
-        "invent": "<b>{name}</b> has a working design ({category}): the GM writes up how it works. Fabrication or Upgrade makes it real.",
+        "invent": "<b>{name}</b> has a working design ({category}): <b>{blueprint}</b>. The GM writes up how it works; Fabrication or Upgrade makes it real.",
         "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again."
       },
       "Abandoned": "<b>{name}</b> gives up on <b>{label}</b>.",
@@ -1318,7 +1327,10 @@
       "TooMuch": "More than there is: {max} at most.",
       "PickSome": "Pick how much downtime to put in now.",
       "Days": "Days",
-      "Minutes": "Minutes"
+      "Minutes": "Minutes",
+      "UnderWay": "Already under way",
+      "CarryOnThere": "Carry on in Projects",
+      "StartIsNew": "Starting here begins a new project."
     },
     "Materials": {
       "Have": "{materials} (has {have})",
@@ -1433,6 +1445,13 @@
       "TimeFree": "None (up to {free} items)",
       "TimeBatch": "{time}: {n} items, the first {free} free, then {each} each",
       "Label": "Strip for parts: {materials}"
+    },
+    "Blueprint": {
+      "Name": "Blueprint: {name}",
+      "Untitled": "Untitled Invention",
+      "Category": "Price category",
+      "Inventor": "Invented by",
+      "Note": "A Tech's working design. Fabrication or Upgrade Expertise makes it real; the GM has the final say on its rules. It can be sold or handed over like any gear."
     }
   }
 }

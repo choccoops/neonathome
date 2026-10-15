@@ -11,7 +11,7 @@ import { stage, meter, needed, remaining } from "../data/projects.js";
 import { Compat } from "../compat.js";
 import { KINDS, PRICE_CATEGORIES, priceCategory, flattenList, isMaintainable } from "../data/maintenance.js";
 import {
-  MIN, HUSTLES, makerJob, UPGRADES, INVENT_CATEGORIES,
+  MIN, HUSTLES, makerJob, UPGRADES, INVENT_CATEGORIES, inventPrice,
   PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
@@ -243,19 +243,27 @@ function panel(actor, id, p, { roles, state }) {
       break;
     }
     case "invent": {
-      const cat = INVENT_CATEGORIES.includes(p.category) ? p.category : "expensive";
+      // the planned value the GM gave sets the category (and a Super Luxury invention's months)
+      const price = inventPrice(p.category, p.value);
+      const cat = price.category;
       const skills = [...new Set(Object.values(KINDS).map((k) => k.skill))];
       const skill = skills.includes(p.skill) ? p.skill : "Basic Tech";
+      fields.push(field("name", "NEONHOME.Downtime.Field.inventionName", { text: true, value: p.name ?? "" }));
       fields.push(field("text", "NEONHOME.Downtime.Field.invention", { textarea: true, value: p.text ?? "" }));
       fields.push(field("category", "NEONHOME.Downtime.Field.category", { select: true, options: opt(INVENT_CATEGORIES, cat, (c) => L(`NEONHOME.Maint.Price.${c}`)) }));
+      fields.push(field("value", "NEONHOME.Downtime.Field.inventValue", { number: true, value: Math.floor(Number(p.value) || 0) || "", min: 0, max: 10000000, hint: L("NEONHOME.Downtime.InventValueHint") }));
       fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
-      const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
+      const job = makerJob(price.value);
+      if (!price.ok) blocked = L("NEONHOME.Downtime.InventTooCheap");
+      fact("NEONHOME.Downtime.Fact.value", `${eb(price.value)} (${L(`NEONHOME.Maint.Price.${cat}`)})`);
+      if (cat === "superLuxury") fact("NEONHOME.Downtime.Fact.time", L("NEONHOME.Downtime.SuperLuxuryTime", { n: Math.max(1, Math.ceil(price.value / 10000)) }));
       time = job.minutes;
       spread = true;
       startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, "Invention Expertise"), expertise: L("NEONHOME.Downtime.Expertise.invention") }));
       fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InventNote"));
+      fact("NEONHOME.Downtime.Fact.makes", L("NEONHOME.Downtime.MakesBlueprint"));
       break;
     }
     case "salvage": {
@@ -359,8 +367,12 @@ function panel(actor, id, p, { roles, state }) {
   }
   if (spread) fact("NEONHOME.Downtime.Fact.project", L("NEONHOME.Project.HowItGoes"));
   else if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
+  // a Maker panel starts new work: what's already under way of the kind is carried on in Projects
+  const underway = MAKER.includes(id)
+    ? ProjectOps.list(actor).filter((x) => x.kind === id).map((x) => ({ label: x.label, pct: meter(x).pct, stage: L(`NEONHOME.Project.Stage.${stage(x)}`, { left: formatMinutes(x.minutes - x.done) }) }))
+    : [];
   // nothing to roll: just the time spent
-  return { fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" };
+  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" };
 }
 
 export const DowntimeTab = {
@@ -468,9 +480,11 @@ export const DowntimeTab = {
       ui.action = target.closest("[data-dt]")?.dataset.dt ?? ui.action;
       this.render();
     },
-    dtPerform(event) {
+    dtPerform(event, target) {
       const ui = this.uiState.downtime;
-      const id = ui.action;
+      // the button does its own panel's action, never another one's (a stale click after a redraw)
+      const id = target?.dataset.dtPerform ?? ui.action;
+      if (id !== ui.action) return this.render();
       const params = { ...(ui.params[id] ?? {}) };
       if (MAKER.includes(id)) {
         return this.act(async () => {

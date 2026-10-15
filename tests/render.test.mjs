@@ -14,6 +14,7 @@ await import("../scripts/main.js");
 const { HomeApp } = await import("../scripts/apps/home-app.js");
 const { BiomonitorApp } = await import("../scripts/apps/biomonitor-app.js");
 const { ItemConfig } = await import("../scripts/apps/item-config.js");
+const { DowntimeTab } = await import("../scripts/apps/downtime.js");
 loadTemplates();
 
 const { actor } = buildFixture();
@@ -240,6 +241,31 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   delete actor.flags["cpr-neon-at-home"].hauls;
   // a Tech strips gear: the list, the parts picked against the tier
   const [role] = await actor.createEmbeddedDocuments("Item", [{ name: "Tech", type: "role", system: { rank: 4, abilities: [] } }]);
+  // a Maker panel shows what's under way of its kind; its Start button is tied to the panel
+  actor.flags["cpr-neon-at-home"].projects = [{ id: "pf", kind: "fabricate", label: "Fabricate Rifle", skill: "Weaponstech", dv: 21, minutes: 10080, done: 5040 }];
+  app.uiState.downtime = { action: "fabricate", params: {} };
+  const fabUnder = await renderTab("downtime");
+  assert.deepEqual(fabUnder.ctx.dt.selected.underway.map((u) => u.label), ["Fabricate Rifle"]);
+  assert.ok(fabUnder.html.includes('data-dt="projects"'));
+  app.uiState.downtime = { action: "invent", params: { invent: { text: "draft" } } };
+  const invView = await renderTab("downtime");
+  assert.equal(invView.ctx.dt.selected.underway.length, 0, "only its own kind");
+  assert.ok(invView.html.includes('data-dt-perform="invent"'));
+  app.uiState.downtime = { action: "invent", params: { invent: { text: "draft", category: "expensive", value: 30000 } } };
+  const sl = (await renderTab("downtime")).ctx.dt.selected;
+  assert.equal(sl.fields.find((f) => f.name === "category").options.find((o) => o.selected).value, "superLuxury", "the value sets the category");
+  assert.ok(sl.facts.some((f) => f.value === "3 month(s): a month per 10,000eb (p.149)"));
+  assert.equal(sl.timeLabel, "90d");
+  delete actor.flags["cpr-neon-at-home"].projects;
+  // a stale Start click from another panel does nothing
+  let started = 0;
+  const { ProjectOps } = await import("../scripts/home/project-ops.js");
+  const realStart = ProjectOps.start;
+  ProjectOps.start = async () => started++;
+  app.uiState.downtime = { action: "projects", params: { invent: { text: "draft" } } };
+  await DowntimeTab.actions.dtPerform.call(app, {}, { dataset: { dtPerform: "invent" } });
+  assert.equal(started, 0, "the Projects panel's clicks never start an invention");
+  ProjectOps.start = realStart;
   // starting one: an amount of my choosing
   app.uiState.downtime = { action: "invent", params: { invent: { text: "x", category: "expensive", now: "custom", nowMinutes: 600 } } };
   const inv = await renderTab("downtime");
