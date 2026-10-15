@@ -53,13 +53,21 @@ const ACTIONS = {
 const MAKER = ["fabricate", "upgrade", "invent"];
 
 /**
- * A time picker (a slider in half hours, and the same in hours to type): any amount from nothing
- * to `max` minutes.
+ * A time picker: a slider, and days, hours and minutes to type, for any amount from nothing up to
+ * `max` minutes (the downtime left, or what the work still needs, whichever is less).
+ * @param {boolean} byLeft - the downtime left is what sets the max
  */
-function timePick(max, value, name = "") {
+function timePick(max, value, name = "", byLeft = false) {
   const m = Math.max(0, Math.floor(max));
-  const v = Math.min(m, Math.max(0, Math.round((Number(value) || 0) / 30) * 30));
-  return { name, max: m, value: v, hours: v / 60, hoursMax: m / 60, label: formatMinutes(v) };
+  const v = Math.max(0, Math.floor(Number(value) || 0));
+  return {
+    name, max: m, value: v, label: formatMinutes(v), maxText: formatMinutes(m),
+    d: Math.floor(v / MIN.day), h: Math.floor((v % MIN.day) / MIN.hour), m: v % MIN.hour,
+    maxLabel: L(`NEONHOME.Project.UpTo.${byLeft ? "left" : "needs"}`, { max: formatMinutes(m) }),
+    over: v > m,
+    empty: v <= 0,
+    stop: v > m || v <= 0
+  };
 }
 
 /** A project for the Projects panel: its meter, where it stands, and the time buttons. */
@@ -91,7 +99,7 @@ function projectRow(p, state, picked) {
     steps: left === 0 ? [] : steps,
     noTime: left === 0,
     // any amount: up to all it still needs, or the downtime left
-    pick: left === 0 || st === "check" || st === "done" ? null : timePick(Math.min(remaining(p), left ?? Infinity), picked ?? Math.min(needed(p), left ?? Infinity))
+    pick: left === 0 || st === "check" || st === "done" ? null : timePick(Math.min(remaining(p), left ?? Infinity), picked ?? Math.min(needed(p), left ?? Infinity), "", left !== null && left < remaining(p))
   };
 }
 
@@ -121,7 +129,11 @@ function panel(actor, id, p, { roles, state }) {
     fields.push(field("now", "NEONHOME.Downtime.Field.now", { select: true, options: opt(["all", "check", "custom", "none"], p.now ?? "all", (v) => L(`NEONHOME.Project.Now.${v}`)) }));
     if (p.now !== "custom") return;
     const left = state.active && state.source === "hub" ? state.left : Infinity;
-    fields.push(field("nowMinutes", "NEONHOME.Downtime.Field.nowMinutes", { pick: timePick(Math.min(total, left), p.nowMinutes ?? Math.min(Math.ceil(total / 2), left), "nowMinutes") }));
+    const pick = timePick(Math.min(total, left), p.nowMinutes ?? Math.min(Math.ceil(total / 2), left), "nowMinutes", left < total);
+    fields.push(field("nowMinutes", "NEONHOME.Downtime.Field.nowMinutes", { pick }));
+    // only as much as there is (and something)
+    if (pick.over) blocked ||= L("NEONHOME.Project.TooMuch", { max: formatMinutes(pick.max) });
+    else if (pick.empty) blocked ||= L("NEONHOME.Project.PickSome");
   };
   const fact = (label, value) => facts.push({ label: L(label), value });
   // Maker work is paid for in Tech Materials (items), not eb
@@ -334,7 +346,8 @@ function panel(actor, id, p, { roles, state }) {
   }
   if (spread) fact("NEONHOME.Downtime.Fact.project", L("NEONHOME.Project.HowItGoes"));
   else if (time !== null && state.source === "hub" && state.active && time > state.left) blocked ||= L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(time), left: formatMinutes(state.left) });
-  return { fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip" };
+  // nothing to roll: just the time spent
+  return { fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" };
 }
 
 export const DowntimeTab = {
@@ -363,7 +376,9 @@ export const DowntimeTab = {
     for (const g of groups) for (const a of g.actions) a.selected = a.id === ui.action;
     const params = (ui.params[ui.action] ??= {});
     const sel = panel(actor, ui.action, params, { roles, state });
-    const can = isGM || state.active;
+    // downtime actions spend the character's downtime: they need to be in it (the GM too)
+    const can = state.active;
+    ui.can = can;
     // the workshop: what needs maintaining or repairing
     let workshop = null;
     if (sel.workshop) {
@@ -475,7 +490,7 @@ export const DowntimeTab = {
       const row = target.closest("[data-project]");
       const id = row?.dataset.project;
       // the slider's amount, or a step button's
-      const m = target.dataset.minutes === "pick" ? row.querySelector("[data-tp-range]")?.value : target.dataset.minutes;
+      const m = target.dataset.minutes === "pick" ? row.querySelector(".nah-timepick")?.dataset.value : target.dataset.minutes;
       if (target.dataset.minutes === "pick" && this.uiState.downtime?.picks) delete this.uiState.downtime.picks[id];
       return this.act(() => ProjectOps.work(this.actor, id, m === "check" || m === "all" ? m : Number(m), { event }));
     },
@@ -536,26 +551,48 @@ export const DowntimeTab = {
         });
       }
     }
-    // Time pickers: the slider and the hours box move together; a project's pick is kept across renders
+    // Time pickers: the slider and the typed days/hours/minutes move together. A project's pick is
+    // kept across renders; its Put in button only takes something up to the max.
     for (const tp of root.querySelectorAll(".nah-timepick")) {
       const range = tp.querySelector("[data-tp-range]");
-      const hours = tp.querySelector("[data-tp-hours]");
-      const label = tp.querySelector("[data-tp-label]");
-      const keep = () => {
-        label.textContent = formatMinutes(range.value);
+      const boxes = [...tp.querySelectorAll("[data-tp-unit]")];
+      const msg = tp.querySelector("[data-tp-msg]");
+      const max = Number(tp.dataset.max) || 0;
+      const confirm = tp.closest("[data-project]")?.querySelector("[data-tp-confirm]");
+      const show = (total) => {
+        const over = total > max;
+        tp.dataset.value = String(total);
+        tp.classList.toggle("is-over", over);
+        msg.textContent = over ? L("NEONHOME.Project.TooMuch", { max: formatMinutes(max) }) : `${formatMinutes(total)} · ${tp.dataset.maxLabel}`;
+        if (confirm) confirm.disabled = !ui.can || over || total <= 0;
         const pid = tp.closest("[data-project]")?.dataset.project;
-        if (pid) (ui.picks ??= {})[pid] = Number(range.value);
-        if (range.dataset.dtField) params()[range.dataset.dtField] = Number(range.value);
+        if (pid) (ui.picks ??= {})[pid] = total;
       };
+      const typed = () => boxes.reduce((n, b) => n + Math.max(0, Math.floor(Number(b.value) || 0)) * Number(b.dataset.tpUnit), 0);
       range.addEventListener("input", () => {
-        hours.value = Number(range.value) / 60;
-        keep();
+        const v = Number(range.value);
+        boxes[0].value = Math.floor(v / MIN.day);
+        boxes[1].value = Math.floor((v % MIN.day) / MIN.hour);
+        boxes[2].value = v % MIN.hour;
+        show(v);
       });
-      hours.addEventListener("change", () => {
-        range.value = String(Math.min(Number(range.max), Math.max(0, Math.round((Number(hours.value) || 0) * 2) * 30)));
-        hours.value = Number(range.value) / 60;
-        keep();
-      });
+      for (const b of boxes) {
+        b.addEventListener("input", () => {
+          const total = typed();
+          range.value = String(Math.min(max, total));
+          show(total);
+        });
+      }
+      // starting a project: the amount goes into its choices, and the panel says if it's too much
+      if (tp.dataset.field) {
+        const save = () => {
+          params()[tp.dataset.field] = Number(tp.dataset.value) || 0;
+          app.render();
+        };
+        range.addEventListener("change", save);
+        for (const b of boxes) b.addEventListener("change", save);
+      }
+      show(Number(tp.dataset.value) || 0);
     }
     // Strip for parts: tick items, and how many of a stack
     const picks = () => (params().picks ??= {});

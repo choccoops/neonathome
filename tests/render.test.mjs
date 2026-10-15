@@ -184,9 +184,11 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   assert.ok(html.includes("Start downtime") || html.includes("End downtime"), "the GM's switch, without Neon Hub");
   // rest: days and what it heals
   app.uiState.downtime = { action: "rest", params: { rest: { days: 2 } } };
-  const rest = (await renderTab("downtime")).ctx.dt.selected;
+  const restView = await renderTab("downtime");
+  const rest = restView.ctx.dt.selected;
   assert.equal(rest.timeLabel, "2d");
   assert.ok(rest.canDo);
+  assert.ok(restView.html.includes("Spend the time") && !restView.html.includes("Spend the time and roll"), "nothing to roll for rest");
   // the workshop lists what needs work
   app.uiState.downtime = { action: "workshop", params: {} };
   const shop = await renderTab("downtime");
@@ -206,6 +208,7 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   const slid = await renderTab("downtime");
   assert.deepEqual([slid.ctx.dt.selected.projects[0].pick.max, slid.ctx.dt.selected.projects[0].pick.value], [1380, 660], "up to 23h; to the check by default");
   assert.ok(slid.html.includes('data-minutes="pick"') && slid.html.includes("data-tp-range"));
+  assert.ok(slid.html.includes('data-tp-unit="1440"') && slid.html.includes('data-tp-unit="60"') && slid.html.includes('data-tp-unit="1"'), "days, hours and minutes to type");
   app.uiState.downtime.picks = { p2: 90 };
   assert.equal((await renderTab("downtime")).ctx.dt.selected.projects[0].pick.label, "1h 30m", "the player's pick is kept");
   delete actor.flags["cpr-neon-at-home"].projects;
@@ -232,6 +235,8 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   const inv = await renderTab("downtime");
   const f = inv.ctx.dt.selected.fields.find((x) => x.name === "nowMinutes");
   assert.deepEqual([f.pick.max, f.pick.value], [10080, 600]);
+  app.uiState.downtime.params.invent.nowMinutes = 20000;
+  assert.match((await renderTab("downtime")).ctx.dt.selected.blocked, /More than there is: 7d at most/, "can't start with more than there is");
   assert.ok(!/NEONHOME\./.test(inv.html));
   app.uiState.downtime = { action: "strip", params: { strip: { tier: "premium" } } };
   const strip = await renderTab("downtime");

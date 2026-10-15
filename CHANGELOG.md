@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.2
+
+- **Downtime actions always cost the character's downtime.** The GM could take a downtime action (Rest, the Hustle, Treatment, ...) for a character who wasn't taking part in Neon Hub's downtime, and it happened for free: a day of Rest healed without a day spent. Now every action needs the character in the downtime with the time it takes left, whoever clicks it, and it's logged in Neon Hub's downtime log; the buttons are off until then. Without Neon Hub, the GM's downtime switch has to be on. Maintenance and repairs work the same way when the GM keeps them to downtime.
+- **Therapy takes the patient's week too**: they need to be in the downtime with a week left, and it goes in their log (through the GM when the Medtech's player doesn't own them).
+- **Type the downtime to put into a project**: days, hours and minutes next to the slider, up to the downtime left (or what the project still needs). More than that shows in red and can't be confirmed, when starting a project or putting time in.
+- **Rest and the Night Market say "Spend the time"**: there's nothing to roll.
+
 ## 1.6.1
 
 - **The home stash is maintained too.** *Breaking Your Stuff* has everything a character owns maintained, so the Maintenance tab now lists the home stash's gear under *In the home stash*: covered by the character's Lifestyle and Role, due on their Rent Day (and counted on the Rent Day card), and maintained, inspected, repaired or marked by the GM like the rest. Working on it is done at home: the GM's downtime settings for the stash and for maintenance both apply. The Downtime tab's workshop lists it as well. Each item is still judged on its own price, never the total.

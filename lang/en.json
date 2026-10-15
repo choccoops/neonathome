@@ -1253,7 +1253,9 @@
         "fail": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience doesn't buy it.</b>"
       },
       "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while.",
-      "InStash": "in the stash"
+      "InStash": "in the stash",
+      "Spend": "Spend the time",
+      "NotIn": "{name} isn't taking part in this downtime: downtime actions spend their own downtime."
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
@@ -1307,7 +1309,15 @@
       "NoMaterials": "no materials",
       "Pick": "How much downtime to put in",
       "Hours": "Hours",
-      "PutIn": "Put this in"
+      "PutIn": "Put this in",
+      "UpTo": {
+        "left": "up to {max} (the downtime left)",
+        "needs": "up to {max} (all it needs)"
+      },
+      "TooMuch": "More than there is: {max} at most.",
+      "PickSome": "Pick how much downtime to put in now.",
+      "Days": "Days",
+      "Minutes": "Minutes"
     },
     "Materials": {
       "Have": "{materials} (has {have})",

@@ -25,9 +25,13 @@ export const workSkill = (item, moduleId = MODULE_ID) => KINDS[kindOf(item, modu
 export const DowntimeOps = {
   init() {
     HomeSocket.register("downtimePatient", (payload, user) => this._gmPatient(payload, user));
+    HomeSocket.register("downtimePatientWeek", (payload, user) => this._gmPatientWeek(payload, user));
   },
 
-  /** Players act in downtime; the GM any time (spending downtime only for those in a Neon Hub call). */
+  /**
+   * Players act in downtime. Every action's time is spent from the character's downtime (with Neon
+   * Hub, their share of its call), so the GM needs the character in it too.
+   */
   _ready(actor) {
     if (!game.user.isGM && !Downtime.isActive(actor)) throw new RuleBlock(L("NEONHOME.Downtime.Only.actions"));
   },
@@ -244,18 +248,14 @@ export const DowntimeOps = {
     if (who === actor) throw new RuleBlock(L("NEONHOME.Downtime.NotYourself"));
     this._canAfford(actor, t.materials);
     const label = L("NEONHOME.Downtime.TherapyLabel", { therapy: L(`NEONHOME.Downtime.Therapy.${therapy}`), patient: who.name });
-    // the patient's week too, if they're in this downtime and this user can spend it
-    let theirs = null;
-    try {
-      theirs = Downtime.isActive(who) && (who.isOwner || game.user.isGM) ? await Downtime.spend(who, MIN.week, { label, data: { action: "therapy", doctor: actor.uuid } }) : null;
-    } catch (err) {
-      throw new RuleBlock(err.message);
-    }
+    // a week for the patient too (p.230): they have to be in this downtime with the week left
+    Downtime.require(who, MIN.week);
     const res = await this._timedRoll(actor, MIN.week, label, { action: "therapy", patient: who.uuid }, () => this._abilityCheck(actor, "Medical Tech Skill", L("NEONHOME.Downtime.MedicalTech"), event));
-    if (!res) {
-      await Downtime.refund(theirs);
-      return null;
-    }
+    if (!res) return null;
+    // the roll's made: the patient's week goes in their log (through the GM if this user can't)
+    const week = { label, data: { action: "therapy", doctor: actor.uuid } };
+    if (who.isOwner || game.user.isGM) await Downtime.spend(who, MIN.week, week);
+    else await HomeSocket.request("downtimePatientWeek", { doctor: actor.uuid, patient: who.uuid, label });
     await this._pay(actor, t.materials, label);
     const ok = res.total >= t.dv;
     let healed = 0;
@@ -363,6 +363,16 @@ export const DowntimeOps = {
       return 0;
     }
     throw new Error(`Unknown patient change: ${op}`);
+  },
+
+  /** GM side: a patient's week of therapy, spent for a player whose Medtech is treating them. */
+  async _gmPatientWeek({ doctor: doctorUuid, patient: patientUuid, label }, user) {
+    const doctor = await fromUuid(doctorUuid);
+    const patient = await fromUuid(patientUuid);
+    if (!doctor || !patient) throw new Error(L("NEONHOME.Error.NotFound"));
+    if (!doctor.testUserPermission(user, "OWNER")) throw new Error(L("NEONHOME.Error.NoPermission"));
+    await Downtime.spend(patient, MIN.week, { label: String(label ?? ""), data: { action: "therapy", doctor: doctor.uuid } });
+    return true;
   },
 
   /** GM side: a player's character treating someone the player doesn't own. */

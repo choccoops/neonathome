@@ -78,15 +78,40 @@ test("Believability and treatments", () => {
 /*  Doing them                                */
 /* ------------------------------------------ */
 
-test("players act in downtime only; the GM any time", async () => {
+test("downtime actions only in downtime, for the GM too: the time is the character's", async () => {
   const solo = character("Rook", [["Solo", 4]]);
   await game.settings.set(M, "downtimeOn", false);
-  asUser(false);
-  await assert.rejects(DowntimeOps.perform(solo, "hustle"), RuleBlock);
+  try {
+    asUser(false);
+    await assert.rejects(DowntimeOps.perform(solo, "hustle"), RuleBlock);
+    asUser(true);
+    await assert.rejects(DowntimeOps.perform(solo, "rest", { days: 1 }), /taken in downtime/);
+    assert.equal(solo.system.derivedStats.hp.value, 10, "no free healing");
+  } finally {
+    await game.settings.set(M, "downtimeOn", true);
+  }
+});
+
+test("with Neon Hub: only characters in the call, only with the time left, logged there", async () => {
   asUser(true);
-  dice.next = [1];
-  await DowntimeOps.perform(solo, "hustle");
-  await game.settings.set(M, "downtimeOn", true);
+  const solo = character("Rook", [["Solo", 4]]);
+  const out = character("Vex", [["Solo", 4]]);
+  const call = downtime(solo, 1440);
+  try {
+    // not taking part: nothing happens, even for the GM
+    await assert.rejects(DowntimeOps.perform(out, "rest", { days: 1 }), /isn't taking part/);
+    assert.equal(out.system.derivedStats.hp.value, 10);
+    // two days asked, one day left
+    await assert.rejects(DowntimeOps.perform(solo, "rest", { days: 2 }), /needs 2d of downtime and has 1d/);
+    assert.equal(solo.system.derivedStats.hp.value, 10);
+    await DowntimeOps.perform(solo, "rest", { days: 1 });
+    assert.equal(solo.system.derivedStats.hp.value, 16, "BODY 6 for the day");
+    assert.deepEqual(call.entries.map((e) => [e.minutes, e.label]), [[1440, "Rest and recover"]]);
+    // nothing left: a week's Hustle can't happen
+    await assert.rejects(DowntimeOps.perform(solo, "hustle"), /has 0m left/);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
 });
 
 test("the Hustle: a week, 1d6 on the Role's table, the pay into the wealth ledger", async () => {
@@ -152,6 +177,23 @@ test("therapy restores Humanity to the patient, never to yourself", async () => 
   assert.equal(extreme.ok, false, "DV17");
 });
 
+test("therapy takes the patient's week too, logged in their downtime", async () => {
+  asUser(true);
+  const doc = character("Doc", [["Medtech", 4, [{ name: "Medical Tech Skill", rank: 4 }]]]);
+  const patient = character("Rook", [["Solo", 4]]);
+  const call = downtime(doc, 10080);
+  try {
+    rolls(20);
+    await assert.rejects(DowntimeOps.perform(doc, "therapy", { patient: patient.id, therapy: "addiction" }), /Rook isn't taking part/);
+    call.participants.push(patient.uuid);
+    dice.next = [5];
+    await DowntimeOps.perform(doc, "therapy", { patient: patient.id, therapy: "standard" });
+    assert.deepEqual(call.entries.map((e) => e.minutes), [10080, 10080], "the Medtech's week and the patient's");
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
+});
+
 test("Media: rumors against the Active DV, stories against Believability", async () => {
   const media = character("Ink", [["Media", 5]]);
   rolls(15);
@@ -190,15 +232,15 @@ test("a project's halfway check, and how time splits around it", () => {
   assert.deepEqual(projects.meter({ ...p, done: 2520 }), { pct: 25, half: 50 });
 });
 
-/** Neon Hub's downtime with this much time for the character. */
+/** Neon Hub's downtime with this much time for each character taking part (each has their own). */
 function downtime(actor, total) {
   const call = { id: "c", label: "Downtime", total, participants: [actor.uuid], status: "open", entries: [] };
-  const spent = () => call.entries.reduce((n, e) => n + e.minutes, 0);
+  const spent = (a) => call.entries.filter((e) => e.actor === a?.uuid).reduce((n, e) => n + e.minutes, 0);
   game.modules.set("cpr-neon-hub", { active: true, api: { downtime: {
     current: () => call,
-    balance: () => ({ total: call.total, spent: spent(), left: call.total - spent(), taking: true }),
-    log: () => call.entries,
-    spend: async (a, minutes, details) => call.entries.push({ id: `e${call.entries.length}`, minutes, ...details }),
+    balance: (a) => (call.participants.includes(a?.uuid) ? { total: call.total, spent: spent(a), left: call.total - spent(a), taking: true } : { total: 0, spent: 0, left: 0, taking: false }),
+    log: (a) => call.entries.filter((e) => e.actor === a?.uuid),
+    spend: async (a, minutes, details) => call.entries.push({ id: `e${call.entries.length}`, actor: a.uuid, minutes, ...details }),
     refund: async () => null
   } } });
   return call;
@@ -316,10 +358,16 @@ test("any amount of downtime into a project, a bit at a time", async () => {
     await ProjectOps.work(tech, p.id, 30);
     assert.equal(ProjectOps.get(tech, p.id).done, 120);
     assert.deepEqual(call.entries.map((e) => e.minutes), [90, 30]);
-    // more than the downtime left only takes what's left
+    // an amount past the downtime left can't be put in; "all" takes what there is
     call.total = 200;
-    await ProjectOps.work(tech, p.id, 600);
+    await assert.rejects(ProjectOps.work(tech, p.id, 600), /needs 10h of downtime and has 1h 20m left/);
+    assert.equal(ProjectOps.get(tech, p.id).done, 120);
+    await ProjectOps.work(tech, p.id, "all");
     assert.equal(ProjectOps.get(tech, p.id).done, 200);
+    await assert.rejects(ProjectOps.work(tech, p.id, "all"), /No downtime left/);
+    // starting one with more than there is: refused before anything's used
+    await assert.rejects(ProjectOps.start(tech, "invent", { text: "x", category: "expensive" }, { minutes: 60 }), /has 0m left/);
+    assert.equal(ProjectOps.list(tech).length, 1);
   } finally {
     game.modules.delete("cpr-neon-hub");
   }
