@@ -1215,3 +1215,10 @@
 .neon-home .nah-dt-underway li b { color: #fff; font-weight: 400; }
 .neon-home .nah-dt-underway li small { color: var(--nah-dim); white-space: nowrap; }
 .neon-home .nah-dt-underway button { justify-self: start; width: auto; height: 26px; font-size: 11px; }
+
+/* Blueprint: the item Fabrication makes */
+.nah-config .nah-bp-drop { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border: 1px dashed var(--nah-line-2, #555); }
+.nah-config .nah-bp-drop.drag-over { border-color: var(--nah-cyan, #05d9e8); }
+.nah-config .nah-bp-drop img { width: 36px; height: 36px; object-fit: contain; border: none; }
+.nah-config .nah-bp-drop span { flex: 1; display: grid; }
+.nah-config .nah-bp-drop button { flex: 0 0 auto; width: auto; }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.5
+
+- **Fabricate from a blueprint.** Drop a Blueprint into the Fabricate panel and it's a Fabrication project at the invention's value (its DV, time and materials; Super Luxury a month per 10,000eb), rolled with the skill it was invented with plus Fabrication Expertise. The Tech needs the blueprint on hand, and keeps it.
+- **The GM links what a blueprint makes.** Write the invention up as a real item (a weapon, armor, cyberware, gear...) and drop it into the blueprint's **Home** settings, under *Blueprint* → *Fabrication makes*: fabricating from it then makes a copy of that item. The copy is kept on the blueprint, so it goes wherever the blueprint goes (sold, handed over). With nothing linked, Fabrication makes a plain gear item from the design.
+
 ## 1.6.4
 
 - **Inventions make blueprints.** A finished Invention gives the inventor a *Blueprint: (name)* item holding the design as the player described it, its price category, and who invented it, priced at that category: it can be sold or handed over like any gear. The Invent panel has a name for the invention.

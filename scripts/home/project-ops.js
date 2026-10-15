@@ -39,8 +39,41 @@ export function blueprintData(p, actor) {
       isElectronic: false,
       concealable: { concealable: true, isConcealed: false }
     },
-    flags: { [MODULE_ID]: { blueprint: { name: title, category: cat, text: p.data?.text ?? "", skill: p.skill, dv: p.dv, inventor: actor.name }, item: { category: "utility" } } }
+    flags: { [MODULE_ID]: { blueprint: { name: title, category: cat, value: price, text: p.data?.text ?? "", skill: p.skill, dv: p.dv, inventor: actor.name }, item: { category: "utility" } } }
   };
+}
+
+/**
+ * What Fabrication makes from what was dropped in: the item itself, or from a blueprint, the item
+ * the GM linked to it (else a plain gear item made from the design), at the blueprint's value and
+ * with the skill it was invented with.
+ * @param {object} source - the dropped item's data (toObject)
+ * @returns {{data: object, price: number, skill: string, blueprint: string|null, linked: boolean}}
+ */
+export function fabricationOf(source) {
+  const bp = source?.flags?.[MODULE_ID]?.blueprint;
+  if (!bp) {
+    const data = foundry.utils.deepClone(source);
+    delete data._id;
+    return { data, price: Number(data.system?.price?.market) || 0, skill: workSkill(data), blueprint: null, linked: false };
+  }
+  const price = Number(bp.value) || Number(source.system?.price?.market) || 0;
+  let data;
+  if (bp.makes) {
+    data = foundry.utils.deepClone(bp.makes);
+  } else {
+    data = {
+      name: bp.name || source.name,
+      type: "gear",
+      img: source.img,
+      system: { description: { value: source.system?.description?.value ?? "" }, price: { market: price }, amount: 1, equipped: "owned" },
+      flags: {}
+    };
+  }
+  delete data._id;
+  // the made item isn't the blueprint
+  if (data.flags?.[MODULE_ID]?.blueprint) delete data.flags[MODULE_ID].blueprint;
+  return { data, price, skill: bp.skill || workSkill(data), blueprint: source.name, linked: !!bp.makes };
 }
 
 /** Actor flag: a character's projects under way. */
@@ -106,11 +139,14 @@ export const ProjectOps = {
       case "fabricate": {
         const source = p.item ? await fromUuid(p.item) : null;
         if (!source || source.documentName !== "Item") throw new RuleBlock(L("NEONHOME.Downtime.DropItem"));
-        const data = source.toObject();
-        delete data._id;
-        const price = Number(data.system?.price?.market) || 0;
-        const job = makerJob(price);
-        project = { kind, label: L("NEONHOME.Downtime.FabricateLabel", { item: data.name }), img: data.img, skill: workSkill(data), dv: job.dv, minutes: job.minutes, data: { item: data, need: fabricationNeeds(price) } };
+        const made = fabricationOf(source.toObject());
+        // building from a blueprint takes having it
+        if (made.blueprint && source.parent !== actor) throw new RuleBlock(L("NEONHOME.Blueprint.NotHeld", { name: actor.name, blueprint: source.name }));
+        const job = makerJob(made.price);
+        project = {
+          kind, label: L("NEONHOME.Downtime.FabricateLabel", { item: made.data.name }), img: made.data.img, skill: made.skill, dv: job.dv, minutes: job.minutes,
+          data: { item: made.data, need: fabricationNeeds(made.price), blueprint: made.blueprint }
+        };
         break;
       }
       case "upgrade": {
@@ -282,6 +318,7 @@ export const ProjectOps = {
         if (data.system?.equipped) data.system.equipped = "owned";
         await actor.createEmbeddedDocuments("Item", [data], { [MODULE_ID]: { checked: true } });
         verdict = L("NEONHOME.Project.Done.fabricate", { name: esc(actor.name), item: esc(data.name) });
+        if (p.data.blueprint) verdict += ` <small>${L("NEONHOME.Blueprint.From", { blueprint: esc(p.data.blueprint) })}</small>`;
         break;
       }
       case "upgrade": {

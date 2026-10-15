@@ -283,6 +283,36 @@ test("fabricating over two downtimes: materials up front, the check at halfway, 
   }
 });
 
+test("fabricating from a blueprint: the GM's linked item, at the invention's value and skill", async () => {
+  const { fabricationOf, blueprintData } = await import("../scripts/home/project-ops.js");
+  const tech = character("Gearhead", [["Tech", 4]], mats(["expensive", 1]));
+  const bpData = blueprintData({ skill: "Weaponstech", dv: 24, data: { name: "Whisper Can", category: "veryExpensive", value: 2000, text: "A quieter suppressor" } }, tech);
+  // nothing linked: a plain gear item from the design
+  const plain = fabricationOf({ ...bpData, _id: "x" });
+  assert.deepEqual([plain.data.name, plain.data.type, plain.price, plain.skill, plain.linked], ["Whisper Can", "gear", 2000, "Weaponstech", false]);
+  assert.match(plain.data.system.description.value, /A quieter suppressor/);
+  // the GM's write-up linked: that item is made
+  bpData.flags[M].blueprint.makes = { name: "Whisper Can Suppressor", type: "itemUpgrade", img: "x.webp", system: { type: "weapon", price: { market: 2000 } }, flags: {} };
+  const [bp] = await tech.createEmbeddedDocuments("Item", [bpData]);
+  const elsewhere = makeActor({ name: "Shop", type: "container" }, [{ ...bpData, _id: "bpshop" }]);
+  const call = downtime(tech, 3 * 10080);
+  try {
+    rolls(30);
+    await assert.rejects(ProjectOps.start(tech, "fabricate", { item: elsewhere.items.get("bpshop").uuid }), /needs Blueprint: Whisper Can on hand/);
+    const p = await ProjectOps.start(tech, "fabricate", { item: bp.uuid }, { minutes: "all" });
+    assert.deepEqual([p.dv, p.minutes, p.skill], [24, 20160, "Weaponstech"], "Very Expensive: DV24, two weeks, the invention's skill");
+    assert.equal(ProjectOps.list(tech).length, 0, "finished");
+    assert.deepEqual(call.entries.map((e) => e.minutes), [10080, 10080]);
+    const made = tech.items.find((i) => i.name === "Whisper Can Suppressor");
+    assert.equal(made.type, "itemUpgrade");
+    assert.equal(made.flags?.[M]?.blueprint, undefined, "the made item isn't a blueprint");
+    assert.ok(tech.items.get(bp.id), "the blueprint is kept");
+    assert.match(chat.at(-1).content, /from Blueprint: Whisper Can/);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
+});
+
 test("a failed halfway check starts the project over; the materials aren't bought again", async () => {
   const tech = character("Gearhead", [["Tech", 4]], mats(["costly"]));
   const shop = makeActor({ name: "Shop", type: "container" }, [{ _id: "agent", name: "Agent", type: "gear", system: { price: { market: 100 } } }]);

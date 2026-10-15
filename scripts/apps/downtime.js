@@ -5,7 +5,7 @@ import { MaintOps } from "../home/maint-ops.js";
 import { HomeStore } from "../home/store.js";
 import { Downtime, formatMinutes } from "../home/downtime.js";
 import { DowntimeOps, workSkill } from "../home/downtime-ops.js";
-import { ProjectOps } from "../home/project-ops.js";
+import { ProjectOps, fabricationOf } from "../home/project-ops.js";
 import { SalvageOps } from "../home/salvage-ops.js";
 import { stage, meter, needed, remaining } from "../data/projects.js";
 import { Compat } from "../compat.js";
@@ -213,6 +213,10 @@ function panel(actor, id, p, { roles, state }) {
       }
       const job = makerJob(p.itemInfo.price);
       time = job.minutes;
+      if (p.itemInfo.blueprint) {
+        fact("NEONHOME.Blueprint.Fact", L(`NEONHOME.Blueprint.${p.itemInfo.linked ? "Linked" : "Plain"}`, { blueprint: p.itemInfo.blueprint }));
+        if (!p.itemInfo.held) blocked ||= L("NEONHOME.Blueprint.NotHeld", { name: actor.name, blueprint: p.itemInfo.blueprint });
+      }
       spread = true;
       startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
@@ -648,9 +652,14 @@ export const DowntimeTab = {
       }
       const item = await fromUuid(data.uuid);
       if (!item) return;
-      const o = item.toObject();
+      // an item to copy, or a blueprint (what the GM linked to it, at the invention's value)
+      const made = fabricationOf(item.toObject());
       params().item = data.uuid;
-      params().itemInfo = { name: item.name, img: item.img, price: Number(o.system?.price?.market) || 0, skill: workSkill(o), category: L(`NEONHOME.Maint.Price.${PRICE_CATEGORIES[Math.max(0, priceCategory(o.system?.price?.market))].key}`) };
+      params().itemInfo = {
+        name: made.data.name, img: made.data.img || item.img, price: made.price, skill: made.skill,
+        category: L(`NEONHOME.Maint.Price.${PRICE_CATEGORIES[Math.max(0, priceCategory(made.price))].key}`),
+        blueprint: made.blueprint, linked: made.linked, held: item.parent === app.actor
+      };
       app.render();
     });
   }

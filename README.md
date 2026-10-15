@@ -389,6 +389,7 @@ wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appea
 | Tech | **Fabricate** (a project) | Drop an item in: its DV and time by price, materials a category lower, + Fabrication Expertise (p.148) |
 | Tech | **Upgrade** (a project) | One per item; slots, concealable, Excellent Quality and +1 SP are applied, the rest noted (p.148) |
 | Tech | **Invent** (a project) | Described for the GM, who gives its planned value (or just its price category), which sets the DV and time: Super Luxury, a month per 10,000eb (pp.148-149); makes a **blueprint** item, sellable and transferable |
+| Tech | **Fabricate from a blueprint** | Drop the blueprint into Fabricate: it makes the item the GM linked to it (the blueprint's **Home** settings → *Blueprint* → *Fabrication makes*), at the invention's value |
 | Tech | **Strip for parts** | Gear broken down into Tech Materials, several items' worth toward one tier |
 | Medtech | **Synthesize pharmaceuticals** | An hour, DV13 Medical Tech, 200eb: doses equal to the skill (p.149) |
 | Medtech | **Therapy** | A week for both; Addiction, or Standard/Extreme Humanity Loss (2d6/4d6 Humanity) (p.229) |

@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -107,6 +107,8 @@ await writeFile(path.join(out, "downtime-strip.html"), page(`Neon At Home: ${act
 game.modules.delete("cpr-neon-hub");
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));
+const [bp] = await actor.createEmbeddedDocuments("Item", [{ name: "Blueprint: Whisper Can", type: "gear", img: "icons/svg/book.svg", system: { price: { market: 2000 } }, flags: { "cpr-neon-at-home": { blueprint: { name: "Whisper Can", category: "veryExpensive", value: 2000, skill: "Weaponstech", inventor: "Vex", makes: { name: "Whisper Can Suppressor", type: "itemUpgrade", img: "icons/svg/item-bag.svg" } } } } }]);
+await writeFile(path.join(out, "blueprint-config.html"), page("Neon At Home: Blueprint: Whisper Can", render("item-config.hbs", await new ItemConfig(bp)._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));
 const rules = new RulesConfig();
 await writeFile(path.join(out, "rules.html"), page("Carry & Weight Rules", render("rules-config.hbs", await rules._prepareContext()), { width: 720, height: 760, cls: "nah-config" }));
 await writeFile(path.join(out, "index.html"), page("Neon At Home previews", "<p style='padding:20px'>Pick a page above.</p>", { height: 200 }));

@@ -5,6 +5,22 @@
     <div><h2>{{item.name}}</h2><p class="nah-hint">{{item.type}}</p></div>
   </header>
 
+  {{#if blueprint}}
+  <fieldset class="nah-bp">
+    <legend><i class="fa-solid fa-scroll"></i> {{localize "NEONHOME.Blueprint.Section"}}</legend>
+    <p class="nah-hint">{{blueprint.name}} &middot; {{blueprint.category}} ({{blueprint.value}}) &middot; {{blueprint.skill}}{{#if blueprint.inventor}} &middot; {{localize "NEONHOME.Blueprint.Inventor"}}: {{blueprint.inventor}}{{/if}}</p>
+    <div class="form-group stacked">
+      <label>{{localize "NEONHOME.Blueprint.Makes"}}</label>
+      <div class="nah-dt-drop nah-bp-drop" data-bp-drop>
+        {{#if blueprint.makes}}<img src="{{blueprint.makes.img}}" alt=""><span><b>{{blueprint.makes.name}}</b><small>{{blueprint.makes.type}}</small></span>
+        <button type="button" class="nah-icon-btn" data-action="bpUnlink" data-tooltip="{{localize 'NEONHOME.Blueprint.Unlink'}}"><i class="fa-solid fa-link-slash"></i></button>
+        {{else}}<i class="fa-solid fa-arrow-down-to-bracket"></i><span>{{localize "NEONHOME.Blueprint.DropHere"}}</span>{{/if}}
+      </div>
+      <p class="hint">{{localize "NEONHOME.Blueprint.MakesHint"}}</p>
+    </div>
+  </fieldset>
+  {{/if}}
+
   {{#if physical}}
   <fieldset>
     <legend>{{localize "NEONHOME.Config.Carry"}}</legend>

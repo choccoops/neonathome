@@ -302,6 +302,18 @@ test("item and rules config windows render", async () => {
   assert.ok(pocketHtml.includes('name="flag.carry.pools.0.slots"'));
   assert.ok(!linkHtml.includes("flag.carry"), "no carry-slot pools on unrelated cyberware");
   assert.ok(linkHtml.includes("Slot cost when carried loose"), "and its own slot cost says when it applies");
+  // a blueprint: its section, and the item it makes once the GM links one
+  const [bp] = await actor.createEmbeddedDocuments("Item", [{ name: "Blueprint: Whisper Can", type: "gear", system: { price: { market: 500 } }, flags: { "cpr-neon-at-home": { blueprint: { name: "Whisper Can", category: "expensive", value: 500, skill: "Weaponstech", inventor: "Vex" } } } }]);
+  const bpCfg = new ItemConfig(bp);
+  let bpHtml = render("item-config.hbs", await bpCfg._prepareContext());
+  assert.ok(bpHtml.includes("data-bp-drop") && bpHtml.includes("Fabrication makes"));
+  assert.ok(!/NEONHOME\./.test(bpHtml));
+  await bpCfg.linkBlueprint(actor.items.get("agent0000000000a"));
+  assert.equal(bp.flags["cpr-neon-at-home"].blueprint.makes.name, "Agent", "a copy of the item, kept on the blueprint");
+  assert.equal(bp.flags["cpr-neon-at-home"].blueprint.makes._id, undefined);
+  bpHtml = render("item-config.hbs", await bpCfg._prepareContext());
+  assert.ok(bpHtml.includes('data-action="bpUnlink"') && bpHtml.includes("Agent"));
+  await actor.deleteEmbeddedDocuments("Item", [bp.id]);
   const rules = new RulesConfig();
   const html = render("rules-config.hbs", await rules._prepareContext());
   assert.ok(html.includes("Metal Gear"));
