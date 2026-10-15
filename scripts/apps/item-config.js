@@ -4,6 +4,8 @@ import { KINDS, TABLE_KEYS, isMaintainable, kindOf, tableOf } from "../data/main
 import { describeCarry, describeArmor, isSubdermalPocket } from "../data/capacity.js";
 import { baseWeight } from "../data/weight.js";
 import { Settings } from "../settings.js";
+import { Compat } from "../compat.js";
+import { PRICE_CATEGORIES } from "../data/maintenance.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -27,7 +29,8 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     tag: "form",
     window: { icon: "fa-solid fa-house-chimney-window", resizable: true },
     position: { width: 560, height: "auto" },
-    form: { handler: ItemConfig.#onSubmit, closeOnSubmit: true }
+    form: { handler: ItemConfig.#onSubmit, closeOnSubmit: true },
+    actions: { bpUnlink: ItemConfig.#onUnlink }
   };
 
   static PARTS = {
@@ -59,7 +62,18 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     const pools = (list) => Array.from({ length: POOL_ROWS }, (_, i) => ({
       i, slots: list[i]?.slots ?? "", label: list[i]?.label ?? "", accepts: opt(POOL_ACCEPTS, list[i]?.accepts ?? "any", (v) => L(`NEONHOME.Accepts.${v}`))
     }));
+    // a blueprint: the invention, and the item Fabrication makes from it (the GM's write-up)
+    const bp = item.getFlag(MODULE_ID, "blueprint");
+    const blueprint = bp ? {
+      name: bp.name || item.name,
+      category: L(`NEONHOME.Maint.Price.${bp.category ?? "expensive"}`),
+      value: `${(Number(bp.value) || Number(item.system?.price?.market) || PRICE_CATEGORIES.find((c) => c.key === bp.category)?.eb || 0).toLocaleString()}eb`,
+      skill: bp.skill ?? "",
+      inventor: bp.inventor ?? "",
+      makes: bp.makes ? { name: bp.makes.name, img: bp.makes.img, type: L(`TYPES.Item.${bp.makes.type}`) } : null
+    } : null;
     return {
+      blueprint,
       item: { name: item.name, img: item.img, type: L(`TYPES.Item.${item.type}`) },
       flag,
       physical: !["skill", "role", "criticalInjury", "netarch", "program"].includes(item.type),
@@ -116,6 +130,49 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     await this.item.setFlag(MODULE_ID, ITEM_FLAG, flag);
     ui.notifications.info(L("NEONHOME.Config.Saved", { name: this.item.name }));
+  }
+
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    // Blueprint: drop the item it makes (from the sidebar, a compendium or a sheet)
+    const zone = this.element.querySelector("[data-bp-drop]");
+    if (!zone) return;
+    zone.addEventListener("dragover", (ev) => {
+      ev.preventDefault();
+      zone.classList.add("drag-over");
+    });
+    zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+    zone.addEventListener("drop", async (ev) => {
+      ev.preventDefault();
+      zone.classList.remove("drag-over");
+      const data = Compat.getDragEventData(ev);
+      if (data?.type !== "Item" || !data.uuid) return;
+      const doc = await fromUuid(data.uuid);
+      if (doc) await this.linkBlueprint(doc);
+    });
+  }
+
+  /** GM: the item Fabrication makes from this blueprint (a copy is kept on the blueprint, so it travels with it). */
+  async linkBlueprint(doc) {
+    if (!game.user.isGM) return;
+    const bp = this.item.getFlag(MODULE_ID, "blueprint");
+    if (!bp) return;
+    if (doc.getFlag?.(MODULE_ID, "blueprint")) {
+      ui.notifications.warn(L("NEONHOME.Blueprint.NotABlueprint"));
+      return;
+    }
+    const makes = doc.toObject();
+    for (const k of ["_id", "folder", "sort", "ownership", "_stats"]) delete makes[k];
+    if (makes.system?.equipped) makes.system.equipped = "owned";
+    await this.item.setFlag(MODULE_ID, "blueprint", { ...bp, makes });
+    ui.notifications.info(L("NEONHOME.Blueprint.LinkedNote", { item: makes.name, blueprint: this.item.name }));
+    this.render();
+  }
+
+  static async #onUnlink() {
+    if (!this.item.getFlag(MODULE_ID, "blueprint")?.makes) return;
+    await this.item.update({ [`flags.${MODULE_ID}.blueprint.-=makes`]: null });
+    this.render();
   }
 
   async close(options) {

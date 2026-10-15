@@ -1451,7 +1451,19 @@
       "Untitled": "Untitled Invention",
       "Category": "Price category",
       "Inventor": "Invented by",
-      "Note": "A Tech's working design. Fabrication or Upgrade Expertise makes it real; the GM has the final say on its rules. It can be sold or handed over like any gear."
+      "Note": "A Tech's working design. Fabrication or Upgrade Expertise makes it real; the GM has the final say on its rules. It can be sold or handed over like any gear.",
+      "Section": "Blueprint",
+      "Makes": "Fabrication makes",
+      "DropHere": "Drop the item this blueprint makes (from the Items sidebar, a compendium or a sheet)",
+      "MakesHint": "Write the invention up as a real item (its type, stats and rules), then drop it here: Fabricating from this blueprint makes a copy of it. A copy is kept on the blueprint, so it goes wherever the blueprint goes. With nothing here, Fabrication makes a plain gear item from the design.",
+      "Unlink": "Unlink: Fabrication makes a plain gear item again",
+      "LinkedNote": "{blueprint} now makes {item}.",
+      "NotABlueprint": "A blueprint can't make a blueprint.",
+      "NotHeld": "{name} needs {blueprint} on hand to build from it.",
+      "Fact": "Blueprint",
+      "Linked": "{blueprint}: makes the GM's write-up of it",
+      "Plain": "{blueprint}: no item linked yet, so a plain gear item from the design (the GM can link one in the blueprint's Home settings)",
+      "From": "(from {blueprint})"
     }
   }
 }

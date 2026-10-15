@@ -78,7 +78,7 @@
           </div>{{/with}}{{/if}}
           {{#if drop}}
           <div class="nah-dt-drop" data-drop="fabricate">
-            {{#if value}}<img src="{{value.img}}" alt=""><span><b>{{value.name}}</b><small>{{value.category}} &middot; {{value.skill}}</small></span>
+            {{#if value}}<img src="{{value.img}}" alt=""><span><b>{{value.name}}</b><small>{{value.category}} &middot; {{value.skill}}{{#if value.blueprint}} &middot; <i class="fa-solid fa-scroll"></i> {{value.blueprint}}{{/if}}</small></span>
             {{else}}<i class="fa-solid fa-arrow-down-to-bracket"></i><span>{{localize "NEONHOME.Downtime.DropHere"}}</span>{{/if}}
           </div>
           {{/if}}
