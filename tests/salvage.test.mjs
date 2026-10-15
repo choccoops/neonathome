@@ -238,3 +238,36 @@ test("Maker work uses materials oldest first, across items, and notes where they
   await assert.rejects(SalvageOps.useMaterials(tech, { tier: "costly", count: 2 }), /needs 2 × Costly Tech Materials/);
   assert.equal(tech.items.get("m1").system.amount, 1, "nothing taken when there isn't enough");
 });
+
+test("stripping a few items is free; a big batch takes downtime, past the first five", async () => {
+  assert.equal(materials.stripMinutes(5), 0);
+  assert.equal(materials.stripMinutes(8), 90);
+  const tech = character("Gearhead", [["Tech", 4]], [
+    { _id: "flash", name: "Flashlight", type: "gear", system: { price: { market: 20 }, amount: 8 } },
+    ...[0, 1, 2, 3, 4, 5].map((i) => {
+      const d = materials.materialsItemData("cheap", M);
+      return { ...d, _id: `cheap${i}` };
+    })
+  ]);
+  // materials being combined don't count: five Cheap units into a Costly one, free
+  assert.equal((await SalvageOps.strip(tech, Object.fromEntries([0, 1, 2, 3, 4].map((i) => [`cheap${i}`, 1])), "costly")).minutes, 0);
+  // eight flashlights: three past the free five, 30 minutes each, from the character's downtime
+  const call = { id: "c", label: "Downtime", total: 60, status: "open", entries: [] };
+  game.modules.set("cpr-neon-hub", { active: true, api: { downtime: {
+    current: () => call,
+    balance: () => ({ total: call.total, spent: call.entries.reduce((n, e) => n + e.minutes, 0), left: call.total - call.entries.reduce((n, e) => n + e.minutes, 0), taking: true }),
+    log: () => call.entries,
+    spend: async (a, minutes, details) => call.entries.push({ minutes, ...details }),
+    refund: async () => null
+  } } });
+  try {
+    await assert.rejects(SalvageOps.strip(tech, { flash: 8 }, "premium"), /needs 1h 30m of downtime and has 1h left/);
+    assert.equal(tech.items.get("flash").system.amount, 8, "nothing taken apart");
+    call.total = 600;
+    const res = await SalvageOps.strip(tech, { flash: 8 }, "premium");
+    assert.equal(res.minutes, 90);
+    assert.deepEqual(call.entries.map((e) => [e.minutes, e.label]), [[90, "Strip for parts: 1 × Premium Tech Materials"]]);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
+});

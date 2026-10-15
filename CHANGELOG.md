@@ -6,6 +6,7 @@
 - **Therapy takes the patient's week too**: they need to be in the downtime with a week left, and it goes in their log (through the GM when the Medtech's player doesn't own them).
 - **Type the downtime to put into a project**: days, hours and minutes next to the slider, up to the downtime left (or what the project still needs). More than that shows in red and can't be confirmed, when starting a project or putting time in.
 - **Rest and the Night Market say "Spend the time"**: there's nothing to roll.
+- **Stripping a big batch for parts takes downtime.** A few items are still free; past the first 5 (a stack's units count one by one, materials being split or combined don't), each item takes 30 minutes, shown in the panel before you confirm.
 
 ## 1.6.1
 

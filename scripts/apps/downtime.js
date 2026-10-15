@@ -16,7 +16,7 @@ import {
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
 import { SALVAGE_MINUTES, CATEGORIES, WORTH, locationsOf, locationOf, haulLeft } from "../data/salvage.js";
-import { TIERS, TIER_NAMES, tierEb, fabricationNeeds, upgradeNeeds, stripPlan, unitsFor } from "../data/materials.js";
+import { TIERS, TIER_NAMES, tierEb, fabricationNeeds, upgradeNeeds, stripPlan, unitsFor, stripMinutes, STRIP_FREE, STRIP_MINUTES } from "../data/materials.js";
 import { DnD } from "./home-app.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -280,6 +280,11 @@ function panel(actor, id, p, { roles, state }) {
       fact("NEONHOME.Strip.Fact.parts", eb(plan.total));
       fact("NEONHOME.Strip.Fact.need", `${eb(plan.need)} (${count} × ${TIER_NAMES[tier]})`);
       if (plan.ok && plan.waste) fact("NEONHOME.Strip.Fact.waste", eb(plan.waste));
+      // a few items are free; a batch takes downtime
+      const units = SalvageOps.stripUnits(list.filter((s) => picks[s.item.id]).map((s) => ({ item: s.item, qty: qty(s) })));
+      const minutes = stripMinutes(units);
+      if (minutes) time = minutes;
+      fact("NEONHOME.Strip.Fact.time", minutes ? L("NEONHOME.Strip.TimeBatch", { time: formatMinutes(minutes), n: units, free: STRIP_FREE, each: formatMinutes(STRIP_MINUTES) }) : L("NEONHOME.Strip.TimeFree", { free: STRIP_FREE }));
       if (!list.length) blocked = L("NEONHOME.Strip.Nothing", { name: actor.name });
       else if (!plan.ok) blocked = plan.total ? L("NEONHOME.Strip.Short", { have: eb(plan.total), need: eb(plan.need), materials: `${count} × ${TIER_NAMES[tier]} Tech Materials` }) : L("NEONHOME.Strip.PickSome");
       break;

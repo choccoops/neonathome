@@ -432,7 +432,9 @@ let the character get them by:
   gear is worth a category less, Destroyed two, Destroyed Beyond Repair nothing (*Breaking Your
   Stuff*). Stacks of materials break down or combine the same way (an Expensive unit into five
   Premium). What's past the materials' worth is lost. Gear that's equipped, installed, or holding
-  installed items can't be stripped.
+  installed items can't be stripped. A few items take no time; a big batch does (Neon At Home's
+  ruling, as neither book times it): past the first 5 items (a stack's units count one by one,
+  materials don't count), each takes 30 minutes of downtime.
 
 **Salvaging** (R. Talsorian's *Salvaging Night City* DLC). A week picking through the ruins,
 and no other downtime that week. Take whatever turns up (1d6 on the place's category table) or hunt
