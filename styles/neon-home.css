@@ -1191,8 +1191,14 @@
 /* Time pickers: any amount of downtime into a project */
 .neon-home .nah-timepick { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
 .neon-home .nah-timepick input[type="range"] { flex: 1; min-width: 80px; accent-color: var(--nah-cyan); }
-.neon-home .nah-timepick input[type="number"] { width: 64px; flex: 0 0 64px; height: 24px; }
 .neon-home .nah-timepick span { color: var(--nah-dim); font-size: 11px; }
-.neon-home .nah-timepick b { min-width: 70px; font-family: var(--nah-display); font-weight: 400; font-size: 12px; color: #fff; white-space: nowrap; }
 .neon-home .nah-proj-pick { display: flex; align-items: center; gap: 8px; flex: 1 1 100%; }
 .neon-home .nah-proj-pick button { flex: 0 0 auto; width: auto; }
+.neon-home .nah-timepick { flex-wrap: wrap; }
+.neon-home .nah-tp-boxes { display: flex; gap: 4px; align-items: center; }
+.neon-home .nah-tp-boxes label { display: flex; align-items: center; gap: 2px; }
+.neon-home .nah-tp-boxes input[type="number"] { width: 52px; flex: 0 0 52px; height: 24px; text-align: right; }
+.neon-home .nah-tp-boxes span { color: var(--nah-dim); font-size: 11px; }
+.neon-home .nah-tp-msg { flex: 1 1 100%; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-timepick.is-over .nah-tp-msg { color: var(--nah-red); }
+.neon-home .nah-timepick.is-over input[type="number"] { border-color: var(--nah-red); }

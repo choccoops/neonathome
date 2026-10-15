@@ -364,13 +364,17 @@ for the GM):
 - the **Weaponbench and armor upgrades** (attaching, detaching, custom attachments, fitting armor
   upgrades);
 - the **Vehicle Bay** (parking, swapping, adding and removing vehicles);
-- **maintenance and repairs**, which also spend the time they take.
+- **maintenance and repairs**, which also spend the time they take (from the worker, whoever
+  clicks: the GM too).
 
 When downtime starts, the players taking part get a card with a **Go home** button.
 
 **The Downtime tab.** Each action shows what it takes (time, DV, materials, the roll) and spends
 the character's downtime: with Neon Hub, into its downtime log (the tab shows this downtime's log,
-and the time is given back if a roll is cancelled). Rolls are Cyberpunk RED's own skill rolls, with
+and the time is given back if a roll is cancelled). The time is the character's, so an action only
+happens when they're in the downtime with that much left, whoever clicks it (the GM too): nothing
+is free. Without Neon Hub, downtime is untimed, but the GM's switch still has to be on. Therapy
+takes the patient's week as well. Rolls are Cyberpunk RED's own skill rolls, with
 its dialog, LUCK and modifiers. A Medtech's materials come out of the character's eurobucks, in the
 wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appear only for the character's Roles (from the role items on their sheet).
 
@@ -398,8 +402,9 @@ the same failure: halfway through, the Tech realizes they have to start over (pp
 
 - Starting one uses its Tech Materials (Maker work). Each project has a meter with the halfway mark.
 - Downtime is put into the meter in any amount: all it needs, up to the check, an hour, a day, a
-  week, or exactly as much as the player picks on the project's slider (or types in hours). Starting
-  a project can put in any amount too, or nothing yet. Time goes in up to the halfway mark first.
+  week, or exactly as much as the player picks on the project's slider or types in days, hours and
+  minutes, up to the downtime they have left (more can't be confirmed). Starting a project can put
+  in any amount too, or nothing yet. Time goes in up to the halfway mark first.
 - At the halfway mark, the check comes up: Cyberpunk RED's roll for the project's skill, with the
   Expertise rank (Field Expertise for a Tech's repair).
   - **Failed**: the meter empties and it starts over. The materials are fine (not used again).
@@ -427,7 +432,9 @@ let the character get them by:
   gear is worth a category less, Destroyed two, Destroyed Beyond Repair nothing (*Breaking Your
   Stuff*). Stacks of materials break down or combine the same way (an Expensive unit into five
   Premium). What's past the materials' worth is lost. Gear that's equipped, installed, or holding
-  installed items can't be stripped.
+  installed items can't be stripped. A few items take no time; a big batch does (Neon At Home's
+  ruling, as neither book times it): past the first 5 items (a stack's units count one by one,
+  materials don't count), each takes 30 minutes of downtime.
 
 **Salvaging** (R. Talsorian's *Salvaging Night City* DLC). A week picking through the ruins,
 and no other downtime that week. Take whatever turns up (1d6 on the place's category table) or hunt

@@ -9,7 +9,7 @@ import {
   perilGear, categoryOf, normalizeHaul, haulLeft
 } from "../data/salvage.js";
 import {
-  TIERS, TIER_NAMES, tierEb, countMaterials, materialsItemData, partsValue, strippable, stripPlan, payMaterials, needsLabel, unitsFor
+  TIERS, TIER_NAMES, tierEb, countMaterials, materialsTier, stripMinutes, materialsItemData, partsValue, strippable, stripPlan, payMaterials, needsLabel, unitsFor
 } from "../data/materials.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -315,6 +315,9 @@ export const SalvageOps = {
     const plan = stripPlan(chosen.map((c) => ({ value: c.s.value, qty: c.qty })), tier, n);
     if (!plan.ok) throw new RuleBlock(L("NEONHOME.Strip.Short", { have: eb(plan.total), need: eb(plan.need), materials: needsLabel({ tier, count: n }) }));
     const names = chosen.map((c) => (c.qty > 1 ? `${c.s.item.name} ×${c.qty}` : c.s.item.name));
+    // a big batch takes downtime (the items past the first few); a few pieces don't
+    const minutes = stripMinutes(this.stripUnits(chosen.map((c) => ({ item: c.s.item, qty: c.qty }))));
+    if (minutes) await Downtime.spend(actor, minutes, { label: L("NEONHOME.Strip.Label", { materials: needsLabel({ tier, count: n }) }), data: { action: "strip", tier, count: n } });
     const del = chosen.filter((c) => c.qty >= c.s.amount).map((c) => c.s.item);
     for (const c of chosen) if (c.qty < c.s.amount) await c.s.item.update({ "system.amount": c.s.amount - c.qty });
     for (const item of del) await CPR.removeWithInstalled(item);
@@ -327,7 +330,12 @@ export const SalvageOps = {
       })),
       speaker: ChatMessage.getSpeaker({ actor })
     });
-    return { ...plan, tier, count: n };
+    return { ...plan, tier, count: n, minutes };
+  },
+
+  /** How many items a strip takes apart (a stack's units count one by one; materials don't count). */
+  stripUnits(picks) {
+    return picks.filter((p) => !materialsTier(p.item, MODULE_ID)).reduce((n, p) => n + Math.max(0, Math.floor(Number(p.qty) || 0)), 0);
   },
 
   /* ---------------------------------------- */

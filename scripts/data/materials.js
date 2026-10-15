@@ -71,6 +71,16 @@ export function stripPlan(picks, tier, count = 1) {
   return { total, need, ok: TIERS.includes(tier) && total >= need, waste: Math.max(0, total - need) };
 }
 
+/**
+ * Stripping's time (Neon At Home's own ruling; neither book times it): a few pieces are torn down
+ * in the margins of the day, a batch is real work. The first STRIP_FREE items are free, each one
+ * past that takes STRIP_MINUTES. Materials being broken down or combined don't count: they're
+ * parts already.
+ */
+export const STRIP_FREE = 5;
+export const STRIP_MINUTES = 30;
+export const stripMinutes = (units) => Math.max(0, Math.floor(Number(units) || 0) - STRIP_FREE) * STRIP_MINUTES;
+
 /** The most units of a tier a worth buys. */
 export const unitsFor = (eb, tier) => (ebOf(tier) ? Math.floor(int(eb) / ebOf(tier)) : 0);
 

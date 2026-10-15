@@ -67,10 +67,14 @@
           {{#if number}}<input type="number" data-dt-field="{{name}}" value="{{value}}" min="{{min}}" max="{{max}}">{{/if}}
           {{#if text}}<input type="text" data-dt-field="{{name}}" value="{{value}}">{{/if}}
           {{#if textarea}}<textarea data-dt-field="{{name}}" rows="4">{{value}}</textarea>{{/if}}
-          {{#if pick}}{{#with pick}}<div class="nah-timepick">
-            <input type="range" min="0" max="{{max}}" step="30" value="{{value}}" data-tp-range {{#if name}}data-dt-field="{{name}}"{{/if}} aria-label="{{localize 'NEONHOME.Project.Pick'}}">
-            <input type="number" min="0" max="{{hoursMax}}" step="0.5" value="{{hours}}" data-tp-hours aria-label="{{localize 'NEONHOME.Project.Hours'}}"><span>h</span>
-            <b data-tp-label>{{label}}</b>
+          {{#if pick}}{{#with pick}}<div class="nah-timepick {{#if over}}is-over{{/if}}" data-max="{{max}}" data-value="{{value}}" data-max-label="{{maxLabel}}" {{#if name}}data-field="{{name}}"{{/if}}>
+            <input type="range" min="0" max="{{max}}" step="15" value="{{value}}" data-tp-range aria-label="{{localize 'NEONHOME.Project.Pick'}}">
+            <span class="nah-tp-boxes">
+              <label><input type="number" min="0" step="1" value="{{d}}" data-tp-unit="1440" aria-label="{{localize 'NEONHOME.Project.Days'}}"><span>d</span></label>
+              <label><input type="number" min="0" step="1" value="{{h}}" data-tp-unit="60" aria-label="{{localize 'NEONHOME.Project.Hours'}}"><span>h</span></label>
+              <label><input type="number" min="0" step="1" value="{{m}}" data-tp-unit="1" aria-label="{{localize 'NEONHOME.Project.Minutes'}}"><span>m</span></label>
+            </span>
+            <small class="nah-tp-msg" data-tp-msg>{{#if over}}{{localize "NEONHOME.Project.TooMuch" max=maxText}}{{else}}{{label}} &middot; {{maxLabel}}{{/if}}</small>
           </div>{{/with}}{{/if}}
           {{#if drop}}
           <div class="nah-dt-drop" data-drop="fabricate">
@@ -134,12 +138,16 @@
             {{#each steps}}<button type="button" data-action="dtProjWork" data-minutes="{{minutes}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-regular fa-clock"></i> {{label}}</button>{{/each}}
             {{#if noTime}}<small class="nah-hint">{{localize "NEONHOME.Project.NoTime"}}</small>{{/if}}
             {{#if pick}}{{#with pick}}<div class="nah-proj-pick">
-          <div class="nah-timepick">
-            <input type="range" min="0" max="{{max}}" step="30" value="{{value}}" data-tp-range {{#if name}}data-dt-field="{{name}}"{{/if}} aria-label="{{localize 'NEONHOME.Project.Pick'}}">
-            <input type="number" min="0" max="{{hoursMax}}" step="0.5" value="{{hours}}" data-tp-hours aria-label="{{localize 'NEONHOME.Project.Hours'}}"><span>h</span>
-            <b data-tp-label>{{label}}</b>
+          <div class="nah-timepick {{#if over}}is-over{{/if}}" data-max="{{max}}" data-value="{{value}}" data-max-label="{{maxLabel}}" {{#if name}}data-field="{{name}}"{{/if}}>
+            <input type="range" min="0" max="{{max}}" step="15" value="{{value}}" data-tp-range aria-label="{{localize 'NEONHOME.Project.Pick'}}">
+            <span class="nah-tp-boxes">
+              <label><input type="number" min="0" step="1" value="{{d}}" data-tp-unit="1440" aria-label="{{localize 'NEONHOME.Project.Days'}}"><span>d</span></label>
+              <label><input type="number" min="0" step="1" value="{{h}}" data-tp-unit="60" aria-label="{{localize 'NEONHOME.Project.Hours'}}"><span>h</span></label>
+              <label><input type="number" min="0" step="1" value="{{m}}" data-tp-unit="1" aria-label="{{localize 'NEONHOME.Project.Minutes'}}"><span>m</span></label>
+            </span>
+            <small class="nah-tp-msg" data-tp-msg>{{#if over}}{{localize "NEONHOME.Project.TooMuch" max=maxText}}{{else}}{{label}} &middot; {{maxLabel}}{{/if}}</small>
           </div>
-              <button type="button" data-action="dtProjWork" data-minutes="pick" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-hourglass-half"></i> {{localize "NEONHOME.Project.PutIn"}}</button>
+              <button type="button" class="nah-primary" data-action="dtProjWork" data-minutes="pick" data-tp-confirm {{#if stop}}disabled{{/if}} {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-hourglass-half"></i> {{localize "NEONHOME.Project.PutIn"}}</button>
             </div>{{/with}}{{/if}}
             <button type="button" class="nah-icon-btn is-danger" data-action="dtProjAbandon" data-tooltip="{{localize 'NEONHOME.Project.Abandon'}}"><i class="fa-solid fa-trash"></i></button>
           </footer>
@@ -166,7 +174,7 @@
       {{#unless workshop}}{{#unless projects}}
       <div class="nah-maint-actions">
         <button type="button" class="nah-primary" data-action="dtPerform" {{#unless canDo}}disabled{{/unless}}>
-          {{#if maker}}<i class="fa-solid fa-diagram-project"></i> {{localize "NEONHOME.Project.Start"}}{{else if stripping}}<i class="fa-solid fa-gears"></i> {{localize "NEONHOME.Strip.Do"}}{{else}}<i class="fa-solid fa-dice-d10"></i> {{localize "NEONHOME.Downtime.Do"}}{{/if}}{{#if timeLabel}} <small>{{timeLabel}}</small>{{/if}}
+          {{#if maker}}<i class="fa-solid fa-diagram-project"></i> {{localize "NEONHOME.Project.Start"}}{{else if stripping}}<i class="fa-solid fa-gears"></i> {{localize "NEONHOME.Strip.Do"}}{{else if noRoll}}<i class="fa-regular fa-clock"></i> {{localize "NEONHOME.Downtime.Spend"}}{{else}}<i class="fa-solid fa-dice-d10"></i> {{localize "NEONHOME.Downtime.Do"}}{{/if}}{{#if timeLabel}} <small>{{timeLabel}}</small>{{/if}}
         </button>
       </div>
       {{/unless}}{{/unless}}

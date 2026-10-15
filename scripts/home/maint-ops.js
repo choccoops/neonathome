@@ -191,7 +191,8 @@ export const MaintOps = {
       // gear in the home stash is worked on at home
       if (this.isStash(actor)) Downtime.check(who, "stash");
       const minutes = mode === "repair" ? e.repair.minutes : e.minutes;
-      spent = await Downtime.spend(who, minutes, { label: L(`NEONHOME.Maint.Check.${mode}`, { item: item.name }), data: { kind: mode, item: item.uuid } });
+      // kept to downtime (the GM's setting): it needs the worker's time, whoever clicks
+      spent = await Downtime.spend(who, minutes, { label: L(`NEONHOME.Maint.Check.${mode}`, { item: item.name }), data: { kind: mode, item: item.uuid }, strict: Downtime.gated("maintenance") });
     }
     // A Tech adds Field Expertise to TECH Skill Checks outside Maker work (Cyberpunk RED p.147).
     const fe = fieldExpertise(who.items.map((i) => i.toObject()));

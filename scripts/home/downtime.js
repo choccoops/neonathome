@@ -86,15 +86,31 @@ export const Downtime = {
   },
 
   /**
-   * Spend downtime on something (with Neon Hub, into its log). Nothing is spent outside a Neon Hub
-   * call or for characters not taking part (the GM working on someone outside downtime).
+   * Whether a character can spend this much downtime now: in downtime (with Neon Hub, taking part
+   * in its call) and, with Neon Hub, with the time left. The GM too: the time is the character's.
+   * Throws a RuleBlock saying why not.
+   */
+  require(actor, minutes) {
+    const st = this.state(actor);
+    if (!st.active) throw new RuleBlock(L(st.source === "hub" ? "NEONHOME.Downtime.NotIn" : "NEONHOME.Downtime.Only.actions", { name: actor.name }));
+    const m = Math.max(0, Math.floor(Number(minutes) || 0));
+    if (st.source === "hub" && m > st.left) throw new RuleBlock(L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(m), left: formatMinutes(st.left) }));
+    return st;
+  },
+
+  /**
+   * Spend downtime on something (with Neon Hub, into its log). Without Neon Hub, downtime is
+   * untimed: there's nothing to spend, only being in it.
+   * @param {object} opts - { label, data, strict: the character must be in downtime with the time
+   *   (false: only spend if they are, for work the GM hasn't kept to downtime) }
    * @returns {Promise<object|null>} Neon Hub's log entry, to refund
    */
-  async spend(actor, minutes, { label, data = null } = {}) {
-    const st = this.state(actor);
+  async spend(actor, minutes, { label, data = null, strict = true } = {}) {
     const m = Math.max(0, Math.floor(Number(minutes) || 0));
-    if (st.source !== "hub" || !st.active || !m) return null;
-    if (m > st.left) throw new RuleBlock(L("NEONHOME.Downtime.NotEnough", { name: actor.name, need: formatMinutes(m), left: formatMinutes(st.left) }));
+    if (!m) return null;
+    if (!strict && !this.isActive(actor)) return null;
+    const st = this.require(actor, m);
+    if (st.source !== "hub") return null;
     return this.hub.spend(actor, m, { label, source: MODULE_ID, data });
   },
 

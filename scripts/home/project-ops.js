@@ -110,6 +110,8 @@ export const ProjectOps = {
       default:
         throw new Error(`Not a Maker project: ${kind}`);
     }
+    // the time asked for has to be there before the materials go in
+    if (minutes !== 0) Downtime.require(actor, typeof minutes === "number" ? Math.min(Math.floor(minutes), project.minutes) : 0);
     const need = project.data.need ?? null;
     project = normalizeProject({ ...project, id: foundry.utils.randomID(), ability: KIND[kind].ability, materials: need ? tierEb(need.tier) * need.count : 0 });
     // the Tech's Tech Materials go in up front (a failure leaves them unharmed for the next try)
@@ -170,10 +172,20 @@ export const ProjectOps = {
     let p = this.get(actor, id);
     if (!p) throw new RuleBlock(L("NEONHOME.Error.NotFound"));
     if (p.kind === "repair") Downtime.check(actor, "maintenance");
+    // Maker work is downtime work; a repair is when the GM keeps repairs to downtime
+    const strict = p.kind !== "repair" || Downtime.gated("maintenance");
+    const st = stage(p);
+    if (strict && (st === "build" || st === "finish") && minutes !== 0) {
+      // an amount the player picked can't be more than their downtime left ("all" and "check" take
+      // what there is); and there has to be some
+      const asked = typeof minutes === "number" ? Math.min(Math.floor(minutes), remaining(p)) : 0;
+      Downtime.require(actor, asked);
+      if (this._amount(actor, p, minutes) <= 0) throw new RuleBlock(L("NEONHOME.Project.NoTime"));
+    }
     const amount = this._amount(actor, p, minutes);
     const { before, after } = plan(p, amount);
     if (before) {
-      await Downtime.spend(actor, before, { label: p.label, data: { project: p.id, kind: p.kind } });
+      await Downtime.spend(actor, before, { label: p.label, data: { project: p.id, kind: p.kind }, strict });
       p = { ...p, done: p.done + before };
       await this._put(actor, p);
     }
@@ -183,7 +195,7 @@ export const ProjectOps = {
       p = this.get(actor, p.id);
     }
     if (after && stage(p) === "finish") {
-      await Downtime.spend(actor, after, { label: p.label, data: { project: p.id, kind: p.kind } });
+      await Downtime.spend(actor, after, { label: p.label, data: { project: p.id, kind: p.kind }, strict });
       p = { ...p, done: Math.min(p.minutes, p.done + after) };
       await this._put(actor, p);
     }

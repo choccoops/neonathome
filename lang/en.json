@@ -1153,7 +1153,7 @@
         "nightMarket": "With Operator Rank 5, once a month, gather other Fixers into a Night Market where anything can be found (p.160).",
         "projects": "Long work kept going over downtimes: Maker projects and repairs. Put downtime in; the check comes due halfway. Fail it and you realize you have to start over (the materials are fine); pass it and the rest of the time finishes it (Cyberpunk RED pp.140, 148-149).",
         "salvage": "A week picking through the ruins, and no other downtime that week. Take whatever turns up (1d6 on the place's table) or hunt one category (a harder DV). A Basic Tech Check sets the worth found: pick out Destroyed items of that category (to repair later) or Tech Materials, up to that worth; the rest is lost. A Critical Failure finds nothing and runs into the place's perils (Salvaging Night City).",
-        "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost."
+        "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost. A few items take no time; a big batch does: past the first 5, each item takes 30 minutes of downtime (materials don't count)."
       },
       "Role": {
         "rockerboy": "Rockerboy",
@@ -1253,7 +1253,9 @@
         "fail": "<b>{name}</b> publishes: rolled {roll} on a {chance} in 10. <b>The audience doesn't buy it.</b>"
       },
       "NightMarketCard": "<b>{name}</b> sets up a <b>Night Market</b> with other Fixers: anything can be found there, for a little while.",
-      "InStash": "in the stash"
+      "InStash": "in the stash",
+      "Spend": "Spend the time",
+      "NotIn": "{name} isn't taking part in this downtime: downtime actions spend their own downtime."
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
@@ -1307,7 +1309,15 @@
       "NoMaterials": "no materials",
       "Pick": "How much downtime to put in",
       "Hours": "Hours",
-      "PutIn": "Put this in"
+      "PutIn": "Put this in",
+      "UpTo": {
+        "left": "up to {max} (the downtime left)",
+        "needs": "up to {max} (all it needs)"
+      },
+      "TooMuch": "More than there is: {max} at most.",
+      "PickSome": "Pick how much downtime to put in now.",
+      "Days": "Days",
+      "Minutes": "Minutes"
     },
     "Materials": {
       "Have": "{materials} (has {have})",
@@ -1407,7 +1417,8 @@
       "Fact": {
         "parts": "Parts picked",
         "need": "Needed",
-        "waste": "Lost (too small to use)"
+        "waste": "Lost (too small to use)",
+        "time": "Time"
       },
       "Nothing": "{name} has no gear to strip (it can't be equipped, installed, or holding anything installed).",
       "PickSome": "Pick the gear to strip.",
@@ -1417,7 +1428,10 @@
       "Do": "Strip for parts",
       "SourceLine": "{items}, stripped for parts by {name}",
       "Card": "<b>{name}</b> strips {items} for parts: <b>{materials}</b>.",
-      "CardWaste": "<b>{name}</b> strips {items} for parts: <b>{materials}</b> ({waste} of it too small to use)."
+      "CardWaste": "<b>{name}</b> strips {items} for parts: <b>{materials}</b> ({waste} of it too small to use).",
+      "TimeFree": "None (up to {free} items)",
+      "TimeBatch": "{time}: {n} items, the first {free} free, then {each} each",
+      "Label": "Strip for parts: {materials}"
     }
   }
 }
