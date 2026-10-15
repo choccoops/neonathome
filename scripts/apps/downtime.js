@@ -11,7 +11,7 @@ import { stage, meter, needed, remaining } from "../data/projects.js";
 import { Compat } from "../compat.js";
 import { KINDS, PRICE_CATEGORIES, priceCategory, flattenList, isMaintainable } from "../data/maintenance.js";
 import {
-  MIN, HUSTLES, makerJob, UPGRADES, INVENT_CATEGORIES,
+  MIN, HUSTLES, makerJob, UPGRADES, INVENT_CATEGORIES, inventPrice,
   PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
@@ -243,14 +243,20 @@ function panel(actor, id, p, { roles, state }) {
       break;
     }
     case "invent": {
-      const cat = INVENT_CATEGORIES.includes(p.category) ? p.category : "expensive";
+      // the planned value the GM gave sets the category (and a Super Luxury invention's months)
+      const price = inventPrice(p.category, p.value);
+      const cat = price.category;
       const skills = [...new Set(Object.values(KINDS).map((k) => k.skill))];
       const skill = skills.includes(p.skill) ? p.skill : "Basic Tech";
       fields.push(field("name", "NEONHOME.Downtime.Field.inventionName", { text: true, value: p.name ?? "" }));
       fields.push(field("text", "NEONHOME.Downtime.Field.invention", { textarea: true, value: p.text ?? "" }));
       fields.push(field("category", "NEONHOME.Downtime.Field.category", { select: true, options: opt(INVENT_CATEGORIES, cat, (c) => L(`NEONHOME.Maint.Price.${c}`)) }));
+      fields.push(field("value", "NEONHOME.Downtime.Field.inventValue", { number: true, value: Math.floor(Number(p.value) || 0) || "", min: 0, max: 10000000, hint: L("NEONHOME.Downtime.InventValueHint") }));
       fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
-      const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
+      const job = makerJob(price.value);
+      if (!price.ok) blocked = L("NEONHOME.Downtime.InventTooCheap");
+      fact("NEONHOME.Downtime.Fact.value", `${eb(price.value)} (${L(`NEONHOME.Maint.Price.${cat}`)})`);
+      if (cat === "superLuxury") fact("NEONHOME.Downtime.Fact.time", L("NEONHOME.Downtime.SuperLuxuryTime", { n: Math.max(1, Math.ceil(price.value / 10000)) }));
       time = job.minutes;
       spread = true;
       startNow(job.minutes);

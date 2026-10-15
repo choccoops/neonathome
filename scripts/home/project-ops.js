@@ -5,7 +5,7 @@ import { MaintOps } from "./maint-ops.js";
 import { Downtime, formatMinutes } from "./downtime.js";
 import { DowntimeOps, workSkill } from "./downtime-ops.js";
 import { PRICE_CATEGORIES, fieldExpertise } from "../data/maintenance.js";
-import { makerJob, UPGRADES, INVENT_CATEGORIES } from "../data/downtime.js";
+import { makerJob, UPGRADES, inventPrice } from "../data/downtime.js";
 import { fabricationNeeds, upgradeNeeds, tierEb, needsLabel } from "../data/materials.js";
 import { SalvageOps } from "./salvage-ops.js";
 import { normalizeProject, stage, plan, needed, halfway, remaining } from "../data/projects.js";
@@ -20,7 +20,7 @@ const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
  */
 export function blueprintData(p, actor) {
   const cat = p.data?.category ?? "expensive";
-  const price = PRICE_CATEGORIES.find((c) => c.key === cat)?.eb ?? 0;
+  const price = Number(p.data?.value) || (PRICE_CATEGORIES.find((c) => c.key === cat)?.eb ?? 0);
   const title = p.data?.name || L("NEONHOME.Blueprint.Untitled");
   return {
     name: L("NEONHOME.Blueprint.Name", { name: title }),
@@ -132,12 +132,15 @@ export const ProjectOps = {
       case "invent": {
         const text = String(p.text ?? "").trim();
         if (!text) throw new RuleBlock(L("NEONHOME.Downtime.DescribeIt"));
-        const cat = INVENT_CATEGORIES.includes(p.category) ? p.category : "expensive";
-        const job = makerJob(PRICE_CATEGORIES.find((c) => c.key === cat).eb);
+        // the GM's planned value sets the category; Super Luxury takes a month per 10,000eb (p.149)
+        const price = inventPrice(p.category, p.value);
+        if (!price.ok) throw new RuleBlock(L("NEONHOME.Downtime.InventTooCheap"));
+        const cat = price.category;
+        const job = makerJob(price.value);
         const name = String(p.name ?? "").trim().slice(0, 100);
         project = {
           kind, label: name ? L("NEONHOME.Downtime.InventNamed", { name }) : L("NEONHOME.Downtime.InventLabel"), img: "", skill: p.skill || "Basic Tech",
-          dv: job.dv, minutes: job.minutes, data: { text, category: cat, name }
+          dv: job.dv, minutes: job.minutes, data: { text, category: cat, value: price.value, name }
         };
         break;
       }

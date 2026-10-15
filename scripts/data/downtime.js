@@ -87,6 +87,21 @@ export const UPGRADES = {
 /** Invention: the GM sets the price category, Expensive at the lowest. */
 export const INVENT_CATEGORIES = ["expensive", "veryExpensive", "luxury", "superLuxury"];
 
+/**
+ * An invention's price: the planned value the GM gave (which sets the category), else the
+ * category's own. Super Luxury work takes a month per 10,000eb of it (p.149), so its value matters.
+ * @returns {{category: string, value: number, ok: boolean}} ok: false when the value is below Expensive
+ */
+export function inventPrice(category, value = 0) {
+  const v = Math.max(0, Math.floor(Number(value) || 0));
+  if (v) {
+    const key = PRICE_CATEGORIES[Math.max(0, priceCategory(v))].key;
+    return { category: INVENT_CATEGORIES.includes(key) ? key : "expensive", value: v, ok: INVENT_CATEGORIES.includes(key) };
+  }
+  const cat = INVENT_CATEGORIES.includes(category) ? category : "expensive";
+  return { category: cat, value: PRICE_CATEGORIES.find((c) => c.key === cat).eb, ok: true };
+}
+
 /* ------------------------------------------ */
 /*  Medicine (Medtech, pp.149-150, 229-230)   */
 /* ------------------------------------------ */

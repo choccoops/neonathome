@@ -1099,7 +1099,9 @@
         "humanity": "Their Humanity",
         "chance": "Believed",
         "rank": "Rank",
-        "project": "Project"
+        "project": "Project",
+        "value": "Value",
+        "time": "Time"
       },
       "Field": {
         "role": "Role",
@@ -1120,7 +1122,8 @@
         "evidence": "Pieces of hard evidence",
         "now": "Put in now",
         "nowMinutes": "How much now",
-        "inventionName": "Name of the invention"
+        "inventionName": "Name of the invention",
+        "inventValue": "Planned value (eb)"
       },
       "Action": {
         "hustle": "The Hustle",
@@ -1259,7 +1262,10 @@
       "NotIn": "{name} isn't taking part in this downtime: downtime actions spend their own downtime.",
       "YourselfQuickFix": "{name} (yourself: Quick Fix only)",
       "MakesBlueprint": "A blueprint of it, kept by the inventor (sellable and transferable)",
-      "InventNamed": "Invent {name}"
+      "InventNamed": "Invent {name}",
+      "InventValueHint": "The figure the GM gives for the idea; it sets the price category. Leave it empty to go by the category. Super Luxury takes a month per 10,000eb.",
+      "InventTooCheap": "An invention is Expensive (500eb) at the least.",
+      "SuperLuxuryTime": "{n} month(s): a month per 10,000eb (p.149)"
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",

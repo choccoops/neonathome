@@ -4,6 +4,7 @@
 
 - **Inventions make blueprints.** A finished Invention gives the inventor a *Blueprint: (name)* item holding the design as the player described it, its price category, and who invented it, priced at that category: it can be sold or handed over like any gear. The Invent panel has a name for the invention.
 - **Maker panels keep to themselves.** Each panel's Start button only ever starts its own kind of project (a stale click carried over from another panel did nothing before it could start, say, an Invention typed in but not submitted). The Fabricate, Upgrade and Invent panels list the projects of their kind already under way with a button to carry on in Projects, and say that Start begins a new one.
+- **An invention's planned value.** Invent has a *Planned value (eb)* field for the figure the GM gives when the player pitches the idea: it sets the price category, and a Super Luxury invention takes a month per 10,000eb of it (Cyberpunk RED p.149) instead of always one month. The blueprint is priced at it. Fabricating or upgrading a Super Luxury item already went by its price the same way.
 - **Typed numbers read white** in the Downtime tab's fields (they were a dim grey).
 
 ## 1.6.3

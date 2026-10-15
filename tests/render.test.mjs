@@ -251,6 +251,11 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   const invView = await renderTab("downtime");
   assert.equal(invView.ctx.dt.selected.underway.length, 0, "only its own kind");
   assert.ok(invView.html.includes('data-dt-perform="invent"'));
+  app.uiState.downtime = { action: "invent", params: { invent: { text: "draft", category: "expensive", value: 30000 } } };
+  const sl = (await renderTab("downtime")).ctx.dt.selected;
+  assert.equal(sl.fields.find((f) => f.name === "category").options.find((o) => o.selected).value, "superLuxury", "the value sets the category");
+  assert.ok(sl.facts.some((f) => f.value === "3 month(s): a month per 10,000eb (p.149)"));
+  assert.equal(sl.timeLabel, "90d");
   delete actor.flags["cpr-neon-at-home"].projects;
   // a stale Start click from another panel does nothing
   let started = 0;

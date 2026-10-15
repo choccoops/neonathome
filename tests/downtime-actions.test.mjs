@@ -63,6 +63,14 @@ test("Maker: DV and time by price, materials a category lower or the same (pp.14
   assert.equal(data.upgradeMaterials(50000, { vehicle: true }), 1000);
 });
 
+test("an invention's planned value sets its category; Super Luxury takes a month per 10,000eb (p.149)", () => {
+  assert.deepEqual(data.inventPrice("luxury"), { category: "luxury", value: 5000, ok: true }, "no value: the category's own");
+  assert.deepEqual(data.inventPrice("expensive", 35000), { category: "superLuxury", value: 35000, ok: true }, "the value wins");
+  assert.equal(data.inventPrice("expensive", 200).ok, false, "below Expensive");
+  assert.deepEqual([data.makerJob(35000).dv, data.makerJob(35000).minutes], [29, 4 * 43200], "35,000eb: four months");
+  assert.equal(data.makerJob(10000).minutes, 43200);
+});
+
 test("Believability and treatments", () => {
   assert.equal(data.believability(1), 2);
   assert.equal(data.believability(5, 1), 5);
@@ -362,6 +370,10 @@ test("any amount of downtime into a project, a bit at a time", async () => {
     // an invention, Expensive: DV21 and a week. Put in 90 minutes, then 30
     const p = await ProjectOps.start(tech, "invent", { name: "Whisper Can", text: "A quieter suppressor", category: "expensive", skill: "Weaponstech" }, { minutes: 90 });
     assert.equal(p.label, "Invent Whisper Can");
+    // a Super Luxury idea the GM valued at 25,000eb: three months, and the blueprint at that value
+    const big = await ProjectOps.start(tech, "invent", { name: "Orbital Drop Pod", text: "x", value: 25000 }, { minutes: 0 });
+    assert.deepEqual([big.dv, big.minutes, big.data.category, big.data.value], [29, 3 * 43200, "superLuxury", 25000]);
+    await assert.rejects(ProjectOps.start(tech, "invent", { text: "x", value: 100 }, { minutes: 0 }), /Expensive \(500eb\) at the least/);
     assert.equal(ProjectOps.get(tech, p.id).done, 90);
     await ProjectOps.work(tech, p.id, 30);
     assert.equal(ProjectOps.get(tech, p.id).done, 120);
@@ -375,7 +387,7 @@ test("any amount of downtime into a project, a bit at a time", async () => {
     await assert.rejects(ProjectOps.work(tech, p.id, "all"), /No downtime left/);
     // starting one with more than there is: refused before anything's used
     await assert.rejects(ProjectOps.start(tech, "invent", { text: "x", category: "expensive" }, { minutes: 60 }), /has 0m left/);
-    assert.equal(ProjectOps.list(tech).length, 1);
+    assert.equal(ProjectOps.list(tech).length, 2, "the two already started, nothing more");
   } finally {
     game.modules.delete("cpr-neon-hub");
   }
