@@ -224,6 +224,12 @@ globalThis.game = {
 /*  Documents                                 */
 /* ------------------------------------------ */
 
+/** As Foundry v12's Document#getFlag: a scope that isn't core, world, the system or an active module throws. */
+function checkScope(scope) {
+  if (["core", "world", game.system.id].includes(scope) || game.modules.get(scope)?.active) return;
+  throw new Error(`Flag scope "${scope}" is not valid or not currently active`);
+}
+
 function flagMethods(doc) {
   doc.getFlag = (scope, key) => doc.flags?.[scope]?.[key];
   doc.setFlag = async (scope, key, value) => {
@@ -340,7 +346,10 @@ export function makeActor(data, items = []) {
     if (type === "ActiveEffect") {
       return list.map((data) => {
         const e = { ...clone(data), id: randomID() };
-        e.getFlag = (scope, key) => e.flags?.[scope]?.[key];
+        e.getFlag = (scope, key) => {
+          checkScope(scope);
+          return e.flags?.[scope]?.[key];
+        };
         e.update = async (c) => Object.entries(c).forEach(([k, v]) => setProperty(e, k, clone(v)));
         e.delete = async () => actor.effects.delete(e.id);
         actor.effects.set(e.id, e);

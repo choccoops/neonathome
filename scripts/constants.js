@@ -26,6 +26,8 @@ export const ENCUMBRANCE_FLAG = "encumbrance";
 export const ENCUMBRANCE_STATUS = { half: "neonhome-encumbered", one: "neonhome-overloaded" };
 /** Condition Lab & Triggler's module id. */
 export const CLT_ID = "condition-lab-triggler";
+/** Neon Combat Manager's module id (its Neon Conditions replace Condition Lab & Triggler). */
+export const NCM_ID = "cpr-neon-combat-manager";
 
 /** Document operation option: Neon At Home already checked the carry rules for this change. */
 export const CHECKED = "checked";

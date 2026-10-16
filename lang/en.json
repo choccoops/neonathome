@@ -45,7 +45,7 @@
       },
       "CltEncumbered": {
         "Name": "Condition Lab: Encumbered condition",
-        "Hint": "With Condition Lab & Triggler, a condition of this name is applied when a character goes over the weight limit (its macros, chat and triggers run), with the MOVE penalty added. Without one, Neon At Home's own Encumbered status is used."
+        "Hint": "With Condition Lab & Triggler, a condition of this name is applied when a character goes over the weight limit (its macros, chat and triggers run), with the MOVE penalty added. Without one, Neon At Home's own Encumbered status is used. With Neon Combat Manager running, its Neon Conditions are used instead."
       },
       "CltOverloaded": {
         "Name": "Condition Lab: Overloaded condition",
@@ -219,11 +219,13 @@
       "half": {
         "Status": "Encumbered",
         "Name": "Encumbered",
+        "Hint": "Carrying more than the weight limit: MOVE is halved (rounded down, at least 1). Neon At Home applies and removes it with the load.",
         "Card": "<b>{name}</b> is carrying more than they can: <b>MOVE is halved</b> until they lighten the load."
       },
       "one": {
         "Status": "Overloaded",
         "Name": "Overloaded",
+        "Hint": "Carrying more than double the weight limit: MOVE is 1, and the GM may call for checks. Neon At Home applies and removes it with the load.",
         "Card": "<b>{name}</b> is carrying more than double what they can: <b>MOVE is 1</b>, and the GM may call for checks depending on the situation."
       },
       "none": {

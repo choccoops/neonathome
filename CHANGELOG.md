@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.6
+
+- **Encumbrance works without Condition Lab & Triggler on Foundry v12.** Going from Encumbered to Overloaded, or back under the limit, threw an error in worlds without CLT running (Foundry v12 won't read the flags of a module that's off), so the old status stayed. Effects CLT left behind before it was switched off are fine too.
+- **Neon Conditions.** With Neon Combat Manager running, Encumbered and Overloaded are Neon Conditions (the same statuses): in its Condition Lab and token HUD, and applied and removed through it. A version the GM edits in its Condition Lab keeps its own changes, with the MOVE penalty added. It comes before Condition Lab & Triggler; without either, Neon At Home's own statuses work as before.
+
 ## 1.6.5
 
 - **Fabricate from a blueprint.** Drop a Blueprint into the Fabricate panel and it's a Fabrication project at the invention's value (its DV, time and materials; Super Luxury a month per 10,000eb), rolled with the skill it was invented with plus Fabrication Expertise. The Tech needs the blueprint on hand, and keeps it.

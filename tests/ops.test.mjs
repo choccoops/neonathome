@@ -190,6 +190,140 @@ test("with Condition Lab & Triggler, its condition is applied and removed, with 
   }
 });
 
+test("without Condition Lab & Triggler, effects it left behind don't break the check (Foundry v12)", async () => {
+  // Foundry v12's getFlag throws for an inactive module's scope (the mock does too).
+  const CLT = "condition-lab-triggler";
+  assert.equal(game.modules.get(CLT)?.active, undefined);
+  const { actor } = setup();
+  // Placed through CLT before it was switched off: someone else's condition, and Neon At Home's own.
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: "Blinded", statuses: ["cltBlind"], changes: [], flags: { [CLT]: { conditionId: "cltBlind" } } }]);
+  await actor.createEmbeddedDocuments("ActiveEffect", [{ name: "Encumbered", statuses: ["cltEnc"], changes: [HomeOps.encumbranceChange("half")], flags: { [CLT]: { conditionId: "cltEnc" }, [M]: { encumbrance: "half" } } }]);
+  await actor.createEmbeddedDocuments("Item", [crate("Crate"), crate("Crate 2")]);
+  await HomeOps.syncEncumbrance(actor);
+  const ours = actor.effects.filter((e) => e.flags[M]?.encumbrance);
+  assert.deepEqual(ours.map((e) => [e.flags[M].encumbrance, e.statuses]), [["one", ["neonhome-overloaded"]]], "the old one went, Neon At Home's own status came");
+  for (const i of actor.items.filter((x) => x.name.startsWith("Crate"))) i.system.equipped = "owned";
+  await HomeOps.syncEncumbrance(actor);
+  assert.deepEqual(actor.effects.map((e) => e.name), ["Blinded"]);
+});
+
+test("Neon Combat Manager's stand-in game.clt isn't taken for Condition Lab & Triggler", async () => {
+  const { actor } = setup();
+  game.clt = { neon: true, supported: true, getCondition: () => ({ name: "Encumbered", id: "x" }), addCondition: () => assert.fail("used the stand-in") };
+  try {
+    await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+    await HomeOps.syncEncumbrance(actor);
+    assert.deepEqual(actor.effects.find((e) => e.flags[M]?.encumbrance).statuses, ["neonhome-encumbered"]);
+  } finally {
+    delete game.clt;
+  }
+});
+
+/**
+ * Neon Combat Manager's Neon Conditions, as far as Neon At Home uses it: registered conditions
+ * resolved by id, and effects carrying flags["cpr-neon-combat-manager"].condition and .managed.
+ */
+function fakeNeonConditions() {
+  const NCM = "cpr-neon-combat-manager";
+  const defs = new Map();
+  const calls = [];
+  const conditions = {
+    register: (def) => defs.set(def.id, def),
+    get: (id) => (defs.has(id) ? { ...defs.get(id), name: game.i18n.localize(defs.get(id).name), rawChanges: structuredClone(defs.get(id).changes) } : null),
+    async add(id, actor, options = {}) {
+      calls.push(["add", id, options.managed]);
+      const c = this.get(id);
+      return actor.createEmbeddedDocuments("ActiveEffect", [{
+        name: c.name,
+        img: c.img,
+        statuses: [id],
+        changes: options.changes ?? c.rawChanges,
+        // Neon Combat Manager writes CPR's bookkeeping for every effect it makes.
+        flags: { [NCM]: { condition: id, managed: options.managed }, "cyberpunk-red-core": { changes: CPR.effectFlags(options.changes ?? c.rawChanges) }, ...options.flags }
+      }]);
+    },
+    async remove(id, actor, options = {}) {
+      calls.push(["remove", id, options.managed]);
+      for (const e of actor.effects.filter((x) => x.flags[NCM]?.condition === id && (!options.managed || x.flags[NCM].managed === options.managed))) await e.delete();
+    }
+  };
+  game.modules.set(NCM, { active: true, api: { conditions } });
+  // What main.js does in Neon Combat Manager's registerConditions hook.
+  for (const level of ["half", "one"]) conditions.register(HomeOps.encumbranceCondition(level));
+  return { NCM, conditions, defs, calls, off: () => game.modules.delete(NCM) };
+}
+
+test("with Neon Combat Manager, encumbrance goes through Neon Conditions", async () => {
+  const { actor } = setup();
+  const ncm = fakeNeonConditions();
+  const effect = () => actor.effects.find((e) => e.getFlag(M, "encumbrance"));
+  try {
+    await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+    await HomeOps.syncEncumbrance(actor);
+    assert.equal(effect().getFlag(M, "encumbrance"), "half");
+    assert.deepEqual(effect().statuses, ["neonhome-encumbered"]);
+    assert.equal(effect().flags[ncm.NCM].managed, M, "managed by Neon At Home");
+    assert.deepEqual(effect().changes.map((c) => [c.key, c.mode, c.value]), [["system.stats.move.value", 0, `${M}.half`]]);
+    await actor.createEmbeddedDocuments("Item", [crate("Crate 2")]);
+    await HomeOps.syncEncumbrance(actor);
+    assert.deepEqual(effect().statuses, ["neonhome-overloaded"]);
+    assert.equal(actor.effects.size, 1);
+    for (const i of actor.items.filter((x) => x.name.startsWith("Crate"))) i.system.equipped = "owned";
+    await HomeOps.syncEncumbrance(actor);
+    assert.equal(effect(), undefined);
+    assert.deepEqual(ncm.calls, [
+      ["add", "neonhome-encumbered", M], ["remove", "neonhome-encumbered", M], ["add", "neonhome-overloaded", M], ["remove", "neonhome-overloaded", M]
+    ]);
+  } finally {
+    ncm.off();
+  }
+});
+
+test("with Neon Combat Manager, the GM's version of the condition keeps its changes and gets the MOVE penalty", async () => {
+  const { actor } = setup();
+  const ncm = fakeNeonConditions();
+  // Edited in Neon Combat Manager's Condition Lab: its own penalty, and the MOVE change gone.
+  ncm.defs.get("neonhome-encumbered").changes = [{ key: "bonuses.allActions", value: -1 }];
+  try {
+    await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+    await HomeOps.syncEncumbrance(actor);
+    const e = actor.effects.find((x) => x.getFlag(M, "encumbrance"));
+    assert.deepEqual(e.changes.map((c) => [c.key, String(c.value)]), [["bonuses.allActions", "-1"], ["system.stats.move.value", `${M}.half`]]);
+  } finally {
+    ncm.off();
+  }
+});
+
+test("with Neon Combat Manager, a Neon Condition placed by hand is the GM's call", async () => {
+  const { actor } = setup();
+  const ncm = fakeNeonConditions();
+  try {
+    await ncm.conditions.add("neonhome-overloaded", actor);
+    await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+    await HomeOps.syncEncumbrance(actor);
+    assert.equal(actor.effects.size, 1);
+    assert.equal(actor.effects.contents[0].flags[M], undefined);
+  } finally {
+    ncm.off();
+  }
+});
+
+test("Neon Combat Manager comes before Condition Lab & Triggler", async () => {
+  const { actor } = setup();
+  const ncm = fakeNeonConditions();
+  game.modules.set("condition-lab-triggler", { active: true });
+  game.clt = { supported: true, getCondition: () => ({ name: "Encumbered", id: "cltEnc" }), addCondition: () => assert.fail("used CLT") };
+  try {
+    await actor.createEmbeddedDocuments("Item", [crate("Crate")]);
+    await HomeOps.syncEncumbrance(actor);
+    assert.deepEqual(ncm.calls, [["add", "neonhome-encumbered", M]]);
+  } finally {
+    ncm.off();
+    game.modules.delete("condition-lab-triggler");
+    delete game.clt;
+  }
+});
+
 test("armor upgrades install from the stash, sync the effect and come out", async () => {
   asUser(true);
   const { actor, stash } = setup();

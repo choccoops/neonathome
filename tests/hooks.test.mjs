@@ -59,6 +59,16 @@ test("an effect carrying the encumbrance change gets CPR's change flags as it's 
   callHook("preCreateActiveEffect", other, {}, {}, game.user.id);
 });
 
+test("with Neon Combat Manager, Encumbered and Overloaded are registered as Neon Conditions", () => {
+  const defs = [];
+  callHook("cpr-neon-combat-manager.registerConditions", { register: (def) => defs.push(def) });
+  assert.deepEqual(defs.map((d) => d.id), ["neonhome-encumbered", "neonhome-overloaded"], "the same ids as the token-HUD statuses");
+  assert.deepEqual(defs.map((d) => game.i18n.localize(d.name)), ["Encumbered", "Overloaded"]);
+  assert.ok(defs.every((d) => game.i18n.has(d.hint)));
+  assert.deepEqual(defs.map((d) => d.img), [`modules/${M}/assets/encumbered.svg`, `modules/${M}/assets/overloaded.svg`]);
+  assert.deepEqual(defs[1].changes, [{ key: "system.stats.move.value", mode: 0, value: `${M}.one`, priority: 100 }], "the CUSTOM MOVE change");
+});
+
 test("the character sheet won't roll offline cyberware", async () => {
   asUser(false);
   const actor = makeActor({ name: "Chrome", type: "character", system: { installedItems: { list: ["arm"] } } }, [

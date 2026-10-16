@@ -1,4 +1,4 @@
-import { MODULE_ID, SYSTEM_ID, TEMPLATE_PATH, CHECKED, NEON_HUB_ID } from "./constants.js";
+import { MODULE_ID, SYSTEM_ID, TEMPLATE_PATH, CHECKED, NEON_HUB_ID, NCM_ID } from "./constants.js";
 import { Compat } from "./compat.js";
 import { HomeSocket } from "./socket.js";
 import { Settings } from "./settings.js";
@@ -37,6 +37,12 @@ registerFeature(DowntimeTab);
 
 // Item Piles makes its pile actors (containers in Cyberpunk RED) with Actor.create; see CPR.fixActorCreate.
 Hooks.once("ready", () => CPR.fixActorCreate());
+
+// With Neon Combat Manager, Encumbered and Overloaded are Neon Conditions too (the same status
+// ids): in its Condition Lab and token HUD, and applied through it (see HomeOps.syncEncumbrance).
+Hooks.on(`${NCM_ID}.registerConditions`, (conditions) => {
+  for (const level of ["half", "one"]) conditions.register(HomeOps.encumbranceCondition(level));
+});
 
 Hooks.once("init", () => {
   Settings.register(RulesConfig);
