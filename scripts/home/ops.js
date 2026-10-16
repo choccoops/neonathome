@@ -1,4 +1,4 @@
-import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, SYSTEM_ID, CHECKED } from "../constants.js";
+import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, NCM_ID, SYSTEM_ID, CHECKED } from "../constants.js";
 import { Compat } from "../compat.js";
 import { HomeSocket } from "../socket.js";
 import { CPR } from "../cpr.js";
@@ -423,13 +423,34 @@ export const HomeOps = {
     };
   },
 
+  /** The Neon Conditions definition for an encumbrance level (registered with Neon Combat Manager in main.js). */
+  encumbranceCondition(level) {
+    const status = this.encumbranceStatus(level);
+    return { id: status.id, name: status.name, hint: `NEONHOME.Encumbrance.${level}.Hint`, img: status.img, category: "situation", changes: status.changes };
+  },
+
+  /** Neon Combat Manager's Neon Conditions API, when that module is running. */
+  neonConditions() {
+    const ncm = game.modules.get(NCM_ID);
+    return ncm?.active ? ncm.api?.conditions ?? null : null;
+  },
+
+  /**
+   * The Condition Lab & Triggler condition an effect carries. Read raw: Foundry v12's getFlag
+   * throws for the scope of a module that isn't active.
+   */
+  _cltConditionId(effect) {
+    return effect?.flags?.[CLT_ID]?.conditionId ?? null;
+  },
+
   /**
    * The Condition Lab & Triggler condition for a level, when that module is running and the GM has
    * made a condition with the name set in Neon At Home's settings.
    * @returns {{name: string, id: string}|null}
    */
   cltCondition(level) {
-    if (!game.modules.get(CLT_ID)?.active || !game.clt?.supported) return null;
+    // Neon Combat Manager's stand-in game.clt (CLT not running) has no conditions of the GM's to find.
+    if (!game.modules.get(CLT_ID)?.active || !game.clt?.supported || game.clt.neon) return null;
     const name = String(Settings.get(level === "one" ? "cltOverloaded" : "cltEncumbered") ?? "").trim();
     if (!name) return null;
     try {
@@ -441,19 +462,20 @@ export const HomeOps = {
     }
   },
 
-  /** Is this effect an encumbrance status someone placed by hand (token HUD, Condition Lab)? */
+  /** Is this effect an encumbrance status someone placed by hand (token HUD, Condition Lab, Neon Conditions)? */
   _manualEncumbrance(effect) {
     if (effect.getFlag(MODULE_ID, ENCUMBRANCE_FLAG)) return false;
     const statuses = [...(effect.statuses ?? [])];
     if (statuses.some((s) => Object.values(ENCUMBRANCE_STATUS).includes(s))) return true;
-    const clt = effect.getFlag?.(CLT_ID, "conditionId");
+    const clt = this._cltConditionId(effect);
     return !!clt && ["half", "one"].some((level) => this.cltCondition(level)?.id === clt);
   },
 
   /**
    * Keep encumbrance in step with the character's weight: over the limit MOVE is halved, over
-   * double it MOVE is 1. It's a status effect (Encumbered / Overloaded) shown on the token, or the
-   * GM's Condition Lab & Triggler condition of that name, so CLT's macros, chat and triggers run.
+   * double it MOVE is 1. It's a status effect (Encumbered / Overloaded) shown on the token: through
+   * Neon Combat Manager's Neon Conditions when it's running, else the GM's Condition Lab & Triggler
+   * condition of that name (so CLT's macros, chat and triggers run), else Neon At Home's own.
    * A status placed by hand is the GM's call and is left alone. Tells the player and GM in chat.
    */
   async syncEncumbrance(actor) {
@@ -474,10 +496,25 @@ export const HomeOps = {
 
   async _applyEncumbrance(actor, level) {
     const change = this.encumbranceChange(level);
+    const ncm = this.neonConditions();
+    const condition = ncm?.get(ENCUMBRANCE_STATUS[level]);
+    if (condition) {
+      // The GM may have changed the condition in Neon Combat Manager's Condition Lab: keep their
+      // changes, and make sure the MOVE penalty is there. Managed: no second chat card, and
+      // removing it only ever removes ours.
+      const own = condition.rawChanges ?? condition.changes ?? [];
+      const has = own.some((c) => c.key === change.key && String(c.value) === change.value);
+      const [effect] = await ncm.add(condition.id, actor, {
+        managed: MODULE_ID,
+        changes: has ? own : [...own, change],
+        flags: { [MODULE_ID]: { [ENCUMBRANCE_FLAG]: level } }
+      });
+      if (effect) return;
+    }
     const clt = this.cltCondition(level);
     if (clt) {
       await game.clt.addCondition(clt.name, actor);
-      const effect = actor.effects.find((e) => e.getFlag(CLT_ID, "conditionId") === clt.id && !e.getFlag(MODULE_ID, ENCUMBRANCE_FLAG));
+      const effect = actor.effects.find((e) => this._cltConditionId(e) === clt.id && !e.getFlag(MODULE_ID, ENCUMBRANCE_FLAG));
       if (effect) {
         // The GM's condition may not change MOVE itself: add the penalty, and mark it as ours.
         const has = effect.changes.some((c) => c.key === change.key && c.value === change.value);
@@ -524,7 +561,14 @@ export const HomeOps = {
   },
 
   async _removeEncumbrance(actor, effect) {
-    const cltId = effect.getFlag(CLT_ID, "conditionId");
+    // Through Neon Conditions when it put it there, so its hooks run (only the one we manage).
+    const ncm = this.neonConditions();
+    const condition = effect.flags?.[NCM_ID]?.condition;
+    if (ncm && condition) {
+      await ncm.remove(condition, actor, { managed: MODULE_ID });
+      if (!actor.effects.has(effect.id)) return;
+    }
+    const cltId = this._cltConditionId(effect);
     // Through CLT when it put it there, so its "on removal" macros and triggers run too.
     if (cltId && game.clt?.removeCondition && game.modules.get(CLT_ID)?.active) {
       await game.clt.removeCondition(effect.name, actor, { warn: false });

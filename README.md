@@ -156,6 +156,11 @@ players.
 Both statuses are also in the token HUD, so the GM can place one by hand (it carries the MOVE
 penalty too); a status placed by hand is left alone by the automatic check.
 
+**Neon Conditions.** With Neon Combat Manager running, Encumbered and Overloaded are Neon
+Conditions too (the same statuses, in its Condition Lab and token HUD), and Neon At Home applies
+and removes them through it. The GM can change them in its Condition Lab: the MOVE penalty is
+added to whatever the condition does. Neon Conditions comes before Condition Lab & Triggler.
+
 **Condition Lab & Triggler.** In Condition Lab, add conditions named **Encumbered** and
 **Overloaded** (the names are module settings; the icons are `modules/cpr-neon-at-home/assets/
 encumbered.svg` and `overloaded.svg`). Neon At Home then applies and removes those conditions
