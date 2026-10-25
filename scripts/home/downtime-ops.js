@@ -5,6 +5,8 @@ import { HomeOps, RuleBlock } from "./ops.js";
 import { MaintOps } from "./maint-ops.js";
 import { Downtime, formatMinutes } from "./downtime.js";
 import { KINDS, kindOf } from "../data/maintenance.js";
+import { TRAINING, PERK_BY_ID } from "../data/perks.js";
+import { PerkOps } from "./perk-ops.js";
 import {
   MIN, hustle, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
@@ -332,6 +334,41 @@ export const DowntimeOps = {
       speaker: ChatMessage.getSpeaker({ actor })
     });
     return { ok: true };
+  },
+
+  /* ---------------------------------------- */
+  /*  Perk training (Unification Era, p.88)   */
+  /* ---------------------------------------- */
+
+  /**
+   * A week of intense training aimed at a perk: 2,500eb rolls 2d6, 5,000eb 3d6; each 6 is a Perk
+   * Point. Once a month.
+   * @param {object} p - { level: intense|veryIntense, aim: a perk id (for the GM) }
+   */
+  async _perkTraining(actor, { level = "intense", aim = "" } = {}) {
+    const t = TRAINING[level] ?? TRAINING.intense;
+    const cycle = await MaintOps.cycleFor(actor);
+    const last = actor.getFlag(MODULE_ID, "perkTraining");
+    if (!game.user.isGM && last?.scheme === cycle.scheme && last?.n === cycle.n) throw new RuleBlock(L("NEONHOME.Downtime.TrainingMonth", { name: actor.name }));
+    this._canAfford(actor, t.eb);
+    const label = L("NEONHOME.Downtime.TrainingLabel");
+    await Downtime.spend(actor, MIN.week, { label, data: { action: "perkTraining", level } });
+    await this._pay(actor, t.eb, label);
+    await actor.setFlag(MODULE_ID, "perkTraining", { scheme: cycle.scheme, n: cycle.n });
+    // each die on its own: every 6 counts
+    const rolls = [];
+    for (let i = 0; i < Number(t.dice[0]); i++) rolls.push(await new Roll("1d6").evaluate());
+    const sixes = rolls.filter((r) => r.total === 6).length;
+    if (sixes) await PerkOps.award(actor, sixes, label, { quiet: true, gmCheck: false });
+    const perk = PERK_BY_ID.get(aim);
+    await ChatMessage.create({
+      content: HomeOps._card("fa-solid fa-dumbbell", L("NEONHOME.Downtime.TrainingCard", {
+        name: esc(actor.name), aim: perk ? L("NEONHOME.Downtime.TrainingFor", { perk: esc(perk.name) }) : "", dice: `${t.dice} (${rolls.map((r) => r.total).join(", ")})`, n: sixes
+      })),
+      rolls,
+      speaker: ChatMessage.getSpeaker({ actor })
+    });
+    return { sixes };
   },
 
   /* ---------------------------------------- */

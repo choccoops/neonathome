@@ -1,0 +1,151 @@
+{{#*inline "perkCard"}}
+<button type="button" class="nah-perk-card state-{{state}} {{#if selected}}selected{{/if}}" data-action="perkFocus" data-perk="{{id}}" data-state="{{state}}" {{#if from}}data-from="{{from}}"{{/if}}>
+  <span class="nah-perk-card-top"><i class="{{icon}}"></i><span class="nah-perk-pips" data-tooltip="{{localize 'NEONHOME.Perks.CostTip' n=cost}}">{{#each pips}}<i></i>{{/each}}</span></span>
+  <b>{{name}}</b>
+  <small class="nah-perk-state">{{stateLabel}}{{#if deed}} <i class="fa-solid fa-hourglass-half" data-tooltip="{{localize 'NEONHOME.Perks.DeedTip'}}"></i>{{/if}}</small>
+  {{#if cross}}<small class="nah-perk-cross"><i class="fa-solid fa-link"></i> {{cross}}</small>{{/if}}
+</button>
+{{/inline}}
+{{#with perks}}
+<div class="nah-perks">
+  {{!-- ================= STATUS STRIP ================= --}}
+  <header class="nah-perk-strip">
+    <div class="nah-perk-stat nah-perk-points" data-tooltip="{{localize 'NEONHOME.Perks.PointsTip'}}">
+      <span class="nah-kicker">{{localize "NEONHOME.Perks.Points"}}</span>
+      <b><em>{{pts.available}}</em><small>/{{pts.total}}</small></b>
+      <small>{{localize "NEONHOME.Perks.Spent" n=spentAll}}</small>
+    </div>
+    <div class="nah-perk-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Perks.Active"}}</span>
+      <b>{{onCount}}<small>/{{ownedCount}}</small></b>
+      <small>{{#if dormantCount}}<i class="fa-solid fa-moon"></i> {{localize "NEONHOME.Perks.DormantCount" n=dormantCount}}{{else}}{{localize "NEONHOME.Perks.OnSheet"}}{{/if}}</small>
+    </div>
+    <div class="nah-perk-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Perks.Slot.cyber"}}</span>
+      <b class="nah-perk-slot">{{#if cyber}}{{cyber}}{{else}}&mdash;{{/if}}</b>
+    </div>
+    <div class="nah-perk-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Perks.Slot.weapon"}}</span>
+      <b class="nah-perk-slot">{{#if weapon}}{{weapon}}{{else}}&mdash;{{/if}}</b>
+    </div>
+    <div class="nah-perk-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Perks.Kills"}}</span>
+      <input type="number" min="0" value="{{kills}}" data-perk-kills aria-label="{{localize 'NEONHOME.Perks.Kills'}}" {{#unless owner}}disabled{{/unless}}>
+      <small>{{localize "NEONHOME.Perks.KillsHint"}}</small>
+    </div>
+    {{#if creation}}<div class="nah-perk-stat is-creation"><span class="nah-kicker">{{localize "NEONHOME.Perks.Creation"}}</span><b><i class="fa-solid fa-seedling"></i></b><small>{{localize "NEONHOME.Perks.CreationOpen"}}</small></div>{{/if}}
+  </header>
+
+  {{#if isGM}}
+  <div class="nah-perk-gm">
+    <span class="nah-kicker"><i class="fa-solid fa-user-shield"></i> {{localize "NEONHOME.Perks.GM"}}</span>
+    <input type="number" name="perkAwardN" value="1" step="1" aria-label="{{localize 'NEONHOME.Perks.AwardN'}}">
+    <input type="text" name="perkAwardWhy" placeholder="{{localize 'NEONHOME.Perks.AwardWhy'}}">
+    <button type="button" data-action="perkAward"><i class="fa-solid fa-plus"></i> {{localize "NEONHOME.Perks.Award"}}</button>
+    <button type="button" data-action="perkCreation" data-on="{{#if creation}}0{{else}}1{{/if}}"><i class="fa-solid fa-seedling"></i> {{#if creation}}{{localize "NEONHOME.Perks.CloseCreation"}}{{else}}{{localize "NEONHOME.Perks.OpenCreation"}}{{/if}}</button>
+    <button type="button" data-action="perkRebase" data-tooltip="{{localize 'NEONHOME.Perks.RebaseTip'}}"><i class="fa-solid fa-rotate"></i> {{localize "NEONHOME.Perks.Rebase"}}</button>
+    {{#if awards.length}}<small class="nah-perk-awards">{{#each awards}}<span>{{n}} {{reason}}</span>{{/each}}</small>{{/if}}
+  </div>
+  {{/if}}
+
+  {{!-- ================= ACTIVE PERKS ================= --}}
+  <div class="nah-perk-active">
+    <span class="nah-kicker">{{localize "NEONHOME.Perks.Yours"}}</span>
+    {{#each active}}
+    <button type="button" class="nah-perk-chip state-{{state}}" data-action="perkFocus" data-perk="{{id}}" data-tooltip="{{stateLabel}}"><i class="{{icon}}"></i> {{name}}</button>
+    {{else}}
+    <small class="nah-hint">{{localize "NEONHOME.Perks.NoneYet"}}</small>
+    {{/each}}
+  </div>
+
+  {{!-- ================= BRANCHES ================= --}}
+  <nav class="nah-perk-branches" role="tablist">
+    {{#each branches}}
+    <button type="button" class="{{#if selected}}active{{/if}}" data-action="perkBranch" data-branch="{{key}}" role="tab" aria-selected="{{#if selected}}true{{else}}false{{/if}}">
+      <i class="{{icon}}"></i> {{label}} {{#if owned}}<small>{{owned}}</small>{{/if}}
+    </button>
+    {{/each}}
+  </nav>
+
+  <div class="nah-perk-body">
+    {{!-- ================= THE TREE ================= --}}
+    <section class="nah-perk-canvas nah-scroll">
+      {{#each groups}}
+      <div class="nah-perk-group {{#if mine}}is-mine{{/if}}">
+        {{#if label}}<h3 class="nah-kicker">{{label}}{{#if mine}} <i class="fa-solid fa-user-check" data-tooltip="{{localize 'NEONHOME.Perks.YourRole'}}"></i>{{/if}}</h3>{{/if}}
+        <svg class="nah-perk-links" aria-hidden="true"></svg>
+        {{#each rows}}
+        <div class="nah-perk-cols">
+          {{#each columns}}
+          <div class="nah-perk-col">
+            {{#each cards}}{{> perkCard}}{{/each}}
+          </div>
+          {{/each}}
+        </div>
+        {{/each}}
+        {{#if loose.length}}
+        <div class="nah-perk-loose">
+          {{#each loose}}{{> perkCard}}{{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </section>
+
+    {{!-- ================= THE PERK ================= --}}
+    {{#with focus}}
+    <aside class="nah-perk-detail nah-scroll state-{{state}}" data-perk="{{id}}">
+      <header>
+        <i class="{{icon}}"></i>
+        <div>
+          <h2>{{name}}</h2>
+          <small>{{branch}}</small>
+        </div>
+        <span class="nah-perk-badge state-{{state}}">{{stateLabel}}</span>
+      </header>
+      <p class="nah-perk-cost"><span class="nah-perk-pips">{{#each pips}}<i></i>{{/each}}</span> {{localize "NEONHOME.Perks.CostTip" n=cost}}{{#if free}} &middot; {{localize "NEONHOME.Perks.Granted"}}{{/if}}{{#if chosen}} &middot; {{localize "NEONHOME.Perks.Raised" stat=chosen}}{{/if}}</p>
+      <p class="nah-perk-text">{{text}}</p>
+
+      <h4>{{localize "NEONHOME.Perks.Requires"}}</h4>
+      <ul class="nah-perk-reqs">
+        {{#each reqs}}<li class="{{#if ok}}ok{{else}}no{{/if}} {{#if deed}}is-deed{{/if}}"><i class="fa-solid {{#if ok}}fa-check{{else if deed}}fa-hourglass-half{{else}}fa-xmark{{/if}}"></i> {{label}}</li>{{/each}}
+        {{#if none}}<li class="ok"><i class="fa-solid fa-check"></i> {{localize "NEONHOME.Perks.NoReqs"}}</li>{{/if}}
+      </ul>
+      {{#if hasDeed}}
+      <p class="nah-hint">{{#if confirmed}}<i class="fa-solid fa-user-check"></i> {{localize "NEONHOME.Perks.Confirmed"}}{{else}}<i class="fa-solid fa-hourglass-half"></i> {{localize "NEONHOME.Perks.AwaitGM"}}{{/if}}
+        {{#if @root.perks.isGM}}<button type="button" class="nah-link" data-action="perkConfirm" data-on="{{#if confirmed}}0{{else}}1{{/if}}">{{#if confirmed}}{{localize "NEONHOME.Perks.Unconfirm"}}{{else}}{{localize "NEONHOME.Perks.Confirm"}}{{/if}}</button>{{/if}}
+      </p>
+      {{/if}}
+
+      <h4>{{localize "NEONHOME.Perks.OnTheSheet"}}</h4>
+      <ul class="nah-perk-fx">
+        {{#each sheet}}<li><i class="fa-solid fa-sliders"></i> {{this}}</li>{{/each}}
+        {{#if choose}}<li><i class="fa-solid fa-arrow-up"></i> {{choose}}</li>{{/if}}
+        <li class="nah-hint"><i class="fa-solid fa-toggle-on"></i> {{#if noFx}}{{localize "NEONHOME.Perks.FxNote"}}{{else}}{{localize "NEONHOME.Perks.FxToggle"}}{{/if}}</li>
+      </ul>
+      {{#if slot}}<p class="nah-hint"><i class="fa-solid fa-crosshairs"></i> {{localize "NEONHOME.Perks.SlotNote" slot=slot}}</p>{{/if}}
+      {{#if refund}}<p class="nah-hint"><i class="fa-solid fa-rotate-left"></i> {{localize "NEONHOME.Perks.RefundNote"}}</p>{{/if}}
+
+      {{#if block}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-lock"></i> {{block}}</p>{{/if}}
+      <footer class="nah-perk-actions">
+        {{#if owned}}
+          {{#if canToggle}}<button type="button" data-action="perkToggle" data-on="{{#if on}}0{{else}}1{{/if}}"><i class="fa-solid fa-power-off"></i> {{#if on}}{{localize "NEONHOME.Perks.SwitchOff"}}{{else}}{{localize "NEONHOME.Perks.SwitchOn"}}{{/if}}</button>{{/if}}
+          {{#if canDrop}}<button type="button" data-action="perkRemove" data-how="drop"><i class="fa-solid fa-right-from-bracket"></i> {{localize "NEONHOME.Perks.Drop"}}</button>{{/if}}
+          {{#if @root.perks.isGM}}
+          <button type="button" data-action="perkRemove" data-how="refund"><i class="fa-solid fa-rotate-left"></i> {{localize "NEONHOME.Perks.Refund"}}</button>
+          <button type="button" data-action="perkRemove" data-how="gone"><i class="fa-solid fa-ban"></i> {{localize "NEONHOME.Perks.Gone"}}</button>
+          <button type="button" class="is-danger" data-action="perkRemove" data-how="lose"><i class="fa-solid fa-skull"></i> {{localize "NEONHOME.Perks.Lose"}}</button>
+          {{/if}}
+        {{else}}
+          <button type="button" class="nah-cta" data-action="perkBuy" {{#unless canBuy}}disabled{{/unless}}><i class="fa-solid fa-angles-up"></i> {{localize "NEONHOME.Perks.UnlockFor" n=cost}}</button>
+          {{#if canForce}}
+          <button type="button" data-action="perkBuy" data-mode="force" data-tooltip="{{localize 'NEONHOME.Perks.ForceTip'}}"><i class="fa-solid fa-user-shield"></i> {{localize "NEONHOME.Perks.Force"}}</button>
+          <button type="button" data-action="perkBuy" data-mode="free" data-tooltip="{{localize 'NEONHOME.Perks.FreeTip'}}"><i class="fa-solid fa-gift"></i> {{localize "NEONHOME.Perks.Free"}}</button>
+          {{/if}}
+        {{/if}}
+      </footer>
+    </aside>
+    {{/with}}
+  </div>
+</div>
+{{/with}}

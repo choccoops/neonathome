@@ -350,7 +350,13 @@ export function makeActor(data, items = []) {
           checkScope(scope);
           return e.flags?.[scope]?.[key];
         };
-        e.update = async (c) => Object.entries(c).forEach(([k, v]) => setProperty(e, k, clone(v)));
+        e.update = async (c) => Object.entries(c).forEach(([k, v]) => {
+          const parts = k.split(".");
+          if (parts.at(-1).startsWith("-=")) {
+            const parent = getProperty(e, parts.slice(0, -1).join("."));
+            if (parent) delete parent[parts.at(-1).slice(2)];
+          } else setProperty(e, k, clone(v));
+        });
         e.delete = async () => actor.effects.delete(e.id);
         actor.effects.set(e.id, e);
         return e;
@@ -372,6 +378,10 @@ export function makeActor(data, items = []) {
     return created;
   };
   actor.deleteEmbeddedDocuments = async (type, ids) => {
+    if (type === "ActiveEffect") {
+      for (const id of ids) actor.effects.delete(id);
+      return;
+    }
     for (const id of ids) actor.items.delete(id);
     // as CPR: cyberware installed in the body is uninstalled first
     if (actor.system?.installedItems?.list) actor.system.installedItems.list = actor.system.installedItems.list.filter((x) => !ids.includes(x));

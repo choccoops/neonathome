@@ -107,6 +107,10 @@
         "auto": "Automatic (Neon Hub's era, else 2045)",
         "2045": "2045 (Time of the Red)",
         "2070": "2070 (Edgerunner's Handbook)"
+      },
+      "Perks": {
+        "Name": "Perk Tree",
+        "Hint": "The Perk System from Cyberpunk: The Unification Era (Chapter 16): a Perk Tree window for each character, Perk Points, and each perk an effect on the character sheet."
       }
     },
     "State": {
@@ -1125,7 +1129,9 @@
         "now": "Put in now",
         "nowMinutes": "How much now",
         "inventionName": "Name of the invention",
-        "inventValue": "Planned value (eb)"
+        "inventValue": "Planned value (eb)",
+        "training": "Training",
+        "aim": "Aimed at (for the GM)"
       },
       "Action": {
         "hustle": "The Hustle",
@@ -1142,7 +1148,8 @@
         "nightMarket": "Set up a Night Market",
         "projects": "Projects",
         "salvage": "Salvage",
-        "strip": "Strip for parts"
+        "strip": "Strip for parts",
+        "perkTraining": "Perk training"
       },
       "Blurb": {
         "hustle": "A week of work on the side between Jobs: roll 1d6 on your Role's table; the pay goes by your Role Ability Rank (Cyberpunk RED, p.381).",
@@ -1159,7 +1166,8 @@
         "nightMarket": "With Operator Rank 5, once a month, gather other Fixers into a Night Market where anything can be found (p.160).",
         "projects": "Long work kept going over downtimes: Maker projects and repairs. Put downtime in; the check comes due halfway. Fail it and you realize you have to start over (the materials are fine); pass it and the rest of the time finishes it (Cyberpunk RED pp.140, 148-149).",
         "salvage": "A week picking through the ruins, and no other downtime that week. Take whatever turns up (1d6 on the place's table) or hunt one category (a harder DV). A Basic Tech Check sets the worth found: pick out Destroyed items of that category (to repair later) or Tech Materials, up to that worth; the rest is lost. A Critical Failure finds nothing and runs into the place's perils (Salvaging Night City).",
-        "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost. A few items take no time; a big batch does: past the first 5, each item takes 30 minutes of downtime (materials don't count)."
+        "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost. A few items take no time; a big batch does: past the first 5, each item takes 30 minutes of downtime (materials don't count).",
+        "perkTraining": "A week of intense training aimed at the perk you want (Chapter 16): 2,500eb rolls 2d6, 5,000eb (very intense) rolls 3d6. Each 6 is a Perk Point. Once a month."
       },
       "Role": {
         "rockerboy": "Rockerboy",
@@ -1171,7 +1179,8 @@
         "exec": "Exec",
         "lawman": "Lawman",
         "fixer": "Fixer",
-        "nomad": "Nomad"
+        "nomad": "Nomad",
+        "ganger": "Ganger"
       },
       "Expertise": {
         "fabrication": "Fabrication Expertise",
@@ -1267,7 +1276,16 @@
       "InventNamed": "Invent {name}",
       "InventValueHint": "The figure the GM gives for the idea; it sets the price category. Leave it empty to go by the category. Super Luxury takes a month per 10,000eb.",
       "InventTooCheap": "An invention is Expensive (500eb) at the least.",
-      "SuperLuxuryTime": "{n} month(s): a month per 10,000eb (p.149)"
+      "SuperLuxuryTime": "{n} month(s): a month per 10,000eb (p.149)",
+      "Training": {
+        "intense": "Intense (2,500eb, 2d6)",
+        "veryIntense": "Very intense (5,000eb, 3d6)"
+      },
+      "TrainingLabel": "Perk training",
+      "TrainingCard": "<b>{name}</b> trains for a week{aim}: rolled {dice}, <b>{n}</b> six(es): <b>{n} Perk Point(s)</b>.",
+      "TrainingMonth": "{name} has already trained for perks this month.",
+      "TrainingFor": " toward <b>{perk}</b>",
+      "TrainingRoll": "{dice}: each 6 is a Perk Point"
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
@@ -1466,6 +1484,214 @@
       "Linked": "{blueprint}: makes the GM's write-up of it",
       "Plain": "{blueprint}: no item linked yet, so a plain gear item from the design (the GM can link one in the blueprint's Home settings)",
       "From": "(from {blueprint})"
+    },
+    "Perks": {
+      "Title": "Perk Tree",
+      "Short": "Perks",
+      "Points": "Perk Points",
+      "PointsTip": "Available out of all earned: 3 to start, 1 per Role rank raised with IP (not Ganger or Exec), and what the GM awards (big moments, training).",
+      "Spent": "{n} spent",
+      "Active": "Perks active",
+      "DormantCount": "{n} dormant",
+      "OnSheet": "on the character sheet",
+      "Slot": {
+        "cyber": "Cyber specialty",
+        "weapon": "Weapon specialty"
+      },
+      "Kills": "Kill count",
+      "KillsHint": "Kept by you; the GM counts too",
+      "Creation": "Creation",
+      "CreationOpen": "Creation-only perks open",
+      "GM": "GM",
+      "AwardN": "Perk Points",
+      "AwardWhy": "Why (a big Lifepath moment, training...)",
+      "Award": "Award",
+      "CloseCreation": "Close creation",
+      "OpenCreation": "Open creation",
+      "Rebase": "Recount ranks",
+      "RebaseTip": "Count Role ranks raised from now on: the ranks the character has now become their starting ranks.",
+      "Yours": "Your perks",
+      "NoneYet": "No perks yet. Pick one in the tree and unlock it.",
+      "YourRole": "Your Role",
+      "CostTip": "{n} Perk Point(s)",
+      "DeedTip": "Something done in play: the GM confirms it",
+      "Granted": "granted by the GM",
+      "Raised": "raises {stat}",
+      "Requires": "Requires",
+      "NoReqs": "Nothing",
+      "Confirmed": "The GM confirmed what this takes in play.",
+      "AwaitGM": "What this takes in play waits for the GM to confirm it.",
+      "Unconfirm": "Unconfirm",
+      "Confirm": "Confirm it",
+      "OnTheSheet": "On the character sheet",
+      "FxNote": "An effect on the sheet with this perk's text, switched on and off with the sheet's own toggle; the GM applies what it does.",
+      "FxToggle": "Its effect on the sheet switches on and off with the sheet's own toggle (or here). Situational ones are offered in the roll dialog.",
+      "SlotNote": "One {slot} at a time. Drop it for 1 Perk Point to free the slot.",
+      "RefundNote": "Its text says when it's refunded: the GM refunds it then.",
+      "SwitchOff": "Switch off",
+      "SwitchOn": "Switch on",
+      "Drop": "Drop (1 Perk Point)",
+      "Refund": "Refund",
+      "Gone": "Refund for good",
+      "Lose": "Lose it",
+      "Unlock": "Unlock",
+      "UnlockFor": "Unlock: {n} Perk Point(s)",
+      "Force": "Grant",
+      "ForceTip": "GM: unlock it for its points without the requirements.",
+      "Free": "Grant free",
+      "FreeTip": "GM: unlock it without its requirements or points.",
+      "PickStat": "Which STAT does it raise? (max {cap}; no perk raises a STAT above 10)",
+      "AllCapped": "Every STAT is already at {cap}.",
+      "ChooseNote": "+1 to a STAT you pick when you unlock it",
+      "EffectName": "Perk: {perk}",
+      "FiendReason": "Perk Fiend",
+      "Fiend": {
+        "heads": "<b>{name}</b>'s Perk Fiend coin comes up heads: <b>+1 Perk Point</b>.",
+        "tails": "<b>{name}</b>'s Perk Fiend coin comes up tails: <b>{n} Humanity Loss</b>."
+      },
+      "Card": {
+        "bought": "<b>{name}</b> unlocks the perk <b>{perk}</b> ({cost} Perk Point(s)).",
+        "boughtFree": "The GM grants <b>{name}</b> the perk <b>{perk}</b>.",
+        "award": "<b>{name}</b> gains <b>{n} Perk Point(s)</b>: {reason}",
+        "takeBack": "<b>{name}</b> loses <b>{n} Perk Point(s)</b>: {reason}",
+        "refund": "<b>{name}</b>'s perk <b>{perk}</b> is refunded ({cost} Perk Point(s) back).",
+        "gone": "<b>{name}</b>'s perk <b>{perk}</b> is refunded and gone for good.",
+        "lose": "<b>{name}</b> loses the perk <b>{perk}</b>, and its points with it.",
+        "drop": "<b>{name}</b> drops <b>{perk}</b> for 1 Perk Point, freeing the slot."
+      },
+      "Ask": {
+        "refund": "Refund this perk? Its points come back, and it can be bought again.",
+        "gone": "Refund this perk for good? Its points come back, and it can't be bought again.",
+        "lose": "Take this perk away with its points (lost, not refunded)?",
+        "drop": "Drop this specialty for 1 Perk Point? Its own points stay spent; the slot is free for another."
+      },
+      "Block": {
+        "owned": "{name} already has {perk}.",
+        "gone": "{perk} is gone for good for {name}.",
+        "points": "{name} hasn't the Perk Points for {perk}.",
+        "reqs": "{name} doesn't meet everything {perk} needs yet.",
+        "slot": "{name} already holds a specialty of that kind: drop it first (1 Perk Point).",
+        "combat": "Perks are bought outside combat.",
+        "dormant": "{perk} is switched off until its requirements are met again."
+      },
+      "State": {
+        "on": "Active",
+        "off": "Switched off",
+        "dormant": "Dormant",
+        "ready": "Ready to unlock",
+        "short": "Not enough points",
+        "locked": "Locked",
+        "gone": "Gone"
+      },
+      "Branch": {
+        "general": "General",
+        "int": "Intelligence",
+        "will": "Willpower",
+        "cool": "Cool",
+        "emp": "Empathy",
+        "tech": "Technique",
+        "ref": "Reflex",
+        "luck": "Luck",
+        "body": "Body",
+        "dex": "Dexterity",
+        "role": "Role",
+        "specialty": "Specialty",
+        "freeCity": "Free City"
+      },
+      "Group": {
+        "rockerboy": "Rockerboy",
+        "solo": "Solo",
+        "netrunner": "Netrunner",
+        "tech": "Tech",
+        "medtech": "Medtech",
+        "media": "Media",
+        "exec": "Exec",
+        "ganger": "Ganger",
+        "fixer": "Fixer",
+        "nomad": "Nomad",
+        "cyber": "Cyber specialties",
+        "weapon": "Weapon specialties",
+        "street": "The Street",
+        "edge": "On the Edge",
+        "net": "In the Net",
+        "chrome": "Chrome & Flesh",
+        "wheels": "Wheels & Shadows",
+        "crew": "Crew & Colors"
+      },
+      "Stat": {
+        "int": "INT",
+        "ref": "REF",
+        "dex": "DEX",
+        "tech": "TECH",
+        "cool": "COOL",
+        "will": "WILL",
+        "luck": "LUCK",
+        "move": "MOVE",
+        "body": "BODY",
+        "emp": "EMP"
+      },
+      "Kind": {
+        "tech": "Tech Skill",
+        "ranged": "Ranged Weapon Skill",
+        "language": "Language",
+        "science": "Science",
+        "martial": "Martial Art",
+        "art": "Art Skill (Paint/Draw/Sculpt, Photography/Film, Forgery, Acting, Play Instrument)",
+        "vehicleTech": "Vehicle Tech (Air, Land or Sea)",
+        "control": "Control Skill (Drive, Pilot Air or Pilot Sea)"
+      },
+      "Req": {
+        "atLeast": "{what} {n}+",
+        "atMost": "{what} {n} or less",
+        "empMax": "Original EMP {n}+",
+        "anySkill": "Any {kind} {n}+",
+        "allSkills": "Every {kind} {n}+",
+        "anyRole": "{n}+ ranks in any Role",
+        "perk": "Perk: {perk}",
+        "noPerk": "Not: {perk}",
+        "perkCount": "{n} other perks",
+        "lifestyle": "Lifestyle: {lifestyle} or better",
+        "creation": "Character creation only",
+        "shield": "Own a shield",
+        "weapon": "Own a {types}",
+        "cyber": "{n}+ installed {types}",
+        "cyberOptions": "{n}+ installed {types} options",
+        "anyCyber": "cyberware",
+        "or": " or ",
+        "and": " and "
+      },
+      "Fx": {
+        "on": "{key} {value}",
+        "sit": "{key} {value} (situational, in the roll dialog)"
+      },
+      "Key": {
+        "universalAttack": "Attacks",
+        "allActions": "All Actions",
+        "interrogation": "Interrogation",
+        "localExpert": "Local Expert",
+        "bureaucracy": "Bureaucracy",
+        "personalGrooming": "Personal Grooming",
+        "persuasion": "Persuasion",
+        "bribery": "Bribery",
+        "humanPerception": "Human Perception",
+        "electronicsAndSecurityTech": "Electronics/Security Tech",
+        "aimedShot": "Aimed Shots",
+        "athletics": "Athletics",
+        "brawling": "Brawling",
+        "meleeWeapon": "Melee Weapon",
+        "perceptionHearing": "Perception (hearing)",
+        "streetwise": "Streetwise",
+        "int": "INT",
+        "ref": "REF",
+        "dex": "DEX",
+        "tech": "TECH",
+        "cool": "COOL",
+        "will": "WILL",
+        "luck": "LUCK",
+        "move": "MOVE",
+        "body": "BODY",
+        "emp": "EMP"
+      }
     }
   }
 }
