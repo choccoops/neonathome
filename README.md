@@ -198,6 +198,9 @@ it on the right.
   it out to the home stash; stash gear shows in the library when the stash is reachable. Programs
   and Hardware swap out of combat (a minute each). Putting a deck in or out of a Cybersuite is a
   Clinic job: an hour of the player's downtime, or the GM.
+- **Cybersuites** have their own library tab: every one the character owns, which is installed,
+  its built-in quickhacks and perk. They're neuralware (Hospital, HL 7), installed or swapped from
+  the character sheet like any cyberware.
 - **Quickhacks** show their DV, Cooldown, Quiet (◆) and what they need. In the compendium they're
   Cyberpunk RED programs (attackers with ATK 0), so the sheet's own program roll is Interface +
   1d10 against their DV, with damage for the ones that deal it.

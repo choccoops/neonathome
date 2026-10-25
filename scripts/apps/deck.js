@@ -4,16 +4,17 @@ import { CPR } from "../cpr.js";
 import { HomeStore } from "../home/store.js";
 import { Downtime } from "../home/downtime.js";
 import { DeckOps, netActions } from "../home/deck-ops.js";
-import { LINKS, slotKind, slotSize, quickhackOf, deckBase, fits } from "../data/netrun.js";
+import { LINKS, slotKind, slotSize, quickhackOf, deckBase, fits, cybersuiteOf } from "../data/netrun.js";
 import { DnD } from "./home-app.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const strip = (html) => String(html ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
 /** Library tabs: what's on the character (and in the home stash) that a deck takes. */
-const TABS = ["quickhacks", "programs", "hardware", "decks"];
+const TABS = ["quickhacks", "programs", "hardware", "decks", "cybersuites"];
 const tabOf = (item) => {
   if (item.type === "cyberdeck") return "decks";
+  if (cybersuiteOf(item, MODULE_ID)) return "cybersuites";
   const kind = slotKind(item);
   if (kind === "hardware") return "hardware";
   if (kind === "program") return quickhackOf(item, MODULE_ID) ? "quickhacks" : "programs";
@@ -31,6 +32,17 @@ function info(item) {
 }
 
 function row(item, ctx, { from = null } = {}) {
+  // a Cybersuite: neuralware, installed through the character sheet (Hospital, HL 7)
+  const suite = cybersuiteOf(item, MODULE_ID);
+  if (suite) {
+    return {
+      id: item.id, from: from ?? "", name: item.name, img: item.img, kind: null, size: 0, cybersuite: true,
+      installed: CPR.isInstalled(item),
+      type: CPR.isInstalled(item) ? L("NEONHOME.Deck.SuiteInstalled") : L("NEONHOME.Deck.SuiteLoose"),
+      effect: [suite.builtIn.length ? L("NEONHOME.Deck.SuiteBuiltIn", { list: suite.builtIn.join(", ") }) : "", suite.perk].filter(Boolean).join(" "),
+      selected: ctx.focus === item.id
+    };
+  }
   const kind = slotKind(item);
   const i = info(item);
   return {
@@ -72,8 +84,9 @@ export const Deck = {
     // the library: on the character, not slotted anywhere; and in the home stash, when it's reachable
     const stash = HomeStore.stash(actor);
     const stashOpen = !!stash && Downtime.allows(actor, "stash");
-    const loose = [...actor.items].filter((i) => tabOf(i) && !CPR.isInstalled(i) && i.id !== rig.deck?.id);
-    const stashed = stashOpen ? [...stash.items].filter((i) => tabOf(i) && tabOf(i) !== "decks" && !CPR.isInstalled(i)) : [];
+    // Cybersuites show installed too (the one in the Neuroport, and any others the character owns)
+    const loose = [...actor.items].filter((i) => tabOf(i) && (tabOf(i) === "cybersuites" || !CPR.isInstalled(i)) && i.id !== rig.deck?.id);
+    const stashed = stashOpen ? [...stash.items].filter((i) => tabOf(i) && !["decks", "cybersuites"].includes(tabOf(i)) && !CPR.isInstalled(i)) : [];
     if (!TABS.includes(ui.tab)) ui.tab = "quickhacks";
     const rows = [...loose.map((i) => row(i, ctx)), ...stashed.map((i) => ({ ...row(i, ctx, { from: stash.uuid }), stash: true }))]
       .filter((r) => tabOf(r.from ? stash.items.get(r.id) : actor.items.get(r.id)) === ui.tab)
@@ -119,7 +132,8 @@ export const Deck = {
           ...row(focusItem, ctx, { from: focusItem.parent === actor ? null : stash?.uuid }),
           slotted: rig.slotted.some((s) => s.id === focusItem.id),
           canStow: !!stash && Downtime.allows(actor, "stash"),
-          deckItem: focusItem.type === "cyberdeck"
+          deckItem: focusItem.type === "cyberdeck",
+          suiteItem: !!cybersuiteOf(focusItem, MODULE_ID)
         } : null
       }
     };

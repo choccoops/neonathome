@@ -1748,7 +1748,8 @@
         "quickhacks": "Quickhacks",
         "programs": "Programs",
         "hardware": "Hardware",
-        "decks": "Decks"
+        "decks": "Decks",
+        "cybersuites": "Cybersuites"
       },
       "Compendium": "Quickhacks, quickhack hardware, the 2070 decks and Cybersuites are in the Netrunning Gear (2070) compendium; Deep Dive programs and core hardware in Cyberpunk RED's.",
       "Quality": {
@@ -1782,7 +1783,11 @@
       "NoDeck": "{name} isn't running a deck.",
       "NotDeckGear": "{item} doesn't go in a deck.",
       "Already": "{item} is already slotted.",
-      "NoRoom": "No room for {item}: the deck's {kind} slots are full."
+      "NoRoom": "No room for {item}: the deck's {kind} slots are full.",
+      "SuiteInstalled": "Cybersuite, installed in the Neuroport",
+      "SuiteLoose": "Cybersuite, not installed",
+      "SuiteBuiltIn": "Built-in quickhacks: {list}.",
+      "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time."
     }
   }
 }

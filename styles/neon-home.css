@@ -1434,3 +1434,4 @@
 .neon-home .nah-deck-row b { color: #fff; font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .neon-home .nah-deck-row small { color: var(--nah-dim); font-size: 10px; }
 .neon-home .nah-deck-row .nah-icon-btn { width: 26px; height: 26px; flex: 0 0 auto; }
+.neon-home .nah-deck-suite-on { color: var(--nah-pink); text-shadow: 0 0 6px var(--nah-pink); padding: 0 6px; }

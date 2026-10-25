@@ -92,7 +92,8 @@
         {{#if dv}}<p class="nah-deck-qh"><span>DV{{dv}}</span><span>{{cooldown}}</span>{{#if quiet}}<span class="is-quiet">◆ {{localize "NEONHOME.Deck.Quiet"}}</span>{{/if}}{{#if needs}}<span>{{localize "NEONHOME.Deck.Needs" needs=needs}}</span>{{/if}}</p>{{/if}}
         <p>{{effect}}</p>
         <footer>
-          {{#if deckItem}}<button type="button" data-action="deckRun"><i class="fa-solid fa-plug"></i> {{localize "NEONHOME.Deck.RunThis"}}</button>
+          {{#if suiteItem}}<small class="nah-hint"><i class="fa-solid fa-user-doctor"></i> {{localize "NEONHOME.Deck.SuiteHow"}}</small>
+          {{else if deckItem}}<button type="button" data-action="deckRun"><i class="fa-solid fa-plug"></i> {{localize "NEONHOME.Deck.RunThis"}}</button>
           {{else if slotted}}<button type="button" data-action="deckUnslot"><i class="fa-solid fa-eject"></i> {{localize "NEONHOME.Deck.Unslot"}}</button>
             {{#if canStow}}<button type="button" data-action="deckUnslot" data-stow="1"><i class="fa-solid fa-box-archive"></i> {{localize "NEONHOME.Deck.UnslotStash"}}</button>{{/if}}
           {{else}}<button type="button" class="nah-primary" data-action="deckSlot" {{#unless fits}}disabled{{/unless}}><i class="fa-solid fa-download"></i> {{localize "NEONHOME.Deck.Slot.in"}}</button>{{#unless fits}}<small class="nah-hint">{{localize "NEONHOME.Deck.WontFit"}}</small>{{/unless}}{{/if}}
@@ -114,7 +115,8 @@
             <b>{{name}}</b>
             <small>{{#if dv}}DV{{dv}} &middot; {{cooldown}}{{#if quiet}} &middot; ◆{{/if}} &middot; {{/if}}{{type}}{{#if size}} &middot; {{localize "NEONHOME.Deck.SlotCount" n=size}}{{/if}}{{#if stash}} &middot; <i class="fa-solid fa-box-archive"></i>{{/if}}</small>
           </div>
-          {{#if kind}}<button type="button" class="nah-icon-btn" data-action="deckSlot" {{#unless fits}}disabled{{/unless}} data-tooltip="{{#if fits}}{{localize 'NEONHOME.Deck.Slot.in'}}{{else}}{{localize 'NEONHOME.Deck.WontFit'}}{{/if}}"><i class="fa-solid fa-download"></i></button>
+          {{#if cybersuite}}{{#if installed}}<i class="fa-solid fa-brain nah-deck-suite-on" data-tooltip="{{type}}"></i>{{/if}}
+          {{else if kind}}<button type="button" class="nah-icon-btn" data-action="deckSlot" {{#unless fits}}disabled{{/unless}} data-tooltip="{{#if fits}}{{localize 'NEONHOME.Deck.Slot.in'}}{{else}}{{localize 'NEONHOME.Deck.WontFit'}}{{/if}}"><i class="fa-solid fa-download"></i></button>
           {{else}}<button type="button" class="nah-icon-btn" data-action="deckRun" data-tooltip="{{localize 'NEONHOME.Deck.RunThis'}}"><i class="fa-solid fa-plug"></i></button>{{/if}}
         </li>
         {{else}}

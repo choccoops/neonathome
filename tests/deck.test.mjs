@@ -142,7 +142,7 @@ test("the Cyberdeck tab renders: the strip, the slot board, the library", async 
   const app = new HomeApp();
   app.actorId = a.id;
   app.tab = "deck";
-  for (const tab of ["quickhacks", "programs", "hardware", "decks"]) {
+  for (const tab of ["quickhacks", "programs", "hardware", "decks", "cybersuites"]) {
     app.uiState.deck = { tab, focus: tab === "quickhacks" ? "q1" : null };
     const ctx = await app._prepareContext();
     const html = render("shell.hbs", ctx);
@@ -154,5 +154,6 @@ test("the Cyberdeck tab renders: the strip, the slot board, the library", async 
       assert.ok(html.includes('data-item-id="q2"') && html.includes("data-drag"));
     }
     if (tab === "decks") assert.ok(html.includes("Raven Microcyb Hummingbird"));
+    if (tab === "cybersuites") assert.ok(html.includes("Segotari Hexmage") && html.includes("installed in the Neuroport"), "the Cybersuite, installed");
   }
 });
