@@ -1,0 +1,50 @@
+{
+  "_id": "fUv6k0NrAO4GN2Jg",
+  "name": "Raven Microcyb Phoenix",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 6,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 1000
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 6 either</p><p>After a safe Jack Out, Programs destroyed this run are restored.</p><p><em>1,000eb (Very Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 0,
+          "hardware": 0,
+          "either": 6
+        },
+        "rule": "After a safe Jack Out, Programs destroyed this run are restored."
+      }
+    }
+  },
+  "_key": "!items!fUv6k0NrAO4GN2Jg",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 9000,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

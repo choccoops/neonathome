@@ -1,0 +1,37 @@
+{
+  "_id": "mXVInSGAsGG46uPR",
+  "name": "Counter-ICE Feedback",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Quickhack hardware</b> · 1 slot</p><p>Defense. Anyone who fails to Jack In on you or fails a Breach on your Passwalls takes 1d6 to the brain.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "quickhack",
+        "effect": "Defense. Anyone who fails to Jack In on you or fails a Breach on your Passwalls takes 1d6 to the brain."
+      }
+    }
+  },
+  "_key": "!items!mXVInSGAsGG46uPR",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 6300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

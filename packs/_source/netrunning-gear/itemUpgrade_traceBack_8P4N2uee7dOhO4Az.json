@@ -1,0 +1,37 @@
+{
+  "_id": "8P4N2uee7dOhO4Az",
+  "name": "Trace-Back",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Quickhack hardware</b> · 1 slot</p><p>Defense. When a quickhack hits you, you know where its Netrunner is and can Jack In to them without line of sight for 3 Rounds.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "quickhack",
+        "effect": "Defense. When a quickhack hits you, you know where its Netrunner is and can Jack In to them without line of sight for 3 Rounds."
+      }
+    }
+  },
+  "_key": "!items!8P4N2uee7dOhO4Az",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 6700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "_id": "a5ftKJSrK3SAeLPD",
+  "name": "Polska Watchdog",
+  "type": "cyberware",
+  "img": "icons/svg/daze.svg",
+  "system": {
+    "type": "neuralWare",
+    "isFoundational": false,
+    "installLocation": "hospital",
+    "humanityLoss": {
+      "static": 7,
+      "roll": "2d6"
+    },
+    "size": 1,
+    "price": {
+      "market": 1000
+    },
+    "description": {
+      "value": "<p><b>Cybersuite</b> · Neuralware, Hospital, HL 7 (2d6), 1 Neural Link slot. Requires a Neuroport. Installs one Cyberdeck inside your Neuroport, Hardware slots and all: 20m to architectures, 50m to Neuroports and vehicles. Swapping the deck is a Clinic job (1 hour).</p><p><b>Built-in quickhacks</b> (take no deck slots, can't be removed): Ping, E-Reader</p><p>+2 to notice a Ghosted Netrunner in your port, and +2 to eject one.</p><p><em>1,000eb (Very Expensive).</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "cybersuite": {
+        "builtIn": [
+          "Ping",
+          "E-Reader"
+        ],
+        "perk": "+2 to notice a Ghosted Netrunner in your port, and +2 to eject one."
+      }
+    }
+  },
+  "_key": "!items!a5ftKJSrK3SAeLPD",
+  "folder": "RcF6hHTcQ5XSXd1d",
+  "sort": 9900,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

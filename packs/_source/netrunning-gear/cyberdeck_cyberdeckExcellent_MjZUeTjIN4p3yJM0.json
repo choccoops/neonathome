@@ -1,0 +1,50 @@
+{
+  "_id": "MjZUeTjIN4p3yJM0",
+  "name": "Cyberdeck (Excellent)",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 9,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 1000
+    },
+    "equipped": "owned",
+    "quality": "excellent",
+    "description": {
+      "value": "<p><b>Slots:</b> 9 either</p><p>The generic deck: any mix of Programs, quickhacks and Hardware.</p><p><em>1,000eb (Very Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 0,
+          "hardware": 0,
+          "either": 9
+        },
+        "rule": "The generic deck: any mix of Programs, quickhacks and Hardware."
+      }
+    }
+  },
+  "_key": "!items!MjZUeTjIN4p3yJM0",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8100,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "_id": "QJVQnPH0gKZXDN61",
+  "name": "Cyberpsychosis",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 2,
+    "installLocation": "mall",
+    "price": {
+      "market": 10000
+    },
+    "description": {
+      "value": "<p><b>Ultimate quickhack</b> · DV14 · Cooldown 1 hour · 2 slots</p><p>For 3 Rounds they attack the nearest person (GM's choice) with whatever they hold. Then they take 2d6 Humanity Loss. At EMP 0 they don't stop.</p><p><em>Interface + 1d10 vs DV14. 10,000eb (Super Luxury). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Ultimate",
+        "needs": "",
+        "dv": 14,
+        "cooldown": "1 hour",
+        "quiet": false,
+        "vehicle": false,
+        "effect": "For 3 Rounds they attack the nearest person (GM's choice) with whatever they hold. Then they take 2d6 Humanity Loss. At EMP 0 they don't stop."
+      }
+    }
+  },
+  "_key": "!items!QJVQnPH0gKZXDN61",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 2900,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

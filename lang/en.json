@@ -111,6 +111,10 @@
       "Perks": {
         "Name": "Perk Tree",
         "Hint": "The Perk System from Cyberpunk: The Unification Era (Chapter 16): a Perk Tree window for each character, Perk Points, and each perk an effect on the character sheet."
+      },
+      "DeckTab": {
+        "Name": "Cyberdeck tab",
+        "Hint": "The netrunner's quickhack suite (Cyberpunk: The Unification Era, Chapter 10): the deck they run, how it connects, and the Programs, quickhacks and Hardware slotted in it, Program-only and Hardware-only slots kept apart."
       }
     },
     "State": {
@@ -1692,6 +1696,98 @@
         "body": "BODY",
         "emp": "EMP"
       }
+    },
+    "Deck": {
+      "Title": "Cyberdeck",
+      "Running": "Deck running",
+      "None": "No deck",
+      "NoDecks": "No cyberdeck",
+      "LinkLabel": "Connected by",
+      "Link": {
+        "suite": "Cybersuite (in the Neuroport)",
+        "hand": "Hand-held (Personal Link)",
+        "arm": "Cyberarm deck"
+      },
+      "LinkHint": {
+        "suite": "20m to architectures, 50m to Neuroports and vehicles. Its deck changes at a clinic (1 hour).",
+        "hand": "6m (8m with a Range Upgrade). Plugged in to the Personal Link or Interface Plugs.",
+        "arm": "Built into the cyberarm: +1 slot (more with Integrated Cyberdeck Upgrades)."
+      },
+      "Range": "Quickhack range",
+      "RangeHint": "to Neuroports and vehicles; {arch}m to architectures",
+      "Interface": "Interface",
+      "NetActions": "{n} NET Actions a Turn",
+      "Slots": "Slots used",
+      "Extra": {
+        "suit": "+1 Hardware (Bodyweight Suit)",
+        "exDisk": "+{n} Hardware (Ex-Disk)",
+        "arm": "+{n} (cyberarm)",
+        "coating": "+{n} Hardware (Bodyweight Coating)"
+      },
+      "InCombat": "In combat: Programs and Hardware swap out of combat (a minute each). Switching decks is a Meat Action.",
+      "Slot": {
+        "program": "Program-only slot",
+        "hardware": "Hardware-only slot",
+        "either": "Program or Hardware slot",
+        "in": "Slot it in"
+      },
+      "Over": "More than the deck holds as it's connected now:",
+      "Unslot": "Take it out",
+      "UnslotStash": "Take it out, to the stash",
+      "BuiltIn": "Built into the {suite} (no slots, can't be removed)",
+      "PickDeck": "Pick the deck this character runs, above.",
+      "GetDeck": "No cyberdeck on this character. Drop one onto their sheet (the Netrunning Gear (2070) compendium has the 2070 decks).",
+      "SlotCount": "{n} slot(s)",
+      "InStash": "in the home stash",
+      "Quiet": "Quiet",
+      "Needs": "Needs: {needs}",
+      "RunThis": "Run this deck",
+      "WontFit": "No room for it in the deck's slots of its kind",
+      "EmptyTab": "Nothing of this kind on the character.",
+      "Tab": {
+        "quickhacks": "Quickhacks",
+        "programs": "Programs",
+        "hardware": "Hardware",
+        "decks": "Decks",
+        "cybersuites": "Cybersuites"
+      },
+      "Compendium": "Quickhacks, quickhack hardware, the 2070 decks and Cybersuites are in the Netrunning Gear (2070) compendium; Deep Dive programs and core hardware in Cyberpunk RED's.",
+      "Quality": {
+        "poor": "Poor",
+        "standard": "Standard",
+        "excellent": "Excellent"
+      },
+      "Split": {
+        "program": "{n} Program-only",
+        "hardware": "{n} Hardware-only",
+        "either": "{n} either"
+      },
+      "Rounds": "{n} Rnd",
+      "Vehicle": "Vehicle",
+      "Kind": {
+        "program": "Program",
+        "hardware": "Hardware"
+      },
+      "NotInCombat": "Programs and Hardware are swapped out of combat (a minute each).",
+      "Clinic": "Putting a deck in or out of a Cybersuite is a Clinic job (an hour): {name} needs downtime for it, or the GM.",
+      "ClinicLabel": "Clinic: {deck} in the Cybersuite",
+      "Card": {
+        "deck": "<b>{name}</b> runs <b>{deck}</b>.",
+        "noDeck": "<b>{name}</b> unplugs their deck."
+      },
+      "Cant": {
+        "suite": "{name} has no Cybersuite installed.",
+        "hand": "{name} can't hold a deck.",
+        "arm": "{name} has no cyberarm deck (Cyberdeck (arm))."
+      },
+      "NoDeck": "{name} isn't running a deck.",
+      "NotDeckGear": "{item} doesn't go in a deck.",
+      "Already": "{item} is already slotted.",
+      "NoRoom": "No room for {item}: the deck's {kind} slots are full.",
+      "SuiteInstalled": "Cybersuite, installed in the Neuroport",
+      "SuiteLoose": "Cybersuite, not installed",
+      "SuiteBuiltIn": "Built-in quickhacks: {list}.",
+      "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time."
     }
   }
 }

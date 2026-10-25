@@ -1,0 +1,50 @@
+{
+  "_id": "Q5pXG4iB5RjSv0HT",
+  "name": "Zetatech Parraline 6000",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 9,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 500
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 3 Program-only + 6 Hardware-only</p><p>Made for hardware nuts.</p><p><em>500eb (Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 3,
+          "hardware": 6,
+          "either": 0
+        },
+        "rule": "Made for hardware nuts."
+      }
+    }
+  },
+  "_key": "!items!Q5pXG4iB5RjSv0HT",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 9600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

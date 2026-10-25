@@ -1,0 +1,42 @@
+{
+  "_id": "iqrehM4JEncPaizH",
+  "name": "Cybersuite (standard)",
+  "type": "cyberware",
+  "img": "icons/svg/daze.svg",
+  "system": {
+    "type": "neuralWare",
+    "isFoundational": false,
+    "installLocation": "hospital",
+    "humanityLoss": {
+      "static": 7,
+      "roll": "2d6"
+    },
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Cybersuite</b> · Neuralware, Hospital, HL 7 (2d6), 1 Neural Link slot. Requires a Neuroport. Installs one Cyberdeck inside your Neuroport, Hardware slots and all: 20m to architectures, 50m to Neuroports and vehicles. Swapping the deck is a Clinic job (1 hour).</p><p>Installs one Cyberdeck inside your Neuroport (Chapter 10).</p><p><em>500eb (Expensive).</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "cybersuite": {
+        "builtIn": [],
+        "perk": "Installs one Cyberdeck inside your Neuroport (Chapter 10)."
+      }
+    }
+  },
+  "_key": "!items!iqrehM4JEncPaizH",
+  "folder": "RcF6hHTcQ5XSXd1d",
+  "sort": 9700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "_id": "LIBQPstdQbeXSnLG",
+  "name": "Kiroshi Backdoor",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Quickhack hardware</b> · 1 slot</p><p>+2 to Reboot Optics and PopUp-geddon.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "quickhack",
+        "effect": "+2 to Reboot Optics and PopUp-geddon."
+      }
+    }
+  },
+  "_key": "!items!LIBQPstdQbeXSnLG",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 5800,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

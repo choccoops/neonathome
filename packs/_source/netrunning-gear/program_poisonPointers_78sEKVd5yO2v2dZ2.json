@@ -1,0 +1,57 @@
+{
+  "_id": "78sEKVd5yO2v2dZ2",
+  "name": "Poison Pointers",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 1000
+    },
+    "description": {
+      "value": "<p><b>Combat quickhack</b> · DV12 · Cooldown 10 Rounds · 1 slot · Needs: Netrunner's deck</p><p>Destroy one Program or quickhack on their deck (the GM picks at random).</p><p><em>Interface + 1d10 vs DV12. 1,000eb (Very Expensive). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Combat",
+        "needs": "Netrunner's deck",
+        "dv": 12,
+        "cooldown": 10,
+        "quiet": false,
+        "vehicle": false,
+        "effect": "Destroy one Program or quickhack on their deck (the GM picks at random)."
+      }
+    }
+  },
+  "_key": "!items!78sEKVd5yO2v2dZ2",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 2500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

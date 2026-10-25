@@ -1,0 +1,57 @@
+{
+  "_id": "CMzPOCkZrcEX7tyV",
+  "name": "Hydraulic Leak",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV10 · Cooldown 6 Rounds · 1 slot · Needs: Air or sea vehicle</p><p>Stabilizers fail: −2 to Pilot Checks for 3 Rounds.</p><p><em>Interface + 1d10 vs DV10. 500eb (Expensive). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "Air or sea vehicle",
+        "dv": 10,
+        "cooldown": 6,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "Stabilizers fail: −2 to Pilot Checks for 3 Rounds."
+      }
+    }
+  },
+  "_key": "!items!CMzPOCkZrcEX7tyV",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 4300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

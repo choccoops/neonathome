@@ -1,0 +1,50 @@
+{
+  "_id": "QDuULf8A0WacTavb",
+  "name": "Kirama Training Deck",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 5,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 20
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 5 Program-only</p><p>Must stay within 2m of an access point to Jack In to an architecture. Brain damage you take while using it is doubled.</p><p><em>20eb (Everyday). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 5,
+          "hardware": 0,
+          "either": 0
+        },
+        "rule": "Must stay within 2m of an access point to Jack In to an architecture. Brain damage you take while using it is doubled."
+      }
+    }
+  },
+  "_key": "!items!QDuULf8A0WacTavb",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

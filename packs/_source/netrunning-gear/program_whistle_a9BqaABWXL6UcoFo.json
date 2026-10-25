@@ -1,0 +1,57 @@
+{
+  "_id": "a9BqaABWXL6UcoFo",
+  "name": "Whistle",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 100
+    },
+    "description": {
+      "value": "<p><b>Covert quickhack</b> · ◆ Quiet · DV8 · Cooldown 3 Rounds · 1 slot</p><p>Only on a target who doesn't know you're there. Their next Move Action is yours: they walk toward a phantom noise. Not into obvious danger.</p><p><em>Interface + 1d10 vs DV8. 100eb (Premium). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Covert",
+        "needs": "",
+        "dv": 8,
+        "cooldown": 3,
+        "quiet": true,
+        "vehicle": false,
+        "effect": "Only on a target who doesn't know you're there. Their next Move Action is yours: they walk toward a phantom noise. Not into obvious danger."
+      }
+    }
+  },
+  "_key": "!items!a9BqaABWXL6UcoFo",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

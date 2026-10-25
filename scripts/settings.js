@@ -167,6 +167,15 @@ export const Settings = {
       default: true,
       onChange: changed
     });
+    reg("deckTab", {
+      name: "NEONHOME.Settings.DeckTab.Name",
+      hint: "NEONHOME.Settings.DeckTab.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: changed
+    });
     reg("perks", {
       name: "NEONHOME.Settings.Perks.Name",
       hint: "NEONHOME.Settings.Perks.Hint",

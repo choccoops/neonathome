@@ -1,0 +1,50 @@
+{
+  "_id": "5IbP7Vzrzg6MCf6F",
+  "name": "Kirama Entry Deck",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 5,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 100
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 5 Program-only</p><p>Only one Attacker, Defender, Booster and Black ICE each. Unsafe Jack Outs count as safe.</p><p><em>100eb (Premium). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 5,
+          "hardware": 0,
+          "either": 0
+        },
+        "rule": "Only one Attacker, Defender, Booster and Black ICE each. Unsafe Jack Outs count as safe."
+      }
+    }
+  },
+  "_key": "!items!5IbP7Vzrzg6MCf6F",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

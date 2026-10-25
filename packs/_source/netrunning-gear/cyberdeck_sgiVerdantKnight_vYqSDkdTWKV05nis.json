@@ -1,0 +1,50 @@
+{
+  "_id": "vYqSDkdTWKV05nis",
+  "name": "SGI Verdant Knight",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 9,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 500
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 9 Program-only</p><p>Only Sword and Shield Programs.</p><p><em>500eb (Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 9,
+          "hardware": 0,
+          "either": 0
+        },
+        "rule": "Only Sword and Shield Programs."
+      }
+    }
+  },
+  "_key": "!items!vYqSDkdTWKV05nis",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 9200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

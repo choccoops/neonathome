@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="deck.html">Cyberdeck</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -105,6 +105,29 @@ const picks = Object.fromEntries((await import("../scripts/home/salvage-ops.js")
 app.uiState.downtime = { action: "strip", params: { strip: { tier: "premium", picks } } };
 await writeFile(path.join(out, "downtime-strip.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 game.modules.delete("cpr-neon-hub");
+// The Cyberdeck: Vex as a Netrunner with a Segotari Hexmage Cybersuite and a Standard deck
+{
+  const net = await import("../scripts/data/netrun.js");
+  const { DeckOps } = await import("../scripts/home/deck-ops.js");
+  const M = "cpr-neon-at-home";
+  const qh = (n) => net.quickhackItem(net.QUICKHACK_BY_NAME.get(n.toLowerCase()), M);
+  const suite = { ...net.cybersuiteItem(net.CYBERSUITES.find((c) => c.name === "Segotari Hexmage"), M) };
+  const deck = net.deckItem(net.DECKS.find((d) => d.name === "Cyberdeck (Standard)"), M);
+  deck.system.equipped = "equipped";
+  const made = await actor.createEmbeddedDocuments("Item", [
+    { name: "Netrunner", type: "role", system: { rank: 5, abilities: [] } }, suite, deck,
+    net.deckItem(net.DECKS.find((d) => d.name === "Zetatech Parraline 6000"), M), net.deckItem(net.DECKS.find((d) => d.name === "Raven Microcyb Hummingbird"), M),
+    qh("System Reset"), qh("Short Circuit"), qh("Overheat"), qh("Ping"), qh("Scannerz"), qh("Synapse Burnout"), qh("Weapon Glitch"), qh("Memory Wipe"),
+    net.hardwareItem(net.HARDWARE.find((h) => h.name === "Orbital Air Sigbooster"), M), net.hardwareItem(net.HARDWARE.find((h) => h.name === "Raven Heat Sink"), M), net.hardwareItem(net.HARDWARE.find((h) => h.name === "Zetatech Ghost Protocol"), M),
+    { name: "Eraser", type: "program", system: { class: "booster", size: 1, description: { value: "<p>+2 to Cloak while Rezzed.</p>" } } }
+  ]);
+  const byName = (n) => made.find((i) => i.name === n);
+  actor.system.installedItems.list.push(byName("Segotari Hexmage").id);
+  for (const n of ["System Reset", "Short Circuit", "Overheat", "Ping", "Orbital Air Sigbooster"]) await DeckOps.slot(actor, byName(n).id);
+  app.tab = "deck";
+  app.uiState.deck = { tab: "quickhacks", focus: byName("System Reset").id };
+  await writeFile(path.join(out, "deck.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+}
 // The Perk Tree: Vex with a few perks, on the Body branch, Good Shape in focus
 {
   const { PerksApp } = await import("../scripts/apps/perks-app.js");

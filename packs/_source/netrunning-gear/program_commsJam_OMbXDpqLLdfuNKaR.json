@@ -1,0 +1,57 @@
+{
+  "_id": "OMbXDpqLLdfuNKaR",
+  "name": "Comms Jam",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 100
+    },
+    "description": {
+      "value": "<p><b>Covert quickhack</b> · ◆ Quiet · DV6 · Cooldown 6 Rounds · 1 slot</p><p>They can't call, text or receive for 20 Rounds. They won't hear the alarm until someone shouts it.</p><p><em>Interface + 1d10 vs DV6. 100eb (Premium). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Covert",
+        "needs": "",
+        "dv": 6,
+        "cooldown": 6,
+        "quiet": true,
+        "vehicle": false,
+        "effect": "They can't call, text or receive for 20 Rounds. They won't hear the alarm until someone shouts it."
+      }
+    }
+  },
+  "_key": "!items!OMbXDpqLLdfuNKaR",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

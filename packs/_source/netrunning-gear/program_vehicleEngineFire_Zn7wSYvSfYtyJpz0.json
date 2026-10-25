@@ -1,0 +1,57 @@
+{
+  "_id": "Zn7wSYvSfYtyJpz0",
+  "name": "Engine Fire",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "1d6",
+      "blackIce": ""
+    },
+    "size": 2,
+    "installLocation": "mall",
+    "price": {
+      "market": 5000
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV14 · Cooldown 20 Rounds · 2 slots</p><p>The engine catches: 1d6 SDP a Turn and −2 to driving until someone puts it out (an Action and DV13 vehicle Tech).</p><p><em>Interface + 1d10 vs DV14. 5,000eb (Luxury). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "",
+        "dv": 14,
+        "cooldown": 20,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "The engine catches: 1d6 SDP a Turn and −2 to driving until someone puts it out (an Action and DV13 vehicle Tech)."
+      }
+    }
+  },
+  "_key": "!items!Zn7wSYvSfYtyJpz0",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 5200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

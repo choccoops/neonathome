@@ -1,0 +1,131 @@
+{{#with deck}}
+<div class="nah-deck">
+  {{!-- ================= THE RIG ================= --}}
+  <header class="nah-deck-strip">
+    <div class="nah-deck-stat nah-deck-name">
+      <span class="nah-kicker">{{localize "NEONHOME.Deck.Running"}}</span>
+      {{#if decks.length}}
+      <select data-deck="deck" aria-label="{{localize 'NEONHOME.Deck.Running'}}">
+        <option value="">{{localize "NEONHOME.Deck.None"}}</option>
+        {{#each decks}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+      </select>
+      {{else}}<b>{{localize "NEONHOME.Deck.NoDecks"}}</b>{{/if}}
+      {{#if hasDeck}}<small>{{deck.quality}} &middot; {{deck.split}}</small>{{/if}}
+    </div>
+    <div class="nah-deck-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Deck.LinkLabel"}}</span>
+      <select data-deck="link" aria-label="{{localize 'NEONHOME.Deck.LinkLabel'}}">
+        {{#each links}}<option value="{{key}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
+      </select>
+      <small>{{linkHint}}</small>
+    </div>
+    <div class="nah-deck-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Deck.Range"}}</span>
+      <b>{{range.port}}<small>m</small></b>
+      <small>{{localize "NEONHOME.Deck.RangeHint" arch=range.arch}}</small>
+    </div>
+    <div class="nah-deck-stat">
+      <span class="nah-kicker">{{localize "NEONHOME.Deck.Interface"}}</span>
+      <b>{{iface}}</b>
+      <small>{{localize "NEONHOME.Deck.NetActions" n=net}}</small>
+    </div>
+    <div class="nah-deck-stat nah-deck-slots">
+      <span class="nah-kicker">{{localize "NEONHOME.Deck.Slots"}}</span>
+      {{#if cap}}<b>{{used}}<small>/{{cap.total}}</small></b>{{else}}<b>&mdash;</b>{{/if}}
+      {{#if extras.length}}<small>{{#each extras}}<span>{{this}}</span>{{/each}}</small>{{/if}}
+    </div>
+  </header>
+  {{#if inCombat}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-crosshairs"></i> {{localize "NEONHOME.Deck.InCombat"}}</p>{{/if}}
+
+  <div class="nah-deck-body">
+    {{!-- ================= THE DECK ================= --}}
+    <section class="nah-deck-board nah-scroll">
+      {{#if hasDeck}}
+      <header class="nah-deck-head">
+        <img src="{{deck.img}}" alt="">
+        <div><h2>{{deck.name}}</h2>{{#if deck.rule}}<small>{{deck.rule}}</small>{{/if}}</div>
+      </header>
+      <div class="nah-deck-legend">
+        <span class="k-program"><i></i> {{localize "NEONHOME.Deck.Slot.program"}}</span>
+        <span class="k-hardware"><i></i> {{localize "NEONHOME.Deck.Slot.hardware"}}</span>
+        <span class="k-either"><i></i> {{localize "NEONHOME.Deck.Slot.either"}}</span>
+      </div>
+      <div class="nah-deck-grid" data-drop="deck">
+        {{#each cells}}
+        {{#if item}}
+        <div class="nah-deck-cell is-full k-{{kind}} is-{{item.kind}} {{#if item.selected}}selected{{/if}}" style="--span: {{span}}" data-item-id="{{item.id}}" data-action="deckFocus">
+          <img src="{{item.img}}" alt="">
+          <div>
+            <b>{{item.name}}</b>
+            <small>{{#if item.dv}}DV{{item.dv}} &middot; {{item.cooldown}}{{#if item.quiet}} &middot; ◆{{/if}}{{else}}{{item.type}}{{/if}}</small>
+          </div>
+          <button type="button" class="nah-icon-btn" data-action="deckUnslot" data-tooltip="{{localize 'NEONHOME.Deck.Unslot'}}"><i class="fa-solid fa-eject"></i></button>
+        </div>
+        {{else}}
+        <div class="nah-deck-cell is-empty k-{{kind}}" data-tooltip="{{kindLabel}}"><i class="fa-solid fa-plus"></i></div>
+        {{/if}}
+        {{/each}}
+      </div>
+      {{#if over.length}}
+      <p class="nah-maint-note nah-locked"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "NEONHOME.Deck.Over"}}
+        {{#each over}}<span class="nah-deck-over" data-item-id="{{id}}"><b>{{name}}</b> <button type="button" class="nah-link" data-action="deckUnslot">{{localize "NEONHOME.Deck.Unslot"}}</button></span>{{/each}}
+      </p>
+      {{/if}}
+
+      {{#if builtIn.length}}
+      <h3 class="nah-kicker"><i class="fa-solid fa-brain"></i> {{localize "NEONHOME.Deck.BuiltIn" suite=cybersuite.name}}</h3>
+      <ul class="nah-deck-builtin">
+        {{#each builtIn}}<li data-tooltip="{{effect}}"><b>{{name}}</b>{{#if dv}}<small>DV{{dv}} &middot; {{cooldown}}{{#if quiet}} &middot; ◆{{/if}}</small>{{/if}}</li>{{/each}}
+      </ul>
+      {{#if cybersuite.perk}}<p class="nah-hint">{{cybersuite.perk}}</p>{{/if}}
+      {{/if}}
+      {{else}}
+      <div class="nah-deck-empty">
+        <i class="fa-solid fa-microchip"></i>
+        <p>{{#if decks.length}}{{localize "NEONHOME.Deck.PickDeck"}}{{else}}{{localize "NEONHOME.Deck.GetDeck"}}{{/if}}</p>
+      </div>
+      {{/if}}
+
+      {{#with focus}}
+      <article class="nah-deck-focus" data-item-id="{{id}}" {{#if from}}data-from="{{from}}"{{/if}}>
+        <header><img src="{{img}}" alt=""><div><h3>{{name}}</h3><small>{{type}}{{#if size}} &middot; {{localize "NEONHOME.Deck.SlotCount" n=size}}{{/if}}{{#if stash}} &middot; <i class="fa-solid fa-box-archive"></i> {{localize "NEONHOME.Deck.InStash"}}{{/if}}</small></div></header>
+        {{#if dv}}<p class="nah-deck-qh"><span>DV{{dv}}</span><span>{{cooldown}}</span>{{#if quiet}}<span class="is-quiet">◆ {{localize "NEONHOME.Deck.Quiet"}}</span>{{/if}}{{#if needs}}<span>{{localize "NEONHOME.Deck.Needs" needs=needs}}</span>{{/if}}</p>{{/if}}
+        <p>{{effect}}</p>
+        <footer>
+          {{#if suiteItem}}<small class="nah-hint"><i class="fa-solid fa-user-doctor"></i> {{localize "NEONHOME.Deck.SuiteHow"}}</small>
+          {{else if deckItem}}<button type="button" data-action="deckRun"><i class="fa-solid fa-plug"></i> {{localize "NEONHOME.Deck.RunThis"}}</button>
+          {{else if slotted}}<button type="button" data-action="deckUnslot"><i class="fa-solid fa-eject"></i> {{localize "NEONHOME.Deck.Unslot"}}</button>
+            {{#if canStow}}<button type="button" data-action="deckUnslot" data-stow="1"><i class="fa-solid fa-box-archive"></i> {{localize "NEONHOME.Deck.UnslotStash"}}</button>{{/if}}
+          {{else}}<button type="button" class="nah-primary" data-action="deckSlot" {{#unless fits}}disabled{{/unless}}><i class="fa-solid fa-download"></i> {{localize "NEONHOME.Deck.Slot.in"}}</button>{{#unless fits}}<small class="nah-hint">{{localize "NEONHOME.Deck.WontFit"}}</small>{{/unless}}{{/if}}
+        </footer>
+      </article>
+      {{/with}}
+    </section>
+
+    {{!-- ================= THE LIBRARY ================= --}}
+    <aside class="nah-deck-lib nah-scroll">
+      <nav class="nah-deck-tabs">
+        {{#each tabs}}<button type="button" class="{{#if selected}}active{{/if}}" data-action="deckTab" data-tab="{{key}}">{{label}} <small>{{count}}</small></button>{{/each}}
+      </nav>
+      <ul class="nah-deck-rows">
+        {{#each rows}}
+        <li class="nah-deck-row is-{{kind}} {{#if selected}}selected{{/if}} {{#if stash}}is-stash{{/if}}" data-item-id="{{id}}" {{#if from}}data-from="{{from}}"{{/if}} data-drag data-action="deckFocus">
+          <img src="{{img}}" alt="">
+          <div>
+            <b>{{name}}</b>
+            <small>{{#if dv}}DV{{dv}} &middot; {{cooldown}}{{#if quiet}} &middot; ◆{{/if}} &middot; {{/if}}{{type}}{{#if size}} &middot; {{localize "NEONHOME.Deck.SlotCount" n=size}}{{/if}}{{#if stash}} &middot; <i class="fa-solid fa-box-archive"></i>{{/if}}</small>
+          </div>
+          {{#if cybersuite}}{{#if installed}}<i class="fa-solid fa-brain nah-deck-suite-on" data-tooltip="{{type}}"></i>{{/if}}
+          {{else if kind}}<button type="button" class="nah-icon-btn" data-action="deckSlot" {{#unless fits}}disabled{{/unless}} data-tooltip="{{#if fits}}{{localize 'NEONHOME.Deck.Slot.in'}}{{else}}{{localize 'NEONHOME.Deck.WontFit'}}{{/if}}"><i class="fa-solid fa-download"></i></button>
+          {{else}}<button type="button" class="nah-icon-btn" data-action="deckRun" data-tooltip="{{localize 'NEONHOME.Deck.RunThis'}}"><i class="fa-solid fa-plug"></i></button>{{/if}}
+        </li>
+        {{else}}
+        <li class="nah-hint">{{localize "NEONHOME.Deck.EmptyTab"}}</li>
+        {{/each}}
+      </ul>
+      {{#if stashLocked}}<p class="nah-hint"><i class="fa-solid fa-box-archive"></i> {{localize "NEONHOME.Downtime.Only.stash"}}</p>{{/if}}
+      <p class="nah-hint">{{localize "NEONHOME.Deck.Compendium"}}</p>
+    </aside>
+  </div>
+</div>
+{{/with}}

@@ -1,0 +1,50 @@
+{
+  "_id": "br68Uxb0eV2qjW6w",
+  "name": "Microtech Scout",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 5,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 500
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 5 either</p><p>After you Jack In, one free Pathfinder (no NET Action).</p><p><em>500eb (Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 0,
+          "hardware": 0,
+          "either": 5
+        },
+        "rule": "After you Jack In, one free Pathfinder (no NET Action)."
+      }
+    }
+  },
+  "_key": "!items!br68Uxb0eV2qjW6w",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

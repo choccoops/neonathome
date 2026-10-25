@@ -1,0 +1,37 @@
+{
+  "_id": "3VA3H0CUQVfpFtLX",
+  "name": "Feline Instinct",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 2,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Black ICE / Deep Dive hardware</b> · 2 slots</p><p>Each time your Sabertooth destroys a program, its damage goes up 1d6 until you Jack Out.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "deepDive",
+        "effect": "Each time your Sabertooth destroys a program, its damage goes up 1d6 until you Jack Out."
+      }
+    }
+  },
+  "_key": "!items!3VA3H0CUQVfpFtLX",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 7200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

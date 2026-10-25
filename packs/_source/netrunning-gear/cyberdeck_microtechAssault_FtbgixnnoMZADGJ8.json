@@ -1,0 +1,50 @@
+{
+  "_id": "FtbgixnnoMZADGJ8",
+  "name": "Microtech Assault",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 9,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 500
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 4 Program-only + 5 Hardware-only</p><p>Only Black ICE in its Program slots.</p><p><em>500eb (Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 4,
+          "hardware": 5,
+          "either": 0
+        },
+        "rule": "Only Black ICE in its Program slots."
+      }
+    }
+  },
+  "_key": "!items!FtbgixnnoMZADGJ8",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}
