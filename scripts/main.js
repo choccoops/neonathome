@@ -7,6 +7,9 @@ import { HomeStore } from "./home/store.js";
 import { HomeOps } from "./home/ops.js";
 import { HomeApp } from "./apps/home-app.js";
 import { BiomonitorApp } from "./apps/biomonitor-app.js";
+import { PerksApp } from "./apps/perks-app.js";
+import { Perks } from "./apps/perks.js";
+import { PerkOps, PERK_EFFECT } from "./home/perk-ops.js";
 import { registerFeature, features } from "./apps/features.js";
 import { Loadout } from "./apps/loadout.js";
 import { Bay } from "./apps/bay.js";
@@ -34,6 +37,7 @@ registerFeature(Biomonitor);
 registerFeature(Bench);
 registerFeature(Maintenance);
 registerFeature(DowntimeTab);
+registerFeature(Perks);
 
 // Item Piles makes its pile actors (containers in Cyberpunk RED) with Actor.create; see CPR.fixActorCreate.
 Hooks.once("ready", () => CPR.fixActorCreate());
@@ -56,6 +60,14 @@ Hooks.once("init", () => {
     open: (actor = null, tab = null) => (tab === "biomonitor" ? BiomonitorApp.open(actor) : HomeApp.open(actor, { tab })),
     /** Open the Biomonitor on this client (an Actor or uuid; default: your own character). */
     biomonitor: (actor = null) => BiomonitorApp.open(actor),
+    /** Open a character's Perk Tree on this client (an Actor or uuid; default: your own character). */
+    perkTree: (actor = null) => PerksApp.open(actor),
+    /** A character's perks: { owned: [{ id, stat, free }], awards, points: { total, spent, available } }. */
+    perks: (actor) => ({ ...PerkOps.record(actor), points: PerkOps.points(actor) }),
+    /** Buy a perk for a character by id (GM: { force, free } skip the requirements / the points). */
+    buyPerk: (actor, id, opts = {}) => PerkOps.buy(actor, id, opts),
+    /** GM: award (or with a negative number, take back) Perk Points. */
+    awardPerkPoints: (actor, n, reason = "") => PerkOps.award(actor, n, reason),
     /** GM: open each listed user's own home suite (default: every connected player). */
     show: (tab = null, userIds = null) => HomeSocket.emit("openHome", { tab }, userIds ?? game.users.filter((u) => u.active && !u.isGM).map((u) => u.id)),
     /** Carry slots and weight for a character: { carry, weight }. */
@@ -481,6 +493,7 @@ Hooks.on("getActorSheetHeaderButtons", (sheet, buttons) => {
     { label: "NEONHOME.Bio.Short", class: "neon-home-bio", icon: "fa-solid fa-heart-pulse", onclick: () => BiomonitorApp.open(actor) },
     { label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) }
   );
+  if (Settings.get("perks") !== false) buttons.unshift({ label: "NEONHOME.Perks.Short", class: "neon-home-perks", icon: "fa-solid fa-diagram-project", onclick: () => PerksApp.open(actor) });
 });
 Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
   const item = sheet.item ?? sheet.document;
@@ -494,6 +507,7 @@ Hooks.on("getHeaderControlsActorSheetV2", (sheet, controls) => {
     { label: "NEONHOME.Bio.Short", icon: "fa-solid fa-heart-pulse", action: "neonHomeBio", onClick: () => BiomonitorApp.open(sheet.document) },
     { label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) }
   );
+  if (Settings.get("perks") !== false) controls.unshift({ label: "NEONHOME.Perks.Short", icon: "fa-solid fa-diagram-project", action: "neonHomePerks", onClick: () => PerksApp.open(sheet.document) });
 });
 Hooks.on("getHeaderControlsItemSheetV2", (sheet, controls) => {
   if (!configForItem(sheet.document)) return;
@@ -518,6 +532,7 @@ Hooks.on("renderActorDirectory", (app, html) => {
   };
   button("neon-home-open", "fa-solid fa-house-chimney-window", "NEONHOME.Short", () => HomeApp.open());
   button("neon-home-bio", "fa-solid fa-heart-pulse", "NEONHOME.Bio.Short", () => BiomonitorApp.open());
+  if (Settings.get("perks") !== false) button("neon-home-perks", "fa-solid fa-diagram-project", "NEONHOME.Perks.Short", () => PerksApp.open());
 });
 
 /** A home button in the left toolbar's Token Controls. v12 passes an array, v13 an object. */
@@ -543,4 +558,50 @@ Hooks.on("renderSceneControls", (app, html) => {
     ev.stopPropagation();
     HomeApp.open();
   });
+});
+
+/* ------------------------------------------ */
+/*  Perks                                     */
+/* ------------------------------------------ */
+
+/**
+ * Each owned perk is an Active Effect on the character: kept in step when what it depends on
+ * changes (STATs and HP for capped boosts; Skills, Roles, Lifestyle and gear for requirements),
+ * by one client per character (an active player who owns them, else the GM).
+ */
+const PERK_ITEMS = ["skill", "role", "cyberware", "weapon", "armor", "gear"];
+Hooks.on("updateActor", (actor, changes) => {
+  if (Settings.get("perks") === false || actor.type !== "character") return;
+  const touched = foundry.utils.hasProperty(changes, "system.stats") || foundry.utils.hasProperty(changes, "system.derivedStats.hp")
+    || foundry.utils.hasProperty(changes, `flags.${MODULE_ID}.perks`) || foundry.utils.hasProperty(changes, "system.lifestyle");
+  if (touched) PerkOps.later(actor);
+});
+for (const hook of ["createItem", "updateItem", "deleteItem"]) {
+  Hooks.on(hook, (item) => {
+    if (Settings.get("perks") === false || !PERK_ITEMS.includes(item.type)) return;
+    const actor = item.parent;
+    if (actor instanceof Actor && actor.type === "character" && PerkOps.record(actor).owned.length) PerkOps.later(actor);
+  });
+}
+// A perk switched back on from the sheet while a requirement isn't met goes back off; the Perk
+// Tree shows a perk switched on or off from the sheet.
+Hooks.on("updateActiveEffect", (effect, changes) => {
+  if (Settings.get("perks") === false || !effect.getFlag?.(MODULE_ID, PERK_EFFECT)) return;
+  const actor = effect.parent;
+  if (!(actor instanceof Actor)) return;
+  PerksApp._refreshFor(actor);
+  if (changes.disabled === false) PerkOps.later(actor);
+});
+for (const hook of ["createActiveEffect", "deleteActiveEffect"]) {
+  Hooks.on(hook, (effect) => {
+    if (effect.getFlag?.(MODULE_ID, PERK_EFFECT) && effect.parent instanceof Actor) PerksApp._refreshFor(effect.parent);
+  });
+}
+Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
+  if (Settings.get("perks") === false) return;
+  for (const a of game.actors.filter((x) => x.type === "character" && PerkOps.record(x).owned.length)) PerkOps.later(a);
+});
+Hooks.once("ready", () => {
+  if (Settings.get("perks") === false) return;
+  for (const a of game.actors.filter((x) => x.type === "character" && PerkOps.record(x).owned.length)) PerkOps.later(a);
 });

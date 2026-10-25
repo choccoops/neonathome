@@ -33,4 +33,4 @@ export const NCM_ID = "cpr-neon-combat-manager";
 export const CHECKED = "checked";
 
 /** The sub-features of the home suite, in tab order. New ones register here (see apps/features.js). */
-export const FEATURE_ORDER = ["loadout", "bay", "bench", "maintenance", "downtime", "biomonitor"];
+export const FEATURE_ORDER = ["loadout", "bay", "bench", "maintenance", "downtime", "biomonitor", "perks"];

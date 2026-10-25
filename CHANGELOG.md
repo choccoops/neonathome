@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.0
+
+- **Perk Tree.** The Perk System of *Cyberpunk: The Unification Era* (Chapter 16) in a window of its own, laid out like Neon Hub's Headquarters, opened from a **Perks** button on the character sheet and in the Actors sidebar. Every perk (General, the eight STATs, Role, Specialty and Free City) is in a skill tree: perks that build on each other are linked rows, each card shows its cost and where it stands, and the perk's panel checks every requirement against the character and unlocks it. Unlocking plays the perk coming online (a pulse, a ring, sparks, its links surging, the points ticking down).
+- **Perk Points**: 3 at creation, 1 per Role rank raised past the starting rank (not Ganger or Exec), and the GM's awards, shown as available out of everything earned, with the perks active and the specialty slots. **Perk training** is a new Downtime action (a week, 2,500eb or 5,000eb, each 6 a Perk Point, once a month).
+- **Perks on the sheet.** Each perk is an Active Effect, *Perk: (name)*, switched on and off with the sheet's own toggle or from the tree. Perks that are numbers carry them: STAT boosts within their caps (a STAT the player picks for the Complex perks), Skill, attack and All Actions bonuses (situational ones in the roll dialog). A perk whose STAT, Skill or Lifestyle requirement stops being met switches off until it's met again.
+- **The rules**: bought outside combat; requirements done in play wait for the GM's confirmation; creation-only perks while the GM keeps creation open; one Cyber and one Weapon specialty (drop one for a point); Perk Fiend's coin flip. The GM awards and takes back points, confirms, grants, refunds (or for good) and takes perks away.
+
 ## 1.6.6
 
 - **Encumbrance works without Condition Lab & Triggler on Foundry v12.** Going from Encumbered to Overloaded, or back under the limit, threw an error in worlds without CLT running (Foundry v12 won't read the flags of a module that's off), so the old status stayed. Effects CLT left behind before it was switched off are fine too.

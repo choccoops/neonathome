@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -105,6 +105,38 @@ const picks = Object.fromEntries((await import("../scripts/home/salvage-ops.js")
 app.uiState.downtime = { action: "strip", params: { strip: { tier: "premium", picks } } };
 await writeFile(path.join(out, "downtime-strip.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 game.modules.delete("cpr-neon-hub");
+// The Perk Tree: Vex with a few perks, on the Body branch, Good Shape in focus
+{
+  const { PerksApp } = await import("../scripts/apps/perks-app.js");
+  const { PerkOps } = await import("../scripts/home/perk-ops.js");
+  actor.system.stats.body = { value: 8, max: 8 };
+  await PerkOps.award(actor, 4, "Big moment");
+  for (const id of ["decentShape", "darkAppetite"]) await PerkOps.buy(actor, id, { force: true });
+  const perks = new PerksApp();
+  perks.actorId = actor.id;
+  // the window's own script draws the tree's links and plays the unlock; a stand-in for the preview
+  const demo = `<script>
+    const draw = () => document.querySelectorAll(".nah-perk-group").forEach((g) => {
+      const svg = g.querySelector("svg"); const box = g.getBoundingClientRect(); const z = parseFloat(document.body.style.zoom) || 1; let out = "";
+      g.querySelectorAll("[data-from]").forEach((c) => c.dataset.from.split(" ").forEach((id) => {
+        const p = g.querySelector('[data-perk="' + id + '"]'); if (!p) return;
+        const a = p.getBoundingClientRect(), b = c.getBoundingClientRect();
+        const x1 = (a.right - box.left) / z, y1 = (a.top + a.height / 2 - box.top) / z, x2 = (b.left - box.left) / z, y2 = (b.top + b.height / 2 - box.top) / z, m = (x1 + x2) / 2;
+        out += '<path class="' + (["on","off","dormant"].includes(p.dataset.state) ? "lit" : "") + '" d="M' + x1 + "," + y1 + " C" + m + "," + y1 + " " + m + "," + y2 + " " + x2 + "," + y2 + '"/>';
+      }));
+      svg.setAttribute("viewBox", "0 0 " + box.width / z + " " + box.height / z); svg.innerHTML = out;
+    });
+    addEventListener("load", draw);
+    document.addEventListener("click", (ev) => { const c = ev.target.closest(".nah-perk-card"); if (!c) return;
+      c.classList.remove("is-unlocking"); void c.offsetWidth; c.classList.add("is-unlocking");
+      for (let i = 0; i < 12; i++) { const s = document.createElement("span"); s.className = "nah-perk-spark"; s.style.setProperty("--a", i * 30 + "deg"); c.appendChild(s); }
+      document.querySelector(".nah-perk-points").classList.remove("is-ticking"); void c.offsetWidth; document.querySelector(".nah-perk-points").classList.add("is-ticking"); });
+  </script>`;
+  for (const [file, branch, focus] of [["perks.html", "body", "goodShape"], ["perks-role.html", "role", "limitBreaker"], ["perks-general.html", "general", "godComplex"]]) {
+    perks.uiState.perks = { branch, focus };
+    await writeFile(path.join(out, file), page(`Perk Tree: ${actor.name}`, render("shell.hbs", await perks._prepareContext()), { width: 1240, height: 860 }).replace("</body>", `${demo}</body>`));
+  }
+}
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));
 const [bp] = await actor.createEmbeddedDocuments("Item", [{ name: "Blueprint: Whisper Can", type: "gear", img: "icons/svg/book.svg", system: { price: { market: 2000 } }, flags: { "cpr-neon-at-home": { blueprint: { name: "Whisper Can", category: "veryExpensive", value: 2000, skill: "Weaponstech", inventor: "Vex", makes: { name: "Whisper Can Suppressor", type: "itemUpgrade", img: "icons/svg/item-bag.svg" } } } } }]);

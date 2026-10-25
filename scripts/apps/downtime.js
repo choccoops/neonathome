@@ -17,6 +17,8 @@ import {
 } from "../data/downtime.js";
 import { SALVAGE_MINUTES, CATEGORIES, WORTH, locationsOf, locationOf, haulLeft } from "../data/salvage.js";
 import { TIERS, TIER_NAMES, tierEb, fabricationNeeds, upgradeNeeds, stripPlan, unitsFor, stripMinutes, STRIP_FREE, STRIP_MINUTES } from "../data/materials.js";
+import { TRAINING, PERKS } from "../data/perks.js";
+import { PerkOps } from "../home/perk-ops.js";
 import { DnD } from "./home-app.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -29,6 +31,7 @@ const ACTIONS = {
     { id: "rest", icon: "fa-solid fa-bed", time: MIN.day },
     { id: "treat", icon: "fa-solid fa-kit-medical", time: TREATMENT_MINUTES },
     { id: "salvage", icon: "fa-solid fa-dumpster", time: SALVAGE_MINUTES },
+    { id: "perkTraining", icon: "fa-solid fa-dumbbell", time: MIN.week },
     { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" },
     { id: "projects", icon: "fa-solid fa-diagram-project" }
   ],
@@ -309,6 +312,19 @@ function panel(actor, id, p, { roles, state }) {
       else if (!plan.ok) blocked = plan.total ? L("NEONHOME.Strip.Short", { have: eb(plan.total), need: eb(plan.need), materials: `${count} × ${TIER_NAMES[tier]} Tech Materials` }) : L("NEONHOME.Strip.PickSome");
       break;
     }
+    case "perkTraining": {
+      const level = TRAINING[p.level] ? p.level : "intense";
+      const t = TRAINING[level];
+      fields.push(field("level", "NEONHOME.Downtime.Field.training", { select: true, options: opt(Object.keys(TRAINING), level, (k) => L(`NEONHOME.Downtime.Training.${k}`)) }));
+      const owned = PerkOps.record(actor).owned.map((o) => o.id);
+      const aims = PERKS.filter((x) => !owned.includes(x.id)).sort((a, b) => a.name.localeCompare(b.name));
+      fields.push(field("aim", "NEONHOME.Downtime.Field.aim", { select: true, options: [{ value: "", label: "—", selected: !p.aim }, ...aims.map((x) => ({ value: x.id, label: x.name, selected: x.id === p.aim }))] }));
+      time = MIN.week;
+      fact("NEONHOME.Downtime.Fact.materials", eb(t.eb));
+      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.TrainingRoll", { dice: t.dice }));
+      if (CPR.wealth(actor) < t.eb) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(t.eb) });
+      break;
+    }
     case "pharma": {
       const drug = PHARMA[p.drug] ? p.drug : "speedheal";
       fields.push(field("drug", "NEONHOME.Downtime.Field.drug", { select: true, options: opt(Object.keys(PHARMA), drug, (d) => L(`NEONHOME.Downtime.Drug.${d}`)) }));
@@ -397,7 +413,7 @@ export const DowntimeTab = {
       .map(([key, actions]) => ({
         key,
         label: key === "anyone" ? L("NEONHOME.Downtime.Anyone") : L(`NEONHOME.Downtime.Role.${key}`),
-        actions: actions.map((a) => ({ ...a, label: L(`NEONHOME.Downtime.Action.${a.id}`), timeLabel: a.time ? formatMinutes(a.time) : "", selected: a.id === ui.action }))
+        actions: actions.filter((a) => a.id !== "perkTraining" || Settings.get("perks") !== false).map((a) => ({ ...a, label: L(`NEONHOME.Downtime.Action.${a.id}`), timeLabel: a.time ? formatMinutes(a.time) : "", selected: a.id === ui.action }))
       }));
     const projects = ProjectOps.list(actor);
     for (const g of groups) for (const a of g.actions) if (a.id === "projects" && projects.length) a.timeLabel = String(projects.length);

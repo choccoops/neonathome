@@ -1,4 +1,4 @@
-# Neon At Home: Loadout, Vehicle Bay, Weaponbench, Maintenance, Downtime & Biomonitor for Cyberpunk RED
+# Neon At Home: Loadout, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
 from the character sheet, with a tab for each part of their home, and the **Biomonitor** in a
@@ -24,6 +24,9 @@ the workbench, the garage, maintenance) can wait for **downtime**.
   (fabricating, upgrading and inventing, pharmaceuticals and therapy, rumors and stories, Night
   Markets). Salvaging from R. Talsorian's *Salvaging Night City* DLC, in 2045 or a 2070 version.
   Maker work is paid for in **Tech Materials** items, salvaged, stripped from gear, or sourced.
+- **Perk Tree** (its own window). The Perk System of *Cyberpunk: The Unification Era* (Chapter 16):
+  every perk in a skill tree, Perk Points, and each perk the character has as an effect on their
+  sheet that switches on and off.
 
 | Requirement | Version |
 | --- | --- |
@@ -50,12 +53,12 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
 
 ## Opening it
 
-- The **Home** and **Biomonitor** buttons in a character sheet's header (owners and the GM).
-- The **Home** and **Biomonitor** buttons at the top of the Actors sidebar.
+- The **Home**, **Biomonitor** and **Perks** buttons in a character sheet's header (owners and the GM).
+- The **Home**, **Biomonitor** and **Perks** buttons at the top of the Actors sidebar.
 - The house button in the Token Controls toolbar.
 - **Go home** on the chat card players get when downtime starts.
 - A macro, or a Neon Hub page button running one: `game.modules.get("cpr-neon-at-home").api.open()`
-  (or `.biomonitor()`).
+  (or `.biomonitor()`, `.perkTree()`).
 
 Players see their own characters; the GM can pick anyone from the list in the header.
 
@@ -470,6 +473,42 @@ Other Roles' abilities aren't downtime work; they Hustle. A Tech also adds Field
 maintenance, inspection and repair checks (p.147). The corebook doesn't say how long chasing a
 rumor or writing a story takes; the player sets it (a day by default).
 
+## Perk Tree
+
+The Perk System from *Cyberpunk: The Unification Era* (Chapter 16; the house rule *Cyber-Perk &
+Cyber-Perk+* by \_NullGM, adapted for 2070), in a window of its own laid out like Neon Hub's
+Headquarters: a strip with the character's **Perk Points** (available out of everything earned),
+the **perks active** on their sheet, their Cyber and Weapon **specialties** and their **kill
+count**; the perks they have as chips; and a tab for each branch: General, the eight STATs, Role,
+Specialty and Free City.
+
+- **The tree.** Perks that build on each other sit in rows, linked; the line lights up once the
+  first is owned. Cards show the cost (1-3 diamonds) and where the perk stands: active, switched
+  off, dormant, ready to unlock, locked, or gone. A perk built on one in another branch says which.
+  In the Role branch, the character's own Roles come first.
+- **The perk.** Its text, every requirement checked against the character (STATs, Skills, Role
+  ranks, Lifestyle, weapons and cyberware owned, other perks), what it puts on the sheet, and
+  **Unlock**. Unlocking plays the perk coming online: the card flashes, a ring and sparks burst
+  out, its links to what it opens surge, and the points count down.
+- **Points.** 3 at creation; 1 for each Role rank raised past the starting rank (not Ganger or
+  Exec, whose ranks come and go with Standing); and what the GM awards (big Lifepath moments,
+  training). **Perk training** is a Downtime action: a week and 2,500eb (2d6) or 5,000eb (3d6),
+  each 6 a Perk Point, once a month.
+- **Rules.** Perks are bought outside combat. Requirements done in play (kills, searches, wins, a
+  Lifepath entry) wait for the GM to confirm them. Creation-only perks can be bought while the GM
+  keeps creation open. One Cyber and one Weapon specialty at a time; drop one for 1 Perk Point.
+  **Perk Fiend** flips its coin by itself.
+- **On the sheet.** Each perk the character has is an Active Effect named *Perk: (name)* with the
+  perk's text, switched on and off with Cyberpunk RED's own toggle in the sheet's Effects (or
+  from the tree). Where a perk is a number, the effect carries it: STAT boosts within their caps
+  (+1 to a STAT the player picks for Savior, Main-Character and God Complex; Obsessively Healthy's
+  only at full HP), and Skill, attack and All Actions bonuses, the situational ones offered in the
+  roll dialog. A perk whose STAT, Skill or Lifestyle requirement stops being met switches off
+  until it's met again.
+- **The GM** can award or take back points, confirm what's been done in play, open or close
+  creation, recount Role ranks from now, grant a perk (with or without its points), and refund a
+  perk, refund it for good, or take it away with its points.
+
 ## Item settings (GM)
 
 Every item sheet has a **Home** button for the GM, with Neon At Home's settings for that item:
@@ -494,6 +533,7 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   the GM), **Malfunction on a natural 1** (Damaged gear, also gear a month overdue, or never),
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 - **Salvage tables**: 2045 or 2070, or Neon Hub's lifestyle era (automatic).
+- **Perk Tree**: the Perk System and its window, buttons and Downtime training.
 - **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
   upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
 
@@ -511,6 +551,10 @@ home.salvage(actor, { location: "badlands", category: "any" }); // a week of sal
 home.hauls(actor);                  // what salvage trips found, still to pick out
 home.haulMaterials(actor, haulId, "premium"); // take Tech Materials out of a haul
 home.stripForParts(actor, { [itemId]: 1 }, "premium", 1); // a Tech strips gear for materials
+home.perkTree(actor);               // open the Perk Tree
+home.perks(actor);                  // { owned, awards, points: { total, spent, available } }
+home.buyPerk(actor, "decentShape"); // buy a perk (GM: { force, free })
+home.awardPerkPoints(actor, 1, "Avenged the family"); // GM
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }
@@ -535,6 +579,8 @@ New sub-features plug into the same window: see `scripts/apps/features.js`.
   maintained month and any malfunction). Actor flag `cpr-neon-at-home.maint` (the GM's Lifestyle
   for maintenance).
 - Stashes are Cyberpunk RED container actors flagged `cpr-neon-at-home.stashOf`.
+- Actor flag `cpr-neon-at-home.perks` (perks owned, awards, confirmations, starting Role ranks,
+  kill count). Perk effects are Active Effects flagged `cpr-neon-at-home.perk`.
 - Cyberpunk RED data it reads: equip state, armor locations, SP and penalty, installed items,
   upgrade modifiers, HP, wound state, Humanity, EMP, LUCK and critical injuries.
 

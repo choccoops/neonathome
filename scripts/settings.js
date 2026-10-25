@@ -167,6 +167,15 @@ export const Settings = {
       default: true,
       onChange: changed
     });
+    reg("perks", {
+      name: "NEONHOME.Settings.Perks.Name",
+      hint: "NEONHOME.Settings.Perks.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: changed
+    });
     reg("salvageEra", {
       name: "NEONHOME.Settings.SalvageEra.Name",
       hint: "NEONHOME.Settings.SalvageEra.Hint",
