@@ -1,0 +1,50 @@
+{
+  "_id": "lmFBURORoxkfMykJ",
+  "name": "Raven Microcyb Hummingbird",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 2,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 1000
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 2 Hardware-only</p><p>+1 NET Action every Turn.</p><p><em>1,000eb (Very Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 0,
+          "hardware": 2,
+          "either": 0
+        },
+        "rule": "+1 NET Action every Turn."
+      }
+    }
+  },
+  "_key": "!items!lmFBURORoxkfMykJ",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8800,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "_id": "dytovuDi90O85zKi",
+  "name": "System Override",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 2,
+    "installLocation": "mall",
+    "price": {
+      "market": 5000
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV14 · Cooldown 20 Rounds · 2 slots</p><p>You drive it for 3 Rounds, using Interface in place of their control Skill.</p><p><em>Interface + 1d10 vs DV14. 5,000eb (Luxury). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "",
+        "dv": 14,
+        "cooldown": 20,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "You drive it for 3 Rounds, using Interface in place of their control Skill."
+      }
+    }
+  },
+  "_key": "!items!dytovuDi90O85zKi",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 5100,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

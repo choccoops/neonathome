@@ -1,4 +1,4 @@
-# Neon At Home: Loadout, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
+# Neon At Home: Loadout, Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
 from the character sheet, with a tab for each part of their home, and the **Biomonitor** in a
@@ -8,6 +8,10 @@ the workbench, the garage, maintenance) can wait for **downtime**.
 - **Loadout.** What the character wears and carries, against the carry slots their armor gives
   them (the *Armor & Carrying 2.0* homebrew), plus a weight limit. Equip, carry or store things,
   move them to and from a **home stash**, and fit **armor upgrades**.
+- **Cyberdeck.** The netrunner's quickhack suite (*Cyberpunk: The Unification Era*, Chapter 10):
+  the deck they run and how it connects, its Program-only, Hardware-only and either slots, and
+  swapping quickhacks, Programs and Hardware in and out, with a **Netrunning Gear (2070)**
+  compendium of the book's quickhacks, hardware, decks and Cybersuites.
 - **Vehicle Bay.** Their vehicles parked in the home's bays: HP, SP, speed, crew seats, mounted
   weapons, upgrades and cargo. Bays come from the home's parking in Neon Hub.
 - **Biomonitor** (its own window). HP and wounds, armor, critical injuries, the cyberware
@@ -171,6 +175,32 @@ through CLT instead of its own statuses, so their macros, chat output and Triggl
 and it adds the MOVE penalty to whatever the condition already does. Without CLT, or without
 those conditions, it uses its own statuses. If CLT is set to remove Foundry's default status
 effects, the two statuses won't be in the token HUD, but they still show on the token.
+
+## Cyberdeck
+
+The netrunner's quickhack suite, from *Cyberpunk: The Unification Era* (Core Rules, Chapter 10;
+Item Compendium, Netrunning Gear), laid out like the Loadout: the deck on the left, what can go in
+it on the right.
+
+- **The strip.** The deck the character runs (Cyberpunk RED's equipped cyberdeck: pick another to
+  switch, a Meat Action), how it's connected, the quickhack range that gives, their Interface and
+  NET Actions a Turn (2 / 3 / 4 / 5; +1 with a Raven Microcyb Hummingbird), and the slots used.
+- **Connected by.** A **Cybersuite** in the Neuroport (20m to architectures, 50m to Neuroports and
+  vehicles; its built-in quickhacks take no slots and can't be removed; Ex-Disks add Hardware-only
+  slots), **hand-held** on the Personal Link (6m, 8m with a Range Upgrade), or a **cyberarm** deck
+  (+1 slot, more with Integrated Cyberdeck Upgrades and Bodyweight Coatings). A worn Bodyweight
+  Suit adds a Hardware-only slot to any of them; each Orbital Air Sigbooster adds 10m.
+- **The slots.** The 2070 decks split their slots: Program-only, Hardware-only, or either (the
+  generic Poor / Standard / Excellent decks: 5 / 7 / 9 either). Quickhacks and Programs fill
+  Program-only slots first, Hardware fills Hardware-only slots first, both spill into the either
+  slots; an Ultimate takes two. A deck without the split counts all its slots as either.
+- **Swapping.** Slot something in from the library (or drag it onto the deck), take it out, or take
+  it out to the home stash; stash gear shows in the library when the stash is reachable. Programs
+  and Hardware swap out of combat (a minute each). Putting a deck in or out of a Cybersuite is a
+  Clinic job: an hour of the player's downtime, or the GM.
+- **Quickhacks** show their DV, Cooldown, Quiet (◆) and what they need. In the compendium they're
+  Cyberpunk RED programs (attackers with ATK 0), so the sheet's own program roll is Interface +
+  1d10 against their DV, with damage for the ones that deal it.
 
 ## Vehicle Bay
 
@@ -534,6 +564,7 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 - **Salvage tables**: 2045 or 2070, or Neon Hub's lifestyle era (automatic).
 - **Perk Tree**: the Perk System and its window, buttons and Downtime training.
+- **Cyberdeck tab**: the netrunner's quickhack suite.
 - **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
   upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
 
@@ -551,6 +582,8 @@ home.salvage(actor, { location: "badlands", category: "any" }); // a week of sal
 home.hauls(actor);                  // what salvage trips found, still to pick out
 home.haulMaterials(actor, haulId, "premium"); // take Tech Materials out of a haul
 home.stripForParts(actor, { [itemId]: 1 }, "premium", 1); // a Tech strips gear for materials
+home.rig(actor);                    // the deck running, how it connects, its slots and what's slotted
+home.slotIntoDeck(actor, itemId);   // slot a quickhack, Program or Hardware into it
 home.perkTree(actor);               // open the Perk Tree
 home.perks(actor);                  // { owned, awards, points: { total, spent, available } }
 home.buyPerk(actor, "decentShape"); // buy a perk (GM: { force, free })

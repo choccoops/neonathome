@@ -1,0 +1,37 @@
+{
+  "_id": "kniEWuRdP9jqFDio",
+  "name": "QKRASH Net",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Quickhack hardware</b> · 1 slot</p><p>+2 to your roll when a target tries to eject you.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "quickhack",
+        "effect": "+2 to your roll when a target tries to eject you."
+      }
+    }
+  },
+  "_key": "!items!kniEWuRdP9jqFDio",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 5500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

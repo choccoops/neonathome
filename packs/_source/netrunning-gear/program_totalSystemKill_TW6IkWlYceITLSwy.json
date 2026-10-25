@@ -1,0 +1,57 @@
+{
+  "_id": "TW6IkWlYceITLSwy",
+  "name": "Total System Kill",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "6d6",
+      "blackIce": ""
+    },
+    "size": 2,
+    "installLocation": "mall",
+    "price": {
+      "market": 10000
+    },
+    "description": {
+      "value": "<p><b>Ultimate quickhack</b> · DV16 · Cooldown single use · 2 slots</p><p>6d6 straight to HP (no armor). The chip burns out after one upload, hit or miss. A Backup Drive can't save it.</p><p><em>Interface + 1d10 vs DV16. 10,000eb (Super Luxury). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Ultimate",
+        "needs": "",
+        "dv": 16,
+        "cooldown": "single use",
+        "quiet": false,
+        "vehicle": false,
+        "effect": "6d6 straight to HP (no armor). The chip burns out after one upload, hit or miss. A Backup Drive can't save it."
+      }
+    }
+  },
+  "_key": "!items!TW6IkWlYceITLSwy",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 3000,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

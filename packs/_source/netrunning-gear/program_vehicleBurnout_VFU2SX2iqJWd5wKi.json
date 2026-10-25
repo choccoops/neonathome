@@ -1,0 +1,57 @@
+{
+  "_id": "VFU2SX2iqJWd5wKi",
+  "name": "Burnout",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV12 · Cooldown 10 Rounds · 1 slot</p><p>Throttle to max, tires smoking: a smoke screen around the vehicle for 3 Rounds.</p><p><em>Interface + 1d10 vs DV12. 500eb (Expensive). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "",
+        "dv": 12,
+        "cooldown": 10,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "Throttle to max, tires smoking: a smoke screen around the vehicle for 3 Rounds."
+      }
+    }
+  },
+  "_key": "!items!VFU2SX2iqJWd5wKi",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 4400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

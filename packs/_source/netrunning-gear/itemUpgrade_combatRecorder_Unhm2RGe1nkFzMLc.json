@@ -1,0 +1,37 @@
+{
+  "_id": "Unhm2RGe1nkFzMLc",
+  "name": "Combat Recorder",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Black ICE / Deep Dive hardware</b> · 1 slot</p><p>Records the last 5 minutes when another runner in your architecture fails a Death Save. Anonymized snuff sells for about 50eb.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "deepDive",
+        "effect": "Records the last 5 minutes when another runner in your architecture fails a Death Save. Anonymized snuff sells for about 50eb."
+      }
+    }
+  },
+  "_key": "!items!Unhm2RGe1nkFzMLc",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 7000,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

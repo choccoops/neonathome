@@ -9,6 +9,8 @@ import { HomeApp } from "./apps/home-app.js";
 import { BiomonitorApp } from "./apps/biomonitor-app.js";
 import { PerksApp } from "./apps/perks-app.js";
 import { Perks } from "./apps/perks.js";
+import { Deck } from "./apps/deck.js";
+import { DeckOps } from "./home/deck-ops.js";
 import { PerkOps, PERK_EFFECT } from "./home/perk-ops.js";
 import { registerFeature, features } from "./apps/features.js";
 import { Loadout } from "./apps/loadout.js";
@@ -38,6 +40,7 @@ registerFeature(Bench);
 registerFeature(Maintenance);
 registerFeature(DowntimeTab);
 registerFeature(Perks);
+registerFeature(Deck);
 
 // Item Piles makes its pile actors (containers in Cyberpunk RED) with Actor.create; see CPR.fixActorCreate.
 Hooks.once("ready", () => CPR.fixActorCreate());
@@ -56,10 +59,14 @@ Hooks.once("init", () => {
   CONFIG.statusEffects.push(HomeOps.encumbranceStatus("half"), HomeOps.encumbranceStatus("one"));
 
   game.modules.get(MODULE_ID).api = {
-    /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, bay, bench, maintenance, downtime (biomonitor opens its own window). */
+    /** Open the home suite on this client (an Actor or uuid; default: your own character). tab: loadout, deck, bay, bench, maintenance, downtime (biomonitor opens its own window). */
     open: (actor = null, tab = null) => (tab === "biomonitor" ? BiomonitorApp.open(actor) : HomeApp.open(actor, { tab })),
     /** Open the Biomonitor on this client (an Actor or uuid; default: your own character). */
     biomonitor: (actor = null) => BiomonitorApp.open(actor),
+    /** A character's rig: the deck they run, how it connects, its slots and what's slotted (see home/deck-ops.js). */
+    rig: (actor) => DeckOps.rig(actor),
+    /** Slot a Program, quickhack or Hardware item into the character's running deck. */
+    slotIntoDeck: (actor, itemId) => DeckOps.slot(actor, itemId),
     /** Open a character's Perk Tree on this client (an Actor or uuid; default: your own character). */
     perkTree: (actor = null) => PerksApp.open(actor),
     /** A character's perks: { owned: [{ id, stat, free }], awards, points: { total, spent, available } }. */

@@ -1,0 +1,46 @@
+{
+  "_id": "DAMN7ddeYengmT2O",
+  "name": "Arasaka Nagamasa",
+  "type": "cyberware",
+  "img": "icons/svg/daze.svg",
+  "system": {
+    "type": "neuralWare",
+    "isFoundational": false,
+    "installLocation": "hospital",
+    "humanityLoss": {
+      "static": 7,
+      "roll": "2d6"
+    },
+    "size": 1,
+    "price": {
+      "market": 0
+    },
+    "description": {
+      "value": "<p><b>Cybersuite</b> · Neuralware, Hospital, HL 7 (2d6), 1 Neural Link slot. Requires a Neuroport. Installs one Cyberdeck inside your Neuroport, Hardware slots and all: 20m to architectures, 50m to Neuroports and vehicles. Swapping the deck is a Clinic job (1 hour).</p><p><b>Built-in quickhacks</b> (take no deck slots, can't be removed): Puppet, Synapse Burnout, Total System Kill</p><p>+2 on the first quickhack against a target while you're undetected in the NET and meatspace. Owning one is a death sentence if Arasaka finds out.</p><p><em>Not for sale.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "cybersuite": {
+        "builtIn": [
+          "Puppet",
+          "Synapse Burnout",
+          "Total System Kill"
+        ],
+        "perk": "+2 on the first quickhack against a target while you're undetected in the NET and meatspace. Owning one is a death sentence if Arasaka finds out."
+      }
+    }
+  },
+  "_key": "!items!DAMN7ddeYengmT2O",
+  "folder": "RcF6hHTcQ5XSXd1d",
+  "sort": 10400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

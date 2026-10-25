@@ -1,0 +1,57 @@
+{
+  "_id": "sjFsVzsdoJp064b7",
+  "name": "Reboot Optics",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Control quickhack</b> · ◆ Quiet · DV8 · Cooldown 10 Rounds · 1 slot · Needs: Cybereye</p><p>Their cybereyes shut down for 3 Rounds. All-chrome eyes: they're blind (−4 to anything that needs sight, and they can't dodge ranged attacks). An Action and DV13 Cybertech restarts them early.</p><p><em>Interface + 1d10 vs DV8. 500eb (Expensive). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Control",
+        "needs": "Cybereye",
+        "dv": 8,
+        "cooldown": 10,
+        "quiet": true,
+        "vehicle": false,
+        "effect": "Their cybereyes shut down for 3 Rounds. All-chrome eyes: they're blind (−4 to anything that needs sight, and they can't dodge ranged attacks). An Action and DV13 Cybertech restarts them early."
+      }
+    }
+  },
+  "_key": "!items!sjFsVzsdoJp064b7",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 1400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

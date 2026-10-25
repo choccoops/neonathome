@@ -1,0 +1,57 @@
+{
+  "_id": "PS4wZHRxwkS38CrI",
+  "name": "Total Blackout",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 2,
+    "installLocation": "mall",
+    "price": {
+      "market": 10000
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV16 · Cooldown 20 Rounds · 2 slots</p><p>Every electrical upgrade dies (onboard weapons, Comms Center, Personal Link control) until a Manual System Reboot. AVs and hovers drop 10m a Round until restored; a crash is 6d6 and Whiplash for all aboard.</p><p><em>Interface + 1d10 vs DV16. 10,000eb (Super Luxury). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "",
+        "dv": 16,
+        "cooldown": 20,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "Every electrical upgrade dies (onboard weapons, Comms Center, Personal Link control) until a Manual System Reboot. AVs and hovers drop 10m a Round until restored; a crash is 6d6 and Whiplash for all aboard."
+      }
+    }
+  },
+  "_key": "!items!PS4wZHRxwkS38CrI",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 5300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

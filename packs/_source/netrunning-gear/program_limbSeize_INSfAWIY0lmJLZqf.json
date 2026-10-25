@@ -1,0 +1,57 @@
+{
+  "_id": "INSfAWIY0lmJLZqf",
+  "name": "Limb Seize",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Control quickhack</b> · ◆ Quiet · DV10 · Cooldown 10 Rounds · 1 slot · Needs: Cyberarm</p><p>One cyberarm goes limp for 3 Rounds: it drops what it holds, popup weapons retract, options in it switch off.</p><p><em>Interface + 1d10 vs DV10. 500eb (Expensive). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Control",
+        "needs": "Cyberarm",
+        "dv": 10,
+        "cooldown": 10,
+        "quiet": true,
+        "vehicle": false,
+        "effect": "One cyberarm goes limp for 3 Rounds: it drops what it holds, popup weapons retract, options in it switch off."
+      }
+    }
+  },
+  "_key": "!items!INSfAWIY0lmJLZqf",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 1700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

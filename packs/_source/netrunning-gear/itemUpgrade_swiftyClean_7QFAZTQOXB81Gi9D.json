@@ -1,0 +1,37 @@
+{
+  "_id": "7QFAZTQOXB81Gi9D",
+  "name": "Swifty Clean",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 2,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Black ICE / Deep Dive hardware</b> · 2 slots</p><p>Cloak twice with one NET Action and keep the better roll; only once per run.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "deepDive",
+        "effect": "Cloak twice with one NET Action and keep the better roll; only once per run."
+      }
+    }
+  },
+  "_key": "!items!7QFAZTQOXB81Gi9D",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 7800,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

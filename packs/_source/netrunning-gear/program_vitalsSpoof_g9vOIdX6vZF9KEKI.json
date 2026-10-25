@@ -1,0 +1,57 @@
+{
+  "_id": "g9vOIdX6vZF9KEKI",
+  "name": "Vitals Spoof",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Covert quickhack</b> · ◆ Quiet · DV8 · Cooldown 20 Rounds · 1 slot</p><p>For 1 hour their Biomonitor reports calm, normal vitals: no flatline alert if they drop, and their Trauma Team card won't call itself.</p><p><em>Interface + 1d10 vs DV8. 500eb (Expensive). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Covert",
+        "needs": "",
+        "dv": 8,
+        "cooldown": 20,
+        "quiet": true,
+        "vehicle": false,
+        "effect": "For 1 hour their Biomonitor reports calm, normal vitals: no flatline alert if they drop, and their Trauma Team card won't call itself."
+      }
+    }
+  },
+  "_key": "!items!g9vOIdX6vZF9KEKI",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

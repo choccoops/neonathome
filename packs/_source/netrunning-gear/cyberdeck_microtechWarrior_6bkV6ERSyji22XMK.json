@@ -1,0 +1,50 @@
+{
+  "_id": "6bkV6ERSyji22XMK",
+  "name": "Microtech Warrior",
+  "type": "cyberdeck",
+  "img": "icons/svg/chest.svg",
+  "system": {
+    "installedItems": {
+      "allowed": true,
+      "allowedTypes": [
+        "itemUpgrade",
+        "program"
+      ],
+      "list": [],
+      "slots": 7,
+      "usedSlots": 0
+    },
+    "price": {
+      "market": 1000
+    },
+    "equipped": "owned",
+    "quality": "standard",
+    "description": {
+      "value": "<p><b>Slots:</b> 7 Program-only</p><p>After you Jack In, rez one Armor Program free.</p><p><em>1,000eb (Very Expensive). Installs in a Cybersuite, a Bodyweight Suit or a cyberarm, or runs hand-held on your Personal Link.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "deck": {
+        "slots": {
+          "program": 7,
+          "hardware": 0,
+          "either": 0
+        },
+        "rule": "After you Jack In, rez one Armor Program free."
+      }
+    }
+  },
+  "_key": "!items!6bkV6ERSyji22XMK",
+  "folder": "SbkvJKVl4BQcEhSA",
+  "sort": 8700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

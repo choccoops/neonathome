@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.0
+
+- **Cyberdeck tab: the netrunner's quickhack suite** (*Cyberpunk: The Unification Era*, Chapter 10), laid out like the Loadout. The deck the character runs (pick another to switch), how it's connected (a Cybersuite in the Neuroport, hand-held on the Personal Link, or a cyberarm deck), the quickhack range, Interface and NET Actions, and the deck's slots as a board: Program-only, Hardware-only and either, with an Ultimate taking two. Slot quickhacks, Programs and Hardware in from the character's gear or the home stash (or drag them on), take them out, or out to the stash. A Cybersuite's built-in quickhacks show without taking slots; Ex-Disks, a worn Bodyweight Suit and cyberarm upgrades add the slots they give. Programs and Hardware swap out of combat; a Cybersuite's deck changes at a clinic (an hour of downtime, or the GM).
+- **Netrunning Gear (2070)** compendium: the book's 30 Neuroport and 23 vehicle quickhacks (as Cyberpunk RED programs: Interface + 1d10 against their DV from the sheet), the quickhack and Black ICE hardware, the 2070 cyberdecks with their slot splits, the Cybersuites with their built-in quickhacks, and the Ex-Disk.
+
 ## 1.7.0
 
 - **Perk Tree.** The Perk System of *Cyberpunk: The Unification Era* (Chapter 16) in a window of its own, laid out like Neon Hub's Headquarters, opened from a **Perks** button on the character sheet and in the Actors sidebar. Every perk (General, the eight STATs, Role, Specialty and Free City) is in a skill tree: perks that build on each other are linked rows, each card shows its cost and where it stands, and the perk's panel checks every requirement against the character and unlocks it. Unlocking plays the perk coming online (a pulse, a ring, sparks, its links surging, the points ticking down).

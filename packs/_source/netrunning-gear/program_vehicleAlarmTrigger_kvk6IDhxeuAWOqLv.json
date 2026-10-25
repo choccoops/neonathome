@@ -1,0 +1,57 @@
+{
+  "_id": "kvk6IDhxeuAWOqLv",
+  "name": "Alarm Trigger",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 50
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV6 · Cooldown 3 Rounds · 1 slot</p><p>The alarm blares. Cops, gangers and every nosy local look over.</p><p><em>Interface + 1d10 vs DV6. 50eb (Costly). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "",
+        "dv": 6,
+        "cooldown": 3,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "The alarm blares. Cops, gangers and every nosy local look over."
+      }
+    }
+  },
+  "_key": "!items!kvk6IDhxeuAWOqLv",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 3100,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

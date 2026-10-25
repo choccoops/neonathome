@@ -1,0 +1,37 @@
+{
+  "_id": "Qt3o1886LTRY30UC",
+  "name": "Orbital Air Sigbooster",
+  "type": "itemUpgrade",
+  "img": "icons/svg/circuit.svg",
+  "system": {
+    "type": "cyberdeck",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Quickhack hardware</b> · 1 slot</p><p>+10m quickhack range (Neuroports and vehicles).</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "hardware": {
+        "kind": "quickhack",
+        "effect": "+10m quickhack range (Neuroports and vehicles)."
+      }
+    }
+  },
+  "_key": "!items!Qt3o1886LTRY30UC",
+  "folder": "FZaVAyE2Qv5JywRT",
+  "sort": 5400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

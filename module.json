@@ -1,8 +1,8 @@
 {
   "id": "cpr-neon-at-home",
-  "title": "Neon At Home: Loadout, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED",
-  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Vehicle Bay with bays from the character's home; a Weaponbench for attachments; Maintenance from the Breaking Your Stuff DLC; Downtime actions from the core rulebook, spending Neon Hub's downtime; a Biomonitor for HP, injuries, cyberware, Humanity, Empathy tiers and Syndromes; and a Perk Tree for the Unification Era Perk System, each perk an effect on the sheet.",
-  "version": "1.7.0",
+  "title": "Neon At Home: Loadout, Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED",
+  "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Cyberdeck tab for the netrunner's quickhacks, Programs and Hardware (Unification Era); a Vehicle Bay with bays from the character's home; a Weaponbench for attachments; Maintenance from the Breaking Your Stuff DLC; Downtime actions from the core rulebook, spending Neon Hub's downtime; a Biomonitor for HP, injuries, cyberware, Humanity, Empathy tiers and Syndromes; and a Perk Tree for the Unification Era Perk System, each perk an effect on the sheet.",
+  "version": "1.8.0",
   "authors": [
     {
       "name": "Neon At Home contributors"
@@ -112,6 +112,17 @@
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "netrunning-gear",
+      "label": "Neon At Home: Netrunning Gear (2070)",
+      "path": "packs/netrunning-gear",
+      "type": "Item",
+      "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
     }
   ],
   "packFolders": [
@@ -124,7 +135,8 @@
         "carry-gear",
         "tech-materials",
         "malfunction-tables",
-        "salvage-tables"
+        "salvage-tables",
+        "netrunning-gear"
       ]
     }
   ],

@@ -1,0 +1,39 @@
+{
+  "_id": "Glj7ZDkJth50v6MV",
+  "name": "Ex-Disk",
+  "type": "cyberware",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "type": "neuralWare",
+    "isFoundational": false,
+    "installLocation": "hospital",
+    "humanityLoss": {
+      "static": 3,
+      "roll": "1d6"
+    },
+    "size": 1,
+    "price": {
+      "market": 1000
+    },
+    "description": {
+      "value": "<p>Requires a Cybersuite. A Hardware-only slot for your Cybersuite deck. Two or more: +1 NET Action while physically jacked into an access point by your Personal Link.</p><p><em>1,000eb (Very Expensive). CEMK.</em></p>"
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "exDisk": true
+    }
+  },
+  "_key": "!items!Glj7ZDkJth50v6MV",
+  "folder": "RcF6hHTcQ5XSXd1d",
+  "sort": 10600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

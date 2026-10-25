@@ -1357,3 +1357,80 @@
 .neon-home .nah-perk-group { display: grid; gap: 12px; }
 .neon-home .nah-perk-cols { padding: 2px 0; }
 .neon-home .nah-perk-loose { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+
+/* ======================================================================
+   Cyberdeck: the netrunner's quickhack suite (Unification Era, Chapter 10)
+   ====================================================================== */
+.neon-home .nah-deck { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.neon-home .nah-deck-strip { display: grid; grid-template-columns: minmax(200px, 1.6fr) repeat(4, minmax(120px, 1fr)); margin: 10px 14px 0; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-panel); }
+.neon-home .nah-deck-stat { display: grid; align-content: start; gap: 3px; padding: 8px 14px; border-right: 1px solid var(--nah-line); min-width: 0; }
+.neon-home .nah-deck-stat:last-child { border-right: none; }
+.neon-home .nah-deck-stat b { font-family: var(--nah-display); font-weight: 400; font-size: 24px; line-height: 1.1; color: #fff; }
+.neon-home .nah-deck-stat b small { font-size: 13px; color: var(--nah-dim); }
+.neon-home .nah-deck-stat > small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-deck-stat select { color: #fff; height: 28px; }
+.neon-home .nah-deck-slots > small { display: flex; flex-wrap: wrap; gap: 2px 8px; color: var(--nah-cyan); }
+.neon-home .nah-deck > .nah-maint-note { margin: 6px 14px 0; }
+
+.neon-home .nah-deck-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 360px; margin-top: 8px; border-top: 1px solid var(--nah-line); }
+.neon-home .nah-deck-board { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background:
+  linear-gradient(rgba(5, 217, 232, 0.04) 1px, transparent 1px) 0 0 / 100% 18px, rgba(7, 7, 11, 0.6); }
+.neon-home .nah-deck-head { display: flex; align-items: center; gap: 10px; }
+.neon-home .nah-deck-head img { width: 44px; height: 44px; object-fit: contain; border: none; }
+.neon-home .nah-deck-head h2 { margin: 0; border: none; font-family: var(--nah-display); font-weight: 400; font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; }
+.neon-home .nah-deck-head small { color: var(--nah-dim); font-size: 11px; }
+.neon-home .nah-deck-legend { display: flex; gap: 14px; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-deck-legend i { display: inline-block; width: 10px; height: 10px; border: 1px solid var(--k); background: color-mix(in srgb, var(--k) 25%, transparent); vertical-align: -1px; }
+.neon-home .k-program { --k: var(--nah-cyan); }
+.neon-home .k-hardware { --k: var(--nah-yellow); }
+.neon-home .k-either { --k: var(--nah-violet); }
+
+.neon-home .nah-deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 4px; border: 1px dashed transparent; }
+.neon-home .nah-deck-grid.drag-over { border-color: var(--nah-cyan); background: rgba(5, 217, 232, 0.06); }
+.neon-home .nah-deck-cell { grid-column: span var(--span, 1); min-height: 64px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--k); background: color-mix(in srgb, var(--k) 8%, rgba(13, 13, 21, 0.9)); clip-path: var(--nah-notch-card); }
+.neon-home .nah-deck-cell.is-empty { justify-content: center; color: color-mix(in srgb, var(--k) 70%, transparent); border-style: dashed; opacity: 0.7; }
+.neon-home .nah-deck-cell.is-full { cursor: pointer; box-shadow: inset 0 0 18px color-mix(in srgb, var(--k) 22%, transparent); }
+.neon-home .nah-deck-cell.is-full.is-program { --k: var(--nah-cyan); }
+.neon-home .nah-deck-cell.is-full.is-hardware { --k: var(--nah-yellow); }
+.neon-home .nah-deck-cell.selected { outline: 1px solid var(--nah-pink); }
+.neon-home .nah-deck-cell img { width: 30px; height: 30px; object-fit: contain; border: none; }
+.neon-home .nah-deck-cell > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-deck-cell b { color: #fff; font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-deck-cell small { color: var(--nah-dim); font-size: 10px; }
+.neon-home .nah-deck-cell .nah-icon-btn { flex: 0 0 auto; width: 24px; height: 24px; }
+.neon-home .nah-deck-over { display: inline-flex; gap: 4px; margin-left: 8px; }
+.neon-home .nah-deck-builtin { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.neon-home .nah-deck-builtin li { display: grid; padding: 4px 10px; border: 1px solid var(--nah-pink); background: rgba(255, 42, 109, 0.08); }
+.neon-home .nah-deck-builtin b { color: #fff; font-size: 12px; font-weight: 600; }
+.neon-home .nah-deck-builtin small { color: var(--nah-dim); font-size: 10px; }
+.neon-home .nah-deck-empty { display: grid; justify-items: center; gap: 6px; padding: 40px 10px; color: var(--nah-dim); text-align: center; }
+.neon-home .nah-deck-empty > i { font-size: 40px; color: var(--nah-line-2); }
+
+.neon-home .nah-deck-focus { margin-top: auto; padding: 10px 12px; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.9); display: grid; gap: 6px; }
+.neon-home .nah-deck-focus header { display: flex; align-items: center; gap: 10px; }
+.neon-home .nah-deck-focus header img { width: 34px; height: 34px; object-fit: contain; border: none; }
+.neon-home .nah-deck-focus h3 { margin: 0; border: none; font-family: var(--nah-display); font-weight: 400; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; }
+.neon-home .nah-deck-focus small { color: var(--nah-dim); font-size: 11px; }
+.neon-home .nah-deck-focus p { margin: 0; line-height: 1.4; }
+.neon-home .nah-deck-qh { display: flex; flex-wrap: wrap; gap: 6px; }
+.neon-home .nah-deck-qh span { padding: 1px 8px; border: 1px solid var(--nah-line-2); font-size: 11px; color: var(--nah-text); }
+.neon-home .nah-deck-qh span.is-quiet { border-color: var(--nah-green); color: var(--nah-green); }
+.neon-home .nah-deck-focus footer { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.neon-home .nah-deck-focus footer button { width: auto; height: 28px; font-size: 11px; }
+
+.neon-home .nah-deck-lib { padding: 10px 12px; border-left: 1px solid var(--nah-line); display: flex; flex-direction: column; gap: 8px; }
+.neon-home .nah-deck-tabs { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid var(--nah-line); }
+.neon-home .nah-deck-tabs button { width: auto; height: 28px; padding: 0 8px; border: none; border-bottom: 2px solid transparent; background: none; color: var(--nah-dim); font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.neon-home .nah-deck-tabs button.active { color: #fff; border-bottom-color: var(--nah-pink); }
+.neon-home .nah-deck-tabs small { color: var(--nah-cyan); }
+.neon-home .nah-deck-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-deck-row { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border: 1px solid var(--nah-line); border-left: 3px solid var(--k, var(--nah-line-2)); background: rgba(13, 13, 21, 0.7); cursor: grab; }
+.neon-home .nah-deck-row.is-program { --k: var(--nah-cyan); }
+.neon-home .nah-deck-row.is-hardware { --k: var(--nah-yellow); }
+.neon-home .nah-deck-row.is-stash { opacity: 0.8; }
+.neon-home .nah-deck-row.selected { border-color: var(--nah-pink); }
+.neon-home .nah-deck-row img { width: 26px; height: 26px; object-fit: contain; border: none; }
+.neon-home .nah-deck-row > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-deck-row b { color: #fff; font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-deck-row small { color: var(--nah-dim); font-size: 10px; }
+.neon-home .nah-deck-row .nah-icon-btn { width: 26px; height: 26px; flex: 0 0 auto; }

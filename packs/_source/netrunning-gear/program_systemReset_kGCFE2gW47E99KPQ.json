@@ -1,0 +1,57 @@
+{
+  "_id": "kGCFE2gW47E99KPQ",
+  "name": "System Reset",
+  "type": "program",
+  "img": "icons/svg/lightning.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 2,
+    "installLocation": "mall",
+    "price": {
+      "market": 5000
+    },
+    "description": {
+      "value": "<p><b>Ultimate quickhack</b> · DV12 · Cooldown 40 Rounds · 2 slots</p><p>Unconscious and Prone for 20 Rounds, or until damaged.</p><p><em>Interface + 1d10 vs DV12. 5,000eb (Luxury). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Ultimate",
+        "needs": "",
+        "dv": 12,
+        "cooldown": 40,
+        "quiet": false,
+        "vehicle": false,
+        "effect": "Unconscious and Prone for 20 Rounds, or until damaged."
+      }
+    }
+  },
+  "_key": "!items!kGCFE2gW47E99KPQ",
+  "folder": "zwNFHIS7Uu2Q25fn",
+  "sort": 2700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

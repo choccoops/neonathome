@@ -1,0 +1,57 @@
+{
+  "_id": "OCZfavKUqW7j74iU",
+  "name": "Jammed Ignition",
+  "type": "program",
+  "img": "icons/svg/wing.svg",
+  "system": {
+    "class": "antipersonnelattacker",
+    "blackIceType": "antipersonnel",
+    "atk": 0,
+    "def": 0,
+    "per": 0,
+    "spd": 0,
+    "interface": 0,
+    "rez": {
+      "value": 0,
+      "max": 0
+    },
+    "damage": {
+      "standard": "",
+      "blackIce": ""
+    },
+    "size": 1,
+    "installLocation": "mall",
+    "price": {
+      "market": 100
+    },
+    "description": {
+      "value": "<p><b>Vehicle quickhack</b> · DV8 · Cooldown 6 Rounds · 1 slot</p><p>Engine stalls for 3 Rounds: it coasts and can't accelerate. In a chase it can't move forward when positioning.</p><p><em>Interface + 1d10 vs DV8. 100eb (Premium). Cyberpunk: The Unification Era, Core Rules Chapter 10.</em></p>"
+    },
+    "usage": "toggled"
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "quickhack": {
+        "type": "Vehicle",
+        "needs": "",
+        "dv": 8,
+        "cooldown": 6,
+        "quiet": false,
+        "vehicle": true,
+        "effect": "Engine stalls for 3 Rounds: it coasts and can't accelerate. In a chase it can't move forward when positioning."
+      }
+    }
+  },
+  "_key": "!items!OCZfavKUqW7j74iU",
+  "folder": "7drqA0EYa8Kz3Lt8",
+  "sort": 3800,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}
