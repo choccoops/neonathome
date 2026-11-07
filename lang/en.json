@@ -1153,7 +1153,8 @@
         "projects": "Projects",
         "salvage": "Salvage",
         "strip": "Strip for parts",
-        "perkTraining": "Perk training"
+        "perkTraining": "Perk training",
+        "synth": "Cook street drugs"
       },
       "Blurb": {
         "hustle": "A week of work on the side between Jobs: roll 1d6 on your Role's table; the pay goes by your Role Ability Rank (Cyberpunk RED, p.381).",
@@ -1171,7 +1172,8 @@
         "projects": "Long work kept going over downtimes: Maker projects and repairs. Put downtime in; the check comes due halfway. Fail it and you realize you have to start over (the materials are fine); pass it and the rest of the time finishes it (Cyberpunk RED pp.140, 148-149).",
         "salvage": "A week picking through the ruins, and no other downtime that week. Take whatever turns up (1d6 on the place's table) or hunt one category (a harder DV). A Basic Tech Check sets the worth found: pick out Destroyed items of that category (to repair later) or Tech Materials, up to that worth; the rest is lost. A Critical Failure finds nothing and runs into the place's perils (Salvaging Night City).",
         "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost. A few items take no time; a big batch does: past the first 5, each item takes 30 minutes of downtime (materials don't count).",
-        "perkTraining": "A week of intense training aimed at the perk you want (Chapter 16): 2,500eb rolls 2d6, 5,000eb (very intense) rolls 3d6. Each 6 is a Perk Point. Once a month."
+        "perkTraining": "A week of intense training aimed at the perk you want (Chapter 16): 2,500eb rolls 2d6, 5,000eb (very intense) rolls 3d6. Each 6 is a Perk Point. Once a month.",
+        "synth": "Street Drug Synthesis (Chapter 08): a recipe, its ingredients, the tools for its complexity, and the time. Each dose is its own roll: INT + Science (Chemistry) + 1d10 against the recipe's DV. Medtechs with a point of Pharmaceuticals add Medical Tech; Techs add Fabrication Expertise. A failure wastes that dose's ingredients."
       },
       "Role": {
         "rockerboy": "Rockerboy",
@@ -1788,6 +1790,298 @@
       "SuiteLoose": "Cybersuite, not installed",
       "SuiteBuiltIn": "Built-in quickhacks: {list}.",
       "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time."
+    },
+    "Dive": {
+      "Title": "Deep Dive",
+      "Short": "Deep Dive",
+      "RunnerView": "{name}'s dive",
+      "Architect": "Architect",
+      "AccessPoint": "Access Point",
+      "Architecture": "Architecture",
+      "Archs": "NET Architectures",
+      "NoArchs": "No NET Architectures yet",
+      "PickArch": "Pick an architecture on the left, or roll a new one.",
+      "Generate": "Roll an architecture",
+      "GenerateDo": "Roll it",
+      "GenerateHint": "By the book's steps: 3d6 floors, a d10 for each branch, the Lobby on 1d6 and the rest on the difficulty's 3d6 table. It's saved as a Cyberpunk RED NET Architecture item.",
+      "ArchName": "Name",
+      "ArchNameHint": "Arasaka Sub-net 7",
+      "DifficultyLabel": "Difficulty",
+      "DemonLabel": "Demon",
+      "NewArch": "{difficulty} Architecture",
+      "ArchNote": "A {difficulty} NET Architecture (DV{dv}), rolled with Neon At Home.",
+      "Difficulty": {
+        "basic": "Basic",
+        "standard": "Standard",
+        "uncommon": "Uncommon",
+        "advanced": "Advanced"
+      },
+      "Kind": {
+        "password": "Password",
+        "file": "File",
+        "node": "Control Node",
+        "ice": "Black ICE",
+        "empty": "Empty"
+      },
+      "Rig": {
+        "iceBath": "Ice Bath",
+        "chair": "Netrunning Chair",
+        "cradle": "Immersion Cradle"
+      },
+      "NoRigShort": "No rig",
+      "RigLabel": "Cooling rig",
+      "Indefinite": "No limit",
+      "BurningOut": "Burning out",
+      "SafeTime": "safe time left",
+      "Stealth": {
+        "seen": "Seen",
+        "unseen": "Unseen"
+      },
+      "StealthLabel": "Stealth",
+      "Cloaked": "Cloak {n}",
+      "Floor": "Floor {n}",
+      "Unknown": "Unknown",
+      "NoDemon": "No Demon",
+      "Up": "Back up",
+      "Shape": "Floors",
+      "ShapeHint": "{depth} deep, {branches} branch(es)",
+      "Send": "Jack {name} in",
+      "RegenTip": "Reroll this architecture's floors",
+      "EditFloors": "Edit floors",
+      "FloorCol": "Floor",
+      "KindCol": "What's there",
+      "IceCol": "Black ICE",
+      "LabelCol": "Label",
+      "NoteCol": "GM note",
+      "IceHint": "Black ICE by id, comma separated: {list}",
+      "SaveFloors": "Save floors",
+      "JackInTitle": "Jack in",
+      "NeedDeck": "Equip a cyberdeck to dive (the Cyberdeck tab).",
+      "QuietIn": "Quietly (one more NET Action: Cloak against the Demon watching)",
+      "JackIn": "Jack in",
+      "JackInHint": "Jacking in takes a NET Action, and you get +1 NET Action a Turn while under. The rig sets how long you're safe: an Ice Bath 1 hour, a Netrunning Chair 8 hours, an Immersion Cradle indefinitely (and +1 to every Interface Check). Past that, Burnout: 1d6 brain damage at the start of each Turn.",
+      "NetActions": "NET Actions",
+      "Left": "{n} left",
+      "Brain": "HP",
+      "Act": {
+        "breach": "Backdoor",
+        "eyedee": "Eye-Dee",
+        "control": "Control",
+        "operate": "Operate",
+        "pathfinder": "Pathfinder",
+        "slideUp": "Slide up",
+        "slideDown": "Slide down",
+        "virus": "Plant Virus",
+        "cloak": "Cloak",
+        "zap": "Zap"
+      },
+      "OperateHint": "What you do with it",
+      "VirusHint": "What the Virus does",
+      "Target": "Target",
+      "IceHere": "Black ICE here",
+      "IceAttacks": "This Black ICE attacks",
+      "DemonZap": "Zap",
+      "DemonSearch": "Search",
+      "Programs": "Programs",
+      "NoPrograms": "No Programs installed in the deck.",
+      "AttackWith": "Attack with it",
+      "Rez": "Rez",
+      "Derez": "Derez",
+      "NewTurn": "New Turn",
+      "JackOut": "Jack Out",
+      "Eject": "Eject (unsafe)",
+      "VirusLeft": "Virus left: {text}",
+      "Log": {
+        "move": "Floor {floor}{branch}.",
+        "unnoticed": "{ice} didn't notice you.",
+        "meetWon": "Beat {ice} to the punch.",
+        "meetLost": "{ice} got the jump.",
+        "operate": "Operated: {text}.",
+        "rez": "Rezzed {program}.",
+        "derez": "Derezzed {program}."
+      },
+      "Ask": {
+        "safe": "Jack out safely? It takes a NET Action, and the architecture resets behind you.",
+        "unsafe": "Eject them? Every Rezzed Black ICE they've met gets one last hit on the way out."
+      },
+      "In": "<b>{name}</b> jacks in to <b>{arch}</b>.",
+      "Quiet": {
+        "seen": "<b>{name}</b> tries to slip in to <b>{arch}</b> quietly ({me} vs {them}), and the Demon sees them.",
+        "unseen": "<b>{name}</b> slips in to <b>{arch}</b> unseen ({me} vs {them})."
+      },
+      "Already": "{name} is already under.",
+      "NoArch": "That NET Architecture is gone, or has no floors.",
+      "NoRig": "Pick a cooling rig.",
+      "NotIn": "{name} isn't under.",
+      "NotAdjacent": "You can only move one floor at a time: down, or back up.",
+      "Blocked": "A {what} bars the way down.",
+      "Locked": "A Kraken holds you: you can't move or Jack Out this Turn.",
+      "NoActions": "No NET Actions left this Turn.",
+      "OncePerRound": "{program} can only be Rezzed or Derezzed once a Turn.",
+      "NotRezzed": "Rez {program} first.",
+      "Need": {
+        "password": "There's no unbroken Password here.",
+        "file": "There's no unread File here.",
+        "node": "There's no Control Node to take here.",
+        "controlled": "Take Control of the Node first.",
+        "slide": "There's no Black ICE to Slide away from (or you've Slid this Turn).",
+        "bottom": "A Virus goes in on the architecture's bottom floor.",
+        "target": "Pick a target that's still Rezzed."
+      },
+      "Meet": {
+        "unseen": "<b>{name}</b> stays hidden from <b>{ice}</b> ({me} vs {them}).",
+        "spotted": "<b>{ice}</b> spots <b>{name}</b> ({them} vs {me}).",
+        "won": "<b>{name}</b> is faster than <b>{ice}</b> ({me} vs {them}): they act first.",
+        "lost": "<b>{ice}</b> is faster than <b>{name}</b> ({them} vs {me}): it acts first."
+      },
+      "Operate": "<b>{name}</b> operates the Control Node: {text}",
+      "Result": {
+        "breach": {
+          "ok": "<b>{name}</b> Backdoors the Password (DV{dv}).",
+          "fail": "<b>{name}</b> fails to break the Password (DV{dv})."
+        },
+        "eyedee": {
+          "ok": "<b>{name}</b> reads <b>{file}</b> (DV{dv}).",
+          "fail": "<b>{name}</b> can't make sense of <b>{file}</b> (DV{dv})."
+        },
+        "control": {
+          "ok": "<b>{name}</b> takes Control of <b>{node}</b> (DV{dv}).",
+          "fail": "<b>{name}</b> fails to take <b>{node}</b> (DV{dv})."
+        },
+        "pathfinder": "<b>{name}</b> maps the architecture: {n} floor(s) found.",
+        "slide": {
+          "ok": "<b>{name}</b> Slides away from the Black ICE ({them} to beat).",
+          "fail": "<b>{name}</b> can't shake the Black ICE ({them} to beat)."
+        },
+        "zap": {
+          "ok": "<b>{name}</b> Zaps <b>{target}</b> for {n}: REZ {rez} left.",
+          "fail": "<b>{name}</b>'s Zap misses ({them} to beat)."
+        },
+        "cloak": "<b>{name}</b> Cloaks their tracks: {n} to beat for anyone looking for them.",
+        "virus": {
+          "ok": "<b>{name}</b> plants a Virus (DV{dv}): {text}",
+          "fail": "<b>{name}</b> fails to plant the Virus (DV{dv})."
+        },
+        "attack": {
+          "ok": "<b>{name}</b>'s <b>{program}</b> hits <b>{target}</b> for {n}: REZ {rez} left.",
+          "fail": "<b>{name}</b>'s <b>{program}</b> misses <b>{target}</b> ({them} to beat)."
+        }
+      },
+      "IceAttack": {
+        "hit": "<b>{ice}</b> hits <b>{target}</b> ({atk} vs {def}).",
+        "miss": "<b>{ice}</b> misses <b>{target}</b> ({atk} vs {def})."
+      },
+      "Effect": {
+        "program": "{program} takes {n}.",
+        "programDestroyed": "{program} takes {n} and is Destroyed.",
+        "noProgram": "No Program Rezzed to hit.",
+        "derezDefender": "{program} is Derezzed.",
+        "destroyed": "{program} is Destroyed.",
+        "stats": "{stats} −{n} for an hour.",
+        "locked": "It holds them: no going deeper or safe Jack Out until their next Turn ends.",
+        "slowed": "One less NET Action next Turn.",
+        "fire": "Their deck and clothes are On Fire: 2 damage each Turn until it's put out.",
+        "skunk": "−2 to Slide while it's Rezzed (it stacks).",
+        "brain": "{n} damage to the brain.",
+        "brainArmor": "{n} damage to the brain (Armor took 4 of {rolled})."
+      },
+      "EffectName": "{ice}'s hit",
+      "Demon": {
+        "searchFound": "<b>{demon}</b> finds <b>{name}</b> ({them} vs {me}).",
+        "searchMissed": "<b>{demon}</b> looks for <b>{name}</b> and misses them ({them} vs {me}).",
+        "zapHit": "<b>{demon}</b> Zaps <b>{name}</b> ({them} vs {me}).",
+        "zapMiss": "<b>{demon}</b>'s Zap misses <b>{name}</b> ({them} vs {me})."
+      },
+      "Burnout": "<b>{name}</b> is past the rig's safe time: Burnout.",
+      "Out": {
+        "safe": "<b>{name}</b> jacks out of <b>{arch}</b>.",
+        "unsafe": "<b>{name}</b> is ejected from <b>{arch}</b>."
+      },
+      "RunLog": "Run log"
+    },
+    "Medtech": {
+      "Field": {
+        "domain": "Working as"
+      },
+      "Domain": {
+        "tech": "Tech (Maker)",
+        "ripperdoc": "Ripperdoc",
+        "pharma": "Pharmaceuticals",
+        "cryo": "Cryosystem"
+      },
+      "MakerRoll": "TECH + {skill} + {specialty} {rank} + 1d10",
+      "MakerRollMT": "TECH + Medical Tech {rank} + 1d10",
+      "NeedPoints": "{name} needs 4 points in a Medtech Specialty to do Maker work with it.",
+      "NeedRipperdoc": "{name} needs 4 points in Ripperdoc (Surgery) to blueprint cyberware.",
+      "OnlyCyberware": "A Ripperdoc's Maker work is implantable cyberware only.",
+      "OnlyCryo": "Cryosystem Maker work is Cryotank and Cryopump gear only.",
+      "NeedBlueprint": "A Ripperdoc fabricates from a blueprint: source a real piece and blueprint it first.",
+      "NeedPiece": "Pick a real piece of cyberware the character has.",
+      "BlueprintIt": "Blueprint this piece",
+      "BlueprintOf": "{name} blueprinted a real {item}.",
+      "Blueprinted": "<b>{name}</b> takes a real <b>{item}</b> apart on paper: a blueprint to fabricate it from.",
+      "RipperdocFab": "Ripperdoc: implantable cyberware, from a blueprint of a real piece (drop the piece to blueprint it).",
+      "CryoFab": "Cryosystem: Cryotank and Cryopump mods and upgrades only.",
+      "RipperdocInvent": "Ripperdoc: new implantable cyberware. The GM writes it up and sets its Price Category.",
+      "CryoInvent": "Cryosystem: new Cryotank and Cryopump mods and upgrades. The GM writes it up and sets its Price Category."
+    },
+    "Drug": {
+      "Untitled": "Untitled drug",
+      "RecipeName": "Recipe: {name}",
+      "CostADose": "Ingredients {eb} a dose",
+      "PharmaOnly": "Pharmaceutical: Medtechs only",
+      "RecipeNote": "Teach it to anyone in an hour. Cook it with Street Drug Synthesis (Downtime).",
+      "Tier": {
+        "simple": "Simple",
+        "standard": "Standard",
+        "complex": "Complex",
+        "exotic": "Exotic"
+      },
+      "Kind": {
+        "street": "Street drug",
+        "pharma": "Pharmaceutical (Medtechs only)"
+      },
+      "Field": {
+        "tier": "Recipe complexity",
+        "doseCost": "Ingredients a dose (eb)",
+        "kind": "What it is",
+        "recipe": "Recipe",
+        "doses": "Doses"
+      },
+      "Fact": {
+        "perDose": "Time a dose",
+        "tool": "Tools",
+        "ingredients": "Recipe"
+      },
+      "DoseCostHint": "The GM's call. The Item Compendium's drugs run 10–1,500eb a dose.",
+      "DosesHint": "A roll, the time and the ingredients for each.",
+      "InventNote": "Pharmaceuticals (4+): invent a new street drug or pharmaceutical. The GM writes up what it does and sets its Price Category; the recipe's complexity sets how hard it is to cook.",
+      "MakesRecipe": "A recipe item for the drug, to cook with Street Drug Synthesis, teach or sell.",
+      "Invented": "<b>{name}</b> works out a new drug: <b>{recipe}</b> ({tier} recipe).",
+      "PickRecipe": "Pick a recipe.",
+      "NoRecipes": "{name} has no drug recipes.",
+      "WhereRecipes": "Recipes come from Night Markets and gang or corp stores (the Drug Lab compendium has the book's), or a Pharmaceuticals Medtech invents them.",
+      "NeedTool": "{name} needs a {tool} (or better) for this recipe.",
+      "ToolNone": "None (needs a {need})",
+      "Cost": "{each} a dose ({total})",
+      "CostHalved": "{each} a dose, halved by the Fabrication Station ({total})",
+      "Roll": "INT + Science (Chemistry) + 1d10 ({extra})",
+      "BetterTools": "Better tools",
+      "FailNote": "A failure wastes that dose's ingredients.",
+      "CookLabel": "Cooking {drug}",
+      "Cook": {
+        "ok": "<b>{name}</b> cooks a dose of <b>{drug}</b> ({n} of {of}).",
+        "fail": "<b>{name}</b> ruins a batch of <b>{drug}</b> ({n} of {of}): the ingredients are wasted."
+      },
+      "Section": "Drug recipe",
+      "IsRecipe": "A drug recipe",
+      "DrugName": "Drug",
+      "BookDrug": "A book street drug (Fabrication Station halves it)",
+      "Makes": "The drug it makes",
+      "DropDrug": "Drop the drug item here",
+      "MakesHint": "Cooking it makes this drug. Without one, the drug of that name from Cyberpunk RED's compendium, else a plain drug item.",
+      "ToolShort": "{tool} (needs a {need})",
+      "ToolBetter": "{tool} (+{bonus}: better tools)"
     }
   }
 }

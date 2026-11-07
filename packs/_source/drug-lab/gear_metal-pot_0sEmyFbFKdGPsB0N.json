@@ -1,0 +1,37 @@
+{
+  "name": "Metal Pot",
+  "type": "gear",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": {
+      "value": "<p>Synthesis tool: Simple recipes.</p>"
+    },
+    "price": {
+      "market": 20
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drugTool": "simple"
+    }
+  },
+  "_id": "0sEmyFbFKdGPsB0N",
+  "_key": "!items!0sEmyFbFKdGPsB0N",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 100,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

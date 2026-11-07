@@ -1,0 +1,33 @@
+{
+  "name": "Synthesis ingredients",
+  "type": "gear",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "description": {
+      "value": "<p>Water, synth-honey, cinnamon 10eb • KoffPops, synth-tobacco 20eb • synth stem cell mixture 50eb • binding chemical 100eb • crate of 10 limes or 50 berries 200eb • exotic chemical 500eb. Plus the street drugs each recipe calls for.</p>"
+    },
+    "price": {
+      "market": 10
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {},
+  "_id": "8eNcPEebL1GhIxOQ",
+  "_key": "!items!8eNcPEebL1GhIxOQ",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 800,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

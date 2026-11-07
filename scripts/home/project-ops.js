@@ -9,6 +9,8 @@ import { makerJob, UPGRADES, inventPrice } from "../data/downtime.js";
 import { fabricationNeeds, upgradeNeeds, tierEb, needsLabel } from "../data/materials.js";
 import { SalvageOps } from "./salvage-ops.js";
 import { normalizeProject, stage, plan, needed, halfway, remaining } from "../data/projects.js";
+import { MEDTECH_MAKER, SYNTH, isCryoGear } from "../data/drugs.js";
+import { makerDomains, recipeData } from "./drug-ops.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -126,14 +128,37 @@ export const ProjectOps = {
   /* ---------------------------------------- */
 
   /**
+   * Which Maker a character works as for a kind of work: a Tech, or a Medtech's Specialty at 4+
+   * (ripperdoc: cyberware; pharma: inventing drugs; cryo: cryo gear). Throws when they can't.
+   * @returns {string} tech, ripperdoc, pharma or cryo
+   */
+  domain(actor, kind, wanted = null) {
+    const list = makerDomains(actor, kind);
+    if (!list.length) {
+      if (CPR.roles(actor).medtech !== undefined) throw new RuleBlock(L("NEONHOME.Medtech.NeedPoints", { name: actor.name }));
+      DowntimeOps._requireRole(actor, "tech");
+    }
+    return list.includes(wanted) ? wanted : list[0];
+  },
+
+  /** The skill and Specialty a Maker's check uses, by who's making it. */
+  _makerSkill(domain, kind, fallback) {
+    if (domain === "tech" || !MEDTECH_MAKER[domain]) return { skill: fallback, ability: KIND[kind].ability };
+    const m = MEDTECH_MAKER[domain];
+    return { skill: m.skill, ability: m.rank ? m.ability : "" };
+  },
+
+  /**
    * Start a Maker project and put time in right away.
    * @param {string} kind - fabricate, upgrade or invent
-   * @param {object} p - fabricate { item: uuid }, upgrade { item: id, upgrade }, invent { text, category, skill }
+   * @param {object} p - fabricate { item: uuid }, upgrade { item: id, upgrade }, invent { text, category, skill }; any: { domain }
+   *   (a Medtech's Specialty); a drug invention (pharma): { tier, doseCost, pharma }
    * @param {object} [opts] - { minutes: time to put in now ("check", "all" or minutes), event }
    */
   async start(actor, kind, p = {}, { minutes = "all", event = null } = {}) {
     DowntimeOps._ready(actor);
-    DowntimeOps._requireRole(actor, "tech");
+    if (!KIND[kind] || kind === "repair") throw new Error(`Not a Maker project: ${kind}`);
+    const domain = this.domain(actor, kind, p.domain);
     let project;
     switch (kind) {
       case "fabricate": {
@@ -142,10 +167,17 @@ export const ProjectOps = {
         const made = fabricationOf(source.toObject());
         // building from a blueprint takes having it
         if (made.blueprint && source.parent !== actor) throw new RuleBlock(L("NEONHOME.Blueprint.NotHeld", { name: actor.name, blueprint: source.name }));
+        // a Ripperdoc builds implantable cyberware, from a blueprint of a real piece; Cryosystem, cryo gear
+        if (domain === "ripperdoc") {
+          if (made.data.type !== "cyberware") throw new RuleBlock(L("NEONHOME.Medtech.OnlyCyberware"));
+          if (!made.blueprint) throw new RuleBlock(L("NEONHOME.Medtech.NeedBlueprint"));
+        }
+        if (domain === "cryo" && !isCryoGear(made.data)) throw new RuleBlock(L("NEONHOME.Medtech.OnlyCryo"));
         const job = makerJob(made.price);
+        const sk = this._makerSkill(domain, kind, made.skill);
         project = {
-          kind, label: L("NEONHOME.Downtime.FabricateLabel", { item: made.data.name }), img: made.data.img, skill: made.skill, dv: job.dv, minutes: job.minutes,
-          data: { item: made.data, need: fabricationNeeds(made.price), blueprint: made.blueprint }
+          kind, label: L("NEONHOME.Downtime.FabricateLabel", { item: made.data.name }), img: made.data.img, skill: sk.skill, ability: sk.ability, dv: job.dv, minutes: job.minutes,
+          data: { item: made.data, need: fabricationNeeds(made.price), blueprint: made.blueprint, domain }
         };
         break;
       }
@@ -156,12 +188,15 @@ export const ProjectOps = {
         if (item.getFlag(MODULE_ID, "makerUpgrade") || this.list(actor).some((x) => x.kind === "upgrade" && x.data.item === item.id)) {
           throw new RuleBlock(L("NEONHOME.Downtime.AlreadyUpgraded", { item: item.name }));
         }
+        if (domain === "ripperdoc" && item.type !== "cyberware") throw new RuleBlock(L("NEONHOME.Medtech.OnlyCyberware"));
+        if (domain === "cryo" && !isCryoGear(item)) throw new RuleBlock(L("NEONHOME.Medtech.OnlyCryo"));
         const vehicle = item.type === "vehicle";
         const price = Number(item.system?.price?.market) || 0;
         const job = makerJob(price, { vehicle });
+        const sk = this._makerSkill(domain, kind, workSkill(item.toObject()));
         project = {
           kind, label: L("NEONHOME.Downtime.UpgradeLabel", { item: item.name, upgrade: L(`NEONHOME.Downtime.Upgrade.${p.upgrade}`) }), img: item.img,
-          skill: workSkill(item.toObject()), dv: job.dv, minutes: job.minutes, data: { item: item.id, upgrade: p.upgrade, need: upgradeNeeds(price, { vehicle }) }
+          skill: sk.skill, ability: sk.ability, dv: job.dv, minutes: job.minutes, data: { item: item.id, upgrade: p.upgrade, need: upgradeNeeds(price, { vehicle }), domain }
         };
         break;
       }
@@ -174,9 +209,12 @@ export const ProjectOps = {
         const cat = price.category;
         const job = makerJob(price.value);
         const name = String(p.name ?? "").trim().slice(0, 100);
+        const sk = this._makerSkill(domain, kind, p.skill || "Basic Tech");
+        // a Pharmaceuticals Medtech invents a drug: its recipe's complexity and what a dose takes
+        const drug = domain === "pharma" ? { tier: SYNTH[p.tier] ? p.tier : "standard", doseCost: Math.max(0, Math.floor(Number(p.doseCost) || 0)), pharma: p.pharma === true || p.pharma === "1" || p.pharma === "pharma" } : {};
         project = {
-          kind, label: name ? L("NEONHOME.Downtime.InventNamed", { name }) : L("NEONHOME.Downtime.InventLabel"), img: "", skill: p.skill || "Basic Tech",
-          dv: job.dv, minutes: job.minutes, data: { text, category: cat, value: price.value, name }
+          kind, label: name ? L("NEONHOME.Downtime.InventNamed", { name }) : L("NEONHOME.Downtime.InventLabel"), img: "", skill: sk.skill, ability: sk.ability,
+          dv: job.dv, minutes: job.minutes, data: { text, category: cat, value: price.value, name, domain, ...drug }
         };
         break;
       }
@@ -186,7 +224,7 @@ export const ProjectOps = {
     // the time asked for has to be there before the materials go in
     if (minutes !== 0) Downtime.require(actor, typeof minutes === "number" ? Math.min(Math.floor(minutes), project.minutes) : 0);
     const need = project.data.need ?? null;
-    project = normalizeProject({ ...project, id: foundry.utils.randomID(), ability: KIND[kind].ability, materials: need ? tierEb(need.tier) * need.count : 0 });
+    project = normalizeProject({ ...project, id: foundry.utils.randomID(), ability: project.ability ?? KIND[kind].ability, materials: need ? tierEb(need.tier) * need.count : 0 });
     // the Tech's Tech Materials go in up front (a failure leaves them unharmed for the next try)
     const sources = await SalvageOps.useMaterials(actor, need);
     project.data.sources = sources;
@@ -292,7 +330,10 @@ export const ProjectOps = {
       const fe = fieldExpertise(actor.items.map((i) => i.toObject()));
       if (fe) mods.push({ value: fe, source: L("NEONHOME.Maint.FieldExpertise") });
     }
-    const res = await CPR.skillCheck(actor, p.skill, { event, mods });
+    // a Medtech's Medical Tech is a role ability (TECH + its rank), not a skill
+    const res = p.skill === "Medical Tech"
+      ? await CPR.skillCheck(actor, "__Medical Tech Skill", { event, stat: "tech", mods: [{ value: CPR.abilityRank(actor, "Medical Tech Skill"), source: L("NEONHOME.Downtime.MedicalTech") }, ...mods] })
+      : await CPR.skillCheck(actor, p.skill, { event, mods });
     if (!res) return null;
     const ok = res.total >= p.dv;
     if (ok) await this._put(actor, { ...p, check: "passed" });
@@ -328,6 +369,13 @@ export const ProjectOps = {
         break;
       }
       case "invent": {
+        // a new drug: its recipe
+        if (p.data.domain === "pharma") {
+          const data = recipeData(p, actor);
+          await actor.createEmbeddedDocuments("Item", [data], { [MODULE_ID]: { checked: true } });
+          verdict = `${L("NEONHOME.Drug.Invented", { name: esc(actor.name), recipe: esc(data.name), tier: L(`NEONHOME.Drug.Tier.${data.flags[MODULE_ID].recipe.tier}`) })}<br><em>${esc(p.data.text)}</em>`;
+          break;
+        }
         // the design, as a blueprint the character keeps (and can sell or hand over)
         const data = blueprintData(p, actor);
         await actor.createEmbeddedDocuments("Item", [data], { [MODULE_ID]: { checked: true } });

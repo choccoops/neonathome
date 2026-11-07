@@ -1,0 +1,41 @@
+{
+  "name": "Bee-Happy (BH-5)",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Complex mixed drug.</b> Lasts 24 hours.</p><p><b>Primary:</b> Calm and positive. 7 Humanity armor: subtract it from any HL except new chrome; each HL that gets through ablates it by 1.</p><p><b>Secondary (DV15):</b> All HL doubled (chrome included) unless dosed. Nightmares.</p><p><b>Recipe:</b> Prime Time ×2, Black Lace ×2, binding chemical, synth-honey.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "complex",
+        "dv": 15,
+        "lasts": "24 hours"
+      }
+    }
+  },
+  "_id": "6N7ncbtyD9RzIb5B",
+  "_key": "!items!6N7ncbtyD9RzIb5B",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 2700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

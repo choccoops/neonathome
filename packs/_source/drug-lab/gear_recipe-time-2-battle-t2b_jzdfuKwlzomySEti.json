@@ -1,0 +1,72 @@
+{
+  "name": "Recipe: Time-2-Battle (T2B)",
+  "type": "gear",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Complex recipe</b> (DV15, Standard Chemistry Kit). Ingredients 500eb a dose: Sixgun ×2, Timewarp, Synthcoke, Blue Glass, binding chemical.</p><p>Teach it to anyone in an hour.</p>"
+    },
+    "price": {
+      "market": 200
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "recipe": {
+        "name": "Time-2-Battle (T2B)",
+        "tier": "complex",
+        "cost": 500,
+        "ingredients": "Sixgun ×2, Timewarp, Synthcoke, Blue Glass, binding chemical",
+        "book": false,
+        "pharma": false,
+        "makes": {
+          "name": "Time-2-Battle (T2B)",
+          "type": "drug",
+          "img": "icons/svg/pill.svg",
+          "system": {
+            "description": {
+              "value": "<p><b>Complex mixed drug.</b> Lasts 10 minutes.</p><p><b>Primary:</b> Combat looks like a turn-based game: you see everyone's HP, and can trade your Move Action for a second, different Action.</p><p><b>Secondary (DV15):</b> Game UI floods reality: −2 COOL and WILL; DV15 Concentration when it glitches or 1d6 HL.</p><p><b>Recipe:</b> Sixgun ×2, Timewarp, Synthcoke, Blue Glass, binding chemical.</p>"
+            },
+            "price": {
+              "market": 500
+            },
+            "amount": 1,
+            "equipped": "owned",
+            "concealable": {
+              "concealable": true,
+              "isConcealed": false
+            }
+          },
+          "flags": {
+            "cpr-neon-at-home": {
+              "drug": {
+                "tier": "complex",
+                "dv": 15,
+                "lasts": "10 minutes"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "_id": "jzdfuKwlzomySEti",
+  "_key": "!items!jzdfuKwlzomySEti",
+  "folder": "gwRjDAjVqvFOKdqq",
+  "sort": 3200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

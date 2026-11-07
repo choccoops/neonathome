@@ -10,6 +10,11 @@ import { BiomonitorApp } from "./apps/biomonitor-app.js";
 import { PerksApp } from "./apps/perks-app.js";
 import { Perks } from "./apps/perks.js";
 import { Deck } from "./apps/deck.js";
+import { Dive } from "./apps/dive.js";
+import { DiveApp } from "./apps/dive-app.js";
+import { DiveOps, DIVE_FLAG } from "./home/dive-ops.js";
+import { generate as generateArch } from "./data/netarch.js";
+import { DrugOps } from "./home/drug-ops.js";
 import { DeckOps } from "./home/deck-ops.js";
 import { PerkOps, PERK_EFFECT } from "./home/perk-ops.js";
 import { registerFeature, features } from "./apps/features.js";
@@ -41,6 +46,7 @@ registerFeature(Maintenance);
 registerFeature(DowntimeTab);
 registerFeature(Perks);
 registerFeature(Deck);
+registerFeature(Dive);
 
 // Item Piles makes its pile actors (containers in Cyberpunk RED) with Actor.create; see CPR.fixActorCreate.
 Hooks.once("ready", () => CPR.fixActorCreate());
@@ -67,6 +73,22 @@ Hooks.once("init", () => {
     rig: (actor) => DeckOps.rig(actor),
     /** Slot a Program, quickhack or Hardware item into the character's running deck. */
     slotIntoDeck: (actor, itemId) => DeckOps.slot(actor, itemId),
+    /** Open the Deep Dive for a character on this client (an Actor or uuid; default: your own character). */
+    deepDive: (actor = null) => DiveApp.open(actor),
+    /** A character's Deep Dive (null when they aren't under): where they are, what they've found, their Turn. */
+    dive: (actor) => DiveOps.dive(actor),
+    /** GM: roll a NET Architecture by the book's tables ({ difficulty, name, demon }); save: true makes the item. */
+    generateArch: (opts = {}, { save = false } = {}) => (save ? DiveOps.create(opts) : generateArch(opts)),
+    /** Jack a character in to a NET Architecture (its uuid): { rig: iceBath|chair|cradle, quiet }. */
+    jackIn: (actor, archUuid, opts = {}) => DiveOps.jackIn(actor, archUuid, opts),
+    /** Jack a character out ({ unsafe: true }: every Rezzed Black ICE they've met hits on the way out). */
+    jackOut: (actor, opts = {}) => DiveOps.jackOut(actor, opts),
+    /** Cook doses of a drug recipe the character holds (Street Drug Synthesis): { made, tried }. */
+    cookDrug: (actor, recipeItemId, doses = 1) => DrugOps.cook(actor, { recipe: recipeItemId, doses }),
+    /** A character's drug recipes and their best synthesis tool. */
+    drugLab: (actor) => ({ recipes: DrugOps.recipes(actor).map((r) => ({ id: r.item.id, ...r.recipe })), tools: DrugOps.tools(actor) }),
+    /** A Ripperdoc (4+) blueprints a real piece of cyberware they have, to fabricate it from. */
+    blueprintCyberware: (actor, itemId) => DrugOps.blueprintPiece(actor, itemId),
     /** Open a character's Perk Tree on this client (an Actor or uuid; default: your own character). */
     perkTree: (actor = null) => PerksApp.open(actor),
     /** A character's perks: { owned: [{ id, stat, free }], awards, points: { total, spent, available } }. */
@@ -111,6 +133,7 @@ Hooks.once("init", () => {
       if (["fabricate", "upgrade", "invent"].includes(id)) return ProjectOps.start(actor, id, params, { minutes: params.now ?? "all" });
       if (id === "salvage") return SalvageOps.trip(actor, params);
       if (id === "strip") return SalvageOps.strip(actor, params.picks, params.tier, params.count);
+      if (id === "synth") return DrugOps.cook(actor, params);
       return DowntimeOps.perform(actor, id, params);
     },
     /** A character's projects under way (Maker work, repairs): { id, kind, label, dv, minutes, done, check }. */
@@ -133,7 +156,7 @@ Hooks.once("init", () => {
     drop: (actor, itemId) => MaintOps.dropItem(actor, actor.items.get(itemId)),
     /** Open Neon At Home's settings for an item (GM). */
     configureItem: (item) => ItemConfig.open(item),
-    apps: { HomeApp, ItemConfig, RulesConfig }
+    apps: { HomeApp, ItemConfig, RulesConfig, DiveApp }
   };
 
   Compat.loadTemplates([`${TEMPLATE_PATH}/shell.hbs`, ...features().map((f) => f.template)]);
@@ -396,7 +419,10 @@ let expiry = null;
 Hooks.on("updateWorldTime", () => {
   if (!HomeOps.isLeadGM) return;
   clearTimeout(expiry);
-  expiry = setTimeout(() => MaintOps.expireMalfunctions().catch((err) => console.warn(`${MODULE_ID} | malfunction expiry failed`, err)), 500);
+  expiry = setTimeout(() => {
+    MaintOps.expireMalfunctions().catch((err) => console.warn(`${MODULE_ID} | malfunction expiry failed`, err));
+    DiveOps.expire().catch((err) => console.warn(`${MODULE_ID} | Black ICE effect expiry failed`, err));
+  }, 500);
 });
 
 /**
@@ -540,6 +566,7 @@ Hooks.on("renderActorDirectory", (app, html) => {
   button("neon-home-open", "fa-solid fa-house-chimney-window", "NEONHOME.Short", () => HomeApp.open());
   button("neon-home-bio", "fa-solid fa-heart-pulse", "NEONHOME.Bio.Short", () => BiomonitorApp.open());
   if (Settings.get("perks") !== false) button("neon-home-perks", "fa-solid fa-diagram-project", "NEONHOME.Perks.Short", () => PerksApp.open());
+  if (Settings.get("deckTab") !== false && game.user.isGM) button("neon-home-dive", "fa-solid fa-network-wired", "NEONHOME.Dive.Short", () => DiveApp.open());
 });
 
 /** A home button in the left toolbar's Token Controls. v12 passes an array, v13 an object. */
@@ -611,4 +638,27 @@ Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
 Hooks.once("ready", () => {
   if (Settings.get("perks") === false) return;
   for (const a of game.actors.filter((x) => x.type === "character" && PerkOps.record(x).owned.length)) PerkOps.later(a);
+});
+
+/* ------------------------------------------ */
+/*  Deep Dive                                 */
+/* ------------------------------------------ */
+
+// The GM's Architect shows every runner under: it follows them all, and the architectures.
+Hooks.on("updateActor", (actor, changes) => {
+  if (!foundry.utils.hasProperty(changes, `flags.${MODULE_ID}.${DIVE_FLAG}`) && !foundry.utils.hasProperty(changes, `flags.${MODULE_ID}.-=${DIVE_FLAG}`)) return;
+  if (DiveApp.instance?.rendered && DiveApp.instance.actor?.id !== actor.id) DiveApp.instance.render();
+});
+for (const hook of ["createItem", "updateItem", "deleteItem"]) {
+  Hooks.on(hook, (item) => {
+    if (item.type === "netarch" && !item.parent && DiveApp.instance?.rendered) DiveApp.instance.render();
+  });
+}
+
+// In combat, a diving netrunner's Turn comes round: their NET Actions back (and Burnout past the rig's safe time).
+Hooks.on("updateCombat", (combat, changes) => {
+  if (!HomeOps.isLeadGM || !("turn" in changes || "round" in changes)) return;
+  const actor = combat.combatant?.actor;
+  if (!actor || !DiveOps.dive(actor)) return;
+  DiveOps.newTurn(actor).catch((err) => console.warn(`${MODULE_ID} | a new NET Turn for ${actor.name} failed`, err));
 });

@@ -1,0 +1,37 @@
+{
+  "name": "High School Chemistry Kit",
+  "type": "gear",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": {
+      "value": "<p>Synthesis tool: Standard recipes. +1 on Simple.</p>"
+    },
+    "price": {
+      "market": 100
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drugTool": "standard"
+    }
+  },
+  "_id": "Gj1NdU3wx12SiHqo",
+  "_key": "!items!Gj1NdU3wx12SiHqo",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

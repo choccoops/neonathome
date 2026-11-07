@@ -140,6 +140,10 @@ export const Deck = {
   },
 
   actions: {
+    deckDive() {
+      // lazily: the Deep Dive window builds on this one's shell
+      return import("./dive-app.js").then(({ DiveApp }) => DiveApp.open(this.actor));
+    },
     deckTab(event, target) {
       (this.uiState.deck ??= {}).tab = target.dataset.tab;
       this.render();

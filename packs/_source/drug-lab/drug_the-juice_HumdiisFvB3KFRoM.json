@@ -1,0 +1,41 @@
+{
+  "name": "The Juice",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Simple mixed drug.</b> Lasts 3 seconds.</p><p><b>Primary:</b> The most addictive thing there is. Even if you resist, you think about it for a day.</p><p><b>Secondary (DV17):</b> 1 HL every day without it. Nothing else has taste.</p><p><b>Recipe:</b> Smash, Prime Time, water, lime, berries, cinnamon.</p>"
+    },
+    "price": {
+      "market": 100
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "simple",
+        "dv": 17,
+        "lasts": "3 seconds"
+      }
+    }
+  },
+  "_id": "HumdiisFvB3KFRoM",
+  "_key": "!items!HumdiisFvB3KFRoM",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 1700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

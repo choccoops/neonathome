@@ -1,0 +1,37 @@
+{
+  "name": "Standard Chemistry Kit",
+  "type": "gear",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": {
+      "value": "<p>Synthesis tool: Complex recipes. +2 Simple, +1 Standard.</p>"
+    },
+    "price": {
+      "market": 1000
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drugTool": "complex"
+    }
+  },
+  "_id": "DgGSgcdOUoGqd2Zf",
+  "_key": "!items!DgGSgcdOUoGqd2Zf",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

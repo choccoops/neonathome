@@ -16,7 +16,7 @@
       "market": 1000
     },
     "description": {
-      "value": "<p><b>Cybersuite</b> · Neuralware, Hospital, HL 7 (2d6), 1 Neural Link slot. Requires a Neuroport. Installs one Cyberdeck inside your Neuroport, Hardware slots and all: 20m to architectures, 50m to Neuroports and vehicles. Swapping the deck is a Clinic job (1 hour).</p><p><b>Built-in quickhacks</b> (take no deck slots, can't be removed): Cripple Movement, PopUp-geddon</p><p>An Elflines Online tie-in. Comes with the game.</p><p><em>1,000eb (Very Expensive).</em></p>"
+      "value": "<p><b>Cybersuite</b> · Neuralware, Hospital, HL 7 (2d6), 1 Neural Link slot. Requires a Neuroport. Installs one Cyberdeck inside your Neuroport, Hardware slots and all: 20m to architectures, 50m to Neuroports and vehicles. Swapping the deck is a Clinic job (1 hour).</p><p><b>Built-in quickhacks</b> (take no deck slots, can't be removed): Cripple Movement, PopUp-geddon</p><p>A fantasy-game tie-in, sold with the game.</p><p><em>1,000eb (Very Expensive).</em></p>"
     }
   },
   "flags": {
@@ -26,7 +26,7 @@
           "Cripple Movement",
           "PopUp-geddon"
         ],
-        "perk": "An Elflines Online tie-in. Comes with the game."
+        "perk": "A fantasy-game tie-in, sold with the game."
       }
     }
   },

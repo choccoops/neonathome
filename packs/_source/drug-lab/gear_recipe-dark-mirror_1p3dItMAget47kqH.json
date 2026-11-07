@@ -1,0 +1,72 @@
+{
+  "name": "Recipe: Dark Mirror",
+  "type": "gear",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Exotic recipe</b> (DV20, Biotechnica Mobile Lab Tower). Ingredients 1500eb a dose: Suitup, Evil Tina, DumDum, exotic chemical.</p><p>Teach it to anyone in an hour.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "recipe": {
+        "name": "Dark Mirror",
+        "tier": "exotic",
+        "cost": 1500,
+        "ingredients": "Suitup, Evil Tina, DumDum, exotic chemical",
+        "book": false,
+        "pharma": false,
+        "makes": {
+          "name": "Dark Mirror",
+          "type": "drug",
+          "img": "icons/svg/pill.svg",
+          "system": {
+            "description": {
+              "value": "<p><b>Exotic mixed drug.</b> Lasts 24 hours.</p><p><b>Primary:</b> You become someone else: a new character with the same gear, chrome, EMP, BODY, REF, WILL and DEX; MOVE, COOL and LUCK and Skills can swap.</p><p><b>Secondary (DV12):</b> You flip between selves when you sleep; remembering takes DV15 Concentration. Three straight weeks of Addiction Therapy cures it.</p><p><b>Recipe:</b> Suitup, Evil Tina, DumDum, exotic chemical.</p>"
+            },
+            "price": {
+              "market": 1500
+            },
+            "amount": 1,
+            "equipped": "owned",
+            "concealable": {
+              "concealable": true,
+              "isConcealed": false
+            }
+          },
+          "flags": {
+            "cpr-neon-at-home": {
+              "drug": {
+                "tier": "exotic",
+                "dv": 12,
+                "lasts": "24 hours"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "_id": "1p3dItMAget47kqH",
+  "_key": "!items!1p3dItMAget47kqH",
+  "folder": "gwRjDAjVqvFOKdqq",
+  "sort": 3600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

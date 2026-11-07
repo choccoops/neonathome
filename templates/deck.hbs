@@ -34,6 +34,9 @@
       {{#if cap}}<b>{{used}}<small>/{{cap.total}}</small></b>{{else}}<b>&mdash;</b>{{/if}}
       {{#if extras.length}}<small>{{#each extras}}<span>{{this}}</span>{{/each}}</small>{{/if}}
     </div>
+    <div class="nah-deck-stat nah-deck-dive">
+      <button type="button" class="nah-cta" data-action="deckDive"><i class="fa-solid fa-network-wired"></i> {{localize "NEONHOME.Dive.Short"}}</button>
+    </div>
   </header>
   {{#if inCombat}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-crosshairs"></i> {{localize "NEONHOME.Deck.InCombat"}}</p>{{/if}}
 

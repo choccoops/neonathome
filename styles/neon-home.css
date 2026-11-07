@@ -1362,7 +1362,7 @@
    Cyberdeck: the netrunner's quickhack suite (Unification Era, Chapter 10)
    ====================================================================== */
 .neon-home .nah-deck { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-.neon-home .nah-deck-strip { display: grid; grid-template-columns: minmax(200px, 1.6fr) repeat(4, minmax(120px, 1fr)); margin: 10px 14px 0; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-panel); }
+.neon-home .nah-deck-strip { display: grid; grid-template-columns: minmax(200px, 1.6fr) repeat(4, minmax(120px, 1fr)) auto; margin: 10px 14px 0; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-panel); }
 .neon-home .nah-deck-stat { display: grid; align-content: start; gap: 3px; padding: 8px 14px; border-right: 1px solid var(--nah-line); min-width: 0; }
 .neon-home .nah-deck-stat:last-child { border-right: none; }
 .neon-home .nah-deck-stat b { font-family: var(--nah-display); font-weight: 400; font-size: 24px; line-height: 1.1; color: #fff; }
@@ -1435,3 +1435,158 @@
 .neon-home .nah-deck-row small { color: var(--nah-dim); font-size: 10px; }
 .neon-home .nah-deck-row .nah-icon-btn { width: 26px; height: 26px; flex: 0 0 auto; }
 .neon-home .nah-deck-suite-on { color: var(--nah-pink); text-shadow: 0 0 6px var(--nah-pink); padding: 0 6px; }
+.neon-home .nah-deck-dive { align-content: center; }
+.neon-home .nah-deck-dive button { width: auto; white-space: nowrap; }
+
+/* ======================================================================
+   Deep Dive: a netrunner under in a NET Architecture (Chapter 10, Part 2)
+   ====================================================================== */
+.neon-home .nah-dive { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, rgba(5, 217, 232, 0.10), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(157, 77, 255, 0.14), transparent 55%), #05050a; }
+/* the NET behind it: a scrolling grid and falling data */
+.neon-home .nah-dive-rain { position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0.55;
+  background:
+    linear-gradient(rgba(5, 217, 232, 0.07) 1px, transparent 1px) 0 0 / 100% 28px,
+    linear-gradient(90deg, rgba(5, 217, 232, 0.05) 1px, transparent 1px) 0 0 / 28px 100%,
+    repeating-linear-gradient(180deg, transparent 0 22px, rgba(57, 255, 136, 0.05) 22px 24px);
+  animation: nah-dive-grid 9s linear infinite; }
+.neon-home .nah-dive-rain::after { content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 46px, rgba(57, 255, 136, 0.10) 46px 47px, transparent 47px 93px, rgba(5, 217, 232, 0.08) 93px 94px);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 60%, transparent); mask-image: linear-gradient(180deg, transparent, #000 30%, #000 60%, transparent);
+  -webkit-mask-size: 100% 60%; mask-size: 100% 60%; -webkit-mask-repeat: repeat-y; mask-repeat: repeat-y;
+  animation: nah-dive-rain 4s linear infinite; }
+@keyframes nah-dive-grid { to { background-position: 0 28px, 28px 0, 0 24px; } }
+@keyframes nah-dive-rain { from { -webkit-mask-position: 0 -60%; mask-position: 0 -60%; } to { -webkit-mask-position: 0 100%; mask-position: 0 100%; } }
+.neon-home .nah-dive > :not(.nah-dive-rain) { position: relative; z-index: 1; }
+
+.neon-home .nah-dive-modes { display: flex; gap: 2px; padding: 8px 14px 0; border-bottom: 1px solid var(--nah-line); }
+.neon-home .nah-dive-modes button { width: auto; height: 30px; padding: 0 12px; border: none; border-bottom: 2px solid transparent; background: none; color: var(--nah-dim); font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.neon-home .nah-dive-modes button.active { color: #fff; border-bottom-color: var(--nah-cyan); text-shadow: 0 0 8px var(--nah-cyan); }
+
+/* the HUD */
+.neon-home .nah-dive-hud { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin: 10px 14px 0; border: 1px solid rgba(5, 217, 232, 0.45); background: rgba(5, 10, 18, 0.85); clip-path: var(--nah-notch-panel); box-shadow: inset 0 0 30px rgba(5, 217, 232, 0.08); }
+.neon-home .nah-dive-hud > div { display: grid; align-content: start; gap: 3px; padding: 8px 14px; border-right: 1px solid var(--nah-line); min-width: 0; }
+.neon-home .nah-dive-hud > div:last-child { border-right: none; }
+.neon-home .nah-dive-hud b { font-family: var(--nah-display); font-weight: 400; font-size: 20px; line-height: 1.1; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-dive-hud b small { font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-dive-hud small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-dive-hud .is-burning b { color: var(--nah-red); text-shadow: 0 0 8px var(--nah-red); animation: nah-dive-pulse 1.2s ease-in-out infinite; }
+.neon-home .nah-dive-hud-act { grid-auto-flow: column; align-items: center; gap: 6px !important; }
+.neon-home .nah-dive-hud-act select, .neon-home .nah-dive-hud-act button { width: auto; height: 28px; font-size: 11px; color: #fff; }
+.neon-home .nah-dive-pips { display: flex; gap: 4px; padding: 3px 0; }
+.neon-home .nah-dive-pips i { width: 16px; height: 16px; transform: rotate(45deg); border: 1px solid var(--nah-cyan); background: var(--nah-cyan); box-shadow: 0 0 8px var(--nah-cyan); transition: all 0.25s; }
+.neon-home .nah-dive-pips i.used { background: transparent; box-shadow: none; border-color: var(--nah-line-2); }
+.neon-home .nah-dive-stealth.is-unseen b { color: var(--nah-green); text-shadow: 0 0 8px var(--nah-green); }
+.neon-home .nah-dive-stealth.is-seen b { color: var(--nah-pink); }
+.neon-home .nah-dive-brain .nah-meter { margin-top: 2px; }
+@keyframes nah-dive-pulse { 50% { opacity: 0.45; } }
+
+.neon-home .nah-dive-body, .neon-home .nah-dive-arch { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 360px; margin-top: 8px; border-top: 1px solid var(--nah-line); }
+.neon-home .nah-dive-arch { grid-template-columns: 260px minmax(0, 1fr); margin-top: 0; border-top: none; }
+.neon-home .nah-dive-stage { padding: 12px 14px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.neon-home .nah-dive-side { padding: 10px 12px; border-left: 1px solid var(--nah-line); display: flex; flex-direction: column; gap: 8px; background: rgba(7, 7, 11, 0.7); }
+.neon-home .nah-dive-arch .nah-dive-side { border-left: none; border-right: 1px solid var(--nah-line); }
+.neon-home .nah-dive-side label { display: grid; gap: 3px; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-dive-side input, .neon-home .nah-dive-side select { color: #fff; }
+.neon-home .nah-dive-side h3 { margin: 6px 0 0; border: none; }
+
+/* the map: floors by branch and depth, linked by glowing lines */
+.neon-home .nah-dive-map { position: relative; display: grid; gap: 22px; padding: 6px 6px 16px; }
+.neon-home .nah-dive-links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.neon-home .nah-dive-links path { fill: none; stroke: rgba(5, 217, 232, 0.35); stroke-width: 2; stroke-dasharray: 6 5; animation: nah-dive-flow 1.6s linear infinite; }
+.neon-home .nah-dive-links path.lit { stroke: var(--nah-cyan); filter: drop-shadow(0 0 4px var(--nah-cyan)); }
+@keyframes nah-dive-flow { to { stroke-dashoffset: -22; } }
+.neon-home .nah-dive-entry { justify-self: center; padding: 4px 16px; border: 1px solid var(--nah-cyan); color: var(--nah-cyan); font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(5, 217, 232, 0.08); clip-path: var(--nah-notch); }
+.neon-home .nah-dive-row { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(var(--cols, 1), minmax(120px, 170px)); justify-content: center; gap: 18px; }
+.neon-home .nah-dive-void { min-height: 1px; }
+.neon-home .nah-dive-floor { --k: var(--nah-line-2); position: relative; display: grid; justify-items: center; gap: 2px; min-height: 74px; padding: 8px 6px 6px; text-align: center;
+  border: 1px solid var(--k); background: color-mix(in srgb, var(--k) 10%, rgba(7, 7, 14, 0.92)); box-shadow: 0 0 12px color-mix(in srgb, var(--k) 25%, transparent), inset 0 0 14px color-mix(in srgb, var(--k) 12%, transparent);
+  clip-path: var(--nah-notch); transition: transform 0.2s, box-shadow 0.2s; }
+.neon-home .nah-dive-floor > i { font-size: 18px; color: var(--k); text-shadow: 0 0 8px var(--k); }
+.neon-home .nah-dive-floor b { color: #fff; font-weight: 600; font-size: 11px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-dive-floor small { color: var(--nah-dim); font-size: 10px; }
+.neon-home .nah-dive-floor .nah-hint { font-style: italic; }
+.neon-home .nah-dive-depth { position: absolute; top: 3px; left: 6px; font-family: var(--nah-display); font-size: 10px; color: var(--nah-dim); }
+.neon-home .nah-dive-floor.k-password { --k: var(--nah-yellow); }
+.neon-home .nah-dive-floor.k-file { --k: var(--nah-green); }
+.neon-home .nah-dive-floor.k-node { --k: var(--nah-violet); }
+.neon-home .nah-dive-floor.k-ice { --k: var(--nah-red); }
+.neon-home .nah-dive-floor.k-empty { --k: var(--nah-line-2); }
+.neon-home .nah-dive-floor.k-unknown { --k: var(--nah-line); opacity: 0.75; }
+.neon-home .nah-dive-floor.k-unknown > i { animation: nah-dive-pulse 2.4s ease-in-out infinite; }
+.neon-home .nah-dive-floor.is-done { --k: var(--nah-cyan); }
+.neon-home .nah-dive-floor.is-done::after { content: "\f00c"; font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro"; font-weight: 900; position: absolute; top: 3px; right: 6px; font-size: 10px; color: var(--nah-cyan); }
+.neon-home .nah-dive-floor.is-here { transform: scale(1.06); outline: 1px solid var(--nah-pink); box-shadow: 0 0 22px rgba(255, 42, 109, 0.55), inset 0 0 18px rgba(255, 42, 109, 0.2); animation: nah-dive-here 2s ease-in-out infinite; }
+@keyframes nah-dive-here { 50% { box-shadow: 0 0 34px rgba(255, 42, 109, 0.8), inset 0 0 22px rgba(255, 42, 109, 0.3); } }
+.neon-home .nah-dive-avatar { position: absolute; bottom: -2px; right: 4px; color: var(--nah-pink); text-shadow: 0 0 8px var(--nah-pink); font-size: 14px; }
+.neon-home .nah-dive-runner { position: absolute; bottom: 3px; left: 4px; width: 20px; height: 20px; border: 1px solid var(--nah-pink); border-radius: 50%; object-fit: cover; }
+.neon-home .nah-dive-runner + .nah-dive-runner { left: 18px; }
+.neon-home .nah-dive-ice { display: grid; width: 100%; gap: 1px; font-size: 10px; color: var(--nah-red); }
+.neon-home .nah-dive-ice em { font-style: normal; }
+.neon-home .nah-dive-ice.is-active em { text-shadow: 0 0 6px var(--nah-red); }
+.neon-home .nah-dive-ice.is-down { opacity: 0.4; text-decoration: line-through; }
+.neon-home .nah-dive-ice .nah-meter, .neon-home .nah-dive-icelist .nah-meter { height: 3px; }
+.neon-home .nah-dive-tag { position: absolute; top: 3px; right: 6px; font-size: 11px; color: var(--nah-green); }
+.neon-home .nah-dive-tag.is-demon { right: 20px; color: var(--nah-orange); }
+
+/* the runner's side */
+.neon-home .nah-dive-acts { display: flex; flex-wrap: wrap; gap: 5px; }
+.neon-home .nah-dive-acts button { width: auto; height: 30px; padding: 0 10px; font-size: 11px; }
+.neon-home .nah-dive-acts input, .neon-home .nah-dive-acts select { flex: 1 1 120px; height: 30px; color: #fff; }
+.neon-home .nah-dive-acts input[type="number"] { flex: 0 0 60px; }
+.neon-home .nah-dive-acts.is-net button.nah-primary { border-color: var(--nah-cyan); color: var(--nah-cyan); box-shadow: 0 0 10px rgba(5, 217, 232, 0.25); }
+.neon-home .nah-dive-acts.is-turn { padding-top: 6px; border-top: 1px solid var(--nah-line); }
+.neon-home .nah-dive-acts button.is-danger { border-color: var(--nah-red); color: var(--nah-red); }
+.neon-home .nah-dive-icelist, .neon-home .nah-dive-programs, .neon-home .nah-dive-archs { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.neon-home .nah-dive-icelist li { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 2px 8px; padding: 4px 6px; border: 1px solid var(--nah-line); border-left: 3px solid var(--nah-red); background: rgba(255, 75, 75, 0.06); }
+.neon-home .nah-dive-icelist li .nah-meter { grid-column: 1 / -1; grid-row: 2; }
+.neon-home .nah-dive-icelist li.is-active { box-shadow: 0 0 10px rgba(255, 75, 75, 0.3); }
+.neon-home .nah-dive-icelist li.is-down { opacity: 0.45; }
+.neon-home .nah-dive-icelist b { color: #fff; font-size: 12px; }
+.neon-home .nah-dive-icelist small { color: var(--nah-dim); font-size: 10px; }
+.neon-home .nah-dive-icelist .nah-icon-btn, .neon-home .nah-dive-programs .nah-icon-btn { width: 26px; height: 26px; }
+.neon-home .nah-dive-demonbar { margin: 0; padding: 5px 8px; border: 1px solid var(--nah-orange); color: var(--nah-orange); background: rgba(255, 138, 31, 0.07); font-size: 12px; }
+.neon-home .nah-dive-demonbar.is-down { opacity: 0.45; }
+.neon-home .nah-dive-demonbar .nah-link { margin-left: 8px; }
+.neon-home .nah-dive-programs li { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border: 1px solid var(--nah-line); border-left: 3px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.75); }
+.neon-home .nah-dive-programs li.is-rezzed { border-left-color: var(--nah-cyan); box-shadow: inset 0 0 12px rgba(5, 217, 232, 0.12); }
+.neon-home .nah-dive-programs li > div { flex: 1; min-width: 0; display: grid; }
+.neon-home .nah-dive-programs b { color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-dive-programs small { color: var(--nah-dim); font-size: 10px; }
+.neon-home .nah-dive-programs .nah-icon-btn.is-on { color: var(--nah-cyan); border-color: var(--nah-cyan); text-shadow: 0 0 6px var(--nah-cyan); }
+.neon-home .nah-dive-log { margin: 0; padding: 0 0 0 18px; display: grid; gap: 2px; font-family: monospace; font-size: 11px; color: var(--nah-green); max-height: 180px; overflow-y: auto; }
+.neon-home .nah-dive-log li::marker { color: var(--nah-line-2); }
+
+/* jacking in */
+.neon-home .nah-dive-jack { flex: 1; display: grid; place-items: center; padding: 20px; }
+.neon-home .nah-dive-jack-card { width: min(460px, 100%); display: grid; gap: 10px; padding: 22px 24px; text-align: center; border: 1px solid var(--nah-cyan); background: rgba(5, 10, 18, 0.9); clip-path: var(--nah-notch-panel); box-shadow: 0 0 40px rgba(5, 217, 232, 0.18); }
+.neon-home .nah-dive-jack-card > i { font-size: 42px; color: var(--nah-cyan); text-shadow: 0 0 14px var(--nah-cyan); animation: nah-dive-pulse 2s ease-in-out infinite; }
+.neon-home .nah-dive-jack-card h2 { margin: 0; border: none; font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; }
+.neon-home .nah-dive-jack-card label { display: grid; gap: 3px; text-align: left; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-dive-jack-card label.nah-check { display: flex; align-items: center; gap: 6px; color: var(--nah-text); }
+.neon-home .nah-dive-jack-card select { color: #fff; }
+
+/* the GM's architect */
+.neon-home .nah-dive-archs li { padding: 5px 8px; border: 1px solid var(--nah-line); cursor: pointer; color: var(--nah-text); font-size: 12px; background: rgba(13, 13, 21, 0.7); }
+.neon-home .nah-dive-archs li:hover { border-color: var(--nah-cyan); }
+.neon-home .nah-dive-archs li.selected { border-color: var(--nah-cyan); color: #fff; box-shadow: inset 0 0 10px rgba(5, 217, 232, 0.2); }
+.neon-home .nah-dive-runners { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--nah-pink); }
+.neon-home .nah-dive-edit { border: 1px solid var(--nah-line); padding: 6px 10px; background: rgba(7, 7, 11, 0.8); }
+.neon-home .nah-dive-edit summary { cursor: pointer; color: var(--nah-cyan); font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.neon-home .nah-dive-edit table { width: 100%; margin: 8px 0; border-collapse: collapse; font-size: 11px; background: none; border: none; }
+.neon-home .nah-dive-edit th { text-align: left; color: var(--nah-dim); font-weight: 400; background: none; }
+.neon-home .nah-dive-edit td { padding: 2px 3px; }
+.neon-home .nah-dive-edit td input, .neon-home .nah-dive-edit td select { width: 100%; height: 24px; color: #fff; font-size: 11px; }
+.neon-home .nah-dive-edit td input[type="number"] { width: 54px; }
+.neon-home .nah-dive-edit button { width: auto; }
+.neon-home .nah-dive-empty { display: grid; justify-items: center; gap: 6px; padding: 60px 10px; color: var(--nah-dim); text-align: center; }
+.neon-home .nah-dive-empty > i { font-size: 46px; color: var(--nah-line-2); }
+
+@media (max-width: 900px) {
+  .neon-home .nah-dive-body, .neon-home .nah-dive-arch { grid-template-columns: 1fr; }
+  .neon-home .nah-dive-side { border-left: none; border-top: 1px solid var(--nah-line); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neon-home .nah-dive-rain, .neon-home .nah-dive-rain::after, .neon-home .nah-dive-links path, .neon-home .nah-dive-floor.is-here,
+  .neon-home .nah-dive-floor.k-unknown > i, .neon-home .nah-dive-hud .is-burning b, .neon-home .nah-dive-jack-card > i { animation: none !important; }
+}

@@ -122,7 +122,7 @@ export const CYBERSUITE_ROWS = [
   ["cybersuiteStandard", "Cybersuite (standard)", 500, [], "Installs one Cyberdeck inside your Neuroport (Chapter 10)."],
   ["zetatechPoolshark", "Zetatech Poolshark", 1000, ["Scannerz", "E-Reader"], "Ziggurat-adjacent. Popular with data thieves."],
   ["polskaWatchdog", "Polska Watchdog", 1000, ["Ping", "E-Reader"], "+2 to notice a Ghosted Netrunner in your port, and +2 to eject one."],
-  ["segotariHexmage", "Segotari Hexmage", 1000, ["Cripple Movement", "PopUp-geddon"], "An Elflines Online tie-in. Comes with the game."],
+  ["segotariHexmage", "Segotari Hexmage", 1000, ["Cripple Movement", "PopUp-geddon"], "A fantasy-game tie-in, sold with the game."],
   ["kangTaoCircuitBreaker", "Kang Tao Circuit Breaker", 5000, ["Short Circuit", "System Reset"], "+2 against drones, turrets and vehicles; −1 against people."],
   ["militechTunneler", "Militech Tunneler", 5000, ["Synapse Burnout", "Poison Pointers"], "+1 to Jack In."],
   ["zetatechByteforce", "Zetatech Byteforce", 5000, ["Short Circuit", "Overheat"], "Reroll the lowest damage die on its built-in quickhacks (keep the new roll). Any quickhack you run that beats its DV by 2 or less fries: 1d6 to your HP."],

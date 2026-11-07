@@ -104,6 +104,27 @@ export function callHook(name, ...args) {
   return result;
 }
 globalThis.Actor = class Actor {};
+/** World items (NET Architectures): Item.create puts one in game.items. */
+globalThis.Item = {
+  async create(data) {
+    const item = { effects: [], flags: {}, img: "icons/svg/item-bag.svg", ...clone(data) };
+    item._id ??= randomID();
+    item.id = item._id;
+    item.documentName = "Item";
+    item.parent = null;
+    item.uuid = `Item.${item.id}`;
+    item.visible = true;
+    item.system ??= {};
+    flagMethods(item);
+    item.update = async (changes) => {
+      for (const [k, v] of Object.entries(changes)) setProperty(item, k, clone(v));
+      return item;
+    };
+    registry.set(item.uuid, item);
+    game.items.set(item.id, item);
+    return item;
+  }
+};
 globalThis.fromUuidSync = (uuid) => registry.get(uuid) ?? null;
 globalThis.fromUuid = async (uuid) => registry.get(uuid) ?? null;
 /** Chat messages created, newest last (tests read and clear it). */
@@ -204,6 +225,7 @@ globalThis.game = {
   time: { worldTime: 0 },
   modules: new Map([[MODULE_ID, { active: true }]]),
   actors: new Collection(),
+  items: new Collection(),
   settings: {
     register(scope, key, data) {
       if (!settingsStore.has(key)) settingsStore.set(key, clone(data.default));
@@ -235,6 +257,9 @@ function flagMethods(doc) {
   doc.setFlag = async (scope, key, value) => {
     doc.flags[scope] ??= {};
     doc.flags[scope][key] = clone(value);
+  };
+  doc.unsetFlag = async (scope, key) => {
+    delete doc.flags?.[scope]?.[key];
   };
   doc.isOwner = true;
   doc.testUserPermission = () => true;

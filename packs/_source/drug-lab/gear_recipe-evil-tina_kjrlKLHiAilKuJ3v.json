@@ -1,0 +1,72 @@
+{
+  "name": "Recipe: Evil Tina",
+  "type": "gear",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Standard recipe</b> (DV13, High School Chemistry Kit). Ingredients 500eb a dose: Boost ×2, Sixgun, Blue Glass, binding chemical.</p><p>Teach it to anyone in an hour.</p>"
+    },
+    "price": {
+      "market": 100
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "recipe": {
+        "name": "Evil Tina",
+        "tier": "standard",
+        "cost": 500,
+        "ingredients": "Boost ×2, Sixgun, Blue Glass, binding chemical",
+        "book": false,
+        "pharma": false,
+        "makes": {
+          "name": "Evil Tina",
+          "type": "drug",
+          "img": "icons/svg/pill.svg",
+          "system": {
+            "description": {
+              "value": "<p><b>Standard mixed drug.</b> Lasts 24 hours.</p><p><b>Primary:</b> In a braindance within the hour: +4 to Checks there, and you know it's a BD. Otherwise a lucid coma: face your demons for 2d6 Humanity, or dodge them for 1d6 HL.</p><p><b>Secondary (DV15):</b> Trapped in the dream until DV20 Concentration (one try an hour); then addicted.</p><p><b>Recipe:</b> Boost ×2, Sixgun, Blue Glass, binding chemical.</p>"
+            },
+            "price": {
+              "market": 500
+            },
+            "amount": 1,
+            "equipped": "owned",
+            "concealable": {
+              "concealable": true,
+              "isConcealed": false
+            }
+          },
+          "flags": {
+            "cpr-neon-at-home": {
+              "drug": {
+                "tier": "standard",
+                "dv": 15,
+                "lasts": "24 hours"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "_id": "kjrlKLHiAilKuJ3v",
+  "_key": "!items!kjrlKLHiAilKuJ3v",
+  "folder": "gwRjDAjVqvFOKdqq",
+  "sort": 2400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

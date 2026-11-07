@@ -6,6 +6,7 @@ import { baseWeight } from "../data/weight.js";
 import { Settings } from "../settings.js";
 import { Compat } from "../compat.js";
 import { PRICE_CATEGORIES } from "../data/maintenance.js";
+import { SYNTH, SYNTH_TIERS, normalizeRecipe } from "../data/drugs.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -72,8 +73,22 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
       inventor: bp.inventor ?? "",
       makes: bp.makes ? { name: bp.makes.name, img: bp.makes.img, type: L(`TYPES.Item.${bp.makes.type}`) } : null
     } : null;
+    // a drug recipe (Street Drug Synthesis): its complexity, ingredients a dose, and the drug it makes
+    const rf = item.getFlag(MODULE_ID, "recipe");
+    const r = rf ? normalizeRecipe(rf) : null;
+    const recipe = !bp && item.type === "gear" ? {
+      on: !!r,
+      name: r?.name || item.name.replace(/^recipe:\s*/i, ""),
+      tiers: SYNTH_TIERS.map((t) => ({ value: t, label: `${L(`NEONHOME.Drug.Tier.${t}`)} (DV${SYNTH[t].dv})`, selected: t === (r?.tier ?? "standard") })),
+      cost: r?.cost ?? 0,
+      ingredients: r?.ingredients ?? "",
+      pharma: !!r?.pharma,
+      book: !!r?.book,
+      makes: r?.makes ? { name: r.makes.name, img: r.makes.img, type: L(`TYPES.Item.${r.makes.type}`) } : null
+    } : null;
     return {
       blueprint,
+      recipe,
       item: { name: item.name, img: item.img, type: L(`TYPES.Item.${item.type}`) },
       flag,
       physical: !["skill", "role", "criticalInjury", "netarch", "program"].includes(item.type),
@@ -129,6 +144,14 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
       maint: f.maint ? { kind: f.maint.kind, table: f.maint.table, exempt: f.maint.exempt } : existing.maint
     });
     await this.item.setFlag(MODULE_ID, ITEM_FLAG, flag);
+    // a drug recipe: on, or off (the drug it makes is kept while it's on)
+    if (data.recipe) {
+      const old = this.item.getFlag(MODULE_ID, "recipe");
+      if (data.recipe.on) {
+        const r = normalizeRecipe({ ...(old ?? {}), name: data.recipe.name || this.item.name, tier: data.recipe.tier, cost: data.recipe.cost, ingredients: data.recipe.ingredients, pharma: !!data.recipe.pharma, book: !!data.recipe.book });
+        await this.item.setFlag(MODULE_ID, "recipe", r);
+      } else if (old) await this.item.unsetFlag(MODULE_ID, "recipe");
+    }
     ui.notifications.info(L("NEONHOME.Config.Saved", { name: this.item.name }));
   }
 
@@ -152,10 +175,22 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     });
   }
 
-  /** GM: the item Fabrication makes from this blueprint (a copy is kept on the blueprint, so it travels with it). */
+  /**
+   * GM: the item Fabrication makes from this blueprint, or the drug this recipe cooks (a copy is
+   * kept on it, so it travels with it).
+   */
   async linkBlueprint(doc) {
     if (!game.user.isGM) return;
     const bp = this.item.getFlag(MODULE_ID, "blueprint");
+    const recipe = this.item.getFlag(MODULE_ID, "recipe");
+    if (!bp && recipe) {
+      const makes = doc.toObject();
+      for (const k of ["_id", "folder", "sort", "ownership", "_stats"]) delete makes[k];
+      await this.item.setFlag(MODULE_ID, "recipe", { ...recipe, makes });
+      ui.notifications.info(L("NEONHOME.Blueprint.LinkedNote", { item: makes.name, blueprint: this.item.name }));
+      this.render();
+      return;
+    }
     if (!bp) return;
     if (doc.getFlag?.(MODULE_ID, "blueprint")) {
       ui.notifications.warn(L("NEONHOME.Blueprint.NotABlueprint"));
@@ -170,6 +205,11 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onUnlink() {
+    if (this.item.getFlag(MODULE_ID, "recipe")?.makes) {
+      await this.item.update({ [`flags.${MODULE_ID}.recipe.-=makes`]: null });
+      this.render();
+      return;
+    }
     if (!this.item.getFlag(MODULE_ID, "blueprint")?.makes) return;
     await this.item.update({ [`flags.${MODULE_ID}.blueprint.-=makes`]: null });
     this.render();

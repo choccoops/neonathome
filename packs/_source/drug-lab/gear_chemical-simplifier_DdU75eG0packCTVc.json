@@ -1,0 +1,33 @@
+{
+  "name": "Chemical Simplifier",
+  "type": "gear",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "description": {
+      "value": "<p>Upgrade for any synthesis tool: a recipe you've made before needs one fewer ingredient (never fewer than two).</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {},
+  "_id": "DdU75eG0packCTVc",
+  "_key": "!items!DdU75eG0packCTVc",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

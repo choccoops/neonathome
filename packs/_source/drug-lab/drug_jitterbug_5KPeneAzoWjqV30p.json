@@ -1,0 +1,41 @@
+{
+  "name": "Jitterbug",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Exotic mixed drug.</b> Lasts 1 hour.</p><p><b>Primary:</b> +4 Melee, Evasion and Dance; −1 COOL, Stealth and Ranged. No rushing penalties. Running gives attackers −2 to hit you. You can't end a Turn without moving; restrained, you take 1d6 HL.</p><p><b>Secondary (DV17):</b> Move Action or Action each Turn unless dosed. The world runs too fast or too slow.</p><p><b>Recipe:</b> Lite-Smash, Fishnet, The Juice, Synthcoke ×3, exotic chemical.</p>"
+    },
+    "price": {
+      "market": 1000
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "exotic",
+        "dv": 17,
+        "lasts": "1 hour"
+      }
+    }
+  },
+  "_id": "5KPeneAzoWjqV30p",
+  "_key": "!items!5KPeneAzoWjqV30p",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 3300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

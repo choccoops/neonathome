@@ -1,0 +1,175 @@
+{{#*inline "diveFloor"}}
+<div class="nah-dive-floor k-{{kind}} {{#if here}}is-here nah-dive-here{{/if}} {{#if done}}is-done{{/if}}" data-floor="{{key}}" {{#if from}}data-from="{{from}}"{{/if}}>
+  <span class="nah-dive-depth">{{depth}}{{branch}}</span>
+  <i class="{{icon}}"></i>
+  <b>{{label}}</b>
+  {{#if dv}}<small>DV{{dv}}</small>{{/if}}
+  {{#each ice}}<span class="nah-dive-ice {{#if derezzed}}is-down{{/if}} {{#if active}}is-active{{/if}}"><em>{{name}}</em><span class="nah-meter"><b style="width:{{pct}}%"></b></span></span>{{/each}}
+  {{#if virus}}<span class="nah-dive-tag"><i class="fa-solid fa-virus"></i></span>{{/if}}
+  {{#if demon}}<span class="nah-dive-tag is-demon"><i class="fa-solid fa-ghost"></i></span>{{/if}}
+  {{#if here}}<span class="nah-dive-avatar"><i class="fa-solid fa-user-astronaut"></i></span>{{/if}}
+  {{#each runners}}<img class="nah-dive-runner" src="{{img}}" alt="" data-tooltip="{{name}}">{{/each}}
+  {{#if note}}<small class="nah-hint">{{note}}</small>{{/if}}
+</div>
+{{/inline}}
+{{#*inline "diveMap"}}
+<div class="nah-dive-map" style="--cols: {{columns}}">
+  <svg class="nah-dive-links" aria-hidden="true"></svg>
+  <div class="nah-dive-entry"><i class="fa-solid fa-door-open"></i> {{localize "NEONHOME.Dive.AccessPoint"}}</div>
+  {{#each rows}}
+  <div class="nah-dive-row">
+    {{#each cells}}{{#if this}}{{> diveFloor}}{{else}}<div class="nah-dive-void"></div>{{/if}}{{/each}}
+  </div>
+  {{/each}}
+</div>
+{{/inline}}
+{{#with dive}}
+<div class="nah-dive {{#if architect}}is-architect{{/if}}">
+  <div class="nah-dive-rain" aria-hidden="true"></div>
+  {{#if gm}}
+  <nav class="nah-dive-modes">
+    <button type="button" class="{{#unless architect}}active{{/unless}}" data-action="diveMode" data-mode="run"><i class="fa-solid fa-user-astronaut"></i> {{localize "NEONHOME.Dive.RunnerView" name=actorName}}</button>
+    <button type="button" class="{{#if architect}}active{{/if}}" data-action="diveMode" data-mode="architect"><i class="fa-solid fa-sitemap"></i> {{localize "NEONHOME.Dive.Architect"}}</button>
+  </nav>
+  {{/if}}
+
+  {{#if architect}}
+  {{!-- ================= THE GM'S ARCHITECT ================= --}}
+  <div class="nah-dive-arch">
+    <aside class="nah-dive-side nah-scroll">
+      <h3 class="nah-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> {{localize "NEONHOME.Dive.Generate"}}</h3>
+      <label>{{localize "NEONHOME.Dive.ArchName"}}<input type="text" name="archName" placeholder="{{localize 'NEONHOME.Dive.ArchNameHint'}}"></label>
+      <label>{{localize "NEONHOME.Dive.DifficultyLabel"}}<select name="archDifficulty">{{#each difficulties}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label>{{localize "NEONHOME.Dive.DemonLabel"}}<select name="archDemon">{{#each demons}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <button type="button" class="nah-cta" data-action="diveGenerate"><i class="fa-solid fa-dice"></i> {{localize "NEONHOME.Dive.GenerateDo"}}</button>
+      <p class="nah-hint">{{localize "NEONHOME.Dive.GenerateHint"}}</p>
+      <h3 class="nah-kicker"><i class="fa-solid fa-database"></i> {{localize "NEONHOME.Dive.Archs"}}</h3>
+      <ul class="nah-dive-archs">
+        {{#each archs}}<li class="{{#if selected}}selected{{/if}}" data-arch="{{uuid}}" data-action="diveArch"><i class="fa-solid fa-network-wired"></i> {{name}}</li>
+        {{else}}<li class="nah-hint">{{localize "NEONHOME.Dive.NoArchs"}}</li>{{/each}}
+      </ul>
+    </aside>
+    <section class="nah-dive-stage nah-scroll">
+      {{#if arch}}
+      <header class="nah-dive-hud">
+        <div><span class="nah-kicker">{{localize "NEONHOME.Dive.Architecture"}}</span><b>{{arch.name}}</b><small>{{arch.difficulty}} &middot; DV{{arch.dv}}{{#if arch.demon}} &middot; <i class="fa-solid fa-ghost"></i> {{arch.demon}}{{/if}}</small></div>
+        <div><span class="nah-kicker">{{localize "NEONHOME.Dive.Shape"}}</span><b>{{arch.floors}}</b><small>{{localize "NEONHOME.Dive.ShapeHint" depth=arch.depth branches=arch.branches}}</small></div>
+        <div class="nah-dive-hud-act">
+          <select name="diveRig" aria-label="{{localize 'NEONHOME.Dive.RigLabel'}}">{{#each rigs}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          <button type="button" data-action="diveSend"><i class="fa-solid fa-plug"></i> {{localize "NEONHOME.Dive.Send" name=actorName}}</button>
+          <button type="button" data-action="diveRegen" data-tooltip="{{localize 'NEONHOME.Dive.RegenTip'}}"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+      </header>
+      {{#if runners.length}}<p class="nah-dive-runners"><i class="fa-solid fa-user-astronaut"></i> {{#each runners}}<span>{{name}} ({{#if at}}{{at}}{{else}}{{localize "NEONHOME.Dive.AccessPoint"}}{{/if}} &middot; {{stealth}})</span>{{/each}}</p>{{/if}}
+      {{#with map}}{{> diveMap}}{{/with}}
+      <details class="nah-dive-edit">
+        <summary><i class="fa-solid fa-pen-to-square"></i> {{localize "NEONHOME.Dive.EditFloors"}}</summary>
+        <table>
+          <thead><tr><th>{{localize "NEONHOME.Dive.FloorCol"}}</th><th>{{localize "NEONHOME.Dive.KindCol"}}</th><th>DV</th><th>{{localize "NEONHOME.Dive.IceCol"}}</th><th>{{localize "NEONHOME.Dive.LabelCol"}}</th><th>{{localize "NEONHOME.Dive.NoteCol"}}</th></tr></thead>
+          <tbody>
+          {{#each rows}}
+          <tr data-floor-row="{{key}}">
+            <td>{{depth}}{{branch}}</td>
+            <td><select name="kind">{{#each kinds}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></td>
+            <td><input type="number" name="dv" value="{{dv}}" min="0" max="30"></td>
+            <td><input type="text" name="ice" value="{{ice}}"></td>
+            <td><input type="text" name="label" value="{{label}}"></td>
+            <td><input type="text" name="note" value="{{note}}"></td>
+          </tr>
+          {{/each}}
+          </tbody>
+        </table>
+        <p class="nah-hint">{{localize "NEONHOME.Dive.IceHint" list=iceList}}</p>
+        <button type="button" data-action="diveSave"><i class="fa-solid fa-floppy-disk"></i> {{localize "NEONHOME.Dive.SaveFloors"}}</button>
+      </details>
+      {{else}}
+      <div class="nah-dive-empty"><i class="fa-solid fa-sitemap"></i><p>{{localize "NEONHOME.Dive.PickArch"}}</p></div>
+      {{/if}}
+    </section>
+  </div>
+
+  {{else if out}}
+  {{!-- ================= JACKING IN ================= --}}
+  <div class="nah-dive-jack">
+    <div class="nah-dive-jack-card">
+      <i class="fa-solid fa-plug"></i>
+      <h2>{{localize "NEONHOME.Dive.JackInTitle"}}</h2>
+      {{#unless hasDeck}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-microchip"></i> {{localize "NEONHOME.Dive.NeedDeck"}}</p>{{/unless}}
+      <label>{{localize "NEONHOME.Dive.Architecture"}}<select name="diveArch">{{#each archs}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{else}}<option value="">{{localize "NEONHOME.Dive.NoArchs"}}</option>{{/each}}</select></label>
+      <label>{{localize "NEONHOME.Dive.RigLabel"}}<select name="diveRig">{{#each rigs}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label class="nah-check"><input type="checkbox" name="diveQuiet"> {{localize "NEONHOME.Dive.QuietIn"}}</label>
+      <button type="button" class="nah-cta" data-action="diveJackIn" {{#unless archs.length}}disabled{{/unless}}><i class="fa-solid fa-bolt"></i> {{localize "NEONHOME.Dive.JackIn"}}</button>
+      <p class="nah-hint">{{localize "NEONHOME.Dive.JackInHint"}}</p>
+    </div>
+  </div>
+
+  {{else}}
+  {{!-- ================= UNDER ================= --}}
+  <header class="nah-dive-hud">
+    <div><span class="nah-kicker">{{localize "NEONHOME.Dive.Architecture"}}</span><b>{{name}}</b><small>{{difficulty}}</small></div>
+    <div class="nah-dive-net"><span class="nah-kicker">{{localize "NEONHOME.Dive.NetActions"}}</span><span class="nah-dive-pips">{{#each pips}}<i class="{{#if used}}used{{/if}}"></i>{{/each}}</span><small>{{localize "NEONHOME.Dive.Left" n=left}} &middot; {{localize "NEONHOME.Deck.Interface"}} {{iface}}</small></div>
+    <div class="nah-dive-stealth is-{{stealth}}"><span class="nah-kicker">{{localize "NEONHOME.Dive.StealthLabel"}}</span><b><i class="fa-solid {{#if (eq stealth 'unseen')}}fa-eye-slash{{else}}fa-eye{{/if}}"></i> {{stealthLabel}}</b>{{#if cloak}}<small>{{localize "NEONHOME.Dive.Cloaked" n=cloak}}</small>{{/if}}</div>
+    <div class="{{#if burning}}is-burning{{/if}}"><span class="nah-kicker">{{rig}}</span><b>{{safe}}</b><small>{{localize "NEONHOME.Dive.SafeTime"}}</small></div>
+    <div class="nah-dive-brain"><span class="nah-kicker">{{localize "NEONHOME.Dive.Brain"}}</span><b>{{hp}}<small>/{{hpMax}}</small></b><span class="nah-meter"><b style="width:{{hpPct}}%"></b></span></div>
+  </header>
+  <div class="nah-dive-body">
+    <section class="nah-dive-stage nah-scroll">
+      {{#with map}}{{> diveMap}}{{/with}}
+    </section>
+    <aside class="nah-dive-side nah-scroll">
+      <h3 class="nah-kicker">{{#if here}}{{localize "NEONHOME.Dive.Floor" n=here.depth}}{{here.branch}} &middot; {{here.label}}{{else}}{{localize "NEONHOME.Dive.AccessPoint"}}{{/if}}</h3>
+      {{#if blocked}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-ban"></i> {{blocked}}</p>{{/if}}
+      {{#if locked}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-link"></i> {{localize "NEONHOME.Dive.Locked"}}</p>{{/if}}
+      <div class="nah-dive-acts">
+        {{#each downs}}<button type="button" data-action="diveMove" data-key="{{key}}"><i class="fa-solid fa-arrow-down"></i> {{label}}</button>{{/each}}
+        {{#if canUp}}<button type="button" data-action="diveMove" data-key="{{up}}"><i class="fa-solid fa-arrow-up"></i> {{localize "NEONHOME.Dive.Up"}}</button>{{/if}}
+      </div>
+      <div class="nah-dive-acts is-net">
+        {{#if can.breach}}<button type="button" class="nah-primary" data-action="diveAct" data-act="breach"><i class="fa-solid fa-key"></i> {{localize "NEONHOME.Dive.Act.breach"}}</button>{{/if}}
+        {{#if can.eyedee}}<button type="button" class="nah-primary" data-action="diveAct" data-act="eyedee"><i class="fa-solid fa-magnifying-glass"></i> {{localize "NEONHOME.Dive.Act.eyedee"}}</button>{{/if}}
+        {{#if can.control}}<button type="button" class="nah-primary" data-action="diveAct" data-act="control"><i class="fa-solid fa-tower-broadcast"></i> {{localize "NEONHOME.Dive.Act.control"}}</button>{{/if}}
+        {{#if can.operate}}<input type="text" name="diveText" placeholder="{{localize 'NEONHOME.Dive.OperateHint'}}"><button type="button" data-action="diveAct" data-act="operate"><i class="fa-solid fa-gamepad"></i> {{localize "NEONHOME.Dive.Act.operate"}}</button>{{/if}}
+        {{#if can.slide}}<button type="button" data-action="diveAct" data-act="slide" data-dir="up"><i class="fa-solid fa-person-running"></i> {{localize "NEONHOME.Dive.Act.slideUp"}}</button><button type="button" data-action="diveAct" data-act="slide" data-dir="down"><i class="fa-solid fa-person-falling"></i> {{localize "NEONHOME.Dive.Act.slideDown"}}</button>{{/if}}
+        {{#if can.virus}}<input type="text" name="diveText" placeholder="{{localize 'NEONHOME.Dive.VirusHint'}}">{{#if gm}}<input type="number" name="diveDv" placeholder="DV" min="0" max="30">{{/if}}<button type="button" class="nah-primary" data-action="diveAct" data-act="virus"><i class="fa-solid fa-virus"></i> {{localize "NEONHOME.Dive.Act.virus"}}</button>{{/if}}
+        <button type="button" data-action="diveAct" data-act="pathfinder"><i class="fa-solid fa-map"></i> {{localize "NEONHOME.Dive.Act.pathfinder"}}</button>
+        <button type="button" data-action="diveAct" data-act="cloak"><i class="fa-solid fa-user-secret"></i> {{localize "NEONHOME.Dive.Act.cloak"}}</button>
+        {{#if can.zap}}<select name="diveTarget" aria-label="{{localize 'NEONHOME.Dive.Target'}}">{{#each targets}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select><button type="button" data-action="diveAct" data-act="zap"><i class="fa-solid fa-bolt"></i> {{localize "NEONHOME.Dive.Act.zap"}}</button>{{/if}}
+      </div>
+
+      {{#if here.ice.length}}
+      <h3 class="nah-kicker"><i class="fa-solid fa-skull"></i> {{localize "NEONHOME.Dive.IceHere"}}</h3>
+      <ul class="nah-dive-icelist">
+        {{#each here.ice}}<li class="{{#if derezzed}}is-down{{/if}} {{#if active}}is-active{{/if}}"><b>{{name}}</b><span class="nah-meter"><b style="width:{{pct}}%"></b></span><small>REZ {{rez}}/{{max}}</small>
+          {{#if @root.dive.gm}}{{#unless derezzed}}<button type="button" class="nah-icon-btn" data-action="diveIce" data-key="{{../here.key}}" data-n="{{n}}" data-tooltip="{{localize 'NEONHOME.Dive.IceAttacks'}}"><i class="fa-solid fa-skull-crossbones"></i></button>{{/unless}}{{/if}}</li>{{/each}}
+      </ul>
+      {{/if}}
+      {{#if demon}}
+      <p class="nah-dive-demonbar {{#if demon.derezzed}}is-down{{/if}}"><i class="fa-solid fa-ghost"></i> {{demon.name}} &middot; REZ {{demon.rez}}/{{demon.max}}
+        {{#if gm}}{{#unless demon.derezzed}}<button type="button" class="nah-link" data-action="diveDemon" data-what="zap">{{localize "NEONHOME.Dive.DemonZap"}}</button><button type="button" class="nah-link" data-action="diveDemon" data-what="search">{{localize "NEONHOME.Dive.DemonSearch"}}</button>{{/unless}}{{/if}}</p>
+      {{/if}}
+
+      <h3 class="nah-kicker"><i class="fa-solid fa-microchip"></i> {{localize "NEONHOME.Dive.Programs"}}</h3>
+      <ul class="nah-dive-programs">
+        {{#each programs}}
+        <li class="{{#if rezzed}}is-rezzed{{/if}}" data-program="{{id}}">
+          <div><b>{{name}}</b><small>{{cls}}{{#if atk}} &middot; ATK {{atk}}{{/if}}{{#if def}} &middot; DEF {{def}}{{/if}}{{#if max}} &middot; REZ {{rez}}/{{max}}{{/if}}</small>{{#if max}}<span class="nah-meter"><b style="width:{{pct}}%"></b></span>{{/if}}</div>
+          {{#if canAttack}}<button type="button" class="nah-icon-btn" data-action="diveAttack" data-tooltip="{{localize 'NEONHOME.Dive.AttackWith'}}"><i class="fa-solid fa-burst"></i></button>{{/if}}
+          <button type="button" class="nah-icon-btn {{#if rezzed}}is-on{{/if}}" data-action="diveRez" data-on="{{#if rezzed}}0{{else}}1{{/if}}" data-tooltip="{{#if rezzed}}{{localize 'NEONHOME.Dive.Derez'}}{{else}}{{localize 'NEONHOME.Dive.Rez'}}{{/if}}"><i class="fa-solid fa-power-off"></i></button>
+        </li>
+        {{else}}<li class="nah-hint">{{localize "NEONHOME.Dive.NoPrograms"}}</li>{{/each}}
+      </ul>
+
+      <div class="nah-dive-acts is-turn">
+        <button type="button" data-action="diveTurn"><i class="fa-solid fa-forward"></i> {{localize "NEONHOME.Dive.NewTurn"}}</button>
+        <button type="button" data-action="diveOut"><i class="fa-solid fa-plug-circle-xmark"></i> {{localize "NEONHOME.Dive.JackOut"}}</button>
+        {{#if gm}}<button type="button" class="is-danger" data-action="diveOut" data-unsafe="1"><i class="fa-solid fa-bolt"></i> {{localize "NEONHOME.Dive.Eject"}}</button>{{/if}}
+      </div>
+      {{#if virus}}<p class="nah-hint"><i class="fa-solid fa-virus"></i> {{localize "NEONHOME.Dive.VirusLeft" text=virus.text}}</p>{{/if}}
+
+      <h3 class="nah-kicker"><i class="fa-solid fa-terminal"></i> {{localize "NEONHOME.Dive.RunLog"}}</h3>
+      <ol class="nah-dive-log">{{#each log}}<li>{{this}}</li>{{/each}}</ol>
+    </aside>
+  </div>
+  {{/if}}
+</div>
+{{/with}}
