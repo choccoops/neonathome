@@ -20,6 +20,8 @@ import { TIERS, TIER_NAMES, tierEb, fabricationNeeds, upgradeNeeds, stripPlan, u
 import { TRAINING, PERKS } from "../data/perks.js";
 import { PerkOps } from "../home/perk-ops.js";
 import { DnD } from "./home-app.js";
+import { DrugOps, makerDomains, MAX_DOSES } from "../home/drug-ops.js";
+import { SYNTH, SYNTH_TIERS, MEDTECH_MAKER, synthJob, isCryoGear } from "../data/drugs.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const eb = (n) => `${Number(n || 0).toLocaleString()}eb`;
@@ -32,6 +34,7 @@ const ACTIONS = {
     { id: "treat", icon: "fa-solid fa-kit-medical", time: TREATMENT_MINUTES },
     { id: "salvage", icon: "fa-solid fa-dumpster", time: SALVAGE_MINUTES },
     { id: "perkTraining", icon: "fa-solid fa-dumbbell", time: MIN.week },
+    { id: "synth", icon: "fa-solid fa-flask" },
     { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" },
     { id: "projects", icon: "fa-solid fa-diagram-project" }
   ],
@@ -54,6 +57,9 @@ const ACTIONS = {
 
 /** The actions that start a project. */
 const MAKER = ["fabricate", "upgrade", "invent"];
+
+/** The Expertise a Tech's Maker check adds, by kind. */
+const EXPERTISE = { fabricate: ["Fabrication Expertise", "fabrication"], upgrade: ["Upgrade Expertise", "upgrade"], invent: ["Invention Expertise", "invention"] };
 
 /**
  * A time picker: a slider, and days, hours and minutes to type, for any amount from nothing up to
@@ -146,6 +152,24 @@ function panel(actor, id, p, { roles, state }) {
     if (!line.ok) blocked ||= L("NEONHOME.Materials.Short", { name: actor.name, materials: line.text });
   };
   let strip = null;
+  let blueprintPiece = null;
+  // Maker work as a Tech, or a Medtech's Specialty at 4+ (The Medtech as Maker)
+  const domainPick = (kind) => {
+    const list = makerDomains(actor, kind);
+    const d = list.includes(p.domain) ? p.domain : list[0] ?? "tech";
+    if (list.length > 1) fields.push(field("domain", "NEONHOME.Medtech.Field.domain", { select: true, options: opt(list, d, (k) => L(`NEONHOME.Medtech.Domain.${k}`)) }));
+    return d;
+  };
+  const makerRoll = (d, kind, skill) => {
+    if (d === "tech" || !MEDTECH_MAKER[d]) {
+      const [ability, key] = EXPERTISE[kind];
+      return L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, ability), expertise: L(`NEONHOME.Downtime.Expertise.${key}`) });
+    }
+    const m = MEDTECH_MAKER[d];
+    return m.rank
+      ? L("NEONHOME.Medtech.MakerRoll", { skill: m.skill, rank: CPR.abilityRank(actor, m.ability), specialty: L(`NEONHOME.Medtech.Domain.${d}`) })
+      : L("NEONHOME.Medtech.MakerRollMT", { rank: CPR.abilityRank(actor, "Medical Tech Skill") });
+  };
   switch (id) {
     case "hustle": {
       const keys = Object.keys(roles).filter((r) => HUSTLES[r]);
@@ -209,11 +233,23 @@ function panel(actor, id, p, { roles, state }) {
     case "projects":
       return { projects: true, facts, fields, time: null, blocked };
     case "fabricate": {
+      const d = domainPick("fabricate");
       fields.push(field("item", "NEONHOME.Downtime.Field.item", { drop: true, value: p.itemInfo ?? null }));
+      if (d === "ripperdoc") fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Medtech.RipperdocFab"));
+      if (d === "cryo") fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Medtech.CryoFab"));
       if (!p.itemInfo) {
         blocked = L("NEONHOME.Downtime.DropItem");
         break;
       }
+      if (d === "ripperdoc") {
+        if (p.itemInfo.type !== "cyberware") blocked = L("NEONHOME.Medtech.OnlyCyberware");
+        else if (!p.itemInfo.blueprint) {
+          blocked = L("NEONHOME.Medtech.NeedBlueprint");
+          // a real piece in hand: blueprint it first
+          if (p.itemInfo.held) blueprintPiece = p.itemInfo.id;
+        }
+      }
+      if (d === "cryo" && !isCryoGear(p.itemInfo)) blocked = L("NEONHOME.Medtech.OnlyCryo");
       const job = makerJob(p.itemInfo.price);
       time = job.minutes;
       if (p.itemInfo.blueprint) {
@@ -224,11 +260,14 @@ function panel(actor, id, p, { roles, state }) {
       startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       materials(fabricationNeeds(p.itemInfo.price));
-      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: p.itemInfo.skill, rank: CPR.abilityRank(actor, "Fabrication Expertise"), expertise: L("NEONHOME.Downtime.Expertise.fabrication") }));
+      fact("NEONHOME.Downtime.Fact.roll", makerRoll(d, "fabricate", p.itemInfo.skill));
       break;
     }
     case "upgrade": {
-      const items = actor.items.filter((i) => isMaintainable(i) && i.type !== "cyberware" && !i.getFlag(MODULE_ID, "makerUpgrade")).sort((a, b) => a.name.localeCompare(b.name));
+      const d = domainPick("upgrade");
+      // a Tech upgrades gear (not chrome); a Ripperdoc, cyberware; Cryosystem, cryo gear
+      const fits = (i) => (d === "ripperdoc" ? i.type === "cyberware" : d === "cryo" ? isCryoGear(i) : isMaintainable(i) && i.type !== "cyberware");
+      const items = actor.items.filter((i) => fits(i) && !i.getFlag(MODULE_ID, "makerUpgrade")).sort((a, b) => a.name.localeCompare(b.name));
       const item = items.find((i) => i.id === p.item) ?? items[0];
       if (!item) {
         blocked = L("NEONHOME.Downtime.PickItem");
@@ -245,7 +284,7 @@ function panel(actor, id, p, { roles, state }) {
       startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
       materials(upgradeNeeds(price, { vehicle }));
-      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill: workSkill(item.toObject()), rank: CPR.abilityRank(actor, "Upgrade Expertise"), expertise: L("NEONHOME.Downtime.Expertise.upgrade") }));
+      fact("NEONHOME.Downtime.Fact.roll", makerRoll(d, "upgrade", workSkill(item.toObject())));
       if (!UPGRADES[up].apply) fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.UpgradeNoted"));
       break;
     }
@@ -253,13 +292,21 @@ function panel(actor, id, p, { roles, state }) {
       // the planned value the GM gave sets the category (and a Super Luxury invention's months)
       const price = inventPrice(p.category, p.value);
       const cat = price.category;
+      const d = domainPick("invent");
       const skills = [...new Set(Object.values(KINDS).map((k) => k.skill))];
-      const skill = skills.includes(p.skill) ? p.skill : "Basic Tech";
+      const skill = d !== "tech" && MEDTECH_MAKER[d] ? MEDTECH_MAKER[d].skill : skills.includes(p.skill) ? p.skill : "Basic Tech";
       fields.push(field("name", "NEONHOME.Downtime.Field.inventionName", { text: true, value: p.name ?? "" }));
       fields.push(field("text", "NEONHOME.Downtime.Field.invention", { textarea: true, value: p.text ?? "" }));
       fields.push(field("category", "NEONHOME.Downtime.Field.category", { select: true, options: opt(INVENT_CATEGORIES, cat, (c) => L(`NEONHOME.Maint.Price.${c}`)) }));
       fields.push(field("value", "NEONHOME.Downtime.Field.inventValue", { number: true, value: Math.floor(Number(p.value) || 0) || "", min: 0, max: 10000000, hint: L("NEONHOME.Downtime.InventValueHint") }));
-      fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
+      if (d === "tech") fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(skills, skill, (s) => s) }));
+      // a new drug: its recipe's complexity, what a dose takes, and whether it's a pharmaceutical
+      if (d === "pharma") {
+        const tier = SYNTH[p.tier] ? p.tier : "standard";
+        fields.push(field("tier", "NEONHOME.Drug.Field.tier", { select: true, options: opt(SYNTH_TIERS, tier, (t) => `${L(`NEONHOME.Drug.Tier.${t}`)} (DV${SYNTH[t].dv})`) }));
+        fields.push(field("doseCost", "NEONHOME.Drug.Field.doseCost", { number: true, value: Math.floor(Number(p.doseCost) || 0) || "", min: 0, max: 100000, hint: L("NEONHOME.Drug.DoseCostHint") }));
+        fields.push(field("pharma", "NEONHOME.Drug.Field.kind", { select: true, options: opt(["street", "pharma"], p.pharma === "pharma" ? "pharma" : "street", (k) => L(`NEONHOME.Drug.Kind.${k}`)) }));
+      }
       const job = makerJob(price.value);
       if (!price.ok) blocked = L("NEONHOME.Downtime.InventTooCheap");
       fact("NEONHOME.Downtime.Fact.value", `${eb(price.value)} (${L(`NEONHOME.Maint.Price.${cat}`)})`);
@@ -268,9 +315,9 @@ function panel(actor, id, p, { roles, state }) {
       spread = true;
       startNow(job.minutes);
       fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
-      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.MakerRoll", { skill, rank: CPR.abilityRank(actor, "Invention Expertise"), expertise: L("NEONHOME.Downtime.Expertise.invention") }));
-      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InventNote"));
-      fact("NEONHOME.Downtime.Fact.makes", L("NEONHOME.Downtime.MakesBlueprint"));
+      fact("NEONHOME.Downtime.Fact.roll", makerRoll(d, "invent", skill));
+      fact("NEONHOME.Downtime.Fact.note", L(d === "pharma" ? "NEONHOME.Drug.InventNote" : d === "ripperdoc" ? "NEONHOME.Medtech.RipperdocInvent" : d === "cryo" ? "NEONHOME.Medtech.CryoInvent" : "NEONHOME.Downtime.InventNote"));
+      fact("NEONHOME.Downtime.Fact.makes", L(d === "pharma" ? "NEONHOME.Drug.MakesRecipe" : "NEONHOME.Downtime.MakesBlueprint"));
       break;
     }
     case "salvage": {
@@ -323,6 +370,33 @@ function panel(actor, id, p, { roles, state }) {
       fact("NEONHOME.Downtime.Fact.materials", eb(t.eb));
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.TrainingRoll", { dice: t.dice }));
       if (CPR.wealth(actor) < t.eb) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(t.eb) });
+      break;
+    }
+    case "synth": {
+      const list = DrugOps.recipes(actor);
+      const r = list.find((x) => x.item.id === p.recipe) ?? list[0];
+      if (!r) {
+        blocked = L("NEONHOME.Drug.NoRecipes", { name: actor.name });
+        fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Drug.WhereRecipes"));
+        break;
+      }
+      const doses = Math.min(MAX_DOSES, Math.max(1, Math.floor(Number(p.doses) || 1)));
+      fields.push(field("recipe", "NEONHOME.Drug.Field.recipe", { select: true, options: list.map((x) => ({ value: x.item.id, label: `${x.recipe.name} (${L(`NEONHOME.Drug.Tier.${x.recipe.tier}`)})`, selected: x === r })) }));
+      fields.push(field("doses", "NEONHOME.Drug.Field.doses", { number: true, value: doses, min: 1, max: MAX_DOSES, hint: L("NEONHOME.Drug.DosesHint") }));
+      const tools = DrugOps.tools(actor);
+      const job = synthJob(r.recipe, tools);
+      time = job.minutes * doses;
+      const bonus = DrugOps.bonuses(actor);
+      fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
+      fact("NEONHOME.Drug.Fact.perDose", formatMinutes(job.minutes));
+      fact("NEONHOME.Drug.Fact.tool", !tools.tier ? L("NEONHOME.Drug.ToolNone", { need: job.tool }) : !job.ok ? L("NEONHOME.Drug.ToolShort", { tool: tools.name, need: job.tool }) : job.bonus ? L("NEONHOME.Drug.ToolBetter", { tool: tools.name, bonus: job.bonus }) : tools.name);
+      fact("NEONHOME.Downtime.Fact.materials", L(job.halved ? "NEONHOME.Drug.CostHalved" : "NEONHOME.Drug.Cost", { each: eb(job.cost), total: eb(job.cost * doses) }));
+      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Drug.Roll", { extra: [...bonus.map((b) => `${b.source} +${b.value}`), ...(job.bonus ? [`${L("NEONHOME.Drug.BetterTools")} +${job.bonus}`] : [])].join(", ") || "—" }));
+      if (r.recipe.ingredients) fact("NEONHOME.Drug.Fact.ingredients", r.recipe.ingredients);
+      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Drug.FailNote"));
+      if (!job.ok) blocked = L("NEONHOME.Drug.NeedTool", { name: actor.name, tool: job.tool });
+      else if (r.recipe.pharma && roles.medtech === undefined) blocked = L("NEONHOME.Downtime.NeedsRole", { name: actor.name, role: L("NEONHOME.Downtime.Role.medtech") });
+      else if (CPR.wealth(actor) < job.cost * doses) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(job.cost * doses) });
       break;
     }
     case "pharma": {
@@ -392,7 +466,7 @@ function panel(actor, id, p, { roles, state }) {
     ? ProjectOps.list(actor).filter((x) => x.kind === id).map((x) => ({ label: x.label, pct: meter(x).pct, stage: L(`NEONHOME.Project.Stage.${stage(x)}`, { left: formatMinutes(x.minutes - x.done) }) }))
     : [];
   // nothing to roll: just the time spent
-  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" };
+  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket", blueprintPiece };
 }
 
 export const DowntimeTab = {
@@ -408,12 +482,14 @@ export const DowntimeTab = {
     const state = Downtime.state(actor);
     const call = Downtime.current();
     const roles = CPR.roles(actor);
+    // a Medtech with 4+ in a Specialty does that Specialty's Maker work (a Tech's panels, if they're both)
+    const medMaker = roles.medtech !== undefined && roles.tech === undefined ? ACTIONS.tech.filter((a) => MAKER.includes(a.id) && makerDomains(actor, a.id).length) : [];
     const groups = Object.entries(ACTIONS)
       .filter(([key]) => key === "anyone" || roles[key] !== undefined)
       .map(([key, actions]) => ({
         key,
         label: key === "anyone" ? L("NEONHOME.Downtime.Anyone") : L(`NEONHOME.Downtime.Role.${key}`),
-        actions: actions.filter((a) => a.id !== "perkTraining" || Settings.get("perks") !== false).map((a) => ({ ...a, label: L(`NEONHOME.Downtime.Action.${a.id}`), timeLabel: a.time ? formatMinutes(a.time) : "", selected: a.id === ui.action }))
+        actions: [...actions, ...(key === "medtech" ? medMaker : [])].filter((a) => a.id !== "perkTraining" || Settings.get("perks") !== false).map((a) => ({ ...a, label: L(`NEONHOME.Downtime.Action.${a.id}`), timeLabel: a.time ? formatMinutes(a.time) : "", selected: a.id === ui.action }))
       }));
     const projects = ProjectOps.list(actor);
     for (const g of groups) for (const a of g.actions) if (a.id === "projects" && projects.length) a.timeLabel = String(projects.length);
@@ -517,6 +593,7 @@ export const DowntimeTab = {
         });
       }
       if (id === "salvage") return this.act(() => SalvageOps.trip(this.actor, params, { event }));
+      if (id === "synth") return this.act(() => DrugOps.cook(this.actor, params, { event }));
       if (id === "strip") {
         return this.act(async () => {
           const res = await SalvageOps.strip(this.actor, params.picks, params.tier ?? "costly", params.count ?? 1);
@@ -571,6 +648,19 @@ export const DowntimeTab = {
           rejectClose: false
         });
         if (ok) await SalvageOps.leave(this.actor, id);
+      });
+    },
+    dtBlueprintPiece(event, target) {
+      const ui = this.uiState.downtime;
+      const id = target.dataset.item;
+      return this.act(async () => {
+        const bp = await DrugOps.blueprintPiece(this.actor, id);
+        // fabricate from the new blueprint
+        if (bp) {
+          const params = (ui.params.fabricate ??= {});
+          params.item = bp.uuid;
+          params.itemInfo = { ...params.itemInfo, blueprint: bp.name, linked: true, held: true };
+        }
       });
     },
     dtOpenHub() {
@@ -674,7 +764,7 @@ export const DowntimeTab = {
       params().itemInfo = {
         name: made.data.name, img: made.data.img || item.img, price: made.price, skill: made.skill,
         category: L(`NEONHOME.Maint.Price.${PRICE_CATEGORIES[Math.max(0, priceCategory(made.price))].key}`),
-        blueprint: made.blueprint, linked: made.linked, held: item.parent === app.actor
+        blueprint: made.blueprint, linked: made.linked, held: item.parent === app.actor, type: made.data.type, id: item.id
       };
       app.render();
     });

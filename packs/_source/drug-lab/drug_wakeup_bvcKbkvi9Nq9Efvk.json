@@ -1,0 +1,41 @@
+{
+  "name": "WakeUP!",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Simple mixed drug.</b> Lasts 1 hour.</p><p><b>Primary:</b> Ignore a Rough Night; extra working hours a day by lifestyle.</p><p><b>Secondary (DV9):</b> −1 to all actions; cravings.</p><p><b>Recipe:</b> KoffPops or coffee, water (needs a coffee robot, not a pot).</p>"
+    },
+    "price": {
+      "market": 20
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "simple",
+        "dv": 9,
+        "lasts": "1 hour"
+      }
+    }
+  },
+  "_id": "bvcKbkvi9Nq9Efvk",
+  "_key": "!items!bvcKbkvi9Nq9Efvk",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 1300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "Fishnet",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Simple mixed drug.</b> Lasts 1 hour.</p><p><b>Primary:</b> 1d6 HL (returned if you resist). Ignore Seriously Wounded.</p><p><b>Secondary (DV15):</b> HL kept. REF −2 unless dosed.</p><p><b>Recipe:</b> Black Lace, water.</p>"
+    },
+    "price": {
+      "market": 50
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "simple",
+        "dv": 15,
+        "lasts": "1 hour"
+      }
+    }
+  },
+  "_id": "obtfrkX32eKVtsEu",
+  "_key": "!items!obtfrkX32eKVtsEu",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 1500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -287,6 +287,62 @@ export const CPR = {
     };
   },
 
+  /** The deck a character runs (Cyberpunk RED's equipped cyberdeck) and their netrunning Role. */
+  netrunning(actor) {
+    const deck = typeof actor?.getEquippedCyberdeck === "function" ? actor.getEquippedCyberdeck() ?? null
+      : actor?.items?.find?.((i) => i.type === "cyberdeck" && i.system?.equipped === "equipped") ?? null;
+    const roles = actor?.items?.filter?.((i) => i.type === "role") ?? [];
+    const role = roles.find((r) => r.id === actor?.system?.roleInfo?.activeNetRole) ?? roles.find((r) => /netrunner/i.test(r.name)) ?? null;
+    return { deck, role, rank: Number(role?.system?.rank) || 0 };
+  },
+
+  /**
+   * An Interface Check, or a Program's ATK/DEF/damage, through Cyberpunk RED's own netrunning roll
+   * (the deck's roll: Interface, the Rezzed Programs' bonuses, wound penalties, its dialog and LUCK,
+   * its roll card). Without a deck or a netrunning Role, a plain Interface + 1d10.
+   * @param {object} opts - { ability: backdoor|cloak|control|eyedee|pathfinder|slide|virus|zap|speed|defense,
+   *   program (an item) with executionType atk|def|damage, event, mods: [{ value, source }] }
+   * @returns {Promise<{total, html, critFail, critSuccess}|null>} null when cancelled
+   */
+  async netCheck(actor, { ability = null, program = null, executionType = "atk", event = null, mods = [] } = {}) {
+    const { deck, role, rank } = this.netrunning(actor);
+    let roll = null;
+    if (deck && role && typeof deck.createRoll === "function") {
+      roll = program
+        ? deck.createRoll("cyberdeckProgram", actor, { programId: program.id, executionType, netRoleItem: role })
+        : deck.createRoll("interfaceAbility", actor, { interfaceAbility: ability, cyberdeck: deck, netRoleItem: role });
+    }
+    if (!roll) {
+      // a plain roll: Interface + 1d10 (or a program's damage)
+      const formula = program && executionType === "damage" ? program.system?.damage?.blackIce || program.system?.damage?.standard || "1d6" : "1d10";
+      const extra = (program && executionType !== "damage" ? Number(program.system?.[executionType]) || 0 : 0) + mods.reduce((n, m) => n + (Number(m.value) || 0), 0);
+      const r = await new Roll(formula).evaluate();
+      const total = (executionType === "damage" ? 0 : rank) + extra + r.total;
+      return { total, html: "", critFail: formula === "1d10" && r.total === 1, critSuccess: formula === "1d10" && r.total === 10, roll: r };
+    }
+    const extra = mods.filter((m) => Number(m?.value));
+    if (extra.length && typeof roll.addMod === "function") roll.addMod(extra.map((m) => ({ value: Number(m.value), source: String(m.source ?? "") })));
+    if (typeof roll.handleRollDialog === "function") {
+      const go = await roll.handleRollDialog(event ?? { type: "click", ctrlKey: false, metaKey: false }, actor, deck);
+      if (!go) return null;
+    }
+    await roll.roll();
+    const luck = Number(roll.luck) || 0;
+    if (luck > 0) {
+      const have = Number(getProperty(actor, "system.stats.luck.value")) || 0;
+      await actor.update({ "system.stats.luck.value": Math.max(0, have - luck) });
+    }
+    roll.entityData = { actor: actor.id, token: null, item: deck.id };
+    roll.criticalCard = typeof roll.wasCritical === "function" ? roll.wasCritical() : false;
+    const html = roll.rollCard ? await Compat.renderTemplate(roll.rollCard, roll) : "";
+    return {
+      total: Number(roll.resultTotal) || 0,
+      html,
+      critFail: typeof roll.wasCritFail === "function" ? roll.wasCritFail() : false,
+      critSuccess: typeof roll.wasCritSuccess === "function" ? roll.wasCritSuccess() : false
+    };
+  },
+
   /* ---------------------------------------- */
   /*  Body                                    */
   /* ---------------------------------------- */

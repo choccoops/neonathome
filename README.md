@@ -1,4 +1,4 @@
-# Neon At Home: Loadout, Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
+# Neon At Home: Loadout, Cyberdeck, Deep Dive, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
 from the character sheet, with a tab for each part of their home, and the **Biomonitor** in a
@@ -12,6 +12,9 @@ the workbench, the garage, maintenance) can wait for **downtime**.
   the deck they run and how it connects, its Program-only, Hardware-only and either slots, and
   swapping quickhacks, Programs and Hardware in and out, with a **Netrunning Gear (2070)**
   compendium of the book's quickhacks, hardware, decks and Cybersuites.
+- **Deep Dive** (its own window). A netrunner under in a NET Architecture (Chapter 10, Part 2):
+  the map lighting up floor by floor, NET Actions, the deck's Programs, Black ICE and Demons,
+  stealth and Burnout; and for the GM, an Architect that rolls architectures by the book.
 - **Vehicle Bay.** Their vehicles parked in the home's bays: HP, SP, speed, crew seats, mounted
   weapons, upgrades and cargo. Bays come from the home's parking in Neon Hub.
 - **Biomonitor** (its own window). HP and wounds, armor, critical injuries, the cyberware
@@ -28,6 +31,7 @@ the workbench, the garage, maintenance) can wait for **downtime**.
   (fabricating, upgrading and inventing, pharmaceuticals and therapy, rumors and stories, Night
   Markets). Salvaging from R. Talsorian's *Salvaging Night City* DLC, in 2045 or a 2070 version.
   Maker work is paid for in **Tech Materials** items, salvaged, stripped from gear, or sourced.
+  **Street Drug Synthesis** and **the Medtech as Maker** from *Cyberpunk: The Unification Era*.
 - **Perk Tree** (its own window). The Perk System of *Cyberpunk: The Unification Era* (Chapter 16):
   every perk in a skill tree, Perk Points, and each perk the character has as an effect on their
   sheet that switches on and off.
@@ -502,9 +506,66 @@ summaries in Neon At Home's own words (the 2070 ones are Neon At Home's own); th
 Salvage Tables* compendium has them all as roll tables: import one and edit it, and Neon At Home
 uses your wording (a category table's results can be renamed to other categories).
 
+**Street Drug Synthesis** (*Cyberpunk: The Unification Era*, Chapter 08): *Cook street drugs* takes
+a recipe the character holds and the tools for its complexity: Simple (DV9, an hour a dose, a Metal
+Pot), Standard (DV13, a day, a High School Chemistry Kit), Complex (DV15, a week, a Standard
+Chemistry Kit), Exotic (DV20, a month, a Biotechnica Mobile Lab Tower); a better tool adds +1 a step
+down. Each dose is a roll, INT + Science (Chemistry) + 1d10, with a Medtech's Medical Tech (a point
+of Pharmaceuticals) or a Tech's Fabrication Expertise; its time and ingredients are spent whether
+it works or not. A Fabrication Station on a Standard Kit or Lab Tower halves a book drug's
+ingredients. Pharmaceutical recipes are for Medtechs. The *Neon At Home: Drug Lab (2070)*
+compendium has the tools, the Mixed Drugs and a recipe for each, and recipes for the book's street
+drugs (they cook into Cyberpunk RED's own drug items).
+
+**The Medtech as Maker** (Chapter 04): with 4 points in a Specialty, a Medtech gets the Maker
+panels for that Specialty's work, with the same DVs and times. **Ripperdoc**: implantable
+cyberware, TECH + Cybertech + their Ripperdoc points; to fabricate a piece they first blueprint a
+real one (drop it in Fabricate: *Blueprint this piece*). **Pharmaceuticals**: inventing new street
+drugs and pharmaceuticals, TECH + Medical Tech; the invention is a recipe (the GM sets its
+complexity and what a dose takes). **Cryosystem**: Cryotank and Cryopump mods and upgrades, TECH +
+Medical Tech. A character who's a Tech too picks which they're working as.
+
 Other Roles' abilities aren't downtime work; they Hustle. A Tech also adds Field Expertise to
 maintenance, inspection and repair checks (p.147). The corebook doesn't say how long chasing a
 rumor or writing a story takes; the player sets it (a day by default).
+
+## Deep Dive
+
+A netrunner under in a NET Architecture, from *Cyberpunk: The Unification Era* (Core Rules,
+Chapter 10, Part 2), in a window of its own: the **Deep Dive** button in the Cyberdeck tab, or the
+GM's in the Actors sidebar.
+
+- **Jacking in.** Pick the architecture and the cooling rig: an Ice Bath (safe for an hour), a
+  Netrunning Chair (8 hours) or an Immersion Cradle (indefinitely, +1 to every Interface Check).
+  Jacking in is a NET Action; **quietly** is one more, with Cloak against the Demon watching to
+  stay unseen. The character needs a deck equipped (the GM can send anyone in).
+- **The map.** Floors by depth, branches side by side, linked by lines that light up as the runner
+  breaks through. The runner sees where they've been, the doors right below them, and what
+  Pathfinder has mapped (not the DVs); the rest is unknown. Their HUD: the architecture, NET
+  Actions left this Turn (by Interface, +1 for immersion), seen or unseen, the rig's safe time and
+  their HP.
+- **Moving.** Down a floor (or back up) is free, but a Password or Black ICE still up bars the way
+  down. Opening Black ICE's door is a Speed Check against its SPD (Cloak against its PER, unseen);
+  if it wins, its Effect lands at once and it attacks every Turn until Derezzed or slid past.
+- **NET Actions.** Backdoor (Passwords), Eye-Dee (Files), Control (Nodes, which breaks stealth) and
+  Operate, Pathfinder, Slide (once a Turn; Skunks make it harder), Cloak, Zap (ICE or the Demon),
+  and Virus at the bottom. Each rolls Cyberpunk RED's own Interface roll with the deck's bonuses.
+- **Programs.** The deck's Programs Rez and Derez (once a Round each) and attack (Interface + ATK
+  against the target's DEF); Attackers switch themselves off after use.
+- **Black ICE and Demons.** Effects as the book has them: brain damage (straight to HP, Armor takes
+  4 off), Program damage or destruction, Defenders Derezzed, STAT penalties for an hour (an effect
+  on the sheet that comes off by itself), a Kraken's hold, a Wisp's slow, a Hellhound's fire, a
+  Giant's ejection. The GM has ICE attack and the Demon Zap or Search from the runner's view.
+- **Turns.** **New Turn** gives the NET Actions back (in combat it happens on the runner's turn).
+  Past the rig's safe time, Burnout: 1d6 brain damage at the start of each Turn. **Jack Out**
+  safely, or (the GM) **eject** them: every Rezzed Black ICE they've met hits on the way out.
+- **The Architect (GM).** Roll an architecture by the book's steps: 3d6 floors, a branch for each
+  d10 of 7+ (from floor 3 down, shorter than the trunk), the Lobby on 1d6 and the difficulty's
+  Body table on 3d6 (no doubled ICE or Passwords), and a Demon if you want one. It's saved as a
+  Cyberpunk RED NET Architecture item, its floors filled in for the system's sheet and scene
+  tiles. The Architect shows every floor, who's diving it and where; edit floors (what's there,
+  DV, Black ICE, labels, notes for the GM), reroll it, or jack a character in. An architecture made
+  on Cyberpunk RED's own sheet works too.
 
 ## Perk Tree
 
@@ -551,7 +612,9 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 - bonus carry slots, *no armor* and *one per group* (carry gear like holsters and bags);
 - where an armor upgrade fits, which classes, built-in effects, what it requires, bonus slots;
 - benefit lines and *fixed* (weapon attachments);
-- maintenance: what kind of gear it is, its malfunction table, and who looks after it.
+- maintenance: what kind of gear it is, its malfunction table, and who looks after it;
+- a blueprint's *Fabrication makes* item, and a drug recipe (gear): its complexity, ingredients a
+  dose, whether it's a book drug or Medtech-only, and the drug item it makes.
 
 ## Module settings
 
@@ -567,7 +630,7 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 - **Salvage tables**: 2045 or 2070, or Neon Hub's lifestyle era (automatic).
 - **Perk Tree**: the Perk System and its window, buttons and Downtime training.
-- **Cyberdeck tab**: the netrunner's quickhack suite.
+- **Cyberdeck tab**: the netrunner's quickhack suite, and the Deep Dive.
 - **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
   upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
 
@@ -587,6 +650,14 @@ home.haulMaterials(actor, haulId, "premium"); // take Tech Materials out of a ha
 home.stripForParts(actor, { [itemId]: 1 }, "premium", 1); // a Tech strips gear for materials
 home.rig(actor);                    // the deck running, how it connects, its slots and what's slotted
 home.slotIntoDeck(actor, itemId);   // slot a quickhack, Program or Hardware into it
+home.deepDive(actor);               // open the Deep Dive window
+home.dive(actor);                   // where they are in an architecture (null when not under)
+home.generateArch({ difficulty: "uncommon", demon: "imp" }, { save: true }); // GM: roll one
+home.jackIn(actor, archUuid, { rig: "chair", quiet: true });
+home.jackOut(actor, { unsafe: false });
+home.drugLab(actor);                // their drug recipes and best synthesis tool
+home.cookDrug(actor, recipeItemId, 3); // cook three doses
+home.blueprintCyberware(actor, itemId); // a Ripperdoc blueprints a real piece
 home.perkTree(actor);               // open the Perk Tree
 home.perks(actor);                  // { owned, awards, points: { total, spent, available } }
 home.buyPerk(actor, "decentShape"); // buy a perk (GM: { force, free })

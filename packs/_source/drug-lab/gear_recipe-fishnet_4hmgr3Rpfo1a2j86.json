@@ -1,0 +1,72 @@
+{
+  "name": "Recipe: Fishnet",
+  "type": "gear",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Simple recipe</b> (DV9, Metal Pot). Ingredients 50eb a dose: Black Lace, water.</p><p>Teach it to anyone in an hour.</p>"
+    },
+    "price": {
+      "market": 50
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "recipe": {
+        "name": "Fishnet",
+        "tier": "simple",
+        "cost": 50,
+        "ingredients": "Black Lace, water",
+        "book": false,
+        "pharma": false,
+        "makes": {
+          "name": "Fishnet",
+          "type": "drug",
+          "img": "icons/svg/pill.svg",
+          "system": {
+            "description": {
+              "value": "<p><b>Simple mixed drug.</b> Lasts 1 hour.</p><p><b>Primary:</b> 1d6 HL (returned if you resist). Ignore Seriously Wounded.</p><p><b>Secondary (DV15):</b> HL kept. REF −2 unless dosed.</p><p><b>Recipe:</b> Black Lace, water.</p>"
+            },
+            "price": {
+              "market": 50
+            },
+            "amount": 1,
+            "equipped": "owned",
+            "concealable": {
+              "concealable": true,
+              "isConcealed": false
+            }
+          },
+          "flags": {
+            "cpr-neon-at-home": {
+              "drug": {
+                "tier": "simple",
+                "dv": 15,
+                "lasts": "1 hour"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "_id": "4hmgr3Rpfo1a2j86",
+  "_key": "!items!4hmgr3Rpfo1a2j86",
+  "folder": "gwRjDAjVqvFOKdqq",
+  "sort": 1600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

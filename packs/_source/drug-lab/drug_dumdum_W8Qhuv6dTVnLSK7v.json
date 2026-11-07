@@ -1,0 +1,41 @@
+{
+  "name": "DumDum",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Standard mixed drug.</b> Lasts 12 hours.</p><p><b>Primary:</b> Happy and fuzzy. Another player co-controls you, a bit goofier than usual. You won't walk into harm.</p><p><b>Secondary (DV13):</b> You sometimes mimic the people around you.</p><p><b>Recipe:</b> Blue Glass ×2, Boost, Berserker, binding chemical.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "standard",
+        "dv": 13,
+        "lasts": "12 hours"
+      }
+    }
+  },
+  "_id": "W8Qhuv6dTVnLSK7v",
+  "_key": "!items!W8Qhuv6dTVnLSK7v",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 2500,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

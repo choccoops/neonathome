@@ -1,0 +1,41 @@
+{
+  "name": "Evil Tina",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Standard mixed drug.</b> Lasts 24 hours.</p><p><b>Primary:</b> In a braindance within the hour: +4 to Checks there, and you know it's a BD. Otherwise a lucid coma: face your demons for 2d6 Humanity, or dodge them for 1d6 HL.</p><p><b>Secondary (DV15):</b> Trapped in the dream until DV20 Concentration (one try an hour); then addicted.</p><p><b>Recipe:</b> Boost ×2, Sixgun, Blue Glass, binding chemical.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "standard",
+        "dv": 15,
+        "lasts": "24 hours"
+      }
+    }
+  },
+  "_id": "HPKJWA1TQPB22o7K",
+  "_key": "!items!HPKJWA1TQPB22o7K",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 2300,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

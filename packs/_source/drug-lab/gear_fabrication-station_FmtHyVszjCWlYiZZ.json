@@ -1,0 +1,33 @@
+{
+  "name": "Fabrication Station",
+  "type": "gear",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "description": {
+      "value": "<p>Upgrade for a Standard Kit or Lab Tower: make any book street drug for half its cost in materials.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {},
+  "_id": "FmtHyVszjCWlYiZZ",
+  "_key": "!items!FmtHyVszjCWlYiZZ",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 600,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

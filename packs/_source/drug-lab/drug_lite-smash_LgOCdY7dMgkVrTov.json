@@ -1,0 +1,41 @@
+{
+  "name": "Lite-Smash",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Simple mixed drug.</b> Lasts 2 hours.</p><p><b>Primary:</b> +1 Dance, Contortionist, Conversation, Human Perception, Persuasion, Acting.</p><p><b>Secondary (DV11):</b> As Smash.</p><p><b>Recipe:</b> Smash, water.</p>"
+    },
+    "price": {
+      "market": 20
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "simple",
+        "dv": 11,
+        "lasts": "2 hours"
+      }
+    }
+  },
+  "_id": "LgOCdY7dMgkVrTov",
+  "_key": "!items!LgOCdY7dMgkVrTov",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 900,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

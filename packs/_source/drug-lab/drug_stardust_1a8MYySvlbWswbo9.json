@@ -1,0 +1,41 @@
+{
+  "name": "Stardust",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Standard mixed drug.</b> Lasts 4 hours.</p><p><b>Primary:</b> +2 COOL and Charismatic Impact.</p><p><b>Secondary (DV17):</b> −1 to both; −2 before any scheduled performance unless dosed.</p><p><b>Recipe:</b> Smash, Prime Time, The Juice, lime, Synthcoke.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "standard",
+        "dv": 17,
+        "lasts": "4 hours"
+      }
+    }
+  },
+  "_id": "1a8MYySvlbWswbo9",
+  "_key": "!items!1a8MYySvlbWswbo9",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 1900,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

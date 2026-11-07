@@ -1,0 +1,41 @@
+{
+  "name": "Smokestack",
+  "type": "drug",
+  "img": "icons/svg/pill.svg",
+  "system": {
+    "description": {
+      "value": "<p><b>Simple mixed drug.</b> Lasts 10 minutes.</p><p><b>Primary:</b> +1 COOL.</p><p><b>Secondary (DV13):</b> COOL −1; cravings.</p><p><b>Recipe:</b> Synth-tobacco, rolls or a vape.</p>"
+    },
+    "price": {
+      "market": 10
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": true,
+      "isConcealed": false
+    }
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "drug": {
+        "tier": "simple",
+        "dv": 13,
+        "lasts": "10 minutes"
+      }
+    }
+  },
+  "_id": "F5M7tuC7oFOfi4ph",
+  "_key": "!items!F5M7tuC7oFOfi4ph",
+  "folder": "h9hwAKbpAK0gEfWR",
+  "sort": 1100,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="deck.html">Cyberdeck</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="downtime-synth.html">Downtime: Cook</a><a href="downtime-drug-invent.html">Downtime: Drug invention</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="deck.html">Cyberdeck</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="dive.html">Deep Dive</a><a href="dive-architect.html">Dive: Architect</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -159,6 +159,79 @@ game.modules.delete("cpr-neon-hub");
     perks.uiState.perks = { branch, focus };
     await writeFile(path.join(out, file), page(`Perk Tree: ${actor.name}`, render("shell.hbs", await perks._prepareContext()), { width: 1240, height: 860 }).replace("</body>", `${demo}</body>`));
   }
+}
+// The Deep Dive: Vex three floors down a Standard architecture, and the GM's Architect over it
+{
+  const { DiveApp } = await import("../scripts/apps/dive-app.js");
+  const { DiveOps } = await import("../scripts/home/dive-ops.js");
+  const { dice } = await import("../tests/helpers/foundry.mjs");
+  const layout = {
+    name: "Biotechnica Sub-net 7", difficulty: "standard", demon: { type: "imp", at: "a5" },
+    floors: [
+      { key: "a1", branch: "a", depth: 1, from: null, kind: "password", dv: 6, ice: [] },
+      { key: "a2", branch: "a", depth: 2, from: "a1", kind: "ice", dv: null, ice: ["wisp"] },
+      { key: "a3", branch: "a", depth: 3, from: "a2", kind: "file", dv: 8, ice: [], label: "Payroll" },
+      { key: "a4", branch: "a", depth: 4, from: "a3", kind: "ice", dv: null, ice: ["hellhound", "killer"] },
+      { key: "a5", branch: "a", depth: 5, from: "a4", kind: "node", dv: 8, ice: [], label: "Lab cameras", note: "The Imp sits here" },
+      { key: "a6", branch: "a", depth: 6, from: "a5", kind: "password", dv: 8, ice: [] },
+      { key: "a7", branch: "a", depth: 7, from: "a6", kind: "file", dv: 8, ice: [], label: "Project Ambrosia" },
+      { key: "b4", branch: "b", depth: 4, from: "a3", kind: "file", dv: 8, ice: [], label: "Shipping manifests" },
+      { key: "b5", branch: "b", depth: 5, from: "b4", kind: "node", dv: 8, ice: [], label: "Loading-bay doors" }
+    ],
+    virus: "a7"
+  };
+  game.user = game.users[0];
+  const item = await DiveOps.create({}, layout);
+  await DiveOps.jackIn(actor, item.uuid, { rig: "chair" });
+  await DiveOps.move(actor, "a1");
+  dice.next = [7];
+  await DiveOps.act(actor, "breach");
+  dice.next = [9, 2];
+  await DiveOps.move(actor, "a2");
+  dice.next = [8, 1, 6];
+  await DiveOps.act(actor, "zap", { target: 0 });
+  await DiveOps.newTurn(actor);
+  dice.next = [9, 3];
+  await DiveOps.act(actor, "slide", { dir: "down" });
+  dice.next = [8];
+  await DiveOps.act(actor, "pathfinder");
+  const dive = new DiveApp();
+  dive.actorId = actor.id;
+  const links = `<script>
+    const draw = () => document.querySelectorAll(".nah-dive-map").forEach((g) => {
+      const svg = g.querySelector("svg"); const box = g.getBoundingClientRect(); const z = g.offsetWidth ? box.width / g.offsetWidth : 1; let out = "";
+      g.querySelectorAll("[data-from]").forEach((c) => { const f = g.querySelector('[data-floor="' + c.dataset.from + '"]'); if (!f) return;
+        const a = f.getBoundingClientRect(), b = c.getBoundingClientRect();
+        const x1 = (a.left + a.width / 2 - box.left) / z, y1 = (a.bottom - box.top) / z, x2 = (b.left + b.width / 2 - box.left) / z, y2 = (b.top - box.top) / z, m = (y1 + y2) / 2;
+        out += '<path class="' + (f.classList.contains("is-done") || f.classList.contains("is-here") ? "lit" : "") + '" d="M' + x1 + "," + y1 + " C" + x1 + "," + m + " " + x2 + "," + m + " " + x2 + "," + y2 + '"/>'; });
+      svg.setAttribute("viewBox", "0 0 " + g.offsetWidth + " " + g.offsetHeight); svg.innerHTML = out; });
+    addEventListener("load", draw);
+  </script>`;
+  // the runner's own view (a player: only what they've found)
+  game.user = game.users[1];
+  dive.uiState.dive = { mode: "run" };
+  await writeFile(path.join(out, "dive.html"), page(`Deep Dive: ${actor.name}`, render("shell.hbs", await dive._prepareContext()), { width: 1280, height: 880 }).replace("</body>", `${links}</body>`));
+  game.user = game.users[0];
+  dive.uiState.dive = { mode: "architect", arch: item.uuid };
+  await writeFile(path.join(out, "dive-architect.html"), page(`Deep Dive: ${actor.name}`, render("shell.hbs", await dive._prepareContext()), { width: 1280, height: 880 }).replace("</body>", `${links}</body>`));
+  await DiveOps.jackOut(actor);
+}
+// Street Drug Synthesis: Vex as a Medtech too, with a kit and two recipes
+{
+  const drugs = await import("../scripts/data/drugs.js");
+  const M = "cpr-neon-at-home";
+  await actor.createEmbeddedDocuments("Item", [
+    { name: "Medtech", type: "role", system: { rank: 4, abilities: [{ name: "Medical Tech (Pharmaceuticals)", rank: 4 }, { name: "Medical Tech Skill", rank: 4 }, { name: "Surgery", rank: 0 }] } },
+    drugs.labItem(drugs.DRUG_LAB[1], M), drugs.labItem(drugs.DRUG_LAB[5], M),
+    drugs.recipeItem({ name: "Lite-Smash", tier: "simple", cost: 20, ingredients: "Smash, water", makes: drugs.mixedDrugItem(drugs.MIXED_DRUGS[0], M) }, M),
+    drugs.recipeItem({ name: "Black Lace", tier: "standard", cost: 50, book: true }, M)
+  ]);
+  app.tab = "downtime";
+  game.user = game.users[0];
+  app.uiState.downtime = { action: "synth", params: { synth: { doses: 3 } } };
+  await writeFile(path.join(out, "downtime-synth.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+  app.uiState.downtime = { action: "invent", params: { invent: { domain: "pharma", tier: "complex", name: "Steadyhand" } } };
+  await writeFile(path.join(out, "downtime-drug-invent.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
 }
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));

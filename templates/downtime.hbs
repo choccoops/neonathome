@@ -179,6 +179,7 @@
       {{/if}}
 
       {{#if blocked}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-circle-exclamation"></i> {{blocked}}</p>{{/if}}
+      {{#if blueprintPiece}}<div class="nah-maint-actions"><button type="button" data-action="dtBlueprintPiece" data-item="{{blueprintPiece}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-scroll"></i> {{localize "NEONHOME.Medtech.BlueprintIt"}}</button></div>{{/if}}
       {{#unless @root.dt.can}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.actions"}}</p>{{/unless}}
       {{#unless workshop}}{{#unless projects}}
       <div class="nah-maint-actions">

@@ -1,0 +1,33 @@
+{
+  "name": "Distillation Station",
+  "type": "gear",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "description": {
+      "value": "<p>Upgrade for a Standard Kit or Lab Tower: break a dose of a mixed drug back into its ingredients in a day.</p>"
+    },
+    "price": {
+      "market": 500
+    },
+    "amount": 1,
+    "equipped": "owned",
+    "concealable": {
+      "concealable": false,
+      "isConcealed": false
+    }
+  },
+  "flags": {},
+  "_id": "wFXF3omb5d6EaRqH",
+  "_key": "!items!wFXF3omb5d6EaRqH",
+  "folder": "CjbaWyghVTCvLRLG",
+  "sort": 700,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}
