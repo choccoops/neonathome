@@ -9,12 +9,16 @@ import { HomeApp } from "./apps/home-app.js";
 import { BiomonitorApp } from "./apps/biomonitor-app.js";
 import { PerksApp } from "./apps/perks-app.js";
 import { Perks } from "./apps/perks.js";
+import { SpendIPApp } from "./apps/spend-ip-app.js";
+import { SpendIP } from "./apps/spend-ip.js";
+import { IPOps } from "./home/ip-ops.js";
 import { Deck } from "./apps/deck.js";
 import { Dive } from "./apps/dive.js";
 import { DiveApp } from "./apps/dive-app.js";
 import { DiveOps, DIVE_FLAG } from "./home/dive-ops.js";
 import { generate as generateArch } from "./data/netarch.js";
 import { DrugOps } from "./home/drug-ops.js";
+import { LifeOps } from "./home/life-ops.js";
 import { DeckOps } from "./home/deck-ops.js";
 import { PerkOps, PERK_EFFECT } from "./home/perk-ops.js";
 import { registerFeature, features } from "./apps/features.js";
@@ -45,6 +49,7 @@ registerFeature(Bench);
 registerFeature(Maintenance);
 registerFeature(DowntimeTab);
 registerFeature(Perks);
+registerFeature(SpendIP);
 registerFeature(Deck);
 registerFeature(Dive);
 
@@ -97,6 +102,18 @@ Hooks.once("init", () => {
     buyPerk: (actor, id, opts = {}) => PerkOps.buy(actor, id, opts),
     /** GM: award (or with a negative number, take back) Perk Points. */
     awardPerkPoints: (actor, n, reason = "") => PerkOps.award(actor, n, reason),
+    /** Open Spend IP for a character on this client (an Actor or uuid; default: the selected token's, else your own character). */
+    spendIp: (actor = null) => SpendIPApp.open(actor ?? selectedCharacter()),
+    /** A character's IP read-outs: { ip, spent, level, rank, bought, best, experts, cats, special, threat, band }. */
+    ipSummary: (actor) => IPOps.summary(actor),
+    /** Spend IP on Skill or Role item ids (one level each), no questions asked: { lines, total }. */
+    upgradeIp: (actor, itemIds) => IPOps.upgrade(actor, itemIds),
+    /** Refund one level of each Skill or Role item id: { lines, total }. */
+    refundIp: (actor, itemIds) => IPOps.refund(actor, itemIds),
+    /** Add a Role at Rank 1 for 60 IP (exec, fixer, lawman, media, medtech, netrunner, nomad, rockerboy, solo, tech). */
+    addRole: (actor, key) => IPOps.addRole(actor, key),
+    /** Add a Skill at Level 0: { family: language|science|localExpert|martialArt|playInstrument, specialty } or { name, category, stat, difficulty }. */
+    addSkill: (actor, spec) => IPOps.addSkill(actor, spec),
     /** GM: open each listed user's own home suite (default: every connected player). */
     show: (tab = null, userIds = null) => HomeSocket.emit("openHome", { tab }, userIds ?? game.users.filter((u) => u.active && !u.isGM).map((u) => u.id)),
     /** Carry slots and weight for a character: { carry, weight }. */
@@ -134,6 +151,7 @@ Hooks.once("init", () => {
       if (id === "salvage") return SalvageOps.trip(actor, params);
       if (id === "strip") return SalvageOps.strip(actor, params.picks, params.tier, params.count);
       if (id === "synth") return DrugOps.cook(actor, params);
+      if (["train", "source", "art", "market", "bodysculpt"].includes(id)) return LifeOps[id](actor, params);
       return DowntimeOps.perform(actor, id, params);
     },
     /** A character's projects under way (Maker work, repairs): { id, kind, label, dv, minutes, done, check }. */
@@ -515,6 +533,11 @@ Hooks.on("renderChatMessageHTML", (message, html) => bindMalfunctionCard(message
 /*  Entry points                              */
 /* ------------------------------------------ */
 
+/** The character of the token the user has selected, when they can manage it (as the Spend IP macro picks). */
+const selectedCharacter = () => {
+  const actor = globalThis.canvas?.tokens?.controlled?.[0]?.actor;
+  return actor?.type === "character" && HomeStore.canManage(actor) ? actor.baseActor ?? actor : null;
+};
 const homeForActor = (actor) => actor?.type === "character" && !isVasVehicle(actor) && HomeStore.canManage(actor);
 const configForItem = (item) => game.user.isGM && !["skill", "role", "criticalInjury", "netarch"].includes(item?.type);
 
@@ -527,6 +550,7 @@ Hooks.on("getActorSheetHeaderButtons", (sheet, buttons) => {
     { label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) }
   );
   if (Settings.get("perks") !== false) buttons.unshift({ label: "NEONHOME.Perks.Short", class: "neon-home-perks", icon: "fa-solid fa-diagram-project", onclick: () => PerksApp.open(actor) });
+  if (Settings.get("spendIp") !== false) buttons.unshift({ label: "NEONHOME.IP.Short", class: "neon-home-ip", icon: "fa-solid fa-angles-up", onclick: () => SpendIPApp.open(actor) });
 });
 Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
   const item = sheet.item ?? sheet.document;
@@ -541,6 +565,7 @@ Hooks.on("getHeaderControlsActorSheetV2", (sheet, controls) => {
     { label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) }
   );
   if (Settings.get("perks") !== false) controls.unshift({ label: "NEONHOME.Perks.Short", icon: "fa-solid fa-diagram-project", action: "neonHomePerks", onClick: () => PerksApp.open(sheet.document) });
+  if (Settings.get("spendIp") !== false) controls.unshift({ label: "NEONHOME.IP.Short", icon: "fa-solid fa-angles-up", action: "neonHomeIp", onClick: () => SpendIPApp.open(sheet.document) });
 });
 Hooks.on("getHeaderControlsItemSheetV2", (sheet, controls) => {
   if (!configForItem(sheet.document)) return;
@@ -566,6 +591,7 @@ Hooks.on("renderActorDirectory", (app, html) => {
   button("neon-home-open", "fa-solid fa-house-chimney-window", "NEONHOME.Short", () => HomeApp.open());
   button("neon-home-bio", "fa-solid fa-heart-pulse", "NEONHOME.Bio.Short", () => BiomonitorApp.open());
   if (Settings.get("perks") !== false) button("neon-home-perks", "fa-solid fa-diagram-project", "NEONHOME.Perks.Short", () => PerksApp.open());
+  if (Settings.get("spendIp") !== false) button("neon-home-ip", "fa-solid fa-angles-up", "NEONHOME.IP.Short", () => SpendIPApp.open(selectedCharacter()));
   if (Settings.get("deckTab") !== false && game.user.isGM) button("neon-home-dive", "fa-solid fa-network-wired", "NEONHOME.Dive.Short", () => DiveApp.open());
 });
 
@@ -661,4 +687,28 @@ Hooks.on("updateCombat", (combat, changes) => {
   const actor = combat.combatant?.actor;
   if (!actor || !DiveOps.dive(actor)) return;
   DiveOps.newTurn(actor).catch((err) => console.warn(`${MODULE_ID} | a new NET Turn for ${actor.name} failed`, err));
+});
+
+/* ------------------------------------------ */
+/*  Maximum Humanity (2070)                   */
+/* ------------------------------------------ */
+
+// 2070's corrections to Maximum Humanity follow the chrome installed and the lifestyle
+const maxHumPending = new Map();
+const queueMaxHumanity = (actor) => {
+  if (!(actor instanceof Actor) || actor.type !== "character" || !actor.isOwner) return;
+  if (game.user.isGM && game.users.some((u) => u.active && !u.isGM && actor.testUserPermission(u, "OWNER"))) return;
+  clearTimeout(maxHumPending.get(actor.id));
+  maxHumPending.set(actor.id, setTimeout(() => {
+    maxHumPending.delete(actor.id);
+    LifeOps.syncMaxHumanity(actor).catch((err) => console.warn(`${MODULE_ID} | Maximum Humanity sync failed for ${actor.name}`, err));
+  }, 400));
+};
+for (const hook of ["createItem", "updateItem", "deleteItem"]) {
+  Hooks.on(hook, (item) => {
+    if (item.type === "cyberware" || item.flags?.[NEON_HUB_ID]?.lifestyle) queueMaxHumanity(item.parent);
+  });
+}
+Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
+  for (const a of game.actors.filter((x) => x.type === "character")) queueMaxHumanity(a);
 });

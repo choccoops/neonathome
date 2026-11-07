@@ -89,6 +89,9 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     return {
       blueprint,
       recipe,
+      iconic: !!item.getFlag(MODULE_ID, "iconic"),
+      // the item's one Tech Upgrade is already used (a TUp on its card, or one fitted elsewhere)
+      tupUsed: !!item.getFlag(MODULE_ID, "makerUpgrade"),
       item: { name: item.name, img: item.img, type: L(`TYPES.Item.${item.type}`) },
       flag,
       physical: !["skill", "role", "criticalInjury", "netarch", "program"].includes(item.type),
@@ -144,6 +147,15 @@ export class ItemConfig extends HandlebarsApplicationMixin(ApplicationV2) {
       maint: f.maint ? { kind: f.maint.kind, table: f.maint.table, exempt: f.maint.exempt } : existing.maint
     });
     await this.item.setFlag(MODULE_ID, ITEM_FLAG, flag);
+    // Iconic (can't be Destroyed without its owner's say-so; fabricated only from its blueprint)
+    if (!!data.iconic !== !!this.item.getFlag(MODULE_ID, "iconic")) {
+      if (data.iconic) await this.item.setFlag(MODULE_ID, "iconic", true);
+      else await this.item.unsetFlag(MODULE_ID, "iconic");
+    }
+    // its Tech Upgrade already used: a card listing a TUp (kept as whatever upgrade it is, if Neon At Home fitted it)
+    const used = this.item.getFlag(MODULE_ID, "makerUpgrade");
+    if (data.tupUsed && !used) await this.item.setFlag(MODULE_ID, "makerUpgrade", "tup");
+    else if (data.tupUsed === false && used) await this.item.unsetFlag(MODULE_ID, "makerUpgrade");
     // a drug recipe: on, or off (the drug it makes is kept while it's on)
     if (data.recipe) {
       const old = this.item.getFlag(MODULE_ID, "recipe");

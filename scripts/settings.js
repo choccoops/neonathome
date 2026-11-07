@@ -185,6 +185,41 @@ export const Settings = {
       default: true,
       onChange: changed
     });
+    // Spend IP: the window, refunds, sizing up the others, and its sounds
+    reg("spendIp", {
+      name: "NEONHOME.Settings.SpendIp.Name",
+      hint: "NEONHOME.Settings.SpendIp.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: changed
+    });
+    reg("ipRefund", {
+      name: "NEONHOME.Settings.IpRefund.Name",
+      hint: "NEONHOME.Settings.IpRefund.Hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: changed
+    });
+    reg("ipCompare", {
+      name: "NEONHOME.Settings.IpCompare.Name",
+      hint: "NEONHOME.Settings.IpCompare.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      choices: { off: "NEONHOME.Settings.IpCompare.off", players: "NEONHOME.Settings.IpCompare.players", scene: "NEONHOME.Settings.IpCompare.scene" },
+      default: "players",
+      onChange: changed
+    });
+    for (const [key, name, hint] of [
+      ["ipSoundUp", "NEONHOME.Settings.IpSoundUp.Name", "NEONHOME.Settings.IpSoundUp.Hint"],
+      ["ipSoundRefund", "NEONHOME.Settings.IpSoundRefund.Name", "NEONHOME.Settings.IpSoundRefund.Hint"]
+    ]) {
+      reg(key, { name, hint, scope: "world", config: true, type: String, default: "", filePicker: "audio" });
+    }
     reg("salvageEra", {
       name: "NEONHOME.Settings.SalvageEra.Name",
       hint: "NEONHOME.Settings.SalvageEra.Hint",

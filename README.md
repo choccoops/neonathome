@@ -1,4 +1,4 @@
-# Neon At Home: Loadout, Cyberdeck, Deep Dive, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
+# Neon At Home: Loadout, Cyberdeck, Deep Dive, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor, Perk Tree & Spend IP for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
 from the character sheet, with a tab for each part of their home, and the **Biomonitor** in a
@@ -61,12 +61,13 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
 
 ## Opening it
 
-- The **Home**, **Biomonitor** and **Perks** buttons in a character sheet's header (owners and the GM).
-- The **Home**, **Biomonitor** and **Perks** buttons at the top of the Actors sidebar.
+- The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons in a character sheet's header (owners and the GM).
+- The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons at the top of the Actors sidebar
+  (Spend IP opens on the selected token's character, if it's yours).
 - The house button in the Token Controls toolbar.
 - **Go home** on the chat card players get when downtime starts.
 - A macro, or a Neon Hub page button running one: `game.modules.get("cpr-neon-at-home").api.open()`
-  (or `.biomonitor()`, `.perkTree()`).
+  (or `.biomonitor()`, `.perkTree()`, `.spendIp()`).
 
 Players see their own characters; the GM can pick anyone from the list in the header.
 
@@ -137,14 +138,16 @@ warning, or switch it off, in the module settings.
 ### Armor upgrades
 
 The **Neon At Home: Armor Upgrades** compendium has every upgrade from the spreadsheet, each
-limited to the armor classes that list it and to the body, head or shield. The Neuro-port goes in
-before the AI Armor Interface; the two ACPA versions take a Cyberware option slot instead.
-Fitting one sets the armor's upgrade slots from its class, then installs it through Cyberpunk RED.
+limited to the armor classes that list it and to the body, head or shield. In 2070 (*Cyberpunk:
+The Unification Era*, Chapter 12) every armor upgrade or enhancement takes **one** upgrade slot,
+whatever its size elsewhere (a shield has 4), and the AI Armor Interface is gone with the AIs. The
+ACPA versions take a Cyberware option slot instead. Fitting one sets the armor's upgrade slots from
+its class, then installs it through Cyberpunk RED.
 
 While the armor is worn, Neon At Home keeps an effect on the character, *Neon At Home: armor
 fit*, for what the upgrades do: Improved Flexibility and Reflexes cancel the armor penalty on DEX
-and REF rolls, Plate Padding gives +2 Stealth, the AI Armor Interface +2 Concentration, and War
-Paint on both head and body +2 Wardrobe & Style. The rest (Improved Mobility, Enviro-Shielding,
+and REF rolls, Plate Padding gives +2 Stealth, and War Paint on both head and body +2 Wardrobe &
+Style. The rest (Improved Mobility, Enviro-Shielding,
 Fireproof Padding, the Neuro-port, Rocket Boosters...) are listed on the Loadout for the table.
 The GM can turn the effect off.
 
@@ -425,8 +428,13 @@ wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appea
 
 | Who | Action | What it takes (Cyberpunk RED core rulebook) |
 | --- | --- | --- |
-| Anyone | **The Hustle** | A week; 1d6 on the Role's table, paid by Role Ability Rank (p.381) |
-| Anyone | **Rest and recover** | Days of rest, BODY HP a day (p.222) |
+| Anyone | **The Hustle** | A week; 1d6 on the Role's 2070 row (Gangers too, no Lawmen), its letter paid by Role Rank; a d100 for an **Interesting Hustle** (a contact, an opportunity, inside info, strings attached; 01 a Jackpot) |
+| Anyone | **Rest and recover** | Days of rest, BODY HP a day (p.222); at home, a hospital bed, or a cryotank (2 × BODY a day, as with Enhanced Antibodies), priced by the day and covered by the right health plan |
+| Anyone | **Train a Skill** | A week with a teacher (self-study and Training BDs on the side or dedicated, Street, Professional, NCU, a Master, a crewmate): Training Progress toward the next level, Skill Chips, Elementary's focus, Push Training, topping off with IP (Chapter 15) |
+| Anyone | **Make art** | The quality's materials and time, then the roll: an Artwork item that adds Humanity every month on display (Chapter 13) |
+| Anyone | **Find a Night Market** | A day: Streetwise DV13 or Trading DV15; found, two categories on sale and what's on the shelves (Chapter 17) |
+| Anyone | **Cook street drugs** | Street Drug Synthesis: a recipe, the tools, a roll a dose (Chapter 08) |
+| Fixer, Media, Rockerboy, Netrunner, Nomad | **Source an item** | A week per item within the Role's reach; Media and Rockerboys roll the Sourcing DV and pay double (Chapter 12) |
 | Anyone | **Treat a critical injury** | Four hours; the injury's skill and DV (Cybertech on a cyberlimb); not on yourself, except the injuries a Quick Fix cures (a minute) (pp.222-223) |
 | Anyone | **Salvage** | A week; Basic Tech sets the worth found; picked out as Destroyed items or Tech Materials (*Salvaging Night City*) |
 | Anyone | **Maintenance and repairs** | What's due, and repair projects for what's Destroyed (p.140) |
@@ -437,7 +445,9 @@ wealth ledger; a Tech's are **Tech Materials** items (below). Role actions appea
 | Tech | **Fabricate from a blueprint** | Drop the blueprint into Fabricate: it makes the item the GM linked to it (the blueprint's **Home** settings → *Blueprint* → *Fabrication makes*), at the invention's value |
 | Tech | **Strip for parts** | Gear broken down into Tech Materials, several items' worth toward one tier |
 | Medtech | **Synthesize pharmaceuticals** | An hour, DV13 Medical Tech, 200eb: doses equal to the skill (p.149) |
-| Medtech | **Therapy** | A week for both; Addiction, or Standard/Extreme Humanity Loss (2d6/4d6 Humanity) (p.229) |
+| Medtech | **Therapy** | A week for both; Addiction (DV15, 500eb), Standard (DV17, 1,000eb, 2d6 Humanity) or Extreme (DV20, 2,500eb, 4d6) (2070, Chapter 08) |
+| Medtech | **Bodysculpting** | Four hours, Surgery DV15 (Standard, 100eb) or DV17 (Exotic, 500eb, 4d6 HL to the patient); not on yourself (Chapter 08) |
+| Medtech (4+ in a Specialty) | **Fabricate / Upgrade / Invent** | The Medtech as Maker: Ripperdoc cyberware, Pharmaceuticals drug recipes, Cryosystem gear |
 | Media | **Chase a rumor** | An information skill against the Active DV (p.151) |
 | Media | **Publish a story** | 1d10 against Believability, by Credibility and evidence (pp.151-153) |
 | Fixer | **Set up a Night Market** | Operator Rank 5, once a month (p.160) |
@@ -495,6 +505,11 @@ Critical Injury to the Body from Cyberpunk RED's own tables.
 
 - **2045**: the DLC's places (the Hot Zone, a Combat Zone, the Scrapyards, the Perimeter), all
   rolling the DLC's tables.
+- **2070**'s yards pay far better (*Cyberpunk: The Unification Era*, Chapter 12): Everyday at DV9
+  up to a Luxury find at DV24 (hunting a category, DV13 up to DV29). The GM's **Who turns up?**
+  button rolls the site's d6 of locals (1-3 trouble that can be talked down, 4-6 a chance). A
+  **crew** salvages together: pick who's with you, each rolls their own week, and they share one
+  Perils roll and one Who Turns Up.
 - **2070** (the Night City of the *Edgerunner's Handbook*): one Combat Zone, in Pacifica, and no
   Hot Zone. **The Combat Zone** (Pacifica's dead resorts, the Voodoo Boys, BARGHEST's Dogtown, scavs)
   turns up more weapons and chrome; **the Scrapyards** (Coronado Dam's dump in Santo Domingo,
@@ -603,6 +618,37 @@ Specialty and Free City.
   creation, recount Role ranks from now, grant a perk (with or without its points), and refund a
   perk, refund it for good, or take it away with its points.
 
+## Spend IP
+
+Improvement Points into Skills, Role Abilities and new Roles, in a window of its own, working as
+the *Spend IP* macro (Character Level Up 2.4.2) does:
+
+- **The dossier.** The IP to spend; a **character level** for every 1720 IP spent (worked out from
+  what's been bought) with its progress bar and **rank insignia**, Gonk to Afterlife Legend; total
+  IP spent, levels bought, highest skill, expert skills (6+), **specialization** (the category
+  with the most levels) and **Threat Level** (combat skills and Role Ranks, Solo heaviest); and
+  each category's levels (hover for their averages).
+- **Buying.** Every Skill and Role Ability is a card: its level as pips, what the next costs (20 IP
+  × the level, 40 for a Difficult Skill, 60 a Role Ability Rank), and a line on what it's for.
+  Pick as many as you like (the footer adds them up, red when it's more than there is), then
+  **Confirm level up**: one level each, the IP out through Cyberpunk RED's ledger, a chat card
+  for each. **Refund IP** takes one level back off each pick and returns its IP (the GM can keep
+  refunds to themselves).
+- **Roles.** A new Role at Rank 1 for 60 IP, from Cyberpunk RED's Roles compendium, once every
+  Role the character has is at Rank 4 (or as their first). After a Solo's, Medtech's or Tech's
+  Rank changes, the player shares the points out among its abilities again (every point placed);
+  a Fixer's Haggle follows Operator.
+- **New skills.** Add a **Language**, **Science**, **Local Expert**, **Martial Art** or
+  **Instrument** (pick from the list or type your own), or any skill of your own (its name,
+  category, STAT and whether it's Difficult), at Level 0 to spend on. Ones Cyberpunk RED's
+  compendiums have come from there; Martial Arts are always Difficult. A skill added here can be
+  taken off again while it has no levels.
+- **Finding things.** Jump to a category, fold categories away, search (Enter goes to the
+  matches and lights them up).
+- **Compare Skills.** Size up every player's character (or everyone in the scene), as far as
+  Perception + INT reads them: 6 for their threat, 10 for levels and character level (ranked by
+  threat), 15 for their best skill (ranked by levels bought), 18 for their specialization.
+
 ## Item settings (GM)
 
 Every item sheet has a **Home** button for the GM, with Neon At Home's settings for that item:
@@ -630,6 +676,8 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 - **Salvage tables**: 2045 or 2070, or Neon Hub's lifestyle era (automatic).
 - **Perk Tree**: the Perk System and its window, buttons and Downtime training.
+- **Spend IP**, **Players can refund IP**, **Compare Skills** (every player's character, the
+  scene, or off), and an **upgrade** and **refund sound**.
 - **Cyberdeck tab**: the netrunner's quickhack suite, and the Deep Dive.
 - **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
   upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
@@ -658,10 +706,16 @@ home.jackOut(actor, { unsafe: false });
 home.drugLab(actor);                // their drug recipes and best synthesis tool
 home.cookDrug(actor, recipeItemId, 3); // cook three doses
 home.blueprintCyberware(actor, itemId); // a Ripperdoc blueprints a real piece
+home.downtimeAction(actor, "train", { skill: skillId, teacher: "professional" }); // also: source, art, market, bodysculpt
 home.perkTree(actor);               // open the Perk Tree
 home.perks(actor);                  // { owned, awards, points: { total, spent, available } }
 home.buyPerk(actor, "decentShape"); // buy a perk (GM: { force, free })
 home.awardPerkPoints(actor, 1, "Avenged the family"); // GM
+home.spendIp(actor);                // open Spend IP
+home.ipSummary(actor);              // { ip, spent, level, rank, bought, best, experts, special, threat, ... }
+home.upgradeIp(actor, [skillId, roleId]); // one level each, no questions asked (refundIp too)
+home.addRole(actor, "netrunner");   // a new Role at Rank 1 for 60 IP
+home.addSkill(actor, { family: "martialArt", specialty: "Karate" }); // or { name, category, stat, difficulty }
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }

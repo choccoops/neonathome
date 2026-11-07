@@ -6,7 +6,7 @@ import { Downtime } from "./downtime.js";
 import { DowntimeOps } from "./downtime-ops.js";
 import {
   SALVAGE_MINUTES, CATEGORIES, ERAS, LOCATIONS, locationsOf, salvageWorth, firstDv, rollCategory, rollPeril,
-  perilGear, categoryOf, normalizeHaul, haulLeft
+  perilGear, categoryOf, normalizeHaul, haulLeft, whoTurnsUp, WHO_TURNS_UP
 } from "../data/salvage.js";
 import {
   TIERS, TIER_NAMES, tierEb, countMaterials, materialsTier, stripMinutes, materialsItemData, partsValue, strippable, stripPlan, payMaterials, needsLabel, unitsFor
@@ -97,27 +97,56 @@ export const SalvageOps = {
   /**
    * A week of salvaging (Salvaging Night City, pp.3-5): a Basic Tech Check, whose total sets the
    * worth found; the category rolled on the place's table, unless one was chosen (a harder DV).
-   * A Critical Failure finds nothing and runs into a peril.
-   * @param {object} p - { location, category: a category or "any" }
+   * A Critical Failure finds nothing and runs into a peril. A crew salvages together (2070): each
+   * rolls, and they share one Perils roll.
+   * @param {object} p - { location, category: a category or "any", crew: other characters' ids }
    */
-  async trip(actor, { location, category = "any" } = {}, { event = null } = {}) {
+  async trip(actor, { location, category = "any", crew = [] } = {}, { event = null } = {}) {
     DowntimeOps._ready(actor);
     const era = this.era();
     const loc = LOCATIONS[era][location] ? location : locationsOf(era)[0];
     const specific = CATEGORIES.includes(category);
+    const others = (Array.isArray(crew) ? crew : []).map((id) => game.actors?.get(id)).filter((a) => a && a !== actor);
+    // the crew's weeks go in too: whoever rolls for them has to be able to
+    for (const o of others) {
+      if (!o.isOwner) throw new RuleBlock(L("NEONHOME.Salvage.NotYours", { name: o.name }));
+      DowntimeOps._ready(o);
+      Downtime.require(o, SALVAGE_MINUTES);
+    }
+    const mine = await this._dig(actor, era, loc, specific, category, event);
+    if (!mine) return null;
+    if (!others.length) {
+      if (mine.critFail) return { ok: false, worth: 0, peril: await this.suffer(actor, era, loc) };
+      return mine;
+    }
+    const results = [{ actor, ...mine }];
+    for (const o of others) {
+      const r = await this._dig(o, era, loc, specific, category, null);
+      if (r) results.push({ actor: o, ...r });
+    }
+    // one Perils roll for the whole crew, if anyone fumbled
+    let peril = null;
+    if (results.some((r) => r.critFail)) {
+      const roll = await new Roll("1d6").evaluate();
+      for (const r of results) peril = await this.suffer(r.actor, era, loc, roll);
+    }
+    return { crew: results.map(({ actor: a, ...r }) => ({ name: a.name, ...r })), peril };
+  },
+
+  /** One character's week at the site: the roll, and what it found (a haul). */
+  async _dig(actor, era, loc, specific, category, event) {
     const place = this.placeName(era, loc);
     const label = L("NEONHOME.Salvage.Label", { place });
     const res = await DowntimeOps._timedRoll(actor, SALVAGE_MINUTES, label, { action: "salvage", era, location: loc }, () => CPR.skillCheck(actor, "Basic Tech", { event }));
     if (!res) return null;
     const title = `${label} (${era})`;
     if (res.critFail) {
-      await DowntimeOps._post(actor, res.html, { icon: "fa-solid fa-dumpster-fire", title, dv: firstDv(specific), total: res.total, ok: false, verdict: L("NEONHOME.Salvage.CritFail", { name: esc(actor.name) }) });
-      const peril = await this.suffer(actor, era, loc);
-      return { ok: false, worth: 0, peril };
+      await DowntimeOps._post(actor, res.html, { icon: "fa-solid fa-dumpster-fire", title, dv: firstDv(specific, era), total: res.total, ok: false, verdict: L("NEONHOME.Salvage.CritFail", { name: esc(actor.name) }) });
+      return { ok: false, worth: 0, critFail: true };
     }
-    const worth = salvageWorth(res.total, specific);
+    const worth = salvageWorth(res.total, specific, era);
     if (!worth) {
-      await DowntimeOps._post(actor, res.html, { icon: "fa-solid fa-dumpster", title, dv: firstDv(specific), total: res.total, ok: false, verdict: L("NEONHOME.Salvage.Nothing", { name: esc(actor.name), place: esc(place) }) });
+      await DowntimeOps._post(actor, res.html, { icon: "fa-solid fa-dumpster", title, dv: firstDv(specific, era), total: res.total, ok: false, verdict: L("NEONHOME.Salvage.Nothing", { name: esc(actor.name), place: esc(place) }) });
       return { ok: false, worth: 0 };
     }
     let cat = category;
@@ -131,7 +160,7 @@ export const SalvageOps = {
     await DowntimeOps._post(actor, res.html, {
       icon: "fa-solid fa-dumpster",
       title,
-      dv: firstDv(specific),
+      dv: firstDv(specific, era),
       total: res.total,
       ok: true,
       verdict: L(`NEONHOME.Salvage.Found${catRoll ? "Rolled" : ""}`, { name: esc(actor.name), place: esc(place), eb: eb(worth), category: this.categoryName(cat), roll: catRoll?.total ?? "" })
@@ -143,8 +172,8 @@ export const SalvageOps = {
    * Perils of Salvaging (p.5): roll the place's table and post what happened, its damage rolled.
    * Gear that keeps it off is named; a collapse also draws a Critical Injury to the Body.
    */
-  async suffer(actor, era, loc) {
-    const roll = await new Roll("1d6").evaluate();
+  async suffer(actor, era, loc, shared = null) {
+    const roll = shared ?? (await new Roll("1d6").evaluate());
     const peril = this.peril(era, loc, roll.total);
     const r = peril.rules ?? {};
     const gear = perilGear(peril.kind, actor.items.map((i) => ({ name: i.name, type: i.type })));
@@ -180,6 +209,28 @@ export const SalvageOps = {
       speaker: ChatMessage.getSpeaker({ actor })
     });
     return { ...peril, roll: roll.total, gear };
+  },
+
+  /**
+   * Who Turns Up (2070): the GM rolls 1d6 on the site's table, once for the crew, any time in the
+   * week, and plays it out. null where the era has none (2045).
+   * @param {Actor[]} actors - who's out there
+   */
+  async whoTurnsUp(actors, location, { era = this.era() } = {}) {
+    const loc = LOCATIONS[era]?.[location] ? location : locationsOf(era)[0];
+    if (!WHO_TURNS_UP[era]?.[loc]) return null;
+    const roll = await new Roll("1d6").evaluate();
+    const text = this._worldText(era, loc, "who", roll.total);
+    const row = whoTurnsUp(era, loc, roll.total);
+    const who = (actors ?? []).map((a) => esc(a.name)).join(", ");
+    await ChatMessage.create({
+      content: `<div class="neon-home-chat nah-malfunction"><header><i class="fa-solid fa-people-group"></i> ${L("NEONHOME.Salvage.WhoTurnsUp")}</header>`
+        + `<p class="nah-malf-table">${esc(this.placeName(era, loc))} (${era}) · ${roll.total}${who ? ` · ${who}` : ""}</p>`
+        + `<p class="nah-malf-text">${esc(text || row.text)}</p><p><small>${L(`NEONHOME.Salvage.Who.${row.trouble ? "trouble" : "chance"}`)}</small></p></div>`,
+      rolls: [roll],
+      speaker: actors?.[0] ? ChatMessage.getSpeaker({ actor: actors[0] }) : undefined
+    });
+    return { ...row, text: text || row.text };
   },
 
   /**

@@ -4,7 +4,7 @@ import { HomeStore } from "./store.js";
 import { HomeOps, RuleBlock } from "./ops.js";
 import { Downtime } from "./downtime.js";
 import {
-  LINKS, rigRange, deckBase, deckCapacity, layout, fits, slotKind, slotSize, quickhackOf, cybersuiteOf, QUICKHACK_BY_NAME
+  LINKS, rigRange, deckBase, deckCapacity, layout, fits, slotKind, slotSize, quickhackOf, cybersuiteOf, QUICKHACK_BY_NAME, narrativeDv
 } from "../data/netrun.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -157,5 +157,24 @@ export const DeckOps = {
   /** For display: what an item is, as a quickhack (or null). */
   quickhack(item) {
     return quickhackOf(item, MODULE_ID);
+  },
+
+  /**
+   * A Narrative Quickhack (Chapter 10): one Interface Check against the job's DV, with the area's
+   * Security or Utility Code and a watching Netrunner or Demon. No quickhack slotted needed.
+   * @param {object} p - { job: simple|brief|big|lasting, code, by: security|utility, watched, what }
+   */
+  async narrative(actor, { job = "simple", code = null, by = "security", watched = false, what = "" } = {}) {
+    const dv = narrativeDv(job, { code, by, watched });
+    // a plain Interface Check: Interface + 1d10
+    const roll = await new Roll(`1d10 + ${CPR.netrunning(actor).rank}`).evaluate();
+    const total = Number(roll.total) || 0;
+    const ok = total >= dv;
+    await ChatMessage.create({
+      content: HomeOps._card("fa-solid fa-wand-magic-sparkles", L(`NEONHOME.Deck.Narrative.${ok ? "ok" : "fail"}`, { name: esc(actor.name), what: esc(what || L(`NEONHOME.Deck.Narrative.Job.${job}`)), total, dv })),
+      speaker: ChatMessage.getSpeaker({ actor }),
+      rolls: [roll]
+    });
+    return { ok, total, dv };
   }
 };

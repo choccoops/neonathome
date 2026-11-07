@@ -1,0 +1,36 @@
+{
+  "_id": "K0mwoQU8rJRD21g1",
+  "name": "Counterhack Protocol",
+  "type": "itemUpgrade",
+  "img": "icons/svg/padlock.svg",
+  "system": {
+    "type": "vehicle",
+    "size": 1,
+    "price": {
+      "market": 5000
+    },
+    "description": {
+      "value": "<p><b>Vehicle ICE</b> · a vehicle upgrade</p><p>Each quickhack you run on it, the protocol rolls Interface 6 + 1d10 against your Interface + 1d10. If it wins you're ejected and lose your next Action.</p><p><em>5,000eb (Luxury).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "vehicleIce": {
+        "effect": "Each quickhack you run on it, the protocol rolls Interface 6 + 1d10 against your Interface + 1d10. If it wins you're ejected and lose your next Action."
+      }
+    }
+  },
+  "_key": "!items!K0mwoQU8rJRD21g1",
+  "folder": "w3cNHr7WYicbYX2f",
+  "sort": 11400,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

@@ -4,8 +4,8 @@ import { HomeOps, RuleBlock } from "./ops.js";
 import { MaintOps } from "./maint-ops.js";
 import { Downtime, formatMinutes } from "./downtime.js";
 import { DowntimeOps, workSkill } from "./downtime-ops.js";
-import { PRICE_CATEGORIES, fieldExpertise } from "../data/maintenance.js";
-import { makerJob, UPGRADES, inventPrice } from "../data/downtime.js";
+import { PRICE_CATEGORIES, fieldExpertise, KINDS, kindOf, armorRepair, vehicleRepair, shopLabor } from "../data/maintenance.js";
+import { makerJob, UPGRADES, inventPrice, HEAT, PACE, pacedMinutes } from "../data/downtime.js";
 import { fabricationNeeds, upgradeNeeds, tierEb, needsLabel } from "../data/materials.js";
 import { SalvageOps } from "./salvage-ops.js";
 import { normalizeProject, stage, plan, needed, halfway, remaining } from "../data/projects.js";
@@ -118,9 +118,79 @@ export const ProjectOps = {
     await this._save(actor, this.list(actor).filter((p) => p.id !== id));
   },
 
-  /** A repair under way on an item (by whoever's doing it). */
-  repairOf(worker, owner, itemId) {
-    return this.list(worker).find((p) => p.kind === "repair" && p.data.owner === owner.uuid && p.data.item === itemId) ?? null;
+  /** A repair under way on an item (by whoever's doing it): a Destroyed item, or armor's SP. */
+  repairOf(worker, owner, itemId, { armor = false } = {}) {
+    return this.list(worker).find((p) => p.kind === "repair" && p.data.owner === owner.uuid && p.data.item === itemId && !!p.data.armor === armor) ?? null;
+  },
+
+  /** A vehicle's SDP repair under way. */
+  vehicleRepairOf(worker, vehicle) {
+    return this.list(worker).find((p) => p.kind === "repair" && p.data.vehicle === vehicle.uuid) ?? null;
+  },
+
+  /**
+   * Repair armor's lost SP (or a shield's HP) back to full (2070, Chapter 12): the Item Repair
+   * table at its price, Basic Tech, no materials.
+   */
+  async repairArmor(worker, owner, itemId, { minutes = "all", event = null } = {}) {
+    Downtime.check(worker, "maintenance");
+    const existing = this.repairOf(worker, owner, itemId, { armor: true });
+    if (existing) return this.work(worker, existing.id, minutes, { event });
+    const item = owner.items.get(itemId);
+    const job = armorRepair(item);
+    if (!job) return null;
+    const project = normalizeProject({
+      id: foundry.utils.randomID(), kind: "repair", label: L("NEONHOME.Project.ArmorLabel", { item: item.name }), img: item.img,
+      skill: "Basic Tech", dv: job.dv, minutes: job.minutes, materials: 0, data: { owner: owner.uuid, item: itemId, armor: true }
+    });
+    await this._put(worker, project);
+    return this.work(worker, project.id, minutes, { event });
+  },
+
+  /** Repair a vehicle's lost SDP (Chapter 11): by how bad it is, with the Vehicle Tech Skill for the ride. */
+  async repairVehicle(worker, vehicle, { minutes = "all", event = null } = {}) {
+    Downtime.check(worker, "maintenance");
+    const existing = this.vehicleRepairOf(worker, vehicle);
+    if (existing) return this.work(worker, existing.id, minutes, { event });
+    const hp = vehicle.system?.derivedStats?.hp ?? {};
+    const job = vehicleRepair(hp.value, hp.max);
+    if (!job) return null;
+    const project = normalizeProject({
+      id: foundry.utils.randomID(), kind: "repair", label: L("NEONHOME.Project.VehicleLabel", { item: vehicle.name }), img: vehicle.img,
+      skill: KINDS[kindOf({ type: "vehicle", name: vehicle.name, flags: {}, system: {} }, MODULE_ID)]?.skill ?? "Land Vehicle Tech",
+      dv: job.dv, minutes: job.minutes, materials: 0, data: { vehicle: vehicle.uuid }
+    });
+    await this._put(worker, project);
+    return this.work(worker, project.id, minutes, { event });
+  },
+
+  /**
+   * Take it to a shop (2070 shop labor): pay, and it comes back fixed. what: "item" (Destroyed),
+   * "armor" (lost SP) or "vehicle" (lost SDP).
+   */
+  async shop(worker, { owner, item: itemId, vehicle = null, what = "item" } = {}) {
+    Downtime.check(worker, "maintenance");
+    let labor = 0;
+    let target = null;
+    let change = null;
+    if (what === "vehicle") {
+      target = vehicle;
+      const hp = vehicle?.system?.derivedStats?.hp ?? {};
+      labor = vehicleRepair(hp.value, hp.max)?.labor ?? 0;
+      change = { op: "repairVehicle" };
+    } else {
+      const item = owner?.items?.get(itemId);
+      if (!item) throw new RuleBlock(L("NEONHOME.Error.NotFound"));
+      target = owner;
+      labor = what === "armor" ? armorRepair(item)?.labor ?? 0 : shopLabor(Number(item.system?.price?.market) || 0);
+      change = { op: what === "armor" ? "repairArmor" : "repair", item: itemId };
+    }
+    if (!labor || !target) return null;
+    const name = what === "vehicle" ? vehicle.name : owner.items.get(itemId).name;
+    await DowntimeOps._pay(worker, labor, L("NEONHOME.Project.ShopLabel", { item: name }));
+    await DowntimeOps._patient(worker, target, change);
+    await ChatMessage.create({ content: HomeOps._card("fa-solid fa-shop", L("NEONHOME.Project.Shopped", { name: esc(worker.name), item: esc(name), eb: `${labor.toLocaleString()}eb` })), speaker: ChatMessage.getSpeaker({ actor: worker }) });
+    return { labor };
   },
 
   /* ---------------------------------------- */
@@ -165,6 +235,8 @@ export const ProjectOps = {
         const source = p.item ? await fromUuid(p.item) : null;
         if (!source || source.documentName !== "Item") throw new RuleBlock(L("NEONHOME.Downtime.DropItem"));
         const made = fabricationOf(source.toObject());
+        // an Iconic is built only from its Iconic Blueprint
+        if (!made.blueprint && source.getFlag?.(MODULE_ID, "iconic")) throw new RuleBlock(L("NEONHOME.Iconic.NeedBlueprint", { item: source.name }));
         // building from a blueprint takes having it
         if (made.blueprint && source.parent !== actor) throw new RuleBlock(L("NEONHOME.Blueprint.NotHeld", { name: actor.name, blueprint: source.name }));
         // a Ripperdoc builds implantable cyberware, from a blueprint of a real piece; Cryosystem, cryo gear
@@ -194,9 +266,11 @@ export const ProjectOps = {
         const price = Number(item.system?.price?.market) || 0;
         const job = makerJob(price, { vehicle });
         const sk = this._makerSkill(domain, kind, workSkill(item.toObject()));
+        // an invented upgrade (a TUp): the heat's DV, and its kit (Cost #2) on top of the materials
+        const heat = p.upgrade === "invented" ? (HEAT[p.heat] ? p.heat : "mild") : null;
         project = {
           kind, label: L("NEONHOME.Downtime.UpgradeLabel", { item: item.name, upgrade: L(`NEONHOME.Downtime.Upgrade.${p.upgrade}`) }), img: item.img,
-          skill: sk.skill, ability: sk.ability, dv: job.dv, minutes: job.minutes, data: { item: item.id, upgrade: p.upgrade, need: upgradeNeeds(price, { vehicle }), domain }
+          skill: sk.skill, ability: sk.ability, dv: heat ? HEAT[heat].dv : job.dv, minutes: job.minutes, data: { item: item.id, upgrade: p.upgrade, need: upgradeNeeds(price, { vehicle }), domain, heat, kit: p.kit === true || p.kit === "1" }
         };
         break;
       }
@@ -221,6 +295,12 @@ export const ProjectOps = {
       default:
         throw new Error(`Not a Maker project: ${kind}`);
     }
+    // Hurrying or Rushing: less time, a penalty on the halfway check
+    const pace = PACE[p.pace] ? p.pace : "normal";
+    if (pace !== "normal") project = { ...project, minutes: pacedMinutes(project.minutes, pace), data: { ...project.data, pace } };
+    // a TUp's kit (Cost #2), unless the Tech already has it
+    const kitEb = project.data.heat && !project.data.kit ? HEAT[project.data.heat].eb : 0;
+    if (kitEb) DowntimeOps._canAfford(actor, kitEb);
     // the time asked for has to be there before the materials go in
     if (minutes !== 0) Downtime.require(actor, typeof minutes === "number" ? Math.min(Math.floor(minutes), project.minutes) : 0);
     const need = project.data.need ?? null;
@@ -228,6 +308,7 @@ export const ProjectOps = {
     // the Tech's Tech Materials go in up front (a failure leaves them unharmed for the next try)
     const sources = await SalvageOps.useMaterials(actor, need);
     project.data.sources = sources;
+    if (kitEb) await DowntimeOps._pay(actor, kitEb, L("NEONHOME.Maker.KitLedger", { heat: L(`NEONHOME.Maker.Heat.${project.data.heat}`) }));
     await this._put(actor, project);
     const materials = need ? needsLabel(need) : L("NEONHOME.Project.NoMaterials");
     const from = sources.length ? `<br><small>${L("NEONHOME.Materials.From", { from: esc(sources.join("; ")) })}</small>` : "";
@@ -318,11 +399,14 @@ export const ProjectOps = {
    * The halfway check. Pass: the rest of the time can go in. Fail: the worker realizes they have to
    * start over; the meter empties, the materials are fine. A cancelled roll leaves it due.
    */
-  async roll(actor, id, { event = null } = {}) {
+  async roll(actor, id, { event = null, complementary = false } = {}) {
     DowntimeOps._ready(actor);
     const p = this.get(actor, id);
     if (!p || stage(p) !== "check") return null;
     const mods = [];
+    // Taking Less Time, and a crewmate's Complementary Check (+1, doesn't stack)
+    if (PACE[p.data.pace]?.penalty) mods.push({ value: PACE[p.data.pace].penalty, source: L(`NEONHOME.Maker.Pace.${p.data.pace}`) });
+    if (complementary || p.data.help) mods.push({ value: 1, source: L("NEONHOME.Maker.Complementary") });
     const rank = p.ability ? CPR.abilityRank(actor, p.ability) : 0;
     if (rank) mods.push({ value: rank, source: p.ability });
     // a repair isn't Maker work: a Tech adds Field Expertise (p.147)
@@ -383,15 +467,28 @@ export const ProjectOps = {
         break;
       }
       case "repair": {
+        if (p.data.vehicle) {
+          const vehicle = await fromUuid(p.data.vehicle);
+          if (vehicle) await DowntimeOps._patient(actor, vehicle, { op: "repairVehicle" });
+          verdict = L("NEONHOME.Project.Done.repair", { name: esc(actor.name), item: esc(vehicle?.name ?? "") });
+          break;
+        }
         const owner = await fromUuid(p.data.owner);
         const item = owner?.items?.get(p.data.item);
-        if (owner && item) await DowntimeOps._patient(actor, owner, { op: "repair", item: item.id });
-        verdict = L("NEONHOME.Project.Done.repair", { name: esc(actor.name), item: esc(item?.name ?? "") });
+        if (owner && item) await DowntimeOps._patient(actor, owner, { op: p.data.armor ? "repairArmor" : "repair", item: item.id });
+        verdict = L(p.data.armor ? "NEONHOME.Project.Done.armor" : "NEONHOME.Project.Done.repair", { name: esc(actor.name), item: esc(item?.name ?? "") });
         break;
       }
     }
     await ChatMessage.create({ content: HomeOps._card(KIND[p.kind].icon, verdict), speaker: ChatMessage.getSpeaker({ actor }) });
     return { ok: true, done: true, project: { ...p, done: p.minutes } };
+  },
+
+  /** A crewmate's Complementary Check for the halfway roll: +1 on it (or take it back). */
+  async setHelp(actor, id, on = true) {
+    const p = this.get(actor, id);
+    if (!p) return;
+    await this._put(actor, { ...p, data: { ...p.data, help: !!on } });
   },
 
   /** Give up on a project (the time and materials already spent stay spent). */

@@ -7,8 +7,9 @@ import { Downtime, formatMinutes } from "./downtime.js";
 import { KINDS, kindOf } from "../data/maintenance.js";
 import { TRAINING, PERK_BY_ID } from "../data/perks.js";
 import { PerkOps } from "./perk-ops.js";
+import { restDay, REST_PLACES } from "../data/living.js";
 import {
-  MIN, hustle, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
+  MIN, hustle, HUSTLES, interesting, INTERESTING, INTERESTING_EXAMPLES, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
 
@@ -96,10 +97,14 @@ export const DowntimeOps = {
   /*  Anyone                                  */
   /* ---------------------------------------- */
 
-  /** The Hustle (p.381): a week, 1d6 on the Role's table, paid by Role Ability Rank. */
+  /**
+   * The Hustle (p.381; 2070): a week, 1d6 on the Role's table, paid by Role Rank, and a d100 for an
+   * Interesting Hustle: at or under the result's chance, 1d6 on What Happened (two on a 01).
+   */
   async _hustle(actor, { role } = {}) {
     const roles = CPR.roles(actor);
-    const key = roles[role] !== undefined ? role : Object.keys(roles)[0];
+    const can = Object.keys(roles).filter((r) => HUSTLES[r]);
+    const key = can.includes(role) ? role : can[0];
     if (!key) throw new RuleBlock(L("NEONHOME.Downtime.NoRole", { name: actor.name }));
     const rank = roles[key];
     const label = L("NEONHOME.Downtime.Action.hustle");
@@ -107,29 +112,57 @@ export const DowntimeOps = {
     const roll = await new Roll("1d6").evaluate();
     const res = hustle(key, roll.total, rank);
     if (res.eb) await CPR.changeWealth(actor, res.eb, L("NEONHOME.Downtime.HustleLedger", { role: L(`NEONHOME.Downtime.Role.${key}`) }));
+    // an Interesting Hustle: something more than eddies
+    const d100 = await new Roll("1d100").evaluate();
+    const rolls = [roll, d100];
+    const luck = interesting(res.letter, d100.total);
+    const developments = [];
+    if (luck.interesting) {
+      for (let i = 0; i < (luck.jackpot ? 2 : 1); i++) {
+        const d6 = await new Roll("1d6").evaluate();
+        rolls.push(d6);
+        developments.push(INTERESTING[Math.min(5, Math.max(0, d6.total - 1))]);
+      }
+    }
+    const ex = INTERESTING_EXAMPLES[key] ?? [];
+    const lines = developments.map((d) => `<li><b>${L(`NEONHOME.Downtime.Interesting.${d}`)}</b>: ${L(`NEONHOME.Downtime.InterestingText.${d}`)}${d === "contact" && ex[0] ? ` <em>(${esc(ex[0])}?)</em>` : d === "opportunity" && ex[1] ? ` <em>(${esc(ex[1])}?)</em>` : ""}</li>`);
     await ChatMessage.create({
       content: HomeOps._card("fa-solid fa-sack-dollar", L("NEONHOME.Downtime.HustleCard", {
         name: esc(actor.name), role: L(`NEONHOME.Downtime.Role.${key}`), roll: roll.total, text: esc(res.text), eb: eb(res.eb)
-      })),
-      rolls: [roll],
+      }) + (developments.length ? `<p><i class="fa-solid fa-star"></i> ${L(luck.jackpot ? "NEONHOME.Downtime.Jackpot" : "NEONHOME.Downtime.InterestingWeek", { n: d100.total })}</p><ul>${lines.join("")}</ul>` : "")),
+      rolls,
       speaker: ChatMessage.getSpeaker({ actor })
     });
-    return { ...res, roll: roll.total, spent };
+    return { ...res, roll: roll.total, spent, interesting: developments };
   },
 
-  /** Rest (p.222): a full day of rest heals BODY HP. */
-  async _rest(actor, { days = 1 } = {}) {
+  /**
+   * Rest (p.222; 2070, Chapter 08): a full day of rest heals BODY HP; twice that in a cryotank or
+   * with Enhanced Antibodies. A hospital bed or tank costs by the day (the health plan may cover it).
+   * @param {object} p - { days, place: home|hospital|cryoHospital|cryoMedtech }
+   */
+  async _rest(actor, { days = 1, place = "home" } = {}) {
     const d = Math.max(1, Math.floor(Number(days) || 1));
-    await Downtime.spend(actor, d * MIN.day, { label: L("NEONHOME.Downtime.Action.rest"), data: { action: "rest", days: d } });
+    const where = REST_PLACES[place] ? place : "home";
+    const day = restDay(where, actor.getFlag(MODULE_ID, "healthPlan"), { antibodies: this._antibodies(actor) });
+    this._canAfford(actor, day.eb * d);
+    const label = L("NEONHOME.Downtime.Action.rest");
+    await Downtime.spend(actor, d * MIN.day, { label, data: { action: "rest", days: d, place: where } });
+    if (day.eb) await this._pay(actor, day.eb * d, L(`NEONHOME.Rest.Place.${where}`));
     const body = Number(foundry.utils.getProperty(actor, "system.stats.body.value")) || 0;
     const hp = CPR.hp(actor);
-    const healed = Math.min(hp.max - hp.value, body * d);
+    const healed = Math.min(hp.max - hp.value, body * day.rate * d);
     if (healed > 0) await actor.update({ "system.derivedStats.hp.value": hp.value + healed });
     await ChatMessage.create({
       content: HomeOps._card("fa-solid fa-bed", L("NEONHOME.Downtime.RestCard", { name: esc(actor.name), days: d, hp: healed })),
       speaker: ChatMessage.getSpeaker({ actor })
     });
     return { healed };
+  },
+
+  /** Enhanced Antibodies installed: healing at 2 × BODY a day. */
+  _antibodies(actor) {
+    return actor.items.some((i) => i.type === "cyberware" && /enhanced antibodies/i.test(i.name) && i.system?.isInstalled);
   },
 
   /**
@@ -392,6 +425,23 @@ export const DowntimeOps = {
       return 0;
     }
     if (op === "humanity") return CPR.changeHumanity(patient, Math.max(0, Math.floor(Number(amount) || 0)), reason);
+    if (op === "humanityLoss") return CPR.changeHumanity(patient, -Math.max(0, Math.floor(Number(amount) || 0)), reason);
+    if (op === "repairArmor") {
+      const it = patient.items.get(item);
+      if (!it) return 0;
+      const s = it.system ?? {};
+      const update = {};
+      if (s.bodyLocation) update["system.bodyLocation.ablation"] = 0;
+      if (s.headLocation) update["system.headLocation.ablation"] = 0;
+      if (s.shieldHitPoints) update["system.shieldHitPoints.value"] = Number(s.shieldHitPoints.max) || 0;
+      await it.update(update);
+      return 0;
+    }
+    if (op === "repairVehicle") {
+      const max = Number(patient.system?.derivedStats?.hp?.max) || 0;
+      if (max) await patient.update({ "system.derivedStats.hp.value": max });
+      return 0;
+    }
     if (op === "repair") {
       const it = patient.items.get(item);
       if (!it) return 0;
@@ -418,7 +468,7 @@ export const DowntimeOps = {
     const patient = await fromUuid(patientUuid);
     if (!doctor || !patient) throw new Error(L("NEONHOME.Error.NotFound"));
     if (!doctor.testUserPermission(user, "OWNER")) throw new Error(L("NEONHOME.Error.NoPermission"));
-    if (!["deleteInjury", "humanity", "repair"].includes(change?.op)) throw new Error("Not allowed");
+    if (!["deleteInjury", "humanity", "humanityLoss", "repair", "repairArmor", "repairVehicle"].includes(change?.op)) throw new Error("Not allowed");
     return this._applyPatient(patient, change);
   }
 };

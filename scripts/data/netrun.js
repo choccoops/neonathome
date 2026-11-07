@@ -139,6 +139,41 @@ export const QUICKHACKS = [
   ...VEHICLE_HACK_ROWS.map(([id, name, needs, dv, cooldown, slots, eb, quiet, effect]) => ({ id: `vehicle${id[0].toUpperCase()}${id.slice(1)}`, name, type: "Vehicle", needs: needs === "—" ? "" : needs, dv, cooldown, slots, eb, quiet, effect, vehicle: true }))
 ];
 /** Hardware: { id, name, slots, eb, effect, kind: quickhack|deepDive }. */
+/** Vehicle ICE (Item Compendium, Ad Astra): installs on a vehicle like an upgrade. [id, name, eb, effect]. */
+export const VEHICLE_ICE_ROWS = [
+  ["driveIce", "Drive-ICE", 500, "Vehicle upgrade, up to 3: each adds a Passwall to the vehicle, and all its Passwalls become DV6 / DV8 / DV10 with 1 / 2 / 3 installs."],
+  ["counterBreach", "Counter-Breach", 100, "A failed Breach disconnects the Netrunner: start over."],
+  ["traceProtocol", "Trace Protocol", 100, "A failed Breach pings the nearest police or security with the Netrunner's location."],
+  ["zapFeedback", "Zap Feedback", 500, "A failed Breach deals 2 straight to the Netrunner's HP."],
+  ["gridlockIce", "Gridlock ICE", 500, "A failed quickhack: the Netrunner rerolls their last Breach to stay connected."],
+  ["adaptiveIce", "Adaptive ICE", 1000, "+2 to every Breach DV, and a failed Breach deals 1d6 to the Netrunner."],
+  ["neuralShockIce", "Neural Shock ICE", 2000, "A failed Breach deals 2d6 to the Netrunner, who makes DV13 Resist Torture/Drugs or loses their next Action."],
+  ["counterhackProtocol", "Counterhack Protocol", 5000, "Each quickhack you run on it, the protocol rolls Interface 6 + 1d10 against your Interface + 1d10. If it wins you're ejected and lose your next Action."]
+];
+export const VEHICLE_ICE = VEHICLE_ICE_ROWS.map(([id, name, eb, effect]) => ({ id, name, eb, effect }));
+
+/**
+ * Narrative Quickhacks (Chapter 10): one Interface Check for a small job on a networked machine,
+ * against the job's DV plus the area's Security or Utility Code modifier (+2 with a Netrunner or
+ * Demon minding the place).
+ */
+export const NARRATIVE_DV = { simple: 6, brief: 8, big: 10, lasting: 12 };
+/** The DV modifier by Security Code (0-10). */
+export const SECURITY_MOD = [-2, -1, -1, 0, 0, 1, 1, 1, 2, 3, 4];
+/** The DV modifier by Utility Code (0-10). */
+export const UTILITY_MOD = [4, 3, 2, 1, 1, 0, 0, 0, -1, -2, -2];
+
+/** A Narrative Quickhack's DV: the job, the area's code (security or utility), and a watcher. */
+export function narrativeDv(job, { code = null, by = "security", watched = false } = {}) {
+  let dv = NARRATIVE_DV[job] ?? NARRATIVE_DV.simple;
+  if (code !== null && code !== "" && Number.isFinite(Number(code))) {
+    const c = Math.max(0, Math.min(10, Math.floor(Number(code))));
+    dv += by === "utility" ? UTILITY_MOD[c] : SECURITY_MOD[c];
+  }
+  if (watched) dv += 2;
+  return dv;
+}
+
 export const HARDWARE = HARDWARE_ROWS.map(([id, name, slots, eb, effect, kind]) => ({ id, name, slots, eb, effect, kind }));
 /** Decks: { id, name, slots: { program, hardware, either }, eb, rule }. */
 export const DECKS = DECK_ROWS.map(([id, name, slots, eb, rule]) => ({ id, name, slots, eb, rule }));
@@ -311,6 +346,24 @@ export function hardwareItem(h, moduleId, _id) {
       modifiers: {}
     },
     flags: { [moduleId]: { hardware: { kind: h.kind, effect: h.effect } } }
+  };
+}
+
+/** Vehicle ICE as a Cyberpunk RED vehicle upgrade. */
+export function vehicleIceItem(v, moduleId, _id) {
+  return {
+    ...(_id ? { _id } : {}),
+    name: v.name,
+    type: "itemUpgrade",
+    img: "icons/svg/padlock.svg",
+    system: {
+      type: "vehicle",
+      size: 1,
+      price: { market: v.eb },
+      description: { value: p("<b>Vehicle ICE</b> · a vehicle upgrade") + p(v.effect) + p(`<em>${v.eb.toLocaleString()}eb (${tierOf(v.eb)}).</em>`) },
+      modifiers: {}
+    },
+    flags: { [moduleId]: { vehicleIce: { effect: v.effect } } }
   };
 }
 

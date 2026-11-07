@@ -1,0 +1,36 @@
+{
+  "_id": "M86UkjP5AshLWiRi",
+  "name": "Adaptive ICE",
+  "type": "itemUpgrade",
+  "img": "icons/svg/padlock.svg",
+  "system": {
+    "type": "vehicle",
+    "size": 1,
+    "price": {
+      "market": 1000
+    },
+    "description": {
+      "value": "<p><b>Vehicle ICE</b> · a vehicle upgrade</p><p>+2 to every Breach DV, and a failed Breach deals 1d6 to the Netrunner.</p><p><em>1,000eb (Very Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "vehicleIce": {
+        "effect": "+2 to every Breach DV, and a failed Breach deals 1d6 to the Netrunner."
+      }
+    }
+  },
+  "_key": "!items!M86UkjP5AshLWiRi",
+  "folder": "w3cNHr7WYicbYX2f",
+  "sort": 11200,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

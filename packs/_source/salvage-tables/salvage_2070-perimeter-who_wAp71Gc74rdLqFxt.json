@@ -1,0 +1,106 @@
+{
+  "_id": "wAp71Gc74rdLqFxt",
+  "_key": "!tables!wAp71Gc74rdLqFxt",
+  "name": "Who Turns Up (The Perimeter, 2070)",
+  "img": "icons/svg/mystery-man.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours.</p>",
+  "results": [
+    {
+      "_id": "jykXOBajJvh2jw4r",
+      "_key": "!tables.results!wAp71Gc74rdLqFxt.jykXOBajJvh2jw4r",
+      "type": "text",
+      "text": "Raiders squatting the motel you picked. 1d6+2 boosters with scavenged guns.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "8pUztyxnobgvNh7E",
+      "_key": "!tables.results!wAp71Gc74rdLqFxt.8pUztyxnobgvNh7E",
+      "type": "text",
+      "text": "A merc crew clearing an old NUSA bunker for a client. Stay out of their way, or get hired for a day (100eb).",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "sw6flRbCawgiCF6k",
+      "_key": "!tables.results!wAp71Gc74rdLqFxt.sw6flRbCawgiCF6k",
+      "type": "text",
+      "text": "Somebody's unexploded ordnance marker, and the somebody who's watching it. DV15 Basic Tech to clear it; it's worth 100eb of parts if you do.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "oHJSp23kygoeEOXi",
+      "_key": "!tables.results!wAp71Gc74rdLqFxt.oHJSp23kygoeEOXi",
+      "type": "text",
+      "text": "A Nomad trader caravan passing through: sell your haul at full price, Destroyed or not, one item.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "sd4mDX5HurGc9ngc",
+      "_key": "!tables.results!wAp71Gc74rdLqFxt.sd4mDX5HurGc9ngc",
+      "type": "text",
+      "text": "An old service station with its storeroom intact: add a 50eb General Gear find to your haul.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "atSgrzpmIG7PJ5SZ",
+      "_key": "!tables.results!wAp71Gc74rdLqFxt.atSgrzpmIG7PJ5SZ",
+      "type": "text",
+      "text": "A ghost town with a pawnshop nobody looted: take what you find, at the better worth of two rolls.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 1100,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.perimeter.who"
+    }
+  }
+}

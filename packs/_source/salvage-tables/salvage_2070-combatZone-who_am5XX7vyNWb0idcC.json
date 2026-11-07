@@ -1,0 +1,106 @@
+{
+  "_id": "am5XX7vyNWb0idcC",
+  "_key": "!tables!am5XX7vyNWb0idcC",
+  "name": "Who Turns Up (The Combat Zone (Pacifica), 2070)",
+  "img": "icons/svg/mystery-man.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours.</p>",
+  "results": [
+    {
+      "_id": "cOY69HzY9fqJk9zX",
+      "_key": "!tables.results!am5XX7vyNWb0idcC.cOY69HzY9fqJk9zX",
+      "type": "text",
+      "text": "A BARGHEST patrol calls it trespassing on Dogtown. A DV15 Persuasion or Bribery (100eb) gets you waved off; fail and they take the haul.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "TTEtocDVPWq3ioXM",
+      "_key": "!tables.results!am5XX7vyNWb0idcC.TTEtocDVPWq3ioXM",
+      "type": "text",
+      "text": "Voodoo Boys runners. They let you work if you leave the electronics to them: Cyberdecks & Programs hauls go to them.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "E0cHmrONcu1W6Wqz",
+      "_key": "!tables.results!am5XX7vyNWb0idcC.E0cHmrONcu1W6Wqz",
+      "type": "text",
+      "text": "A scav cell decides your chrome is worth more than their haul.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "pc6RrTe5WMvxIOkQ",
+      "_key": "!tables.results!am5XX7vyNWb0idcC.pc6RrTe5WMvxIOkQ",
+      "type": "text",
+      "text": "A squatter knows a sealed floor nobody's opened. For 50eb, they'll show you: +2 to your Basic Tech roll.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "BITsT9tuDB8o6Kea",
+      "_key": "!tables.results!am5XX7vyNWb0idcC.BITsT9tuDB8o6Kea",
+      "type": "text",
+      "text": "An abandoned Playland ride control room, untouched: your haul can be Cyberdecks & Programs, whatever you were after.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "2CNBc7CoAopVtnAo",
+      "_key": "!tables.results!am5XX7vyNWb0idcC.2CNBc7CoAopVtnAo",
+      "type": "text",
+      "text": "A netrunner in the ruins needs a hand: help for a day and they owe you a favor.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 500,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.combatZone.who"
+    }
+  }
+}

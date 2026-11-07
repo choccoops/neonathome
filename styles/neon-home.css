@@ -1590,3 +1590,197 @@
   .neon-home .nah-dive-rain, .neon-home .nah-dive-rain::after, .neon-home .nah-dive-links path, .neon-home .nah-dive-floor.is-here,
   .neon-home .nah-dive-floor.k-unknown > i, .neon-home .nah-dive-hud .is-burning b, .neon-home .nah-dive-jack-card > i { animation: none !important; }
 }
+
+/* ticks in a Downtime panel (the salvage crew) */
+.neon-home .nah-dt-checks { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.neon-home .nah-dt-checks label { display: flex; align-items: center; gap: 4px; color: var(--nah-text); font-size: 12px; text-transform: none; letter-spacing: 0; }
+.neon-home .nah-bio-plan { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-bio-plan select { flex: 1; height: 26px; color: #fff; font-size: 12px; }
+.neon-home .nah-bio-plan button { width: auto; height: 26px; font-size: 11px; }
+.neon-home .nah-deck-narrative { margin-top: 8px; padding: 6px 10px; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.85); }
+.neon-home .nah-deck-narrative summary { cursor: pointer; color: var(--nah-cyan); font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.neon-home .nah-deck-narrative-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 4px; }
+.neon-home .nah-deck-narrative-row input[type="text"] { flex: 2 1 180px; color: #fff; }
+.neon-home .nah-deck-narrative-row select { flex: 1 1 140px; color: #fff; }
+.neon-home .nah-deck-narrative-row button { width: auto; }
+
+/* ======================================================================
+   Spend IP: Skills, Role Abilities and Roles bought with Improvement Points
+   ====================================================================== */
+.neon-home .nah-ip { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.neon-home .nah-ip :is(.tone-green) { color: var(--nah-green); }
+.neon-home .nah-ip :is(.tone-yellow) { color: var(--nah-yellow); }
+.neon-home .nah-ip :is(.tone-violet) { color: var(--nah-violet); }
+.neon-home .nah-ip :is(.tone-pink) { color: var(--nah-pink); }
+.neon-home .nah-ip :is(.tone-red) { color: var(--nah-red); }
+.neon-home .nah-ip :is(.tone-orange) { color: var(--nah-orange); text-shadow: 0 0 8px rgba(255, 138, 31, 0.6); }
+
+/* the dossier: rank insignia, IP, level, read-outs */
+.neon-home .nah-ip-dossier { display: grid; grid-template-columns: 150px minmax(0, 1fr); margin: 10px 14px 0; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.85); clip-path: var(--nah-notch-panel); }
+.neon-home .nah-ip-insignia { display: grid; place-content: center; justify-items: center; gap: 4px; padding: 12px 8px; text-align: center; border-right: 1px solid var(--nah-line); background: radial-gradient(circle at 50% 38%, rgba(255, 42, 109, 0.22), transparent 62%); }
+.neon-home .nah-ip-insignia > i { font-size: 44px; color: var(--nah-pink); text-shadow: 0 0 16px rgba(255, 42, 109, 0.8); }
+.neon-home .nah-ip-insignia > b { font-family: var(--nah-display); font-weight: 400; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; }
+.neon-home .nah-ip-insignia > small { font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--nah-yellow); }
+.neon-home .nah-ip-insignia.rank-gonk > i { color: var(--nah-dim); text-shadow: none; }
+.neon-home .nah-ip-insignia:is(.rank-preemTier, .rank-edgerunnerElite, .rank-afterlifeLegend) > i { color: var(--nah-yellow); text-shadow: 0 0 18px rgba(243, 230, 0, 0.8); }
+.neon-home .nah-ip-readout { display: grid; gap: 8px; padding: 10px 14px; min-width: 0; }
+.neon-home .nah-ip-readout > .nah-kicker { margin: 0; font-size: 10px; color: var(--nah-dim); letter-spacing: 0.18em; }
+.neon-home .nah-ip-topline { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: end; }
+.neon-home .nah-ip-points .nah-kicker,
+.neon-home .nah-ip-progress .nah-kicker { margin: 0 0 2px; font-size: 10px; }
+.neon-home .nah-ip-points b { font-family: var(--nah-display); font-weight: 400; font-size: 34px; line-height: 1; color: var(--nah-pink); text-shadow: 0 0 14px var(--nah-pink); }
+.neon-home .nah-ip-points b small { margin-left: 4px; font-size: 14px; color: var(--nah-dim); text-shadow: none; }
+.neon-home .nah-ip-progress .nah-kicker > span { font-size: 16px; color: #fff; }
+.neon-home .nah-ip-progress .nah-meter { height: 8px; }
+.neon-home .nah-ip-progress .nah-meter > b { background: linear-gradient(90deg, var(--nah-pink), var(--nah-yellow)); box-shadow: 0 0 10px rgba(255, 42, 109, 0.7); }
+.neon-home .nah-ip-progress > small { display: block; margin-top: 3px; font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-ip-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2px 14px; margin: 0; }
+.neon-home .nah-ip-stats > div { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 1px dashed var(--nah-line); min-width: 0; }
+.neon-home .nah-ip-stats dt { font-size: 11px; color: var(--nah-dim); white-space: nowrap; }
+.neon-home .nah-ip-stats dd { margin: 0; font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.04em; color: #fff; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.neon-home .nah-ip-stats dd.nah-ip-special { color: var(--nah-cyan); }
+.neon-home .nah-ip-cats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.neon-home .nah-ip-cat { display: inline-flex; align-items: center; gap: 5px; padding: 2px 7px; font-size: 11px; color: var(--nah-dim); border: 1px solid var(--nah-line); background: rgba(7, 7, 11, 0.6); }
+.neon-home .nah-ip-cat i { color: var(--nah-cyan); font-size: 10px; }
+.neon-home .nah-ip-cat b { color: #fff; font-family: var(--nah-display); font-weight: 400; }
+.neon-home .nah-ip-compare { margin-left: auto; }
+
+/* navigation: jumps, search, a new skill */
+.neon-home .nah-ip-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 8px 14px 0; padding-bottom: 8px; border-bottom: 1px solid var(--nah-line); }
+.neon-home .nah-ip-jumps { display: flex; flex-wrap: wrap; gap: 3px; flex: 1 1 420px; }
+.neon-home .nah-ip-jumps button { height: 26px; padding: 0 8px; font-size: 10px; letter-spacing: 0.1em; background: var(--nah-bg-2); border-color: var(--nah-line); color: var(--nah-dim); clip-path: none; }
+.neon-home .nah-ip-jumps button i { color: var(--nah-cyan); }
+.neon-home .nah-ip-search { position: relative; flex: 0 1 220px; display: flex; align-items: center; }
+.neon-home .nah-ip-search > i { position: absolute; left: 8px; font-size: 11px; color: var(--nah-dim); pointer-events: none; }
+.neon-home .nah-ip-search input { width: 100%; padding-left: 26px; color: #fff; }
+.neon-home .nah-ip-addskill { height: 28px; border-color: var(--nah-yellow); color: var(--nah-yellow); }
+@container (max-width: 900px) {
+  .neon-home .nah-ip-jumps button span { display: none; }
+}
+
+/* the lists */
+.neon-home .nah-ip-body { flex: 1; padding: 10px 14px 16px; display: grid; align-content: start; gap: 12px; }
+.neon-home .nah-ip-section.is-hidden { display: none; }
+.neon-home .nah-ip-head { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 5px 10px; font-family: var(--nah-display); font-weight: 400; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--nah-yellow); border-left: 3px solid var(--nah-pink); background: linear-gradient(90deg, rgba(255, 42, 109, 0.12), transparent 70%); cursor: pointer; user-select: none; }
+.neon-home .nah-ip-head > i:first-child { color: var(--nah-pink); width: 18px; text-align: center; }
+.neon-home .nah-ip-head > span { color: #fff; }
+.neon-home .nah-ip-head > small { margin-left: auto; font-family: "Signika", sans-serif; font-size: 11px; letter-spacing: 0; text-transform: none; color: var(--nah-dim); }
+.neon-home .nah-ip-chev { color: var(--nah-dim); transition: transform 160ms; }
+.neon-home .nah-ip-section.is-collapsed .nah-ip-chev { transform: rotate(-90deg); }
+.neon-home .nah-ip-section.is-collapsed .nah-ip-fold { display: none; }
+.neon-home .nah-ip-section.is-collapsed .nah-ip-head { opacity: 0.7; }
+.neon-home .nah-ip-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+.neon-home .nah-ip-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; border: 1px solid var(--nah-cyan); background: rgba(5, 217, 232, 0.08); clip-path: var(--nah-notch); }
+.neon-home .nah-ip-badge i { color: var(--nah-cyan); }
+.neon-home .nah-ip-badge b { font-weight: 400; color: var(--nah-yellow); }
+.neon-home .nah-ip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+
+/* a card: a Skill or Role Ability to buy */
+.neon-home .nah-ip-card { position: relative; display: flex; gap: 10px; align-items: flex-start; width: 100%; height: auto; min-height: 92px; margin: 0; padding: 9px 10px; text-align: left; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.92); color: var(--nah-text); font-family: "Signika", sans-serif; font-size: 12px; letter-spacing: 0; text-transform: none; clip-path: var(--nah-notch-card); cursor: pointer; transition: transform 120ms, border-color 120ms, box-shadow 120ms; }
+.neon-home .nah-ip-card:hover { transform: translateY(-1px); border-color: var(--nah-cyan); }
+.neon-home .nah-ip-card.is-hidden { display: none; }
+.neon-home .nah-ip-card-icon { flex: 0 0 34px; height: 34px; display: grid; place-items: center; font-size: 16px; color: var(--nah-cyan); border: 1px solid var(--nah-line); background: rgba(5, 217, 232, 0.06); clip-path: var(--nah-notch); }
+.neon-home .nah-ip-card-body { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.neon-home .nah-ip-card-body header { display: flex; align-items: center; gap: 6px; }
+.neon-home .nah-ip-card-body b { font-family: var(--nah-display); font-weight: 400; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; line-height: 1.15; overflow-wrap: anywhere; }
+.neon-home .nah-ip-tag { flex: none; padding: 0 4px; font-family: var(--nah-display); font-size: 9px; color: var(--nah-orange); border: 1px solid currentColor; }
+.neon-home .nah-ip-card-line { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-ip-card-line em { font-style: normal; color: var(--nah-pink); }
+.neon-home .nah-ip-card-line em.is-max { color: var(--nah-green); }
+.neon-home .nah-ip-card-body p { margin: 0; font-size: 11px; line-height: 1.35; color: var(--nah-text); opacity: 0.8; }
+:is(.neon-home, .neon-home-dialog) .nah-ip-pips { display: inline-flex; gap: 3px; margin-top: 2px; }
+:is(.neon-home, .neon-home-dialog) .nah-ip-pips i { width: 9px; height: 5px; background: rgba(216, 219, 236, 0.12); transform: skewX(-20deg); }
+:is(.neon-home, .neon-home-dialog) .nah-ip-pips i.on { background: var(--nah-cyan); box-shadow: 0 0 5px var(--nah-cyan); }
+.neon-home .nah-ip-card > .nah-icon-btn { position: absolute; top: 6px; right: 10px; flex: none; width: 20px; height: 20px; font-size: 10px; }
+
+.neon-home .nah-ip-card.selected { border-color: var(--nah-pink); background: linear-gradient(160deg, rgba(255, 42, 109, 0.22), rgba(13, 13, 21, 0.92) 65%); box-shadow: inset 0 0 0 1px var(--nah-pink), 0 0 14px rgba(255, 42, 109, 0.35); }
+.neon-home .nah-ip-card.selected .nah-ip-card-icon { color: var(--nah-pink); border-color: var(--nah-pink); background: rgba(255, 42, 109, 0.12); }
+.neon-home .nah-ip-card.selected::after { content: "\f00c"; position: absolute; right: 8px; bottom: 6px; font-family: "Font Awesome 6 Pro", "Font Awesome 6 Free"; font-weight: 900; font-size: 11px; color: var(--nah-pink); }
+.neon-home .nah-ip-card.is-max { border-color: rgba(57, 255, 136, 0.45); }
+.neon-home .nah-ip-card.is-max .nah-ip-card-icon { color: var(--nah-green); border-color: rgba(57, 255, 136, 0.45); background: rgba(57, 255, 136, 0.06); }
+.neon-home .nah-ip-card.is-max .nah-ip-pips i.on { background: var(--nah-green); box-shadow: 0 0 5px var(--nah-green); }
+.neon-home .nah-ip-card.is-dear:not(.selected) .nah-ip-card-line em { color: var(--nah-dim); text-decoration: line-through; }
+.neon-home .nah-ip-card.is-found { animation: nah-ip-found 1s ease-in-out 3; border-color: var(--nah-yellow); }
+@keyframes nah-ip-found { 50% { box-shadow: 0 0 0 2px var(--nah-yellow), 0 0 22px rgba(243, 230, 0, 0.6); } }
+
+/* new: a Role, a Language, a Martial Art... */
+.neon-home .nah-ip-card.nah-ip-new { border-style: dashed; background: rgba(7, 7, 11, 0.6); align-items: center; }
+.neon-home .nah-ip-card.nah-ip-new .nah-ip-card-icon { color: var(--nah-yellow); border-color: rgba(243, 230, 0, 0.4); background: rgba(243, 230, 0, 0.05); }
+.neon-home .nah-ip-card.nah-ip-new small { font-size: 11px; color: var(--nah-dim); }
+.neon-home .nah-ip-card.nah-ip-new:hover:not(:disabled) { border-color: var(--nah-yellow); background: rgba(243, 230, 0, 0.05); }
+.neon-home .nah-ip-card.nah-ip-new.is-locked .nah-ip-card-icon { color: var(--nah-dim); border-color: var(--nah-line); }
+.neon-home .nah-ip-card.nah-ip-new.is-locked small { color: var(--nah-orange); }
+
+/* footer: the pick and what it costs */
+.neon-home .nah-ip-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 14px; border-top: 1px solid var(--nah-pink); background: linear-gradient(90deg, rgba(255, 42, 109, 0.1), rgba(7, 7, 11, 0.95) 60%); }
+.neon-home .nah-ip-sel { margin-right: auto; font-size: 12px; color: var(--nah-dim); }
+.neon-home .nah-ip-sel i { color: var(--nah-pink); }
+.neon-home .nah-ip-sel b { font-family: var(--nah-display); font-weight: 400; font-size: 14px; color: #fff; }
+.neon-home .nah-ip-sel.is-short [data-ip-cost] { color: var(--nah-red); text-shadow: 0 0 8px rgba(255, 75, 75, 0.7); }
+.neon-home .nah-ip-footer button { height: 32px; }
+.neon-home .nah-ip-footer .nah-cta { height: 36px; font-family: var(--nah-display); font-size: 13px; letter-spacing: 0.1em; }
+.neon-home .nah-ip-footer .nah-ip-top { flex: 0 0 32px; width: 32px; height: 32px; opacity: 0; pointer-events: none; transition: opacity 160ms; }
+.neon-home .nah-ip-footer .nah-ip-top.is-on { opacity: 1; pointer-events: auto; }
+
+/* dialogs: confirming, sharing out points, a new Role, a new Skill, sizing up the others */
+.neon-home-dialog .nah-ip-confirm ul { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 3px; }
+.neon-home-dialog .nah-ip-confirm li { display: flex; justify-content: space-between; gap: 10px; padding: 4px 8px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.85); }
+.neon-home-dialog .nah-ip-confirm li small { color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-confirm li b { font-family: var(--nah-display); font-weight: 400; color: var(--nah-pink); white-space: nowrap; }
+.neon-home-dialog .nah-ip-confirm-total { text-align: right; font-family: var(--nah-display); letter-spacing: 0.08em; text-transform: uppercase; }
+.neon-home-dialog .nah-ip-confirm-total b { color: var(--nah-yellow); font-weight: 400; font-size: 16px; }
+.neon-home-dialog .nah-ip-confirm-total small { display: block; color: var(--nah-dim); text-transform: none; letter-spacing: 0; font-family: "Signika", sans-serif; }
+.neon-home-dialog .nah-ip-split-head { margin: 0 0 6px; font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--nah-yellow); }
+.neon-home-dialog .nah-ip-split-head b { color: var(--nah-pink); }
+.neon-home-dialog .nah-ip-split-count { margin: 0 0 8px; font-size: 12px; color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-split-count b { color: var(--nah-green); font-family: var(--nah-display); font-weight: 400; font-size: 15px; }
+.neon-home-dialog .nah-ip-split-count b.is-off { color: var(--nah-orange); }
+.neon-home-dialog .nah-ip-split-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; padding: 6px 8px; border: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.85); }
+.neon-home-dialog .nah-ip-split-row > i { flex: 0 0 22px; text-align: center; font-size: 15px; color: var(--nah-cyan); }
+.neon-home-dialog .nah-ip-split-row > div { flex: 1; display: grid; gap: 1px; min-width: 0; }
+.neon-home-dialog .nah-ip-split-row b { font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; font-size: 12px; }
+.neon-home-dialog .nah-ip-split-row small { font-size: 11px; color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-split-row input { flex: 0 0 60px; width: 60px; text-align: center; color: #fff; }
+.neon-home-dialog .nah-ip-role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px; }
+.neon-home-dialog .nah-ip-role-pick { position: relative; display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.9); cursor: pointer; clip-path: var(--nah-notch-card); }
+.neon-home-dialog .nah-ip-role-pick input { position: absolute; opacity: 0; pointer-events: none; }
+.neon-home-dialog .nah-ip-role-pick > i { flex: 0 0 26px; font-size: 18px; text-align: center; color: var(--nah-cyan); }
+.neon-home-dialog .nah-ip-role-pick > span { display: grid; gap: 2px; }
+.neon-home-dialog .nah-ip-role-pick b { font-family: var(--nah-display); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; }
+.neon-home-dialog .nah-ip-role-pick small { color: var(--nah-yellow); font-size: 11px; }
+.neon-home-dialog .nah-ip-role-pick em { font-style: normal; font-size: 11px; color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-role-pick:has(input:checked) { border-color: var(--nah-pink); background: linear-gradient(160deg, rgba(255, 42, 109, 0.2), rgba(13, 13, 21, 0.9) 65%); }
+.neon-home-dialog .nah-ip-role-pick:has(input:checked) > i { color: var(--nah-pink); }
+.neon-home-dialog .nah-ip-role-pick:has(input:focus-visible) { outline: 2px solid var(--nah-cyan); }
+.neon-home-dialog .nah-ip-add [hidden] { display: none !important; }
+.neon-home-dialog .nah-ip-add input[type=text] { color: #fff; }
+.neon-home-dialog .nah-ip-add-preview { margin: 8px 0 0; padding: 6px 10px; font-family: var(--nah-display); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--nah-cyan); border-left: 2px solid var(--nah-cyan); background: rgba(5, 217, 232, 0.05); }
+.neon-home-dialog .nah-ip-scan-tag { margin: 0; font-family: var(--nah-display); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--nah-yellow); }
+.neon-home-dialog .nah-ip-scan-meta { margin: 2px 0 10px; font-size: 11px; color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-scan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.neon-home-dialog .nah-ip-scan-card { position: relative; display: flex; gap: 10px; padding: 10px; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.9); clip-path: var(--nah-notch-card); }
+.neon-home-dialog .nah-ip-scan-card.is-you { border-color: var(--nah-cyan); box-shadow: inset 0 0 0 1px rgba(5, 217, 232, 0.4); }
+.neon-home-dialog .nah-ip-scan-card img { flex: 0 0 56px; width: 56px; height: 56px; object-fit: cover; object-position: top; border: 1px solid var(--nah-pink); }
+.neon-home-dialog .nah-ip-scan-place { position: absolute; top: 6px; right: 10px; font-family: var(--nah-display); font-size: 12px; color: var(--nah-yellow); }
+.neon-home-dialog .nah-ip-scan-info { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.neon-home-dialog .nah-ip-scan-info h3 { margin: 0 40px 4px 0; border: 0; font-family: var(--nah-display); font-weight: 400; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; }
+.neon-home-dialog .nah-ip-scan-info h3 small { color: var(--nah-cyan); text-transform: none; }
+.neon-home-dialog .nah-ip-scan-info > div { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; }
+.neon-home-dialog .nah-ip-scan-info small { color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-scan-info b { font-weight: 400; color: #fff; text-align: right; }
+.neon-home-dialog .nah-ip-hidden { color: var(--nah-dim); letter-spacing: 0.2em; }
+.neon-home-dialog .nah-ip-scan :is(.tone-green) { color: var(--nah-green); }
+.neon-home-dialog .nah-ip-scan :is(.tone-yellow) { color: var(--nah-yellow); }
+.neon-home-dialog .nah-ip-scan :is(.tone-violet) { color: var(--nah-violet); }
+.neon-home-dialog .nah-ip-scan :is(.tone-pink) { color: var(--nah-pink); }
+.neon-home-dialog .nah-ip-scan :is(.tone-red) { color: var(--nah-red); }
+.neon-home-dialog .nah-ip-scan :is(.tone-orange) { color: var(--nah-orange); }
+.neon-home-dialog .nah-ip-scan h4 { margin: 12px 0 4px; font-family: var(--nah-display); font-weight: 400; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-scan-legend { margin: 0; padding-left: 18px; font-size: 11px; color: var(--nah-dim); }
+.neon-home-dialog .nah-ip-scan-legend b { color: var(--nah-text); }
+#actors .header-actions .neon-home-ip { flex: 1 1 45%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-home .nah-ip-card.is-found { animation: none; box-shadow: 0 0 0 2px var(--nah-yellow); }
+  .neon-home .nah-ip-card, .neon-home .nah-ip-chev { transition: none; }
+}

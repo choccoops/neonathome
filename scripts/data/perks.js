@@ -137,8 +137,6 @@ export const PERKS = [
     text: "As an Action, roll Endurance or Acting against a target's Concentration. Win and pick: Avoidance (they won't attack you) or Anger (they attack only you). Either lasts until they spend an Action steadying themselves. Once an hour per target." },
   { id: "witchy", name: "Witchy", branch: "general", cost: 1, req: [D("A belief in the supernatural"), K("Concentration", 4)],
     text: "In downtime, spend an hour and 50eb on a ritual, then roll 1d10: a 1 succeeds. Each extra hour and 50eb (up to 8) adds 1 to the number you need. Intents: Protection (anyone harming you at home takes −4), Fortune (your next Hustle pays double), or Wisdom (ask the GM one question; the answer comes as three tarot cards)." },
-  { id: "cartophilist", name: "Cartophilist", branch: "general", cost: 1, req: [ANY(D("Open 5 packs of Elflines Online cards"), K("Gamble", 4))],
-    text: "Opening a pack, spend 1 LUCK to choose one card, or 2 LUCK to raise one card's rarity a tier." },
   { id: "technobabbler", name: "Technobabbler", branch: "general", cost: 1, req: [KA("language", 6), KA("tech", 4)],
     text: "Use the language as a Complementary Check for a Tech Skill you have at 4+. The DV is always 21, and each point you beat it by is +1 to the Tech Check (instead of the usual +1), as long as you can say one real-sounding technobabble phrase per point." },
   { id: "festive", name: "Festive", branch: "general", cost: 1, req: [D("Spend 500eb+ celebrating a holiday")],
@@ -158,7 +156,7 @@ export const PERKS = [
 
   // ---------------- Intelligence (pp.90-91) ----------------
   { id: "elementary", name: "Elementary", branch: "int", cost: 1, req: [ANY(S("int", 6), D("Knowledge as motivation (instead of the INT)")), K("Education", 6)],
-    text: "Once a day, spend an hour to make one Education-type Skill your focus: +1 to it until you sleep or switch, and raising it costs 10% less IP while it's your focus." },
+    text: "Once a day, spend an hour to make one Education-type Skill your focus: +1 to it until you sleep or switch, and raising it costs 10% less IP while it's your focus. Training in your focus earns +2 progress a week (Chapter 15)." },
   { id: "rulesLawyer", name: "Rules Lawyer", branch: "int", cost: 1, req: [S("int", 6), ANY(K("Bureaucracy", 6), D("Politely correct the GM on 3 rules"))],
     text: "+2 Bureaucracy. Once per session, when you politely catch an honest rules mistake, gain 1d6 IP and +2 to your next Action.",
     fx: [B("bonuses.bureaucracy", 2, false)] },

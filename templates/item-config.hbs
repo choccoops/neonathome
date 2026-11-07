@@ -47,6 +47,12 @@
 
   {{#if physical}}
   <fieldset>
+    <legend><i class="fa-solid fa-crown"></i> {{localize "NEONHOME.Iconic.Section"}}</legend>
+    <div class="form-group"><label>{{localize "NEONHOME.Iconic.Is"}}</label><input type="checkbox" name="iconic" {{checked iconic}}></div>
+    <div class="form-group"><label>{{localize "NEONHOME.Iconic.TechUpgrade"}}</label><input type="checkbox" name="tupUsed" {{checked tupUsed}}></div>
+    <p class="hint">{{localize "NEONHOME.Iconic.Hint"}}</p>
+  </fieldset>
+  <fieldset>
     <legend>{{localize "NEONHOME.Config.Carry"}}</legend>
     <div class="form-group">
       <label>{{localize "NEONHOME.Config.Category"}}</label>

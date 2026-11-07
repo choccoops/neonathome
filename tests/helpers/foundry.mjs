@@ -120,6 +120,7 @@ globalThis.Item = {
       for (const [k, v] of Object.entries(changes)) setProperty(item, k, clone(v));
       return item;
     };
+    item.toObject = () => clone({ _id: item._id, name: item.name, type: item.type, img: item.img, system: item.system, flags: item.flags });
     registry.set(item.uuid, item);
     game.items.set(item.id, item);
     return item;

@@ -160,13 +160,18 @@
     <div class="nah-hum">
       <div class="nah-hp-head">
         <h3 class="nah-kicker">{{localize "NEONHOME.Bio.Humanity"}}</h3>
-        <strong>{{bio.humanity.value}}<em>/{{bio.humanity.max}}</em></strong>
+        <strong data-tooltip="{{bio.humanity.maxTip}}">{{bio.humanity.value}}<em>/{{bio.humanity.max}}</em></strong>
         <span class="nah-emp" data-tooltip="{{localize 'NEONHOME.Bio.EmpTip'}}">EMP <b>{{bio.emp.value}}</b>/{{bio.emp.max}}</span>
       </div>
       <div class="nah-hum-bar">
         <b style="width:{{bio.humanity.pct}}%"></b>
         {{#if bio.psyche.catharsis}}<s style="left:{{bio.humanity.pct}}%;width:{{bio.psyche.catharsisPct}}%" data-tooltip="{{localize 'NEONHOME.Bio.CatharsisTip' n=bio.psyche.catharsis}}"></s>{{/if}}
         {{#each bio.humanity.markers}}<i style="left:{{pct}}%"><span>{{value}}</span></i>{{/each}}
+      </div>
+      <div class="nah-bio-plan">
+        <i class="fa-solid fa-truck-medical"></i>
+        <select data-bio-plan aria-label="{{localize 'NEONHOME.Plan.Label'}}">{{#each bio.plan.options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        {{#if bio.plan.canCall}}<button type="button" data-action="bioCallPlan"><i class="fa-solid fa-phone"></i> {{localize "NEONHOME.Plan.Call"}}</button>{{/if}}
       </div>
     </div>
 

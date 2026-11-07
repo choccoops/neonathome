@@ -44,12 +44,19 @@ function character(name, roles = [], extra = []) {
 /*  Rules                                     */
 /* ------------------------------------------ */
 
-test("Hustle pay by Role Ability Rank band (p.381)", () => {
-  assert.deepEqual(data.hustle("solo", 2, 4), { text: data.HUSTLES.solo[1][0], eb: 200 });
+test("Hustle pay by result letter and Role Rank band (2070, Chapter 13)", () => {
+  assert.deepEqual(data.hustle("solo", 2, 4), { text: data.HUSTLES.solo[1][0], letter: "M", eb: 200 });
   assert.equal(data.hustle("solo", 2, 5).eb, 300);
   assert.equal(data.hustle("solo", 2, 8).eb, 600);
   assert.equal(data.hustle("tech", 1, 3).eb, 0, "no jobs this week");
-  for (const role of data.ROLES) assert.equal(data.HUSTLES[role].length, 6, role);
+  assert.deepEqual(data.hustle("ganger", 2, 4), { text: "Collected protection.", letter: "M", eb: 200 }, "Gangers hustle");
+  assert.equal(data.hustle("lawman", 1, 4), null, "no Lawmen in 2070");
+  for (const role of Object.keys(data.HUSTLES)) assert.equal(data.HUSTLES[role].length, 6, role);
+  // Interesting Hustles: the better the week, the better the odds; 01 a Jackpot
+  assert.deepEqual(data.interesting("Z", 5), { interesting: true, jackpot: false });
+  assert.equal(data.interesting("Z", 6).interesting, false);
+  assert.equal(data.interesting("H", 25).interesting, true);
+  assert.equal(data.interesting("L", 1).jackpot, true);
 });
 
 test("Maker: DV and time by price, materials a category lower or the same (pp.148-149)", () => {
@@ -131,6 +138,11 @@ test("the Hustle: a week, 1d6 on the Role's table, the pay into the wealth ledge
   assert.equal(rocker.system.wealth.value, 1500);
   assert.match(rocker.system.wealth.transactions[0][1], /Hustle \(Rockerboy\)/);
   assert.match(chat.at(-1).content, /rolled <b>3<\/b>/);
+  // a d100 of 01 (the dice's default): a Jackpot, two developments
+  assert.equal(res.interesting.length, 2);
+  assert.match(chat.at(-1).content, /Jackpot/);
+  dice.next = [3, 50];
+  assert.deepEqual((await DowntimeOps.perform(rocker, "hustle")).interesting, [], "50 is over an H week's 25");
   asUser(true);
 });
 
@@ -173,16 +185,17 @@ test("pharmaceuticals: DV13 Medical Tech, 200eb either way, doses equal to the s
 test("therapy restores Humanity to the patient, never to yourself", async () => {
   const doc = character("Doc", [["Medtech", 4, [{ name: "Medical Tech Skill", rank: 4 }]]]);
   const patient = character("Rook", [["Solo", 4]]);
-  rolls(16);
+  doc.system.wealth.value = 5000;
+  rolls(17);
   await assert.rejects(DowntimeOps.perform(doc, "therapy", { patient: doc.id, therapy: "standard" }), /themselves/);
   dice.next = [7];
   const res = await DowntimeOps.perform(doc, "therapy", { patient: patient.id, therapy: "standard" });
   assert.equal(res.healed, 7);
   assert.equal(patient.system.derivedStats.humanity.value, 37);
-  assert.equal(doc.system.wealth.value, 900);
-  rolls(16);
+  assert.equal(doc.system.wealth.value, 4000, "2070: 1,000eb of Biotechnica materials");
+  rolls(19);
   const extreme = await DowntimeOps.perform(doc, "therapy", { patient: patient.id, therapy: "extreme" });
-  assert.equal(extreme.ok, false, "DV17");
+  assert.equal(extreme.ok, false, "DV20 in 2070");
 });
 
 test("therapy takes the patient's week too, logged in their downtime", async () => {

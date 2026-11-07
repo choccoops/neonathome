@@ -115,6 +115,29 @@
       "DeckTab": {
         "Name": "Cyberdeck tab",
         "Hint": "The netrunner's quickhack suite (Cyberpunk: The Unification Era, Chapter 10): the deck they run, how it connects, and the Programs, quickhacks and Hardware slotted in it, Program-only and Hardware-only slots kept apart."
+      },
+      "SpendIp": {
+        "Name": "Spend IP",
+        "Hint": "A window for spending Improvement Points on Skills, Role Abilities and new Roles (and refunding them), with a character level, rank insignia and Threat Level read from what's been bought. Characters can add their own Languages, Sciences, Martial Arts and other Skills to it."
+      },
+      "IpRefund": {
+        "Name": "Players can refund IP",
+        "Hint": "Players can take levels back out of Skills and Role Abilities in Spend IP and get the IP back. Off: only the GM can."
+      },
+      "IpCompare": {
+        "Name": "Spend IP: Compare Skills",
+        "Hint": "Who a character can size up with Compare Skills (it takes Perception + INT of 6, and shows more the higher it is).",
+        "off": "Off",
+        "players": "Every player's character in the world",
+        "scene": "Every actor with a token in the current scene"
+      },
+      "IpSoundUp": {
+        "Name": "Spend IP: upgrade sound",
+        "Hint": "A sound to play when IP is spent (leave empty for none)."
+      },
+      "IpSoundRefund": {
+        "Name": "Spend IP: refund sound",
+        "Hint": "A sound to play when IP is refunded (leave empty for none)."
       }
     },
     "State": {
@@ -265,14 +288,12 @@
         "reliefAll": "Removes REF, DEX and MOVE penalties",
         "stealth": "+2 Stealth",
         "warPaint": "War Paint (+2 Wardrobe & Style with head and body)",
-        "aiInterface": "AI Armor Interface (+2 Concentration)",
         "neuroport": "Neuro-port (+2 neuralware option slots)",
         "enviro": "Enviro-Shielding (radiation immunity with head and body)",
         "fireproof": "Fireproof padding (can't be set on fire with head and body)"
       },
       "Note": {
         "reliefMove": "MOVE penalty removed ({value}): apply to MOVE rolls at the table.",
-        "aiInterface": "AI Armor Interface: no DEX/REF armor penalty on attack rolls; voice-target one person or cover for +1 to hit until your turn ends. Shuts down at 0 head SP.",
         "warPaint": "War Paint: +1 to Facedown.",
         "enviro": "Enviro-Shielding: immune to radiation damage.",
         "fireproof": "Fireproof padding: can't be set on fire.",
@@ -855,7 +876,8 @@
         "lawman": "Lawman",
         "netrunner": "Netrunner",
         "media": "Media",
-        "rockerboy": "Rockerboy"
+        "rockerboy": "Rockerboy",
+        "ganger": "Ganger"
       },
       "Time": {
         "30m": "30 minutes",
@@ -1154,7 +1176,12 @@
         "salvage": "Salvage",
         "strip": "Strip for parts",
         "perkTraining": "Perk training",
-        "synth": "Cook street drugs"
+        "synth": "Cook street drugs",
+        "train": "Train a Skill",
+        "art": "Make art",
+        "market": "Find a Night Market",
+        "source": "Source an item",
+        "bodysculpt": "Bodysculpting"
       },
       "Blurb": {
         "hustle": "A week of work on the side between Jobs: roll 1d6 on your Role's table; the pay goes by your Role Ability Rank (Cyberpunk RED, p.381).",
@@ -1173,7 +1200,12 @@
         "salvage": "A week picking through the ruins, and no other downtime that week. Take whatever turns up (1d6 on the place's table) or hunt one category (a harder DV). A Basic Tech Check sets the worth found: pick out Destroyed items of that category (to repair later) or Tech Materials, up to that worth; the rest is lost. A Critical Failure finds nothing and runs into the place's perils (Salvaging Night City).",
         "strip": "Break gear down into Tech Materials for Maker work: pick items whose worth adds up to the materials you want (Damaged gear is worth a price category less, Destroyed two). Stacks of materials break down or combine the same way. What's past the materials' worth is lost. A few items take no time; a big batch does: past the first 5, each item takes 30 minutes of downtime (materials don't count).",
         "perkTraining": "A week of intense training aimed at the perk you want (Chapter 16): 2,500eb rolls 2d6, 5,000eb (very intense) rolls 3d6. Each 6 is a Perk Point. Once a month.",
-        "synth": "Street Drug Synthesis (Chapter 08): a recipe, its ingredients, the tools for its complexity, and the time. Each dose is its own roll: INT + Science (Chemistry) + 1d10 against the recipe's DV. Medtechs with a point of Pharmaceuticals add Medical Tech; Techs add Fabrication Expertise. A failure wastes that dose's ingredients."
+        "synth": "Street Drug Synthesis (Chapter 08): a recipe, its ingredients, the tools for its complexity, and the time. Each dose is its own roll: INT + Science (Chemistry) + 1d10 against the recipe's DV. Medtechs with a point of Pharmaceuticals add Medical Tech; Techs add Fabrication Expertise. A failure wastes that dose's ingredients.",
+        "train": "Training (Chapter 15): a week with a teacher earns Training Progress toward a Skill's next level, counted like IP. Self-study and Training BDs can run alongside other downtime at the side rate. You can't train past the teacher's maximum, a Skill (×2) needs double, and only a BD, a teacher or a Skill Chip opens a Skill from zero. Push Training once a week: DV15 Endurance (physical) or Concentration for +5.",
+        "art": "Making art (Chapter 13): spend the materials and the time, then roll. A finished piece on an Augmented Reality Art Display (one per piece, no more than the home sleeps) adds Humanity every month.",
+        "market": "Hear of a Night Market this week (Chapter 17): Streetwise DV13 or Trading DV15. Prices are market; anything up to Super Luxury can turn up. Cyberware is installed free on the spot; weapons come with a box of Basic ammo; no refunds.",
+        "source": "Self Sourcing (Chapter 12): a week of calls and meets for one item, within your Role's reach, and you have to know it exists. Fixers, Netrunners (their goods) and Nomads (vehicles) pay market; Medias and Rockerboys pass a Check at the Sourcing DV and pay double.",
+        "bodysculpt": "Bodysculpting (Chapter 08): Standard reshapes a face or a build (no Humanity); Exotic goes further (fur, tails, scales) for 4d6 Humanity Loss. Four hours on the table, a day off their feet after. Nobody sculpts themselves."
       },
       "Role": {
         "rockerboy": "Rockerboy",
@@ -1291,7 +1323,22 @@
       "TrainingCard": "<b>{name}</b> trains for a week{aim}: rolled {dice}, <b>{n}</b> six(es): <b>{n} Perk Point(s)</b>.",
       "TrainingMonth": "{name} has already trained for perks this month.",
       "TrainingFor": " toward <b>{perk}</b>",
-      "TrainingRoll": "{dice}: each 6 is a Perk Point"
+      "TrainingRoll": "{dice}: each 6 is a Perk Point",
+      "Interesting": {
+        "contact": "New Contact",
+        "opportunity": "Opportunity",
+        "insideInfo": "Inside Info",
+        "strings": "Strings Attached"
+      },
+      "InterestingText": {
+        "contact": "someone from the job remembers you kindly; the GM makes them an NPC you can call on.",
+        "opportunity": "a lead on paying work: a gig for the crew, an HQ Gig, or a seat at a Night Market.",
+        "insideInfo": "a rumor worth money: a shipment's route, a rival's weak spot, a door code. The GM decides how true it is.",
+        "strings": "a contact or an opportunity, with a favor owed or a curious faction: +1 Standing with someone, −1 with their rival."
+      },
+      "InterestingWeek": "An interesting week (d100 {n}):",
+      "Jackpot": "A Jackpot (d100 {n}): two developments.",
+      "InterestingNote": "A d100 too: an Interesting Hustle at {z} or under on a dry week (Z), {l} low (L), {m} good (M), {h} great (H). 01 is a Jackpot."
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
@@ -1339,7 +1386,8 @@
         "upgrade": "<b>{name}</b> finishes upgrading <b>{item}</b>.",
         "upgradeNoted": "<b>{name}</b> finishes upgrading <b>{item}</b>; the GM applies what it does.",
         "invent": "<b>{name}</b> has a working design ({category}): <b>{blueprint}</b>. The GM writes up how it works; Fabrication or Upgrade makes it real.",
-        "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again."
+        "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again.",
+        "armor": "<b>{name}</b> brings <b>{item}</b> back to full SP."
       },
       "Abandoned": "<b>{name}</b> gives up on <b>{label}</b>.",
       "NoMaterials": "no materials",
@@ -1356,7 +1404,11 @@
       "Minutes": "Minutes",
       "UnderWay": "Already under way",
       "CarryOnThere": "Carry on in Projects",
-      "StartIsNew": "Starting here begins a new project."
+      "StartIsNew": "Starting here begins a new project.",
+      "ArmorLabel": "Repairing {item}'s SP",
+      "VehicleLabel": "Repairing {item}'s SDP",
+      "ShopLabel": "Shop labor: {item}",
+      "Shopped": "<b>{name}</b> pays a shop {eb} to fix <b>{item}</b>."
     },
     "Materials": {
       "Have": "{materials} (has {have})",
@@ -1367,7 +1419,8 @@
       "Label": "Salvage: {place}",
       "Field": {
         "location": "Where",
-        "category": "Looking for"
+        "category": "Looking for",
+        "crew": "Salvaging with"
       },
       "Fact": {
         "era": "Night City",
@@ -1446,7 +1499,14 @@
       "DropHere": "Drop a find here ({category}): it comes Destroyed, to repair later",
       "AsMaterials": "Or as Tech Materials:",
       "Leave": "Leave the rest",
-      "LeaveAsk": "Leave what's left of this haul behind? Unspent worth is lost."
+      "LeaveAsk": "Leave what's left of this haul behind? Unspent worth is lost.",
+      "CrewHint": "Each rolls their own week; the crew shares one Perils roll and one Who Turns Up.",
+      "NotYours": "You can't roll {name}'s week: their player (or the GM) has to.",
+      "WhoTurnsUp": "Who turns up?",
+      "Who": {
+        "trouble": "Trouble that can be talked down: talk, sneak or fight.",
+        "chance": "A chance."
+      }
     },
     "Strip": {
       "Field": {
@@ -1789,7 +1849,27 @@
       "SuiteInstalled": "Cybersuite, installed in the Neuroport",
       "SuiteLoose": "Cybersuite, not installed",
       "SuiteBuiltIn": "Built-in quickhacks: {list}.",
-      "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time."
+      "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time.",
+      "Narrative": {
+        "Title": "Narrative Quickhack",
+        "WhatHint": "What you want it to do",
+        "JobLabel": "The job",
+        "CodeLabel": "The area's code",
+        "Job": {
+          "simple": "One simple command",
+          "brief": "Brief control",
+          "big": "One big command",
+          "lasting": "Lasting control"
+        },
+        "NoCode": "No code",
+        "Security": "Security Code {n}",
+        "Utility": "Utility Code {n}",
+        "Watched": "A Netrunner or Demon minds it (+2)",
+        "Roll": "Interface Check",
+        "Hint": "One networked machine you can see, in range to an architecture. Out of combat a few seconds; in combat your whole Turn (your Meat Action or all your NET Actions), one a Turn. A failure: nothing happens, and the same machine needs a better angle.",
+        "ok": "<b>{name}</b> quickhacks it: {what} ({total} vs DV{dv}).",
+        "fail": "<b>{name}</b>'s quickhack doesn't take: {what} ({total} vs DV{dv})."
+      }
     },
     "Dive": {
       "Title": "Deep Dive",
@@ -2082,6 +2162,457 @@
       "MakesHint": "Cooking it makes this drug. Without one, the drug of that name from Cyberpunk RED's compendium, else a plain drug item.",
       "ToolShort": "{tool} (needs a {need})",
       "ToolBetter": "{tool} (+{bonus}: better tools)"
+    },
+    "Train": {
+      "Field": {
+        "skill": "Skill",
+        "teacher": "Teacher",
+        "crewmate": "Crewmate",
+        "chip": "Skill Chip",
+        "push": "Push Training",
+        "focus": "Elementary"
+      },
+      "Teacher": {
+        "selfSide": "Self-study, on the side (5)",
+        "selfDedicated": "Self-study, dedicated (10)",
+        "bdSide": "Training BD, on the side (10)",
+        "bdDedicated": "Training BD, dedicated (20)",
+        "street": "Street trainer (10, 200eb)",
+        "professional": "Professional (15, 500eb)",
+        "ncu": "Night City University (20, 1,200eb a term)",
+        "master": "Master (25, 1,000eb or a favor)",
+        "crewmate": "A crewmate (free)"
+      },
+      "Chip": "The matching Skill Chip slotted (+5)",
+      "NoChip": "No chip",
+      "PushIt": "Push it (DV15, +5)",
+      "NoPush": "No push",
+      "Focus": "It's my Elementary focus (+2)",
+      "NoFocus": "Not my focus",
+      "Fact": {
+        "progress": "Progress",
+        "week": "This week",
+        "max": "Teacher's max",
+        "push": "Push"
+      },
+      "Progress": "{have} of {need} toward level {level}",
+      "Week": "+{n} progress",
+      "Free": "Free",
+      "Term": "{eb} a term (week {weeks} of 4); due now {due}",
+      "SideNote": "On the side: it runs alongside your other downtime and takes no week of its own.",
+      "BdNote": "You need that Skill's Training BD in hand (500eb, or 1,000eb for a Skill ×2).",
+      "PushNote": "Success +5; failure half (round down); an implode nothing (a physical Skill also costs 2d6 damage; anything else leaves you fatigued, −2, all next week).",
+      "Why": {
+        "zero": "Self-study can't open {skill} from zero: a Training BD, a teacher or a Skill Chip can.",
+        "double": "{skill} is a Skill (×2): it can't be self-studied (a Skill Chip lets you).",
+        "max": "This teacher only takes you to {max}.",
+        "academic": "Night City University teaches Education, Technique and Performance Skills, not {skill}."
+      },
+      "PickSkill": "Pick a Skill.",
+      "NoTeacher": "Pick a teacher.",
+      "NotYourself": "You can't be your own crewmate teacher.",
+      "NoCrewmate": "No crewmate has {skill} at 6 or more.",
+      "NotEnrolled": "Enroll at NCU first: DV13 Bureaucracy, or a 1,500eb donation (and a Generic PrePak lifestyle or better).",
+      "Enroll": "Enroll at Night City University",
+      "EnrollRoll": "Enroll (DV13 Bureaucracy)",
+      "EnrollDonate": "Enroll (1,500eb donation)",
+      "Donation": "NCU donation",
+      "Enrolled": {
+        "ok": "<b>{name}</b> is enrolled at Night City University.",
+        "donated": "<b>{name}</b> makes a donation and is enrolled at Night City University.",
+        "fail": "<b>{name}</b> gets lost in NCU's paperwork."
+      },
+      "Label": "Training {skill}",
+      "Teaching": "Teaching {name} {skill}",
+      "Card": "<b>{name}</b> trains {skill} ({teacher}): +{n} progress, {have} of {need}.",
+      "LevelUp": "<b>{name}</b> trains {skill} ({teacher}): +{n} progress, and {skill} goes up to <b>{level}</b>. {have} carried toward the next.",
+      "Push": {
+        "ok": "Pushed hard: +5.",
+        "fail": "Pushed and faltered: half progress.",
+        "implode": "Pushed too far: nothing this week."
+      },
+      "NoIp": "{name} needs {n} IP.",
+      "TopOff": "Top off with IP ({n} of {ip})",
+      "ToppedOff": "<b>{name}</b> spends {n} IP: {skill} goes up to <b>{level}</b>."
+    },
+    "Source": {
+      "Field": {
+        "item": "The item (drop it here)"
+      },
+      "Fact": {
+        "reach": "Reach by Rank",
+        "price": "Price",
+        "cost": "Cost"
+      },
+      "Market": "Market",
+      "Double": "Double (×2), on a passed Check",
+      "KnowIt": "You have to know it exists: a screamsheet, a newsletter, something overheard or seen in play.",
+      "Goods": {
+        "netrunner": "Netrunners source quickhacks, deck gear and NET Architectures.",
+        "nomad": "Nomads source vehicles and vehicle upgrades their Moto Rank unlocks."
+      },
+      "NoRole": "{name} can't source: Fixers, Medias, Rockerboys, Netrunners and Nomads can.",
+      "OffTheShelf": "{item} is off the shelf (Premium or less): just buy it.",
+      "OutOfReach": "{item} ({category}) is past {name}'s reach.",
+      "Label": "Sourcing {item}",
+      "ok": "<b>{name}</b> sources <b>{item}</b> for {eb}.",
+      "fail": "<b>{name}</b> spends the week chasing <b>{item}</b>, and comes up empty.",
+      "Haggle": "A Fixer can Haggle for their Rank's discount (a critical failure means a markup)."
+    },
+    "Art": {
+      "Field": {
+        "title": "Title",
+        "quality": "Quality",
+        "value": "Value (eb)"
+      },
+      "Fact": {
+        "humanity": "On display"
+      },
+      "PerMonth": "+{n} Humanity a month",
+      "Note": "Music and acting take two skills (compose, then perform): the performance roll sets the quality. Roll the one that does.",
+      "Untitled": "Untitled",
+      "Label": "Making {title}",
+      "Item": "Artwork: {title}",
+      "About": "{quality} art by {name} ({skill}). On an Augmented Reality Art Display: +{n} Humanity every month.",
+      "ok": "<b>{name}</b> finishes <b>{title}</b>: displayed, +{n} Humanity a month.",
+      "fail": "<b>{name}</b> can't make <b>{title}</b> work: the materials are gone."
+    },
+    "Sculpt": {
+      "Field": {
+        "kind": "Kind",
+        "look": "The new look"
+      },
+      "Kind": {
+        "standard": "Standard (no Humanity)",
+        "exotic": "Exotic (4d6 HL)"
+      },
+      "Roll": "TECH + Surgery {rank} + 1d10",
+      "Hl": "{patient} loses 4d6 Humanity.",
+      "Note": "A failure wastes the materials and 2 hours; the patient is fine and can try again. Anyone who knew them needs DV17 Human Perception to recognize the new face (DV13 if they knew them well).",
+      "NotYourself": "Nobody can sculpt themselves.",
+      "NewLook": "a new look",
+      "Label": {
+        "standard": "Bodysculpting {patient}",
+        "exotic": "Exotic bodysculpting {patient}"
+      },
+      "ok": "<b>{name}</b> sculpts <b>{patient}</b>: {look}.",
+      "fail": "<b>{name}</b> can't get <b>{patient}</b>'s new look right: the materials are wasted."
+    },
+    "Market": {
+      "Field": {
+        "pick": "The Fixer's pick"
+      },
+      "RollBoth": "Roll both categories",
+      "Category": {
+        "food": "Food & Drugs",
+        "electronics": "Personal Electronics",
+        "weapons": "Weapons & Armor",
+        "cyberware": "Cyberware",
+        "clothing": "Clothing & Fashionware",
+        "survival": "Survival Gear"
+      },
+      "Shelves": "<b>On the shelves tonight:</b>",
+      "Rules": "Market prices (a Fixer can Haggle). Every quality of an item that turns up is for sale. Cyberware installed free on the spot; weapons come with a box of Basic ammo; no refunds.",
+      "Note": "Found: two categories on sale, 1d10 items each from the On the Shelves table.",
+      "found": "<b>{name}</b> hears where tonight's Night Market is.",
+      "missed": "<b>{name}</b> asks around all day and hears nothing."
+    },
+    "Rest": {
+      "Field": {
+        "place": "Where"
+      },
+      "Place": {
+        "home": "At home",
+        "hospital": "A hospital bed (100eb a night)",
+        "cryoHospital": "A hospital cryotank (100eb a day)",
+        "cryoMedtech": "A Medtech's licensed cryotank (500eb a night)"
+      },
+      "Double": "Double healing: 2 × BODY a day (a cryotank, or Enhanced Antibodies).",
+      "Cost": "{each} a day ({total})",
+      "Covered": "Covered by {plan}"
+    },
+    "Plan": {
+      "Name": {
+        "null": "No plan",
+        "cryobank": "Cryobank Storage",
+        "reo": "REO Meatsavers",
+        "ttSilver": "Trauma Team Silver",
+        "ttExecutive": "Trauma Team Executive",
+        "corpoGold": "Corpo-Care Gold",
+        "corpoPlatinum": "Corpo-Care Platinum"
+      },
+      "NoCall": "{name} has no plan that comes when called.",
+      "Called": "<b>{name}</b> calls {plan}: they land in <b>{n}</b> Rounds.",
+      "ReoFirst": "REO Meatsavers' wagon beats them there in {n}, looking for business.",
+      "None": "No health plan",
+      "Label": "Health plan",
+      "Call": "Call them"
+    },
+    "MaxHumanity": {
+      "Title": "Maximum Humanity {n} (2070)",
+      "Base": "Original EMP × 10",
+      "FreshFood": "Fresh Food",
+      "EffectName": "Maximum Humanity (2070)"
+    },
+    "Workshop": {
+      "Ablated": "Armor that's lost SP",
+      "NoAblated": "No armor waiting for a repair.",
+      "FullSp": "Repair to full SP",
+      "Vehicles": "Vehicles below full SDP",
+      "Vehicle": {
+        "below": "below full",
+        "half": "below half",
+        "destroyed": "Destroyed"
+      },
+      "ShopTip": "Take it to a shop: pay the labor and it comes back fixed."
+    },
+    "Iconic": {
+      "Section": "Iconic",
+      "Is": "An Iconic (one of a kind)",
+      "TechUpgrade": "Its Tech Upgrade is used (a TUp on its card)",
+      "Hint": "An Iconic can't be Destroyed unless its owner agrees beforehand (it's Damaged instead), and a Tech fabricates one only from its Iconic Blueprint. An item gets one Tech Upgrade, ever: a TUp listed on its card has already used it.",
+      "Ask": "<b>{item}</b> is Iconic: it can't be Destroyed unless {name} agreed beforehand. Did they? (No: it's Damaged instead.)",
+      "NeedBlueprint": "{item} is an Iconic: it's built only from its Iconic Blueprint."
+    },
+    "Maker": {
+      "Field": {
+        "pace": "Pace",
+        "heat": "The TUp's heat",
+        "kit": "Its kit (Cost #2)"
+      },
+      "Pace": {
+        "normal": "Normal time",
+        "hurry": "Hurry it (−4)",
+        "rush": "Rush it (−8)"
+      },
+      "Fact": {
+        "pace": "Hurried",
+        "kit": "Kit (Cost #2)"
+      },
+      "PaceFact": "{time}, {n} on the halfway check. A failure can go wrong in style, and trying again takes twice the time.",
+      "Heat": {
+        "mild": "Mild",
+        "medium": "Medium",
+        "hot": "Hot",
+        "extraHot": "Extra Hot",
+        "diablo": "Diablo"
+      },
+      "HaveKit": "Have the kit already",
+      "BuyKit": "Buy the kit",
+      "KitLedger": "TUp kit ({heat})",
+      "Complementary": "Complementary Check",
+      "Help": "A crewmate helps (+1)",
+      "Helped": "Helped: +1",
+      "HelpTip": "A crewmate's good roll in a related Skill: +1 on the halfway check (once; it doesn't stack)."
+    },
+    "IP": {
+      "Title": "Spend IP",
+      "Short": "That takes {need} IP; there's {have} IP to spend.",
+      "Tagline": "Upgrade your systems. Burn the points, build your legend.",
+      "Available": "IP available",
+      "Level": "Character level",
+      "LevelN": "Level {n}",
+      "RankN": "Rank {n}",
+      "ToNext": "{have}/{need} IP to Level {next}",
+      "RankTip": "Rank insignia: a character level for every 1720 IP spent on Skills and Role Abilities.",
+      "Spent": "Total IP spent",
+      "Bought": "Levels bought",
+      "Best": "Highest skill",
+      "Experts": "Expert skills (6+)",
+      "Specialization": "Specialization",
+      "ThreatLevel": "Threat level",
+      "None": "None",
+      "Generalist": "Generalist",
+      "Avg": "avg {n}",
+      "Cat": {
+        "awarenessSkills": "Awareness Skills",
+        "bodySkills": "Body Skills",
+        "controlSkills": "Control Skills",
+        "educationSkills": "Education Skills",
+        "fightingSkills": "Fighting Skills",
+        "performanceSkills": "Performance Skills",
+        "rangedweaponSkills": "Ranged Weapon Skills",
+        "socialSkills": "Social Skills",
+        "techniqueSkills": "Technique Skills",
+        "other": "Other Skills"
+      },
+      "Nav": {
+        "roles": "Roles",
+        "awarenessSkills": "Awareness",
+        "bodySkills": "Body",
+        "controlSkills": "Control",
+        "educationSkills": "Education",
+        "fightingSkills": "Fighting",
+        "performanceSkills": "Performance",
+        "rangedweaponSkills": "Ranged",
+        "socialSkills": "Social",
+        "techniqueSkills": "Technique"
+      },
+      "Search": "Search skills…",
+      "RolesHead": "Role Abilities & Management",
+      "RolesN": "{n} Roles",
+      "RoleOne": "1 Role",
+      "CatSum": "{n} skills · {total} levels",
+      "Max": "Max level",
+      "CostN": "{n} IP",
+      "DifficultTip": "A Difficult Skill: twice the IP a level.",
+      "Selected": "Selected",
+      "RefundOf": "refund",
+      "Top": "Back to top",
+      "Clear": "Clear",
+      "Refund": "Refund IP",
+      "Confirm": {
+        "Button": "Confirm level up",
+        "up": "Confirm upgrades",
+        "refund": "Confirm refund",
+        "upAsk": "Spend IP on these?",
+        "refundAsk": "Refund these, one level each?",
+        "upTotal": "Total cost",
+        "refundTotal": "Total refund",
+        "Left": "({n} IP left after)"
+      },
+      "PickSome": "Pick at least one Skill or Role Ability that isn't at its max.",
+      "PickRefund": "Pick at least one Skill or Role Ability with a level to refund.",
+      "NoRefund": "Only the GM can refund IP in this world.",
+      "Ledger": {
+        "up": "Upgraded",
+        "refund": "Refunded",
+        "role": "New Role"
+      },
+      "Done": {
+        "up": "{n} upgrade(s) made.",
+        "refund": "{n} refund(s) made."
+      },
+      "Card": {
+        "up": "<b>{name}</b> upgraded <b>{what}</b> to <b>Level {level}</b>.",
+        "refund": "<b>{name}</b> refunded <b>{what}</b> to <b>Level {level}</b>.",
+        "role": "<b>{name}</b> took on a new Role: <b>{role}</b> ({ability} at Rank 1)."
+      },
+      "Haggle": "Haggle now matches Operator (Rank {n}).",
+      "Split": {
+        "Title": "Allocate points: {ability}",
+        "Hint": "Share out <b>{n}</b> points among {ability}'s abilities.",
+        "Placed": "Placed",
+        "Confirm": "Confirm allocation",
+        "Over": "You can place at most {n} points.",
+        "Under": "{n} point(s) still to place: every point goes somewhere.",
+        "Done": "Points placed for {role}."
+      },
+      "Role": {
+        "Title": "Choose a new Role",
+        "Tag": "Choose your path, define your legend.",
+        "Buy": "Purchase Role",
+        "ConfirmTitle": "Confirm Role purchase",
+        "ConfirmAsk": "Add <b>{role}</b> for <b>{n} IP</b>? Its Role Ability, {ability}, starts at Rank 1.",
+        "First": "Choose your starting Role ({n} IP)",
+        "FirstHead": "Choose starting Role",
+        "Add": "Add Role",
+        "Open": "Add a new Role ({n} IP)",
+        "Locked": "Every Role must be Rank 4 or higher first. Below it: {low}",
+        "All": "Every Role is taken.",
+        "Have": "The character already has that Role.",
+        "NotFound": "There's no {role} in the Roles compendium.",
+        "Added": "{role} added at Rank 1."
+      },
+      "Add": {
+        "Button": "Add skill",
+        "Title": "Add a skill",
+        "Kind": "Kind",
+        "Family": {
+          "language": "Language",
+          "science": "Science",
+          "localExpert": "Local Expert",
+          "martialArt": "Martial Art",
+          "playInstrument": "Instrument",
+          "custom": "Other skill"
+        },
+        "Specialty": "Which one",
+        "SpecialtyHint": "Pick from the list or type your own",
+        "Name": "Skill name",
+        "NameHint": "e.g. Xenobiology",
+        "Category": "Category",
+        "Stat": "STAT",
+        "Difficulty": "Difficulty",
+        "Confirm": "Add skill",
+        "NeedSpecialty": "Name the specialty first (Spanish, Karate, Chemistry…).",
+        "NeedName": "Name the skill first.",
+        "Have": "{skill} is already on the sheet.",
+        "Done": "{skill} added at Level 0.",
+        "NotOurs": "Only a skill added in Spend IP can be removed here.",
+        "Spent": "{skill} has levels in it: refund them first.",
+        "Remove": "Remove this skill",
+        "RemoveAsk": "Remove <b>{skill}</b> from the sheet?",
+        "New": "New {kind}",
+        "NewHint": "Add one at Level 0 to spend on"
+      },
+      "Pricing": {
+        "typical": "Typical (20 IP × level)",
+        "difficult": "Difficult (40 IP × level)"
+      },
+      "Rank": {
+        "gonk": "Gonk",
+        "wiredRookie": "Wired Rookie",
+        "boosted": "Boosted",
+        "edgerunner": "Edgerunner",
+        "wireburner": "Wireburner",
+        "chromehead": "Chromehead",
+        "bladed": "Bladed",
+        "soloClass": "Solo-Class",
+        "hardwired": "Hardwired",
+        "preemTier": "Preem Tier",
+        "edgerunnerElite": "Edgerunner Elite",
+        "afterlifeLegend": "Afterlife Legend"
+      },
+      "Threat": {
+        "minimal": "Minimal",
+        "low": "Low",
+        "moderate": "Moderate",
+        "high": "High",
+        "severe": "Severe",
+        "extreme": "Extreme"
+      },
+      "Find": {
+        "None": "No matches for \"{term}\".",
+        "Exact": "Found: {skill}",
+        "Partial": "Found: {skill} (partial match)",
+        "Many": "{n} matches: {skills}"
+      },
+      "Scan": {
+        "Button": "Compare skills",
+        "Tip": "Size up the other characters (Perception + INT 6 or more).",
+        "Title": "Compare Skills",
+        "Close": "Close analysis",
+        "Tag": "Analyzing visible targets in the area…",
+        "Off": "Compare Skills is off in this world.",
+        "TooLow": "Sizing others up takes Perception + INT of {n} (you have {have}).",
+        "None": {
+          "players": "No other player characters to compare with.",
+          "scene": "No other characters in this scene to compare with."
+        },
+        "You": "you",
+        "Scene": "Scene: {scene} | Characters detected: {n}",
+        "World": "World analysis | Characters detected: {n}",
+        "Perception": "Perception {total} (Skill {skill} + INT {int})",
+        "Depth": {
+          "none": "Insufficient",
+          "basic": "Basic threat analysis",
+          "detailed": "Detailed evaluation",
+          "expert": "Expert assessment",
+          "perfect": "Perfect analysis"
+        },
+        "Order": {
+          "bought": "ranked by levels bought",
+          "threat": "ranked by threat",
+          "random": "in no particular order"
+        },
+        "LegendTitle": "Perception analysis levels",
+        "Legend": {
+          "basic": "<b>6–9:</b> threat only, in no particular order",
+          "detailed": "<b>10–14:</b> + levels bought and character level, ranked by threat",
+          "expert": "<b>15–17:</b> + highest skill, ranked by levels bought",
+          "perfect": "<b>18+:</b> everything, specialization too"
+        }
+      }
     }
   }
 }
