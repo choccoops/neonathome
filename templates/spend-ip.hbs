@@ -1,0 +1,127 @@
+{{#*inline "ipCard"}}
+<div class="nah-ip-card {{#if selected}}selected{{/if}} {{#if max}}is-max{{/if}} {{#unless afford}}is-dear{{/unless}}" data-ip-pick="{{id}}" data-cost="{{cost}}" data-refund="{{refund}}" data-find="{{find}}" role="button" tabindex="0" aria-pressed="{{#if selected}}true{{else}}false{{/if}}">
+  <span class="nah-ip-card-icon"><i class="{{icon}}"></i></span>
+  <div class="nah-ip-card-body">
+    <header>
+      <b>{{name}}</b>
+      {{#if difficult}}<span class="nah-ip-tag" data-tooltip="{{localize 'NEONHOME.IP.DifficultTip'}}">×2</span>{{/if}}
+    </header>
+    <small class="nah-ip-card-line">{{#if sub}}{{sub}} &middot; {{/if}}{{levelLabel}} &middot; {{#if max}}<em class="is-max">{{localize "NEONHOME.IP.Max"}}</em>{{else}}<em>{{localize "NEONHOME.IP.CostN" n=cost}}</em>{{/if}}</small>
+    {{#if desc}}<p>{{desc}}</p>{{/if}}
+    <span class="nah-ip-pips">{{#each pips}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</span>
+  </div>
+  {{#if custom}}<button type="button" class="nah-icon-btn is-danger" data-action="ipRemoveSkill" data-tooltip="{{localize 'NEONHOME.IP.Add.Remove'}}" aria-label="{{localize 'NEONHOME.IP.Add.Remove'}}"><i class="fa-solid fa-xmark"></i></button>{{/if}}
+</div>
+{{/inline}}
+{{#with ip}}
+<div class="nah-ip" data-points="{{points}}">
+  {{!-- ================= DOSSIER ================= --}}
+  <header class="nah-ip-dossier">
+    <div class="nah-ip-insignia rank-{{rank.key}}" data-tooltip="{{localize 'NEONHOME.IP.RankTip'}}">
+      <i class="{{rank.icon}}"></i>
+      <b>{{rank.label}}</b>
+      <small>{{localize "NEONHOME.IP.LevelN" n=level}}</small>
+    </div>
+    <div class="nah-ip-readout">
+      <p class="nah-kicker">{{localize "NEONHOME.IP.Tagline"}}</p>
+      <div class="nah-ip-topline">
+        <div class="nah-ip-points">
+          <span class="nah-kicker">{{localize "NEONHOME.IP.Available"}}</span>
+          <b>{{points}}<small>IP</small></b>
+        </div>
+        <div class="nah-ip-progress">
+          <span class="nah-kicker">{{localize "NEONHOME.IP.Level"}} <span>{{level}}</span></span>
+          <div class="nah-meter"><b style="width:{{pct}}%"></b></div>
+          <small>{{localize "NEONHOME.IP.ToNext" have=progress need=perLevel next=next}}</small>
+        </div>
+      </div>
+      <dl class="nah-ip-stats">
+        <div><dt>{{localize "NEONHOME.IP.Spent"}}</dt><dd>{{spent}} IP</dd></div>
+        <div><dt>{{localize "NEONHOME.IP.Bought"}}</dt><dd>{{bought}}</dd></div>
+        <div><dt>{{localize "NEONHOME.IP.Best"}}</dt><dd>{{best}}</dd></div>
+        <div><dt>{{localize "NEONHOME.IP.Experts"}}</dt><dd>{{experts}}</dd></div>
+        <div><dt>{{localize "NEONHOME.IP.Specialization"}}</dt><dd class="nah-ip-special">{{special}}</dd></div>
+        <div><dt>{{localize "NEONHOME.IP.ThreatLevel"}}</dt><dd class="tone-{{band.tone}}">{{band.label}} ({{threat}})</dd></div>
+      </dl>
+      <div class="nah-ip-cats" data-tooltip="{{catTip}}">
+        {{#each cats}}<span class="nah-ip-cat"><i class="{{icon}}"></i> {{label}} <b>{{total}}</b></span>{{/each}}
+        {{#if compare}}<button type="button" class="nah-mini nah-ip-compare" data-action="ipCompare" data-tooltip="{{localize 'NEONHOME.IP.Scan.Tip'}}"><i class="fa-solid fa-users-viewfinder"></i> {{localize "NEONHOME.IP.Scan.Button"}}</button>{{/if}}
+      </div>
+    </div>
+  </header>
+
+  {{!-- ================= NAVIGATION ================= --}}
+  <nav class="nah-ip-nav">
+    <div class="nah-ip-jumps">
+      {{#each nav}}<button type="button" data-ip-jump="{{key}}" data-tooltip="{{label}}"><i class="{{icon}}"></i> <span>{{label}}</span></button>{{/each}}
+    </div>
+    <label class="nah-ip-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" data-ip-search value="{{search}}" placeholder="{{localize 'NEONHOME.IP.Search'}}" aria-label="{{localize 'NEONHOME.IP.Search'}}"></label>
+    {{#if owner}}<button type="button" class="nah-ip-addskill" data-action="ipAddSkill" data-family="custom"><i class="fa-solid fa-square-plus"></i> {{localize "NEONHOME.IP.Add.Button"}}</button>{{/if}}
+  </nav>
+
+  <div class="nah-ip-body nah-scroll">
+    {{!-- ================= ROLES ================= --}}
+    {{#with roles}}
+    <section class="nah-ip-section is-roles {{#if collapsed}}is-collapsed{{/if}}" data-ip-section="roles">
+      <h3 class="nah-ip-head" data-ip-toggle="roles" role="button" tabindex="0" aria-expanded="{{#if collapsed}}false{{else}}true{{/if}}">
+        <i class="fa-solid fa-user-tie"></i> <span>{{localize "NEONHOME.IP.RolesHead"}}</span>
+        <small>{{#if plural}}{{localize "NEONHOME.IP.RolesN" n=badges.length}}{{else}}{{localize "NEONHOME.IP.RoleOne"}}{{/if}}</small>
+        <i class="fa-solid fa-chevron-down nah-ip-chev"></i>
+      </h3>
+      <div class="nah-ip-fold">
+        {{#if badges.length}}
+        <div class="nah-ip-badges">
+          {{#each badges}}<span class="nah-ip-badge"><i class="{{icon}}"></i> {{name}} <b>{{localize "NEONHOME.IP.RankN" n=rank}}</b></span>{{/each}}
+        </div>
+        {{/if}}
+        <div class="nah-ip-grid">
+          {{#each cards}}{{> ipCard}}{{/each}}
+          {{#if add}}
+          <button type="button" class="nah-ip-card nah-ip-new {{#if add.locked}}is-locked{{/if}}" data-action="ipAddRole" {{#if add.locked}}disabled{{/if}} {{#unless @root.ip.owner}}disabled{{/unless}}>
+            <span class="nah-ip-card-icon"><i class="fa-solid {{#if add.locked}}fa-lock{{else}}fa-plus{{/if}}"></i></span>
+            <span class="nah-ip-card-body">
+              <b>{{#if add.first}}{{localize "NEONHOME.IP.Role.FirstHead"}}{{else}}{{localize "NEONHOME.IP.Role.Add"}}{{/if}}</b>
+              <small>{{add.status}}</small>
+            </span>
+          </button>
+          {{/if}}
+        </div>
+      </div>
+    </section>
+    {{/with}}
+
+    {{!-- ================= SKILLS ================= --}}
+    {{#each sections}}
+    <section class="nah-ip-section {{#if collapsed}}is-collapsed{{/if}}" data-ip-section="{{key}}">
+      <h3 class="nah-ip-head" data-ip-toggle="{{key}}" role="button" tabindex="0" aria-expanded="{{#if collapsed}}false{{else}}true{{/if}}">
+        <i class="{{icon}}"></i> <span>{{label}}</span>
+        <small>{{localize "NEONHOME.IP.CatSum" n=count total=total}}</small>
+        <i class="fa-solid fa-chevron-down nah-ip-chev"></i>
+      </h3>
+      <div class="nah-ip-fold">
+        <div class="nah-ip-grid">
+          {{#each cards}}{{> ipCard}}{{/each}}
+          {{#if @root.ip.owner}}
+          {{#each families}}
+          <button type="button" class="nah-ip-card nah-ip-new" data-action="ipAddSkill" data-family="{{key}}">
+            <span class="nah-ip-card-icon"><i class="{{icon}}"></i></span>
+            <span class="nah-ip-card-body"><b>{{localize "NEONHOME.IP.Add.New" kind=label}}</b><small>{{localize "NEONHOME.IP.Add.NewHint"}}</small></span>
+          </button>
+          {{/each}}
+          {{/if}}
+        </div>
+      </div>
+    </section>
+    {{/each}}
+  </div>
+
+  {{!-- ================= FOOTER ================= --}}
+  <footer class="nah-ip-footer">
+    <span class="nah-ip-sel"><i class="fa-solid fa-list-check"></i> {{localize "NEONHOME.IP.Selected"}} <b data-ip-count>{{selCount}}</b> &middot; <b data-ip-cost>0</b> IP{{#if canRefund}} &middot; {{localize "NEONHOME.IP.RefundOf"}} <b data-ip-back>0</b> IP{{/if}}</span>
+    <button type="button" class="nah-icon-btn nah-ip-top" data-action="ipTop" data-tooltip="{{localize 'NEONHOME.IP.Top'}}" aria-label="{{localize 'NEONHOME.IP.Top'}}"><i class="fa-solid fa-arrow-up"></i></button>
+    <button type="button" data-action="ipClear"><i class="fa-solid fa-eraser"></i> {{localize "NEONHOME.IP.Clear"}}</button>
+    {{#if canRefund}}<button type="button" data-action="ipRefund" {{#unless owner}}disabled{{/unless}}><i class="fa-solid fa-rotate-left"></i> {{localize "NEONHOME.IP.Refund"}}</button>{{/if}}
+    <button type="button" class="nah-cta" data-action="ipConfirm" {{#unless owner}}disabled{{/unless}}><i class="fa-solid fa-angles-up"></i> {{localize "NEONHOME.IP.Confirm.Button"}}</button>
+  </footer>
+</div>
+{{/with}}

@@ -115,6 +115,29 @@
       "DeckTab": {
         "Name": "Cyberdeck tab",
         "Hint": "The netrunner's quickhack suite (Cyberpunk: The Unification Era, Chapter 10): the deck they run, how it connects, and the Programs, quickhacks and Hardware slotted in it, Program-only and Hardware-only slots kept apart."
+      },
+      "SpendIp": {
+        "Name": "Spend IP",
+        "Hint": "A window for spending Improvement Points on Skills, Role Abilities and new Roles (and refunding them), with a character level, rank insignia and Threat Level read from what's been bought. Characters can add their own Languages, Sciences, Martial Arts and other Skills to it."
+      },
+      "IpRefund": {
+        "Name": "Players can refund IP",
+        "Hint": "Players can take levels back out of Skills and Role Abilities in Spend IP and get the IP back. Off: only the GM can."
+      },
+      "IpCompare": {
+        "Name": "Spend IP: Compare Skills",
+        "Hint": "Who a character can size up with Compare Skills (it takes Perception + INT of 6, and shows more the higher it is).",
+        "off": "Off",
+        "players": "Every player's character in the world",
+        "scene": "Every actor with a token in the current scene"
+      },
+      "IpSoundUp": {
+        "Name": "Spend IP: upgrade sound",
+        "Hint": "A sound to play when IP is spent (leave empty for none)."
+      },
+      "IpSoundRefund": {
+        "Name": "Spend IP: refund sound",
+        "Hint": "A sound to play when IP is refunded (leave empty for none)."
       }
     },
     "State": {
@@ -2381,6 +2404,215 @@
       "Help": "A crewmate helps (+1)",
       "Helped": "Helped: +1",
       "HelpTip": "A crewmate's good roll in a related Skill: +1 on the halfway check (once; it doesn't stack)."
+    },
+    "IP": {
+      "Title": "Spend IP",
+      "Short": "That takes {need} IP; there's {have} IP to spend.",
+      "Tagline": "Upgrade your systems. Burn the points, build your legend.",
+      "Available": "IP available",
+      "Level": "Character level",
+      "LevelN": "Level {n}",
+      "RankN": "Rank {n}",
+      "ToNext": "{have}/{need} IP to Level {next}",
+      "RankTip": "Rank insignia: a character level for every 1720 IP spent on Skills and Role Abilities.",
+      "Spent": "Total IP spent",
+      "Bought": "Levels bought",
+      "Best": "Highest skill",
+      "Experts": "Expert skills (6+)",
+      "Specialization": "Specialization",
+      "ThreatLevel": "Threat level",
+      "None": "None",
+      "Generalist": "Generalist",
+      "Avg": "avg {n}",
+      "Cat": {
+        "awarenessSkills": "Awareness Skills",
+        "bodySkills": "Body Skills",
+        "controlSkills": "Control Skills",
+        "educationSkills": "Education Skills",
+        "fightingSkills": "Fighting Skills",
+        "performanceSkills": "Performance Skills",
+        "rangedweaponSkills": "Ranged Weapon Skills",
+        "socialSkills": "Social Skills",
+        "techniqueSkills": "Technique Skills",
+        "other": "Other Skills"
+      },
+      "Nav": {
+        "roles": "Roles",
+        "awarenessSkills": "Awareness",
+        "bodySkills": "Body",
+        "controlSkills": "Control",
+        "educationSkills": "Education",
+        "fightingSkills": "Fighting",
+        "performanceSkills": "Performance",
+        "rangedweaponSkills": "Ranged",
+        "socialSkills": "Social",
+        "techniqueSkills": "Technique"
+      },
+      "Search": "Search skills…",
+      "RolesHead": "Role Abilities & Management",
+      "RolesN": "{n} Roles",
+      "RoleOne": "1 Role",
+      "CatSum": "{n} skills · {total} levels",
+      "Max": "Max level",
+      "CostN": "{n} IP",
+      "DifficultTip": "A Difficult Skill: twice the IP a level.",
+      "Selected": "Selected",
+      "RefundOf": "refund",
+      "Top": "Back to top",
+      "Clear": "Clear",
+      "Refund": "Refund IP",
+      "Confirm": {
+        "Button": "Confirm level up",
+        "up": "Confirm upgrades",
+        "refund": "Confirm refund",
+        "upAsk": "Spend IP on these?",
+        "refundAsk": "Refund these, one level each?",
+        "upTotal": "Total cost",
+        "refundTotal": "Total refund",
+        "Left": "({n} IP left after)"
+      },
+      "PickSome": "Pick at least one Skill or Role Ability that isn't at its max.",
+      "PickRefund": "Pick at least one Skill or Role Ability with a level to refund.",
+      "NoRefund": "Only the GM can refund IP in this world.",
+      "Ledger": {
+        "up": "Upgraded",
+        "refund": "Refunded",
+        "role": "New Role"
+      },
+      "Done": {
+        "up": "{n} upgrade(s) made.",
+        "refund": "{n} refund(s) made."
+      },
+      "Card": {
+        "up": "<b>{name}</b> upgraded <b>{what}</b> to <b>Level {level}</b>.",
+        "refund": "<b>{name}</b> refunded <b>{what}</b> to <b>Level {level}</b>.",
+        "role": "<b>{name}</b> took on a new Role: <b>{role}</b> ({ability} at Rank 1)."
+      },
+      "Haggle": "Haggle now matches Operator (Rank {n}).",
+      "Split": {
+        "Title": "Allocate points: {ability}",
+        "Hint": "Share out <b>{n}</b> points among {ability}'s abilities.",
+        "Placed": "Placed",
+        "Confirm": "Confirm allocation",
+        "Over": "You can place at most {n} points.",
+        "Under": "{n} point(s) still to place: every point goes somewhere.",
+        "Done": "Points placed for {role}."
+      },
+      "Role": {
+        "Title": "Choose a new Role",
+        "Tag": "Choose your path, define your legend.",
+        "Buy": "Purchase Role",
+        "ConfirmTitle": "Confirm Role purchase",
+        "ConfirmAsk": "Add <b>{role}</b> for <b>{n} IP</b>? Its Role Ability, {ability}, starts at Rank 1.",
+        "First": "Choose your starting Role ({n} IP)",
+        "FirstHead": "Choose starting Role",
+        "Add": "Add Role",
+        "Open": "Add a new Role ({n} IP)",
+        "Locked": "Every Role must be Rank 4 or higher first. Below it: {low}",
+        "All": "Every Role is taken.",
+        "Have": "The character already has that Role.",
+        "NotFound": "There's no {role} in the Roles compendium.",
+        "Added": "{role} added at Rank 1."
+      },
+      "Add": {
+        "Button": "Add skill",
+        "Title": "Add a skill",
+        "Kind": "Kind",
+        "Family": {
+          "language": "Language",
+          "science": "Science",
+          "localExpert": "Local Expert",
+          "martialArt": "Martial Art",
+          "playInstrument": "Instrument",
+          "custom": "Other skill"
+        },
+        "Specialty": "Which one",
+        "SpecialtyHint": "Pick from the list or type your own",
+        "Name": "Skill name",
+        "NameHint": "e.g. Xenobiology",
+        "Category": "Category",
+        "Stat": "STAT",
+        "Difficulty": "Difficulty",
+        "Confirm": "Add skill",
+        "NeedSpecialty": "Name the specialty first (Spanish, Karate, Chemistry…).",
+        "NeedName": "Name the skill first.",
+        "Have": "{skill} is already on the sheet.",
+        "Done": "{skill} added at Level 0.",
+        "NotOurs": "Only a skill added in Spend IP can be removed here.",
+        "Spent": "{skill} has levels in it: refund them first.",
+        "Remove": "Remove this skill",
+        "RemoveAsk": "Remove <b>{skill}</b> from the sheet?",
+        "New": "New {kind}",
+        "NewHint": "Add one at Level 0 to spend on"
+      },
+      "Pricing": {
+        "typical": "Typical (20 IP × level)",
+        "difficult": "Difficult (40 IP × level)"
+      },
+      "Rank": {
+        "gonk": "Gonk",
+        "wiredRookie": "Wired Rookie",
+        "boosted": "Boosted",
+        "edgerunner": "Edgerunner",
+        "wireburner": "Wireburner",
+        "chromehead": "Chromehead",
+        "bladed": "Bladed",
+        "soloClass": "Solo-Class",
+        "hardwired": "Hardwired",
+        "preemTier": "Preem Tier",
+        "edgerunnerElite": "Edgerunner Elite",
+        "afterlifeLegend": "Afterlife Legend"
+      },
+      "Threat": {
+        "minimal": "Minimal",
+        "low": "Low",
+        "moderate": "Moderate",
+        "high": "High",
+        "severe": "Severe",
+        "extreme": "Extreme"
+      },
+      "Find": {
+        "None": "No matches for \"{term}\".",
+        "Exact": "Found: {skill}",
+        "Partial": "Found: {skill} (partial match)",
+        "Many": "{n} matches: {skills}"
+      },
+      "Scan": {
+        "Button": "Compare skills",
+        "Tip": "Size up the other characters (Perception + INT 6 or more).",
+        "Title": "Compare Skills",
+        "Close": "Close analysis",
+        "Tag": "Analyzing visible targets in the area…",
+        "Off": "Compare Skills is off in this world.",
+        "TooLow": "Sizing others up takes Perception + INT of {n} (you have {have}).",
+        "None": {
+          "players": "No other player characters to compare with.",
+          "scene": "No other characters in this scene to compare with."
+        },
+        "You": "you",
+        "Scene": "Scene: {scene} | Characters detected: {n}",
+        "World": "World analysis | Characters detected: {n}",
+        "Perception": "Perception {total} (Skill {skill} + INT {int})",
+        "Depth": {
+          "none": "Insufficient",
+          "basic": "Basic threat analysis",
+          "detailed": "Detailed evaluation",
+          "expert": "Expert assessment",
+          "perfect": "Perfect analysis"
+        },
+        "Order": {
+          "bought": "ranked by levels bought",
+          "threat": "ranked by threat",
+          "random": "in no particular order"
+        },
+        "LegendTitle": "Perception analysis levels",
+        "Legend": {
+          "basic": "<b>6–9:</b> threat only, in no particular order",
+          "detailed": "<b>10–14:</b> + levels bought and character level, ranked by threat",
+          "expert": "<b>15–17:</b> + highest skill, ranked by levels bought",
+          "perfect": "<b>18+:</b> everything, specialization too"
+        }
+      }
     }
   }
 }

@@ -16,6 +16,20 @@ From a review of *Cyberpunk: The Unification Era*'s Core Rules against the rest 
 - **Cyberdeck**: a **Narrative Quickhack** roll (Interface against the job's DV, with the area's Security or Utility Code and a watching Netrunner or Demon), and the **Vehicle ICE** in the Netrunning Gear compendium (Counterhack Protocol, as it's called now).
 - **Perks**: Cartophilist is gone with Elflines Online; Elementary's focus trains +2 a week.
 
+**Spend IP**, a window of its own (the *Spend IP* macro, Character Level Up 2.4.2, built in):
+
+- Buy Skill levels, Role Ability Ranks and new Roles with Improvement Points, many at once, and
+  refund them: the cost from the current level (20 IP × level, Difficult ×2, Role Abilities 60),
+  the IP ledger, a chat card each. A new Role needs every Role at Rank 4; Combat Awareness,
+  Medicine and Maker points are shared out again after a Rank changes, and Haggle follows Operator.
+- A dossier: character level every 1720 IP spent with its rank insignia, IP spent, levels bought,
+  highest skill, experts, specialization, Threat Level, levels by category.
+- **New skills**: a Language, Science, Local Expert, Martial Art or Instrument (suggested, or your
+  own), or any skill of your own, at Level 0 to spend on.
+- Category jumps, folding, search; **Compare Skills** by Perception + INT.
+- Settings: on or off, players' refunds, Compare Skills (players, scene, off), upgrade and refund
+  sounds. Buttons in the sheet header and the Actors sidebar; `api.spendIp()` and friends.
+
 ## 1.9.0
 
 - **Deep Dive** (*Cyberpunk: The Unification Era*, Chapter 10, Part 2), a window of its own opened from the Cyberdeck tab (and, for the GM, a **Deep Dive** button in the Actors sidebar). A netrunner jacks in to a NET Architecture with a cooling rig (an Ice Bath safe for an hour, a Netrunning Chair for 8, an Immersion Cradle indefinitely with +1 to Interface Checks), loudly or as a Ghost (one more NET Action, Cloak against the Demon watching). The architecture draws as a map that lights up as they go: the floors they've been on, the door below, and what Pathfinder has mapped, linked by glowing lines, the rest unknown. A HUD shows their NET Actions this Turn (+1 for immersion), stealth, the rig's safe time and their HP.

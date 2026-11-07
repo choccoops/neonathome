@@ -1,4 +1,4 @@
-# Neon At Home: Loadout, Cyberdeck, Deep Dive, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor & Perk Tree for Cyberpunk RED
+# Neon At Home: Loadout, Cyberdeck, Deep Dive, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor, Perk Tree & Spend IP for Cyberpunk RED
 
 A home suite for each character in **Cyberpunk RED - CORE** on Foundry VTT: one window, opened
 from the character sheet, with a tab for each part of their home, and the **Biomonitor** in a
@@ -61,12 +61,13 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
 
 ## Opening it
 
-- The **Home**, **Biomonitor** and **Perks** buttons in a character sheet's header (owners and the GM).
-- The **Home**, **Biomonitor** and **Perks** buttons at the top of the Actors sidebar.
+- The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons in a character sheet's header (owners and the GM).
+- The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons at the top of the Actors sidebar
+  (Spend IP opens on the selected token's character, if it's yours).
 - The house button in the Token Controls toolbar.
 - **Go home** on the chat card players get when downtime starts.
 - A macro, or a Neon Hub page button running one: `game.modules.get("cpr-neon-at-home").api.open()`
-  (or `.biomonitor()`, `.perkTree()`).
+  (or `.biomonitor()`, `.perkTree()`, `.spendIp()`).
 
 Players see their own characters; the GM can pick anyone from the list in the header.
 
@@ -617,6 +618,37 @@ Specialty and Free City.
   creation, recount Role ranks from now, grant a perk (with or without its points), and refund a
   perk, refund it for good, or take it away with its points.
 
+## Spend IP
+
+Improvement Points into Skills, Role Abilities and new Roles, in a window of its own, working as
+the *Spend IP* macro (Character Level Up 2.4.2) does:
+
+- **The dossier.** The IP to spend; a **character level** for every 1720 IP spent (worked out from
+  what's been bought) with its progress bar and **rank insignia**, Gonk to Afterlife Legend; total
+  IP spent, levels bought, highest skill, expert skills (6+), **specialization** (the category
+  with the most levels) and **Threat Level** (combat skills and Role Ranks, Solo heaviest); and
+  each category's levels (hover for their averages).
+- **Buying.** Every Skill and Role Ability is a card: its level as pips, what the next costs (20 IP
+  × the level, 40 for a Difficult Skill, 60 a Role Ability Rank), and a line on what it's for.
+  Pick as many as you like (the footer adds them up, red when it's more than there is), then
+  **Confirm level up**: one level each, the IP out through Cyberpunk RED's ledger, a chat card
+  for each. **Refund IP** takes one level back off each pick and returns its IP (the GM can keep
+  refunds to themselves).
+- **Roles.** A new Role at Rank 1 for 60 IP, from Cyberpunk RED's Roles compendium, once every
+  Role the character has is at Rank 4 (or as their first). After a Solo's, Medtech's or Tech's
+  Rank changes, the player shares the points out among its abilities again (every point placed);
+  a Fixer's Haggle follows Operator.
+- **New skills.** Add a **Language**, **Science**, **Local Expert**, **Martial Art** or
+  **Instrument** (pick from the list or type your own), or any skill of your own (its name,
+  category, STAT and whether it's Difficult), at Level 0 to spend on. Ones Cyberpunk RED's
+  compendiums have come from there; Martial Arts are always Difficult. A skill added here can be
+  taken off again while it has no levels.
+- **Finding things.** Jump to a category, fold categories away, search (Enter goes to the
+  matches and lights them up).
+- **Compare Skills.** Size up every player's character (or everyone in the scene), as far as
+  Perception + INT reads them: 6 for their threat, 10 for levels and character level (ranked by
+  threat), 15 for their best skill (ranked by levels bought), 18 for their specialization.
+
 ## Item settings (GM)
 
 Every item sheet has a **Home** button for the GM, with Neon At Home's settings for that item:
@@ -644,6 +676,8 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
   **Lost hands drop what they hold**, **Lost limbs drop their cyberware**.
 - **Salvage tables**: 2045 or 2070, or Neon Hub's lifestyle era (automatic).
 - **Perk Tree**: the Perk System and its window, buttons and Downtime training.
+- **Spend IP**, **Players can refund IP**, **Compare Skills** (every player's character, the
+  scene, or off), and an **upgrade** and **refund sound**.
 - **Cyberdeck tab**: the netrunner's quickhack suite, and the Deep Dive.
 - **Downtime tab**, and what's only done in downtime: **Home stash**, **Weaponbench and armor
   upgrades**, **Vehicle Bay changes**, **Maintenance and repairs**.
@@ -677,6 +711,11 @@ home.perkTree(actor);               // open the Perk Tree
 home.perks(actor);                  // { owned, awards, points: { total, spent, available } }
 home.buyPerk(actor, "decentShape"); // buy a perk (GM: { force, free })
 home.awardPerkPoints(actor, 1, "Avenged the family"); // GM
+home.spendIp(actor);                // open Spend IP
+home.ipSummary(actor);              // { ip, spent, level, rank, bought, best, experts, special, threat, ... }
+home.upgradeIp(actor, [skillId, roleId]); // one level each, no questions asked (refundIp too)
+home.addRole(actor, "netrunner");   // a new Role at Rank 1 for 60 IP
+home.addSkill(actor, { family: "martialArt", specialty: "Karate" }); // or { name, category, stat, difficulty }
 home.show("loadout");               // GM: open it on every player's screen
 home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }

@@ -38,7 +38,7 @@ const page = (title, body, { width = 1220, height = 840, cls = "" } = {}) => `<!
   .window-content > * { flex: 1; min-height: 0; }
   nav.preview { margin-bottom: 12px; font: 13px Signika, sans-serif; } nav.preview a { color: #05d9e8; margin-right: 12px; }
 </style></head><body>
-<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="downtime-synth.html">Downtime: Cook</a><a href="downtime-drug-invent.html">Downtime: Drug invention</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="deck.html">Cyberdeck</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="dive.html">Deep Dive</a><a href="dive-architect.html">Dive: Architect</a><a href="rules.html">Rules</a></nav>
+<nav class="preview"><a href="loadout.html">Loadout</a><a href="bay.html">Vehicle Bay</a><a href="biomonitor.html">Biomonitor</a><a href="cyberware.html">Cyberware</a><a href="bench.html">Weaponbench</a><a href="maintenance.html">Maintenance</a><a href="maintenance-rent.html">Maintenance (Rent Day)</a><a href="downtime.html">Downtime</a><a href="downtime-fab.html">Downtime: Fabricate</a><a href="downtime-projects.html">Downtime: Projects</a><a href="downtime-salvage.html">Downtime: Salvage</a><a href="downtime-strip.html">Downtime: Strip</a><a href="downtime-synth.html">Downtime: Cook</a><a href="downtime-drug-invent.html">Downtime: Drug invention</a><a href="item-config.html">Item config</a><a href="blueprint-config.html">Blueprint config</a><a href="deck.html">Cyberdeck</a><a href="perks.html">Perk Tree</a><a href="perks-general.html">Perks: General</a><a href="perks-role.html">Perks: Role</a><a href="dive.html">Deep Dive</a><a href="dive-architect.html">Dive: Architect</a><a href="spend-ip.html">Spend IP</a><a href="rules.html">Rules</a></nav>
 <div class="application neon-home ${cls}"><header class="window-header"><i class="window-icon fa-solid fa-house-chimney-window"></i><h1>${title}</h1><i class="fa-solid fa-xmark"></i></header>
 <section class="window-content">${art(body)}</section></div>
 <script>
@@ -232,6 +232,35 @@ game.modules.delete("cpr-neon-hub");
   await writeFile(path.join(out, "downtime-synth.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
   app.uiState.downtime = { action: "invent", params: { invent: { domain: "pharma", tier: "complex", name: "Steadyhand" } } };
   await writeFile(path.join(out, "downtime-drug-invent.html"), page(`Neon At Home: ${actor.name}`, render("shell.hbs", await app._prepareContext())));
+}
+// Spend IP: a Solo / Medtech with a spread of skills, a few picked, Control folded away
+{
+  const { SpendIPApp } = await import("../scripts/apps/spend-ip-app.js");
+  const { SpendIP } = await import("../scripts/apps/spend-ip.js");
+  const { makeActor } = await import("../tests/helpers/foundry.mjs");
+  const S = (name, level, category, difficulty = "typical") => ({ name, type: "skill", system: { level, category, difficulty, stat: "int" } });
+  const ipActor = makeActor({ name: "Kestrel", type: "character", system: { stats: { int: { value: 7 } }, improvementPoints: { value: 240, transactions: [] } } }, [
+    S("Concentration", 2, "awarenessSkills"), S("Perception", 6, "awarenessSkills"), S("Athletics", 4, "bodySkills"), S("Stealth", 5, "bodySkills"),
+    S("Drive Land Vehicle", 3, "controlSkills"), S("Education", 2, "educationSkills"), S("Language (Streetslang)", 4, "educationSkills"),
+    S("Local Expert (Watson)", 3, "educationSkills"), { ...S("Language (Spanish)", 0, "educationSkills"), flags: { "cpr-neon-at-home": { customSkill: true } } },
+    S("Brawling", 5, "fightingSkills"), S("Evasion", 7, "fightingSkills"), S("Martial Arts (Karate)", 2, "fightingSkills", "difficult"),
+    S("Handgun", 10, "rangedweaponSkills"), S("Shoulder Arms", 6, "rangedweaponSkills"), S("Autofire", 3, "rangedweaponSkills", "difficult"),
+    S("Human Perception", 2, "socialSkills"), S("Streetwise", 4, "socialSkills"), S("First Aid", 4, "techniqueSkills"), S("Paramedic", 2, "techniqueSkills", "difficult"),
+    { name: "Solo", type: "role", system: { rank: 5, mainRoleAbility: "Combat Awareness", abilities: [] } },
+    { name: "Medtech", type: "role", system: { rank: 2, mainRoleAbility: "Medicine", abilities: [] } }
+  ]);
+  const win = new SpendIPApp();
+  win.actorId = ipActor.id;
+  const pick = (n) => ipActor.items.find((i) => i.name === n).id;
+  win.uiState.ip = { sel: [pick("Stealth"), pick("Martial Arts (Karate)")], collapsed: ["controlSkills"], search: "" };
+  // the window's own listeners (picking, folding, searching), run on the static page
+  const src = SpendIP.onRender.toString();
+  const live = `<script>
+    const L = (k, d) => k + (d ? " " + JSON.stringify(d) : ""); const ui = { notifications: { info: console.log, warn: console.log } };
+    const onRender = ({ ${src} }).onRender;
+    onRender({ uiState: ${JSON.stringify({ ip: win.uiState.ip })} }, document.querySelector(".nah-feature"));
+  </script>`;
+  await writeFile(path.join(out, "spend-ip.html"), page(`Spend IP: ${ipActor.name}`, render("shell.hbs", await win._prepareContext()), { width: 1080, height: 880 }).replace("</body>", `${live}</body>`));
 }
 const cfg = new ItemConfig(actor.items.get("ammoBag00000000a"));
 await writeFile(path.join(out, "item-config.html"), page("Neon At Home: Ammo bag", render("item-config.hbs", await cfg._prepareContext()), { width: 560, height: 760, cls: "nah-config" }));
