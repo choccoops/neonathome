@@ -114,6 +114,42 @@ export const UPGRADES = {
   invented: { apply: null }
 };
 
+/**
+ * Invented Tech Upgrades (TUps, Chapter 12): installing one costs the item's own category in
+ * materials (Cost #1) plus its heat (Cost #2, a kit bought for the heat's price), at the heat's DV.
+ */
+export const HEAT = {
+  mild: { eb: 100, dv: 17 },
+  medium: { eb: 500, dv: 21 },
+  hot: { eb: 1000, dv: 24 },
+  extraHot: { eb: 5000, dv: 29 },
+  diablo: { eb: 10000, dv: 29 }
+};
+
+/** Taking Less Time (Chapter 02): Hurrying is −4, Rushing −8. */
+export const PACE = { normal: { penalty: 0, steps: 0 }, hurry: { penalty: -4, steps: 1 }, rush: { penalty: -8, steps: 2 } };
+
+/**
+ * A Maker job's time when Hurried or Rushed: one Price Category lower a step (two for Rushing);
+ * below Cheap/Everyday a fifth or a tenth; a job of several months halves its months (round up) a
+ * step, and a one-month job drops to two weeks.
+ */
+export function pacedMinutes(minutes, pace = "normal") {
+  const steps = PACE[pace]?.steps ?? 0;
+  if (!steps) return minutes;
+  const LADDER = [60, 360, 1440, 10080, 20160, 43200];
+  let m = minutes;
+  for (let i = 0; i < steps; i++) {
+    if (m > 43200) m = Math.ceil(m / 43200 / 2) * 43200;
+    else {
+      const at = LADDER.indexOf(m);
+      if (at > 0) m = LADDER[at - 1];
+      else return Math.max(1, Math.round(minutes / (steps === 1 ? 5 : 10)));
+    }
+  }
+  return m;
+}
+
 /** Invention: the GM sets the price category, Expensive at the lowest. */
 export const INVENT_CATEGORIES = ["expensive", "veryExpensive", "luxury", "superLuxury"];
 

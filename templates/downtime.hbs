@@ -114,9 +114,28 @@
         <ul class="nah-dt-jobs">
           {{#each workshop.broken}}
           <li data-item-id="{{id}}" {{#if stash}}data-holder="stash"{{/if}}><img src="{{img}}" alt=""><span><b>{{name}}</b><small>{{#if stash}}<i class="fa-solid fa-box-archive"></i> {{localize "NEONHOME.Downtime.InStash"}} &middot; {{/if}}{{skill}} &middot; DV{{dv}} &middot; {{time}}</small></span>
-            <button type="button" data-action="dtWork" data-mode="repair" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-toolbox"></i> {{#if pct}}{{localize "NEONHOME.Project.CarryOn" pct=pct}}{{else}}{{localize "NEONHOME.Maint.Do.repair"}}{{/if}}</button></li>
+            <button type="button" data-action="dtWork" data-mode="repair" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-toolbox"></i> {{#if pct}}{{localize "NEONHOME.Project.CarryOn" pct=pct}}{{else}}{{localize "NEONHOME.Maint.Do.repair"}}{{/if}}</button>
+            <button type="button" data-action="dtWork" data-mode="shopItem" data-tooltip="{{localize 'NEONHOME.Workshop.ShopTip'}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-shop"></i> {{labor}}</button></li>
           {{else}}<li class="nah-hint">{{localize "NEONHOME.Downtime.NothingBroken"}}</li>{{/each}}
         </ul>
+        <h4>{{localize "NEONHOME.Workshop.Ablated"}}</h4>
+        <ul class="nah-dt-jobs">
+          {{#each workshop.ablated}}
+          <li data-item-id="{{id}}" {{#if stash}}data-holder="stash"{{/if}}><img src="{{img}}" alt=""><span><b>{{name}}</b><small>SP {{sp}} &middot; Basic Tech &middot; DV{{dv}} &middot; {{time}}</small></span>
+            <button type="button" data-action="dtWork" data-mode="armor" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-shield-halved"></i> {{#if pct}}{{localize "NEONHOME.Project.CarryOn" pct=pct}}{{else}}{{localize "NEONHOME.Workshop.FullSp"}}{{/if}}</button>
+            <button type="button" data-action="dtWork" data-mode="shopArmor" data-tooltip="{{localize 'NEONHOME.Workshop.ShopTip'}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-shop"></i> {{labor}}</button></li>
+          {{else}}<li class="nah-hint">{{localize "NEONHOME.Workshop.NoAblated"}}</li>{{/each}}
+        </ul>
+        {{#if workshop.vehicles.length}}
+        <h4>{{localize "NEONHOME.Workshop.Vehicles"}}</h4>
+        <ul class="nah-dt-jobs">
+          {{#each workshop.vehicles}}
+          <li data-vehicle="{{uuid}}"><img src="{{img}}" alt=""><span><b>{{name}}</b><small>SDP {{sdp}} &middot; {{state}} &middot; DV{{dv}} &middot; {{time}}</small></span>
+            <button type="button" data-action="dtWork" data-mode="vehicle" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-wrench"></i> {{#if pct}}{{localize "NEONHOME.Project.CarryOn" pct=pct}}{{else}}{{localize "NEONHOME.Maint.Do.repair"}}{{/if}}</button>
+            <button type="button" data-action="dtWork" data-mode="shopVehicle" data-tooltip="{{localize 'NEONHOME.Workshop.ShopTip'}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-shop"></i> {{labor}}</button></li>
+          {{/each}}
+        </ul>
+        {{/if}}
       </div>
       {{/if}}
 
@@ -135,6 +154,7 @@
             <span>{{done}} / {{total}}</span>
           </div>
           <footer>
+            {{#if canHelp}}<button type="button" class="{{#if help}}nah-primary{{/if}}" data-action="dtProjHelp" data-on="{{#if help}}0{{else}}1{{/if}}" data-tooltip="{{localize 'NEONHOME.Maker.HelpTip'}}"><i class="fa-solid fa-handshake-angle"></i> {{#if help}}{{localize "NEONHOME.Maker.Helped"}}{{else}}{{localize "NEONHOME.Maker.Help"}}{{/if}}</button>{{/if}}
             {{#if checkDue}}<button type="button" class="nah-primary" data-action="dtProjRoll" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-dice-d10"></i> {{localize "NEONHOME.Project.Roll"}}</button>{{/if}}
             {{#each steps}}<button type="button" data-action="dtProjWork" data-minutes="{{minutes}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-regular fa-clock"></i> {{label}}</button>{{/each}}
             {{#if noTime}}<small class="nah-hint">{{localize "NEONHOME.Project.NoTime"}}</small>{{/if}}

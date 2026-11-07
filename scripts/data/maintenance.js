@@ -81,6 +81,41 @@ export function repairOf(price, vehicle = false) {
   return { dv: 9, minutes: 60, time: "1h" };
 }
 
+/** Shop labor in 2070 (Chapter 12), by Price Category: a shop does the repair instead of a Check. */
+export const SHOP_LABOR = { cheap: 10, everyday: 10, costly: 20, premium: 50, expensive: 200, veryExpensive: 400, luxury: 1000, superLuxury: 2000 };
+
+/** Shop labor for an item worth this much. */
+export const shopLabor = (price) => SHOP_LABOR[PRICE_CATEGORIES[Math.max(0, priceCategory(price))].key];
+
+/**
+ * Vehicle Repair (Chapter 11): lost SDP back by how bad it is, with the Vehicle Tech Skill for the
+ * ride; shop labor 50 / 100 / 500eb.
+ * @returns {{state: string, dv: number, minutes: number, labor: number}|null} null at full SDP
+ */
+export function vehicleRepair(hp, max) {
+  const v = Number(hp) || 0;
+  const m = Number(max) || 0;
+  if (!m || v >= m) return null;
+  if (v <= 0) return { state: "destroyed", dv: 17, minutes: 10080, labor: 500 };
+  if (v < m / 2) return { state: "half", dv: 13, minutes: 1440, labor: 100 };
+  return { state: "below", dv: 9, minutes: 180, labor: 50 };
+}
+
+/**
+ * Armor that's lost SP (or a shield its HP) waits for a repair (Chapter 12): back to full, at the
+ * Item Repair table's DV and time for its price, Basic Tech, no materials.
+ * @returns {{dv, minutes, time, labor}|null} null when it's whole
+ */
+export function armorRepair(item) {
+  if (item?.type !== "armor") return null;
+  const s = item.system ?? {};
+  const worn = (Number(s.bodyLocation?.ablation) || 0) > 0 || (Number(s.headLocation?.ablation) || 0) > 0
+    || (s.isShield && (Number(s.shieldHitPoints?.value) || 0) < (Number(s.shieldHitPoints?.max) || 0));
+  if (!worn) return null;
+  const price = Number(s.price?.market) || 0;
+  return { ...repairOf(price), labor: shopLabor(price) };
+}
+
 /** The tier a piece of gear needs: its value against the table (drones and vehicles have their own). */
 export function tierOf(price, vehicleLike = false) {
   const p = Math.max(0, Number(price) || 0);
@@ -187,7 +222,7 @@ export function rolesOf(items) {
 
 /**
  * Roles that count their Lifestyle a level higher for some gear: Techs for anything, Solos and
- * Lawmen for weapons and armor, Netrunners for cyberdecks, bodyweight suits and VR goggles, Medias
+ * Gangers (2070; Lawmen in 2045) for weapons and armor, Netrunners for cyberdecks, bodyweight suits and VR goggles, Medias
  * for cameras and microphones, Rockerboys for instruments, microphones and amps.
  * @returns {string|null} the role that gives the bonus
  */
@@ -195,7 +230,7 @@ export function roleBonus(roles, kind, item) {
   const n = name(item);
   const has = (r) => roles.includes(r);
   if (has("tech")) return "tech";
-  if ((has("solo") || has("lawman")) && (kind === "weapon" || kind === "armor")) return has("solo") ? "solo" : "lawman";
+  if ((has("solo") || has("ganger") || has("lawman")) && (kind === "weapon" || kind === "armor")) return has("solo") ? "solo" : has("ganger") ? "ganger" : "lawman";
   if (has("netrunner") && (kind === "cyberdeck" || /bodyweight|virtuality|\bvr\b/.test(n))) return "netrunner";
   if (has("media") && /camera|microphone|\bmic\b|recorder|audio ?link|scrambler/.test(n)) return "media";
   if (has("rockerboy") && /instrument|guitar|\bbass\b|drum|keyboard|synth|\bamps?\b|amplifier|microphone|\bmic\b/.test(n)) return "rockerboy";

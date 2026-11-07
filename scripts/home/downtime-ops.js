@@ -426,6 +426,22 @@ export const DowntimeOps = {
     }
     if (op === "humanity") return CPR.changeHumanity(patient, Math.max(0, Math.floor(Number(amount) || 0)), reason);
     if (op === "humanityLoss") return CPR.changeHumanity(patient, -Math.max(0, Math.floor(Number(amount) || 0)), reason);
+    if (op === "repairArmor") {
+      const it = patient.items.get(item);
+      if (!it) return 0;
+      const s = it.system ?? {};
+      const update = {};
+      if (s.bodyLocation) update["system.bodyLocation.ablation"] = 0;
+      if (s.headLocation) update["system.headLocation.ablation"] = 0;
+      if (s.shieldHitPoints) update["system.shieldHitPoints.value"] = Number(s.shieldHitPoints.max) || 0;
+      await it.update(update);
+      return 0;
+    }
+    if (op === "repairVehicle") {
+      const max = Number(patient.system?.derivedStats?.hp?.max) || 0;
+      if (max) await patient.update({ "system.derivedStats.hp.value": max });
+      return 0;
+    }
     if (op === "repair") {
       const it = patient.items.get(item);
       if (!it) return 0;
@@ -452,7 +468,7 @@ export const DowntimeOps = {
     const patient = await fromUuid(patientUuid);
     if (!doctor || !patient) throw new Error(L("NEONHOME.Error.NotFound"));
     if (!doctor.testUserPermission(user, "OWNER")) throw new Error(L("NEONHOME.Error.NoPermission"));
-    if (!["deleteInjury", "humanity", "humanityLoss", "repair"].includes(change?.op)) throw new Error("Not allowed");
+    if (!["deleteInjury", "humanity", "humanityLoss", "repair", "repairArmor", "repairVehicle"].includes(change?.op)) throw new Error("Not allowed");
     return this._applyPatient(patient, change);
   }
 };

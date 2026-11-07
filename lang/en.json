@@ -853,7 +853,8 @@
         "lawman": "Lawman",
         "netrunner": "Netrunner",
         "media": "Media",
-        "rockerboy": "Rockerboy"
+        "rockerboy": "Rockerboy",
+        "ganger": "Ganger"
       },
       "Time": {
         "30m": "30 minutes",
@@ -1362,7 +1363,8 @@
         "upgrade": "<b>{name}</b> finishes upgrading <b>{item}</b>.",
         "upgradeNoted": "<b>{name}</b> finishes upgrading <b>{item}</b>; the GM applies what it does.",
         "invent": "<b>{name}</b> has a working design ({category}): <b>{blueprint}</b>. The GM writes up how it works; Fabrication or Upgrade makes it real.",
-        "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again."
+        "repair": "<b>{name}</b> finishes repairing <b>{item}</b>: it works again.",
+        "armor": "<b>{name}</b> brings <b>{item}</b> back to full SP."
       },
       "Abandoned": "<b>{name}</b> gives up on <b>{label}</b>.",
       "NoMaterials": "no materials",
@@ -1379,7 +1381,11 @@
       "Minutes": "Minutes",
       "UnderWay": "Already under way",
       "CarryOnThere": "Carry on in Projects",
-      "StartIsNew": "Starting here begins a new project."
+      "StartIsNew": "Starting here begins a new project.",
+      "ArmorLabel": "Repairing {item}'s SP",
+      "VehicleLabel": "Repairing {item}'s SDP",
+      "ShopLabel": "Shop labor: {item}",
+      "Shopped": "<b>{name}</b> pays a shop {eb} to fix <b>{item}</b>."
     },
     "Materials": {
       "Have": "{materials} (has {have})",
@@ -2304,6 +2310,57 @@
       "Base": "Original EMP × 10",
       "FreshFood": "Fresh Food",
       "EffectName": "Maximum Humanity (2070)"
+    },
+    "Workshop": {
+      "Ablated": "Armor that's lost SP",
+      "NoAblated": "No armor waiting for a repair.",
+      "FullSp": "Repair to full SP",
+      "Vehicles": "Vehicles below full SDP",
+      "Vehicle": {
+        "below": "below full",
+        "half": "below half",
+        "destroyed": "Destroyed"
+      },
+      "ShopTip": "Take it to a shop: pay the labor and it comes back fixed."
+    },
+    "Iconic": {
+      "Section": "Iconic",
+      "Is": "An Iconic (one of a kind)",
+      "TechUpgrade": "Its Tech Upgrade is used (a TUp on its card)",
+      "Hint": "An Iconic can't be Destroyed unless its owner agrees beforehand (it's Damaged instead), and a Tech fabricates one only from its Iconic Blueprint. An item gets one Tech Upgrade, ever: a TUp listed on its card has already used it.",
+      "Ask": "<b>{item}</b> is Iconic: it can't be Destroyed unless {name} agreed beforehand. Did they? (No: it's Damaged instead.)",
+      "NeedBlueprint": "{item} is an Iconic: it's built only from its Iconic Blueprint."
+    },
+    "Maker": {
+      "Field": {
+        "pace": "Pace",
+        "heat": "The TUp's heat",
+        "kit": "Its kit (Cost #2)"
+      },
+      "Pace": {
+        "normal": "Normal time",
+        "hurry": "Hurry it (−4)",
+        "rush": "Rush it (−8)"
+      },
+      "Fact": {
+        "pace": "Hurried",
+        "kit": "Kit (Cost #2)"
+      },
+      "PaceFact": "{time}, {n} on the halfway check. A failure can go wrong in style, and trying again takes twice the time.",
+      "Heat": {
+        "mild": "Mild",
+        "medium": "Medium",
+        "hot": "Hot",
+        "extraHot": "Extra Hot",
+        "diablo": "Diablo"
+      },
+      "HaveKit": "Have the kit already",
+      "BuyKit": "Buy the kit",
+      "KitLedger": "TUp kit ({heat})",
+      "Complementary": "Complementary Check",
+      "Help": "A crewmate helps (+1)",
+      "Helped": "Helped: +1",
+      "HelpTip": "A crewmate's good roll in a related Skill: +1 on the halfway check (once; it doesn't stack)."
     }
   }
 }

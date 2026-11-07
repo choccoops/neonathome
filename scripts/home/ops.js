@@ -612,10 +612,20 @@ export const HomeOps = {
    * lost limb. Damaged gear still works but can malfunction; the GM can keep that from the players.
    * @param {object} [opts] - { hidden, cause }
    */
-  async setCondition(actor, itemId, condition, { hidden = null, cause = null } = {}) {
+  async setCondition(actor, itemId, condition, { hidden = null, cause = null, ownerAgreed = null } = {}) {
     if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Cyber.GMOnly"));
     const item = actor.items.get(itemId);
     if (!item) return;
+    // an Iconic can't be Destroyed (or Beyond Repair) unless its owner agreed beforehand: Damaged instead
+    if ((condition === "destroyed" || condition === "dbr") && item.getFlag(MODULE_ID, "iconic")) {
+      const agreed = ownerAgreed ?? await Compat.DialogV2.confirm({
+        window: { title: L("NEONHOME.Iconic.Section"), icon: "fa-solid fa-crown" },
+        content: `<p>${L("NEONHOME.Iconic.Ask", { name: esc(actor.name), item: esc(item.name) })}</p>`,
+        classes: ["neon-home-dialog"],
+        rejectClose: false
+      });
+      if (!agreed) condition = "damaged";
+    }
     const flag = itemFlag(item.toObject(), MODULE_ID);
     if (flag.condition === condition && hidden === null && cause === null) return;
     const patch = { condition };
