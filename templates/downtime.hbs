@@ -67,6 +67,7 @@
           {{#if number}}<input type="number" data-dt-field="{{name}}" value="{{value}}" min="{{min}}" max="{{max}}">{{/if}}
           {{#if text}}<input type="text" data-dt-field="{{name}}" value="{{value}}">{{/if}}
           {{#if textarea}}<textarea data-dt-field="{{name}}" rows="4">{{value}}</textarea>{{/if}}
+          {{#if checks}}<div class="nah-dt-checks">{{#each options}}<label><input type="checkbox" data-dt-check="{{../name}}" value="{{value}}" {{#if checked}}checked{{/if}}> {{label}}</label>{{/each}}</div>{{/if}}
           {{#if pick}}{{#with pick}}<div class="nah-timepick {{#if over}}is-over{{/if}}" data-max="{{max}}" data-value="{{value}}" data-max-label="{{maxLabel}}" {{#if name}}data-field="{{name}}"{{/if}}>
             <input type="range" min="0" max="{{max}}" step="15" value="{{value}}" data-tp-range aria-label="{{localize 'NEONHOME.Project.Pick'}}">
             <span class="nah-tp-boxes">
@@ -179,6 +180,7 @@
       {{/if}}
 
       {{#if blocked}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-circle-exclamation"></i> {{blocked}}</p>{{/if}}
+      {{#if whoTurnsUp}}<div class="nah-maint-actions"><button type="button" data-action="dtWhoTurnsUp"><i class="fa-solid fa-people-group"></i> {{localize "NEONHOME.Salvage.WhoTurnsUp"}}</button></div>{{/if}}
       {{#if blueprintPiece}}<div class="nah-maint-actions"><button type="button" data-action="dtBlueprintPiece" data-item="{{blueprintPiece}}" {{#unless @root.dt.can}}disabled{{/unless}}><i class="fa-solid fa-scroll"></i> {{localize "NEONHOME.Medtech.BlueprintIt"}}</button></div>{{/if}}
       {{#unless @root.dt.can}}<p class="nah-maint-note nah-locked"><i class="fa-solid fa-mug-hot"></i> {{localize "NEONHOME.Downtime.Only.actions"}}</p>{{/unless}}
       {{#unless workshop}}{{#unless projects}}

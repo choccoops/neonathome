@@ -126,7 +126,7 @@ test("over capacity is flagged and wouldFit checks a change", () => {
 
 test("armor upgrades: class, location, requirements and slots", () => {
   const neuro = upgrade("Neuro-port", { upgrade: { key: "neuroport", location: "head", classes: ["flak", "metalgear"] } }, { size: 3 });
-  const ai = upgrade("AI Armor Interface", { upgrade: { key: "aiInterface", location: "head", classes: ["flak", "metalgear"], requires: "neuroport" } }, { size: 3 });
+  const ai = upgrade("Targeting Link", { upgrade: { key: "targetLink", location: "head", classes: ["flak", "metalgear"], requires: "neuroport" } }, { size: 3 });
   const knife = upgrade("Combat Knife", { upgrade: { key: "combatKnife", location: "body", classes: ["light", "medium", "heavy"] } });
   const helmet = armor("Flak (Head)", { sp: 15, head: true, list: [] });
   const items = [helmet, neuro, ai, knife];
@@ -138,14 +138,16 @@ test("armor upgrades: class, location, requirements and slots", () => {
   assert.equal(canInstallUpgrade(h, neuro, M).ok, true);
   helmet.system.installedItems.list = [neuro._id];
   const h2 = computeLoadout(items, rules, M).armors[0];
-  assert.equal(h2.upgradesUsed, 3);
+  assert.equal(h2.upgradesUsed, 1, "one slot each, whatever the item's own size (2070)");
   assert.equal(canInstallUpgrade(h2, ai, M).ok, true);
   assert.equal(canInstallUpgrade(h2, neuro, M).reason, "duplicate");
   const light = computeLoadout([armor("Light Armorjack (Body)", { sp: 11 }), knife], rules, M).armors[0];
   const flex = upgrade("Improved Flexibility", { upgrade: { key: "flex", location: "body", classes: ["medium", "heavy"] } }, { size: 3 });
   assert.equal(canInstallUpgrade(light, flex, M).reason, "class");
-  const big = upgrade("Big", {}, { size: 5 });
-  assert.equal(canInstallUpgrade(light, big, M).reason, "slots");
+  const four = [1, 2, 3, 4].map((n) => upgrade(`Pad ${n}`, {}, { size: 5 }));
+  const full = { ...light, upgrades: four.map((u) => ({ size: 1, flag: { upgrade: {} } })), upgradesUsed: 4 };
+  assert.equal(canInstallUpgrade(light, four[0], M).ok, true, "a big upgrade still takes one slot");
+  assert.equal(canInstallUpgrade(full, upgrade("Fifth", {}), M).reason, "slots", "a Light Armorjack has 4");
   assert.equal(canInstallUpgrade(light, upgrade("Scope", {}, { type: "weapon" }), M).reason, "type");
 });
 

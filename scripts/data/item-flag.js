@@ -75,7 +75,7 @@ export const UPGRADE_LOCATIONS = ["body", "head", "both", "shield", "any"];
  * Built-in armor upgrade effects Neon At Home applies to the wearer while the armor is worn.
  * Upgrades can also carry their own Active Effects (usage "installed") for anything else.
  */
-export const UPGRADE_EFFECTS = ["", "reliefDex", "reliefRef", "reliefMove", "reliefAll", "stealth", "warPaint", "aiInterface", "neuroport", "enviro", "fireproof"];
+export const UPGRADE_EFFECTS = ["", "reliefDex", "reliefRef", "reliefMove", "reliefAll", "stealth", "warPaint", "neuroport", "enviro", "fireproof"];
 
 function normalizePool(raw) {
   const r = raw && typeof raw === "object" ? raw : {};

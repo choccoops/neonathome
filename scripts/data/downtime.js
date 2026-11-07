@@ -10,35 +10,65 @@ import { PRICE_CATEGORIES, priceCategory, repairOf } from "./maintenance.js";
 export const MIN = { minute: 1, hour: 60, day: 1440, week: 10080, month: 43200 };
 
 /** Cyberpunk RED's Roles, as role items are named (lowercase). */
-export const ROLES = ["rockerboy", "solo", "netrunner", "tech", "medtech", "media", "exec", "lawman", "fixer", "nomad"];
+export const ROLES = ["rockerboy", "solo", "netrunner", "tech", "medtech", "media", "exec", "lawman", "fixer", "nomad", "ganger"];
 
 /* ------------------------------------------ */
-/*  The Hustle (p.381)                        */
+/*  The Hustle (p.381; 2070, Chapter 13)      */
 /* ------------------------------------------ */
+
+/** What each result pays by Role Rank (1-4, 5-7, 8-10): a dry week, low, good, great. */
+export const HUSTLE_PAY = { Z: [0, 100, 300], L: [100, 200, 500], M: [200, 300, 600], H: [300, 500, 800] };
 
 /**
- * A week of downtime earns a little by Role: roll 1d6 on the Role's table; the pay goes by Role
- * Ability Rank (1-4, 5-7, 8-10). [summary, [rank 1-4, 5-7, 8-10]].
+ * A week of downtime earns a little by Role (Cyberpunk: The Unification Era, Chapter 13): roll 1d6
+ * on the Role's row; its letter sets the pay by Role Rank. [summary, letter]. Lawmen are gone in
+ * 2070; Gangers hustle for their gang.
  */
 export const HUSTLES = {
-  rockerboy: [["Played a small local gig.", [200, 300, 600]], ["No gigs to be had this week.", [0, 100, 300]], ["A big private gig for a rich client.", [300, 500, 800]], ["Royalties came in from a Data Pool release.", [300, 500, 800]], ["Opened for a big-name act.", [300, 500, 800]], ["A paid personal appearance.", [200, 300, 600]]],
-  solo: [["Bodyguard work for a low-end client.", [100, 200, 500]], ["Bodyguard work for a high-end client.", [200, 300, 600]], ["A hard hit or extraction.", [200, 300, 600]], ["Hired muscle for a Fixer, Corp or gang.", [100, 200, 500]], ["Drew too much attention and laid low.", [0, 100, 300]], ["Enforcer work for a local Corp.", [100, 200, 500]]],
-  netrunner: [["Cracked a small system and sold the data.", [100, 200, 500]], ["Cracked a big Corp system and sold the data.", [200, 300, 600]], ["Got sidetracked; nothing hacked.", [0, 100, 300]], ["Found an old data cache and sold it.", [200, 300, 600]], ["Ransomed a major system and got paid to undo it.", [200, 300, 600]], ["Sabotaged a system for a faceless client.", [200, 300, 600]]],
-  tech: [["No jobs this week.", [0, 100, 300]], ["Rebuilt tech scavenged in the Combat Zone.", [100, 200, 500]], ["A break-in, or a security install, for a client.", [200, 300, 600]], ["Cybertech mods and repairs.", [100, 200, 500]], ["Weapon mods and repairs.", [100, 200, 500]], ["Sabotage for a client.", [100, 200, 500]]],
-  medtech: [["Patched someone up after a firefight.", [100, 200, 500]], ["Sold cyberware from a \"failed\" case.", [200, 300, 600]], ["Backup work for an overloaded Trauma Team.", [100, 200, 500]], ["Free clinic work; goodwill doesn't pay.", [0, 100, 300]], ["A major procedure for a rich client.", [200, 300, 600]], ["Made medicines or street drugs to order.", [100, 200, 500]]],
-  media: [["A big exposé and a big sale.", [300, 500, 800]], ["A popular puff piece.", [200, 300, 600]], ["Ad copy to pay the bills.", [200, 300, 600]], ["A big story: some cash, a few enemies.", [200, 300, 600]], ["No good leads this week.", [0, 100, 300]], ["An exposé that blew the lid off.", [300, 500, 800]]],
-  lawman: [["A few minor busts.", [100, 200, 500]], ["A \"reward\" from a grateful citizen.", [200, 300, 600]], ["A bust went bad; it came out of your pay.", [0, 100, 300]], ["Quiet week; just the paycheck.", [100, 200, 500]], ["A big drug or smuggling bust, and a bonus.", [200, 300, 600]], ["Took down a gang; a seizure bonus.", [200, 300, 600]]],
-  exec: [["A project went well: a bonus.", [300, 500, 800]], ["Corporate was unimpressed: no bonus.", [0, 100, 300]], ["Just the paycheck.", [200, 300, 600]], ["Dirt on a rival turned into a bonus.", [300, 500, 800]], ["A major project success: Head Office paid.", [300, 500, 800]], ["Took out a threat to a job, and its funding.", [200, 300, 600]]],
-  fixer: [["Sold a Media some information.", [200, 300, 600]], ["Got a Rocker a gig, for the usual cut.", [200, 300, 600]], ["Found a client what they needed, for a cut.", [200, 300, 600]], ["A deal went south; keeping your head down.", [0, 100, 300]], ["Placed a Solo or Netrunner on a job, for a fee.", [200, 300, 600]], ["Brought in something rare or illegal.", [300, 500, 800]]],
-  nomad: [["A legit shipment.", [100, 200, 500]], ["Protected a shipment.", [100, 200, 500]], ["Smuggled some small contraband.", [100, 200, 500]], ["Smuggled a huge shipment.", [200, 300, 600]], ["Got a client safely where they were going.", [100, 200, 500]], ["No work this week, legit or otherwise.", [0, 100, 300]]]
+  rockerboy: [["Played a small local gig.", "M"], ["No gigs to be had this week.", "Z"], ["A corp or celebrity gig.", "H"], ["Royalties came in.", "H"], ["Opened for a big-name act.", "H"], ["A paid personal appearance.", "M"]],
+  solo: [["Bodyguard work for a low-end client.", "L"], ["Bodyguard work for a high-end client.", "M"], ["A hit or an extraction.", "M"], ["Muscle for hire.", "L"], ["Lying low this week.", "Z"], ["Enforcer work for a corp.", "L"]],
+  netrunner: [["Cracked a small system and sold the data.", "L"], ["Cracked a corp system and sold the data.", "M"], ["Got sidetracked; nothing hacked.", "Z"], ["Found a data cache and sold it.", "M"], ["A ransomware payout.", "M"], ["Sabotage for a client.", "M"]],
+  tech: [["No jobs this week.", "Z"], ["Rebuilt tech scavenged from the ruins.", "L"], ["A break-in, or a security install, for a client.", "M"], ["Chrome repairs.", "L"], ["Weapon repairs.", "L"], ["A sabotage job.", "L"]],
+  medtech: [["Patched someone up after a firefight.", "L"], ["Sold chrome from a \"failed\" case.", "M"], ["Trauma Team overflow work.", "L"], ["Free clinic work; goodwill doesn't pay.", "Z"], ["A rich client's surgery.", "M"], ["Made drugs to order.", "L"]],
+  media: [["A big exposé and a big sale.", "H"], ["A puff piece.", "M"], ["Ad copy to pay the bills.", "M"], ["A story that made some enemies.", "M"], ["No leads this week.", "Z"], ["Blew the lid off something.", "H"]],
+  fixer: [["Sold a Media some information.", "M"], ["Got a Rocker a gig (12%).", "M"], ["Found a client the item they wanted.", "M"], ["A deal went south; keeping your head down.", "Z"], ["Placed a Solo or Netrunner on a job.", "M"], ["Brought in something rare or illegal.", "H"]],
+  nomad: [["A legit shipment.", "L"], ["Protected a shipment.", "L"], ["Smuggled some small contraband.", "L"], ["Moved a huge shipment.", "M"], ["Delivered a client safely.", "L"], ["No work this week.", "Z"]],
+  ganger: [["Ran errands for the boss.", "L"], ["Collected protection.", "M"], ["Turf war; laid low.", "Z"], ["Escorted a deal.", "L"], ["Moved product.", "M"], ["A cut of a big score.", "M"]],
+  exec: [["A project bonus.", "H"], ["Lost a bonus.", "Z"], ["Just the paycheck.", "M"], ["Dirt on a rival turned into a bonus.", "H"], ["A head-office bonus.", "H"], ["Took a rival's funding.", "M"]]
 };
 
-/** A Hustle result: { text, eb } for a role, a 1d6 roll and a Role Ability Rank. */
+/** A Hustle result: { text, eb, letter } for a role, a 1d6 roll and a Role Rank. */
 export function hustle(role, roll, rank) {
   const row = HUSTLES[role]?.[int(roll, 1, 6) - 1];
   if (!row) return null;
   const band = rank >= 8 ? 2 : rank >= 5 ? 1 : 0;
-  return { text: row[0], eb: row[1][band] };
+  return { text: row[0], letter: row[1], eb: HUSTLE_PAY[row[1]][band] };
+}
+
+/** Interesting Hustles (2070): a d100 at or under the result's chance; 01 is a Jackpot (two developments). */
+export const INTERESTING_CHANCE = { Z: 5, L: 10, M: 15, H: 25 };
+
+/** What happened, 1d6: 1-2 a new contact, 3-4 an opportunity, 5 inside info, 6 strings attached. */
+export const INTERESTING = ["contact", "contact", "opportunity", "opportunity", "insideInfo", "strings"];
+
+/** Each Role's examples: [a new contact, an opportunity]. */
+export const INTERESTING_EXAMPLES = {
+  rockerboy: ["A promoter who books the Totentanz", "An opening slot on a corp-sponsored tour"],
+  solo: ["A grateful bodyguard client", "A security contract that needs a crew"],
+  netrunner: ["A Voodoo Boys broker", "A data cache too big to crack alone"],
+  tech: ["A Night Market parts dealer", "A salvage site nobody's claimed"],
+  medtech: ["A Trauma Team medic who owes you", "A clinic that needs a partner"],
+  media: ["A source inside City Hall", "A story that leads to a bigger one"],
+  fixer: ["A new client with deep pockets", "A buyer for something you don't have yet"],
+  nomad: ["A cousin from another clan", "A run through the Badlands that pays triple"],
+  ganger: ["A lieutenant who's noticed you", "A corner your gang wants taken"],
+  exec: ["A rival's unhappy assistant", "A project nobody else wants"]
+};
+
+/** Whether a week was interesting: { interesting, jackpot } for a result letter and a d100. */
+export function interesting(letter, d100) {
+  const n = int(d100, 1, 100);
+  return { interesting: n <= (INTERESTING_CHANCE[letter] ?? 0), jackpot: n === 1 };
 }
 
 /* ------------------------------------------ */
@@ -117,11 +147,14 @@ export const PHARMA = {
 export const PHARMA_DV = 13;
 export const PHARMA_MATERIALS = 200;
 
-/** Therapy (p.230): a week for the Medtech and the patient; a Medical Tech Check at the end. */
+/**
+ * Therapy (2070, Chapter 08): a week for the Medtech and the patient; a Medical Tech Check at the
+ * end. Materials only from Biotechnica.
+ */
 export const THERAPY = {
   addiction: { dv: 15, materials: 500, heal: null },
-  standard: { dv: 15, materials: 100, heal: "2d6" },
-  extreme: { dv: 17, materials: 500, heal: "4d6" }
+  standard: { dv: 17, materials: 1000, heal: "2d6" },
+  extreme: { dv: 20, materials: 2500, heal: "4d6" }
 };
 
 /* ------------------------------------------ */

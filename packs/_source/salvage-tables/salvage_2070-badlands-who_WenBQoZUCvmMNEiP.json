@@ -1,0 +1,106 @@
+{
+  "_id": "WenBQoZUCvmMNEiP",
+  "_key": "!tables!WenBQoZUCvmMNEiP",
+  "name": "Who Turns Up (The Badlands, 2070)",
+  "img": "icons/svg/mystery-man.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours.</p>",
+  "results": [
+    {
+      "_id": "FB5ugg504uDCpztw",
+      "_key": "!tables.results!WenBQoZUCvmMNEiP.FB5ugg504uDCpztw",
+      "type": "text",
+      "text": "A Wraith raiding party spots your dust. They want your ride. Run, fight, or pay them off with half the haul.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "D0gRtxeNtJeDRmZL",
+      "_key": "!tables.results!WenBQoZUCvmMNEiP.D0gRtxeNtJeDRmZL",
+      "type": "text",
+      "text": "A Nomad family who found the wreck first. They'll share it for work, news or a favor (DV13 Persuasion or Trading).",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "JwMOFscDNhdkmJYy",
+      "_key": "!tables.results!WenBQoZUCvmMNEiP.JwMOFscDNhdkmJYy",
+      "type": "text",
+      "text": "A scav with a rifle and a grudge. Trade with them, or they follow you home.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "DXqKXjhERDH59Ci4",
+      "_key": "!tables.results!WenBQoZUCvmMNEiP.DXqKXjhERDH59Ci4",
+      "type": "text",
+      "text": "A downed AV nobody's reached yet: roll the haul again and take the better result.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "IkruhUSi6GLlxwuc",
+      "_key": "!tables.results!WenBQoZUCvmMNEiP.IkruhUSi6GLlxwuc",
+      "type": "text",
+      "text": "A fresh flood channel turned up old war salvage: if you were hunting Weapons, the DV drops by 2.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "vlscLcaPLAyBMD0K",
+      "_key": "!tables.results!WenBQoZUCvmMNEiP.vlscLcaPLAyBMD0K",
+      "type": "text",
+      "text": "A Nomad clan mechanic trades notes: you learn the area. Next time here, +2 to your Basic Tech roll.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 1400,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.badlands.who"
+    }
+  }
+}

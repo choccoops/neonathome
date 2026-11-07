@@ -8,7 +8,7 @@ import { KINDS, kindOf } from "../data/maintenance.js";
 import { TRAINING, PERK_BY_ID } from "../data/perks.js";
 import { PerkOps } from "./perk-ops.js";
 import {
-  MIN, hustle, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
+  MIN, hustle, HUSTLES, interesting, INTERESTING, INTERESTING_EXAMPLES, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
 
@@ -96,10 +96,14 @@ export const DowntimeOps = {
   /*  Anyone                                  */
   /* ---------------------------------------- */
 
-  /** The Hustle (p.381): a week, 1d6 on the Role's table, paid by Role Ability Rank. */
+  /**
+   * The Hustle (p.381; 2070): a week, 1d6 on the Role's table, paid by Role Rank, and a d100 for an
+   * Interesting Hustle: at or under the result's chance, 1d6 on What Happened (two on a 01).
+   */
   async _hustle(actor, { role } = {}) {
     const roles = CPR.roles(actor);
-    const key = roles[role] !== undefined ? role : Object.keys(roles)[0];
+    const can = Object.keys(roles).filter((r) => HUSTLES[r]);
+    const key = can.includes(role) ? role : can[0];
     if (!key) throw new RuleBlock(L("NEONHOME.Downtime.NoRole", { name: actor.name }));
     const rank = roles[key];
     const label = L("NEONHOME.Downtime.Action.hustle");
@@ -107,14 +111,28 @@ export const DowntimeOps = {
     const roll = await new Roll("1d6").evaluate();
     const res = hustle(key, roll.total, rank);
     if (res.eb) await CPR.changeWealth(actor, res.eb, L("NEONHOME.Downtime.HustleLedger", { role: L(`NEONHOME.Downtime.Role.${key}`) }));
+    // an Interesting Hustle: something more than eddies
+    const d100 = await new Roll("1d100").evaluate();
+    const rolls = [roll, d100];
+    const luck = interesting(res.letter, d100.total);
+    const developments = [];
+    if (luck.interesting) {
+      for (let i = 0; i < (luck.jackpot ? 2 : 1); i++) {
+        const d6 = await new Roll("1d6").evaluate();
+        rolls.push(d6);
+        developments.push(INTERESTING[Math.min(5, Math.max(0, d6.total - 1))]);
+      }
+    }
+    const ex = INTERESTING_EXAMPLES[key] ?? [];
+    const lines = developments.map((d) => `<li><b>${L(`NEONHOME.Downtime.Interesting.${d}`)}</b>: ${L(`NEONHOME.Downtime.InterestingText.${d}`)}${d === "contact" && ex[0] ? ` <em>(${esc(ex[0])}?)</em>` : d === "opportunity" && ex[1] ? ` <em>(${esc(ex[1])}?)</em>` : ""}</li>`);
     await ChatMessage.create({
       content: HomeOps._card("fa-solid fa-sack-dollar", L("NEONHOME.Downtime.HustleCard", {
         name: esc(actor.name), role: L(`NEONHOME.Downtime.Role.${key}`), roll: roll.total, text: esc(res.text), eb: eb(res.eb)
-      })),
-      rolls: [roll],
+      }) + (developments.length ? `<p><i class="fa-solid fa-star"></i> ${L(luck.jackpot ? "NEONHOME.Downtime.Jackpot" : "NEONHOME.Downtime.InterestingWeek", { n: d100.total })}</p><ul>${lines.join("")}</ul>` : "")),
+      rolls,
       speaker: ChatMessage.getSpeaker({ actor })
     });
-    return { ...res, roll: roll.total, spent };
+    return { ...res, roll: roll.total, spent, interesting: developments };
   },
 
   /** Rest (p.222): a full day of rest heals BODY HP. */

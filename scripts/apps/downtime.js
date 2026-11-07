@@ -11,11 +11,11 @@ import { stage, meter, needed, remaining } from "../data/projects.js";
 import { Compat } from "../compat.js";
 import { KINDS, PRICE_CATEGORIES, priceCategory, flattenList, isMaintainable } from "../data/maintenance.js";
 import {
-  MIN, HUSTLES, makerJob, UPGRADES, INVENT_CATEGORIES, inventPrice,
+  MIN, HUSTLES, HUSTLE_PAY, INTERESTING_CHANCE, makerJob, UPGRADES, INVENT_CATEGORIES, inventPrice,
   PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
 } from "../data/downtime.js";
-import { SALVAGE_MINUTES, CATEGORIES, WORTH, locationsOf, locationOf, haulLeft } from "../data/salvage.js";
+import { SALVAGE_MINUTES, CATEGORIES, worthTable, locationsOf, locationOf, haulLeft, WHO_TURNS_UP } from "../data/salvage.js";
 import { TIERS, TIER_NAMES, tierEb, fabricationNeeds, upgradeNeeds, stripPlan, unitsFor, stripMinutes, STRIP_FREE, STRIP_MINUTES } from "../data/materials.js";
 import { TRAINING, PERKS } from "../data/perks.js";
 import { PerkOps } from "../home/perk-ops.js";
@@ -153,6 +153,7 @@ function panel(actor, id, p, { roles, state }) {
   };
   let strip = null;
   let blueprintPiece = null;
+  let whoTurnsUp = false;
   // Maker work as a Tech, or a Medtech's Specialty at 4+ (The Medtech as Maker)
   const domainPick = (kind) => {
     const list = makerDomains(actor, kind);
@@ -183,7 +184,8 @@ function panel(actor, id, p, { roles, state }) {
       const rank = roles[role];
       const band = rank >= 8 ? 2 : rank >= 5 ? 1 : 0;
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Downtime.HustleRoll", { role: L(`NEONHOME.Downtime.Role.${role}`), rank }));
-      table = HUSTLES[role].map(([text, pay], i) => ({ n: i + 1, text, eb: eb(pay[band]) }));
+      table = HUSTLES[role].map(([text, letter], i) => ({ n: i + 1, text: `${text} (${letter})`, eb: eb(HUSTLE_PAY[letter][band]) }));
+      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Downtime.InterestingNote", { z: INTERESTING_CHANCE.Z, l: INTERESTING_CHANCE.L, m: INTERESTING_CHANCE.M, h: INTERESTING_CHANCE.H }));
       break;
     }
     case "rest": {
@@ -334,7 +336,14 @@ function panel(actor, id, p, { roles, state }) {
       fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Salvage.Roll"));
       if (!specific) fact("NEONHOME.Salvage.Fact.finds", locationOf(era, loc).categories.map((c, i) => `${i + 1} ${SalvageOps.categoryName(c)}`).join(" · "));
       fact("NEONHOME.Salvage.Fact.fumble", L("NEONHOME.Salvage.FumbleNote"));
-      table = WORTH.filter((w) => (specific ? w.specific : w.any) !== null).map((w) => ({ n: `DV${specific ? w.specific : w.any}`, text: L("NEONHOME.Salvage.WorthRow"), eb: eb(w.eb) }));
+      // a crew salvages together: each rolls, one Perils roll and one Who Turns Up for all
+      const mates = game.actors.filter((a) => a.type === "character" && a !== actor && a.isOwner && Downtime.isActive(a)).sort((a, b) => a.name.localeCompare(b.name));
+      if (mates.length) {
+        const crew = Array.isArray(p.crew) ? p.crew : [];
+        fields.push(field("crew", "NEONHOME.Salvage.Field.crew", { checks: true, options: mates.map((a) => ({ value: a.id, label: a.name, checked: crew.includes(a.id) })), hint: L("NEONHOME.Salvage.CrewHint") }));
+      }
+      whoTurnsUp = game.user.isGM && !!WHO_TURNS_UP[era]?.[loc];
+      table = worthTable(era).filter((w) => (specific ? w.specific : w.any) !== null).map((w) => ({ n: `DV${specific ? w.specific : w.any}`, text: L("NEONHOME.Salvage.WorthRow"), eb: eb(w.eb) }));
       break;
     }
     case "strip": {
@@ -466,7 +475,7 @@ function panel(actor, id, p, { roles, state }) {
     ? ProjectOps.list(actor).filter((x) => x.kind === id).map((x) => ({ label: x.label, pct: meter(x).pct, stage: L(`NEONHOME.Project.Stage.${stage(x)}`, { left: formatMinutes(x.minutes - x.done) }) }))
     : [];
   // nothing to roll: just the time spent
-  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket", blueprintPiece };
+  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket", blueprintPiece, whoTurnsUp };
 }
 
 export const DowntimeTab = {
@@ -650,6 +659,11 @@ export const DowntimeTab = {
         if (ok) await SalvageOps.leave(this.actor, id);
       });
     },
+    dtWhoTurnsUp() {
+      const p = this.uiState.downtime?.params?.salvage ?? {};
+      const crew = (p.crew ?? []).map((id) => game.actors.get(id)).filter(Boolean);
+      return this.act(() => SalvageOps.whoTurnsUp([this.actor, ...crew], p.location));
+    },
     dtBlueprintPiece(event, target) {
       const ui = this.uiState.downtime;
       const id = target.dataset.item;
@@ -730,6 +744,17 @@ export const DowntimeTab = {
         for (const b of boxes) b.addEventListener("change", save);
       }
       show(Number(tp.dataset.value) || 0);
+    }
+    // a list of ticks (the salvage crew)
+    for (const el of root.querySelectorAll("[data-dt-check]")) {
+      el.addEventListener("change", () => {
+        const name = el.dataset.dtCheck;
+        const list = new Set(Array.isArray(params()[name]) ? params()[name] : []);
+        if (el.checked) list.add(el.value);
+        else list.delete(el.value);
+        params()[name] = [...list];
+        app.render();
+      });
     }
     // Strip for parts: tick items, and how many of a stack
     const picks = () => (params().picks ??= {});

@@ -353,6 +353,8 @@ export const HomeOps = {
       if (!upgrade) throw new Error(L("NEONHOME.Error.NotFound"));
     }
     await this._syncArmorSlots(armor, info.upgradeSlots);
+    // one upgrade slot each (2070): Cyberpunk RED counts the item's own size when it installs
+    if (info.cls !== "acpa" && Number(upgrade.system?.size) !== 1) await upgrade.update({ "system.size": 1 });
     await CPR.install(armor, [upgrade]);
     await this.syncLoadoutEffect(actor);
   },
@@ -379,7 +381,7 @@ export const HomeOps = {
 
   /**
    * Keep the actor's "armor fit" Active Effect in step with worn armor upgrades: penalty relief,
-   * Plate Padding, War Paint, the AI Armor Interface.
+   * Plate Padding, War Paint.
    */
   async syncLoadoutEffect(actor) {
     if (!actor?.isOwner || actor.type !== "character") return;

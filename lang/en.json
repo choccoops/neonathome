@@ -265,14 +265,12 @@
         "reliefAll": "Removes REF, DEX and MOVE penalties",
         "stealth": "+2 Stealth",
         "warPaint": "War Paint (+2 Wardrobe & Style with head and body)",
-        "aiInterface": "AI Armor Interface (+2 Concentration)",
         "neuroport": "Neuro-port (+2 neuralware option slots)",
         "enviro": "Enviro-Shielding (radiation immunity with head and body)",
         "fireproof": "Fireproof padding (can't be set on fire with head and body)"
       },
       "Note": {
         "reliefMove": "MOVE penalty removed ({value}): apply to MOVE rolls at the table.",
-        "aiInterface": "AI Armor Interface: no DEX/REF armor penalty on attack rolls; voice-target one person or cover for +1 to hit until your turn ends. Shuts down at 0 head SP.",
         "warPaint": "War Paint: +1 to Facedown.",
         "enviro": "Enviro-Shielding: immune to radiation damage.",
         "fireproof": "Fireproof padding: can't be set on fire.",
@@ -1291,7 +1289,22 @@
       "TrainingCard": "<b>{name}</b> trains for a week{aim}: rolled {dice}, <b>{n}</b> six(es): <b>{n} Perk Point(s)</b>.",
       "TrainingMonth": "{name} has already trained for perks this month.",
       "TrainingFor": " toward <b>{perk}</b>",
-      "TrainingRoll": "{dice}: each 6 is a Perk Point"
+      "TrainingRoll": "{dice}: each 6 is a Perk Point",
+      "Interesting": {
+        "contact": "New Contact",
+        "opportunity": "Opportunity",
+        "insideInfo": "Inside Info",
+        "strings": "Strings Attached"
+      },
+      "InterestingText": {
+        "contact": "someone from the job remembers you kindly; the GM makes them an NPC you can call on.",
+        "opportunity": "a lead on paying work: a gig for the crew, an HQ Gig, or a seat at a Night Market.",
+        "insideInfo": "a rumor worth money: a shipment's route, a rival's weak spot, a door code. The GM decides how true it is.",
+        "strings": "a contact or an opportunity, with a favor owed or a curious faction: +1 Standing with someone, −1 with their rival."
+      },
+      "InterestingWeek": "An interesting week (d100 {n}):",
+      "Jackpot": "A Jackpot (d100 {n}): two developments.",
+      "InterestingNote": "A d100 too: an Interesting Hustle at {z} or under on a dry week (Z), {l} low (L), {m} good (M), {h} great (H). 01 is a Jackpot."
     },
     "Project": {
       "HowItGoes": "Kept on your projects: put downtime in now or later; the check comes halfway.",
@@ -1367,7 +1380,8 @@
       "Label": "Salvage: {place}",
       "Field": {
         "location": "Where",
-        "category": "Looking for"
+        "category": "Looking for",
+        "crew": "Salvaging with"
       },
       "Fact": {
         "era": "Night City",
@@ -1446,7 +1460,14 @@
       "DropHere": "Drop a find here ({category}): it comes Destroyed, to repair later",
       "AsMaterials": "Or as Tech Materials:",
       "Leave": "Leave the rest",
-      "LeaveAsk": "Leave what's left of this haul behind? Unspent worth is lost."
+      "LeaveAsk": "Leave what's left of this haul behind? Unspent worth is lost.",
+      "CrewHint": "Each rolls their own week; the crew shares one Perils roll and one Who Turns Up.",
+      "NotYours": "You can't roll {name}'s week: their player (or the GM) has to.",
+      "WhoTurnsUp": "Who turns up?",
+      "Who": {
+        "trouble": "Trouble that can be talked down: talk, sneak or fight.",
+        "chance": "A chance."
+      }
     },
     "Strip": {
       "Field": {

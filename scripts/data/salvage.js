@@ -43,11 +43,27 @@ export const WORTH = [
   { eb: 1000, any: 29, specific: null }
 ];
 
+/**
+ * Salvage Worth (2070) (Cyberpunk: The Unification Era, Chapter 12): the throwaway decade's yards
+ * pay far better, up to a Luxury find.
+ */
+export const WORTH_2070 = [
+  { eb: 20, any: 9, specific: 13 },
+  { eb: 50, any: 13, specific: 15 },
+  { eb: 100, any: 15, specific: 17 },
+  { eb: 500, any: 17, specific: 21 },
+  { eb: 1000, any: 21, specific: 24 },
+  { eb: 5000, any: 24, specific: 29 }
+];
+
+/** The worth table for an era. */
+export const worthTable = (era = "2045") => (String(era) === "2070" ? WORTH_2070 : WORTH);
+
 /** The worth a check total finds (0: nothing worth hauling home). */
-export function salvageWorth(total, specific = false) {
+export function salvageWorth(total, specific = false, era = "2045") {
   const t = int(total);
   let eb = 0;
-  for (const w of WORTH) {
+  for (const w of worthTable(era)) {
     const dv = specific ? w.specific : w.any;
     if (dv !== null && t >= dv) eb = w.eb;
   }
@@ -55,7 +71,56 @@ export function salvageWorth(total, specific = false) {
 }
 
 /** The lowest DV that finds anything. */
-export const firstDv = (specific = false) => (specific ? WORTH[0].specific : WORTH[0].any);
+export const firstDv = (specific = false, era = "2045") => (specific ? worthTable(era)[0].specific : worthTable(era)[0].any);
+
+/**
+ * Who Turns Up (2070): the locals at each site, 1d6, the GM's choice when. 1-3 trouble that can be
+ * talked down, 4-6 a chance.
+ */
+export const WHO_TURNS_UP = {
+  2070: {
+    badlands: [
+      "A Wraith raiding party spots your dust. They want your ride. Run, fight, or pay them off with half the haul.",
+      "A Nomad family who found the wreck first. They'll share it for work, news or a favor (DV13 Persuasion or Trading).",
+      "A scav with a rifle and a grudge. Trade with them, or they follow you home.",
+      "A downed AV nobody's reached yet: roll the haul again and take the better result.",
+      "A fresh flood channel turned up old war salvage: if you were hunting Weapons, the DV drops by 2.",
+      "A Nomad clan mechanic trades notes: you learn the area. Next time here, +2 to your Basic Tech roll."
+    ],
+    combatZone: [
+      "A BARGHEST patrol calls it trespassing on Dogtown. A DV15 Persuasion or Bribery (100eb) gets you waved off; fail and they take the haul.",
+      "Voodoo Boys runners. They let you work if you leave the electronics to them: Cyberdecks & Programs hauls go to them.",
+      "A scav cell decides your chrome is worth more than their haul.",
+      "A squatter knows a sealed floor nobody's opened. For 50eb, they'll show you: +2 to your Basic Tech roll.",
+      "An abandoned Playland ride control room, untouched: your haul can be Cyberdecks & Programs, whatever you were after.",
+      "A netrunner in the ruins needs a hand: help for a day and they owe you a favor."
+    ],
+    perimeter: [
+      "Raiders squatting the motel you picked. 1d6+2 boosters with scavenged guns.",
+      "A merc crew clearing an old NUSA bunker for a client. Stay out of their way, or get hired for a day (100eb).",
+      "Somebody's unexploded ordnance marker, and the somebody who's watching it. DV15 Basic Tech to clear it; it's worth 100eb of parts if you do.",
+      "A Nomad trader caravan passing through: sell your haul at full price, Destroyed or not, one item.",
+      "An old service station with its storeroom intact: add a 50eb General Gear find to your haul.",
+      "A ghost town with a pawnshop nobody looted: take what you find, at the better worth of two rolls."
+    ],
+    scrapyards: [
+      "A corp security sweep. DV15 Stealth to slip out with the haul; caught, it's confiscated or it's a firefight.",
+      "An NCPD cruiser makes a show of it: a 50eb \"fine\" or a night in a cell.",
+      "Maelstrom strays from next door want a cut: 20% of the haul, or trouble.",
+      "A yard crew foreman who'll look the other way for 50eb, and point you at a fresh drop (+2 to your roll).",
+      "A chrome dump from a ripperdoc who went under: your haul can be Cyberware, whatever you were after.",
+      "A reactor scrap pile that tests clean. Your haul is worth one row higher on the table, if you made at least 50eb."
+    ]
+  }
+};
+
+/** Who turns up on a 1d6 at a place (null where the era has no such table). */
+export function whoTurnsUp(era, key, roll) {
+  const list = WHO_TURNS_UP[era]?.[key];
+  if (!list) return null;
+  const n = int(roll, 1, 6);
+  return { roll: n, text: list[n - 1], trouble: n <= 3 };
+}
 
 /* ------------------------------------------ */
 /*  Perils                                    */

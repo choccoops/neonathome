@@ -229,7 +229,7 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   app.uiState.downtime = { action: "salvage", params: { salvage: { location: "badlands" } } };
   const sal = await renderTab("downtime");
   assert.equal(sal.ctx.dt.selected.timeLabel, "7d");
-  assert.deepEqual(sal.ctx.dt.selected.table.map((r) => r.n), ["DV9", "DV13", "DV15", "DV17", "DV24", "DV29"]);
+  assert.deepEqual(sal.ctx.dt.selected.table.map((r) => r.n), ["DV9", "DV13", "DV15", "DV17", "DV21", "DV24"]);
   const haul = sal.ctx.dt.selected.hauls[0];
   assert.equal(haul.left, "400eb");
   assert.deepEqual(haul.tiers.map((t) => t.tier), ["cheap", "everyday", "costly", "premium"], "materials the 400eb left covers");
@@ -237,7 +237,7 @@ test("Downtime lists what anyone and each of the character's Roles can do, with 
   assert.ok(!/NEONHOME\./.test(sal.html));
   app.uiState.downtime = { action: "salvage", params: { salvage: { location: "badlands", category: "cyberdecks" } } };
   const hunt = (await renderTab("downtime")).ctx.dt.selected;
-  assert.deepEqual(hunt.table.map((r) => r.n), ["DV13", "DV15", "DV17", "DV21", "DV29"], "a category: harder, and no 1,000eb");
+  assert.deepEqual(hunt.table.map((r) => r.n), ["DV13", "DV15", "DV17", "DV21", "DV24", "DV29"], "a category: harder (2070)");
   delete actor.flags["cpr-neon-at-home"].hauls;
   // a Tech strips gear: the list, the parts picked against the tier
   const [role] = await actor.createEmbeddedDocuments("Item", [{ name: "Tech", type: "role", system: { rank: 4, abilities: [] } }]);

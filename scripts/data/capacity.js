@@ -257,7 +257,7 @@ export function computeLoadout(items, rules, moduleId, { actorInstalled = [] } =
   for (const a of armors) {
     const doc = byId.get(a.id);
     a.upgrades = (doc.system?.installedItems?.list ?? []).map((id) => byId.get(id)).filter((u) => u?.type === "itemUpgrade")
-      .map((u) => ({ id: idOf(u), name: u.name, img: u.img, size: int(u.system?.size ?? 1), flag: normalizeItemFlag(u.flags?.[moduleId]?.item) }));
+      .map((u) => ({ id: idOf(u), name: u.name, img: u.img, size: armorUpgradeSize(u, a.cls), flag: normalizeItemFlag(u.flags?.[moduleId]?.item) }));
     a.upgradesUsed = a.upgrades.reduce((n, u) => n + u.size, 0);
   }
   const wornBody = armors.filter((a) => a.worn && a.location === "body").sort((a, b) => (rules.classes[b.cls]?.carry ?? 0) - (rules.classes[a.cls]?.carry ?? 0));
@@ -380,6 +380,13 @@ export function wouldFit(items, change, rules, moduleId, opts = {}) {
 /* ------------------------------------------ */
 
 /**
+ * The upgrade slots an armor upgrade takes: one each (Cyberpunk: The Unification Era, Chapter 12:
+ * "armor upgrades and enhancements fill your armor's upgrade slots, one each"); an ACPA's own
+ * fittings keep theirs.
+ */
+export const armorUpgradeSize = (upgrade, cls) => (cls === "acpa" ? int(upgrade?.system?.size ?? 0) : 1);
+
+/**
  * Can this upgrade go into this armor?
  * @param {object} armor - from describeArmor, with .upgrades and .upgradesUsed
  * @param {object} upgrade - the itemUpgrade (document or data)
@@ -397,7 +404,7 @@ export function canInstallUpgrade(armor, upgrade, moduleId) {
   const keys = armor.upgrades.map((u) => u.flag.upgrade.key).filter(Boolean);
   if (flag.key && keys.includes(flag.key)) return { ok: false, reason: "duplicate" };
   if (flag.requires && !keys.includes(flag.requires)) return { ok: false, reason: "requires" };
-  const size = int(upgrade.system?.size ?? 1);
+  const size = armorUpgradeSize(upgrade, armor.cls);
   if (armor.upgradesUsed + size > armor.upgradeSlots) return { ok: false, reason: "slots" };
   return { ok: true, reason: "" };
 }
@@ -436,10 +443,6 @@ export function armorEffects(armors) {
     else changes.push({ key: `system.stats.${stat}.value`, value: offset, label: stat.toUpperCase() });
   }
   if (anyHas("stealth")) changes.push({ key: "bonuses.stealth", value: 2, label: "Stealth" });
-  if (anyHas("aiInterface")) {
-    changes.push({ key: "bonuses.concentration", value: 2, label: "Concentration" });
-    notes.push({ effect: "aiInterface" });
-  }
   if (pairHas("warPaint")) {
     changes.push({ key: "bonuses.wardrobeAndStyle", value: 2, label: "Wardrobe & Style" });
     notes.push({ effect: "warPaint" });

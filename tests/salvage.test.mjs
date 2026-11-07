@@ -41,6 +41,34 @@ test("Salvage Worth: the DV for each worth, taking what turns up or hunting a ca
   assert.equal(salvage.salvageWorth(12, true), 0, "a specific category starts at DV13");
   assert.equal(salvage.salvageWorth(21, true), 100);
   assert.equal(salvage.salvageWorth(40, true), 500, "1,000eb can't be had hunting a category");
+  // 2070's yards pay better (Unification Era, Chapter 12)
+  assert.equal(salvage.salvageWorth(9, false, "2070"), 20);
+  assert.equal(salvage.salvageWorth(21, false, "2070"), 1000);
+  assert.equal(salvage.salvageWorth(24, false, "2070"), 5000, "a Luxury find");
+  assert.equal(salvage.salvageWorth(29, true, "2070"), 5000);
+  assert.equal(salvage.firstDv(true, "2070"), 13);
+  // Who Turns Up: 2070's sites, 1-3 trouble, 4-6 a chance
+  assert.deepEqual(salvage.whoTurnsUp("2070", "scrapyards", 3).trouble, true);
+  assert.match(salvage.whoTurnsUp("2070", "badlands", 4).text, /downed AV/);
+  assert.equal(salvage.whoTurnsUp("2045", "hotZone", 1), null);
+});
+
+test("a crew salvages together: each rolls their week, one Perils roll for all", async () => {
+  await game.settings.set(M, "salvageEra", "2070");
+  const rook = character("Rook", [["Solo", 4]]);
+  const ash = character("Ash", [["Tech", 4]]);
+  // Rook fumbles, Ash finds 100eb: the crew shares one peril
+  let n = 0;
+  CPR.skillCheck = async () => (n++ ? { total: 15, html: "", critFail: false, critSuccess: false } : { total: 2, html: "", critFail: true, critSuccess: false });
+  const perils = chat.length;
+  const res = await SalvageOps.trip(rook, { location: "scrapyards", crew: [ash.id] });
+  assert.deepEqual(res.crew.map((c) => [c.name, c.worth]), [["Rook", 0], ["Ash", 100]]);
+  assert.ok(res.peril, "the crew's peril");
+  assert.equal(chat.slice(perils).filter((m) => /nah-malfunction/.test(m.content) && /Perils|Peril/.test(m.content)).length, 2, "the one peril hits both");
+  assert.equal(SalvageOps.hauls(ash).length, 1);
+  const who = await SalvageOps.whoTurnsUp([rook, ash], "scrapyards");
+  assert.ok(who.text);
+  assert.match(chat.at(-1).content, /Rook, Ash/);
 });
 
 test("2045 uses the DLC's tables everywhere; 2070 has one Combat Zone, no Hot Zone, and each place its own", () => {
@@ -129,8 +157,8 @@ test("hunting a category: a harder DV, no category roll; a haul spent to the las
   const rook = character("Rook", [["Solo", 4]]);
   rolls(15);
   const res = await SalvageOps.trip(rook, { location: "badlands", category: "weapons" });
-  assert.deepEqual([res.worth, res.category, res.haul.era, res.haul.location], [20, "weapons", "2070", "badlands"], "DV15 hunting a category: 20eb");
-  await SalvageOps.takeMaterials(rook, res.haul.id, "everyday");
+  assert.deepEqual([res.worth, res.category, res.haul.era, res.haul.location], [50, "weapons", "2070", "badlands"], "DV15 hunting a category in 2070: 50eb");
+  await SalvageOps.takeMaterials(rook, res.haul.id, "costly");
   assert.equal(SalvageOps.hauls(rook).length, 0);
   // nothing found
   rolls(8);

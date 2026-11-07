@@ -6,7 +6,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { readFileSync } from "node:fs";
-import { LOCATIONS, PERIL_EFFECTS } from "../scripts/data/salvage.js";
+import { LOCATIONS, PERIL_EFFECTS, WHO_TURNS_UP } from "../scripts/data/salvage.js";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const dest = path.join(root, "packs", "_source", "salvage-tables");
@@ -19,7 +19,7 @@ const id = (s) => createHash("sha256").update(s).digest("base64").replace(/[^A-Z
 /** 2045's places share the DLC's tables: one pair for the era. 2070: a pair per place. */
 const sets = [
   { key: "2045", era: "2045", place: null, ...Object.values(LOCATIONS[2045])[0] },
-  ...Object.entries(LOCATIONS[2070]).map(([loc, t]) => ({ key: `2070.${loc}`, era: "2070", place: loc, ...t }))
+  ...Object.entries(LOCATIONS[2070]).map(([loc, t]) => ({ key: `2070.${loc}`, era: "2070", place: loc, ...t, who: WHO_TURNS_UP[2070][loc] }))
 ];
 
 await rm(dest, { recursive: true, force: true });
@@ -31,12 +31,12 @@ for (const set of sets) {
   const source = set.era === "2045"
     ? "Salvaging Night City (R. Talsorian Games), pp.3, 5. A short summary by Neon At Home; the DLC has the full text."
     : "Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook.";
-  for (const kind of ["categories", "perils"]) {
+  for (const kind of ["categories", "perils", ...(set.who ? ["who"] : [])]) {
     const key = `${set.key}.${kind}`;
     const tableId = id(`salvage-${key}`);
     const rows = kind === "categories"
       ? set.categories.map((c) => lang.Category[c])
-      : set.perils.map(([k, text]) => `${text} ${PERIL_EFFECTS[k]}`);
+      : kind === "who" ? set.who : set.perils.map(([k, text]) => `${text} ${PERIL_EFFECTS[k]}`);
     const results = rows.map((text, i) => {
       const rid = id(`salvage-${key}-${i + 1}`);
       return {
@@ -44,7 +44,7 @@ for (const set of sets) {
         _key: `!tables.results!${tableId}.${rid}`,
         type: "text",
         text,
-        img: kind === "categories" ? "icons/svg/item-bag.svg" : "icons/svg/hazard.svg",
+        img: kind === "categories" ? "icons/svg/item-bag.svg" : kind === "who" ? "icons/svg/mystery-man.svg" : "icons/svg/hazard.svg",
         range: [i + 1, i + 1],
         weight: 1,
         drawn: false,
@@ -53,12 +53,13 @@ for (const set of sets) {
     });
     const hint = kind === "categories"
       ? "Edit a result to another category's name (Cyberware, Weapons, General Gear, Armor, Cyberdecks & Programs) to change what's found."
-      : "Edit a result's wording and Neon At Home shows yours; the peril's dice stay the module's.";
+      : kind === "who" ? "Edit a result's wording and Neon At Home shows yours."
+        : "Edit a result's wording and Neon At Home shows yours; the peril's dice stay the module's.";
     const doc = {
       _id: tableId,
       _key: `!tables!${tableId}`,
-      name: `${kind === "categories" ? "Salvage Categories" : "Perils of Salvaging"} (${where})`,
-      img: kind === "categories" ? "icons/svg/item-bag.svg" : "icons/svg/hazard.svg",
+      name: `${{ categories: "Salvage Categories", perils: "Perils of Salvaging", who: "Who Turns Up" }[kind]} (${where})`,
+      img: kind === "categories" ? "icons/svg/item-bag.svg" : kind === "who" ? "icons/svg/mystery-man.svg" : "icons/svg/hazard.svg",
       description: `<p>${source} Import this table to use your own wording: Neon At Home rolls from your copy. ${hint}</p>`,
       results,
       formula: "1d6",

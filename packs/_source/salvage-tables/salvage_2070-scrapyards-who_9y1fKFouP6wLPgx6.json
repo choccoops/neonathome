@@ -1,0 +1,106 @@
+{
+  "_id": "9y1fKFouP6wLPgx6",
+  "_key": "!tables!9y1fKFouP6wLPgx6",
+  "name": "Who Turns Up (The Scrapyards, 2070)",
+  "img": "icons/svg/mystery-man.svg",
+  "description": "<p>Neon At Home's 2070 version of Salvaging Night City's tables, for the Night City of the Edgerunner's Handbook. Import this table to use your own wording: Neon At Home rolls from your copy. Edit a result's wording and Neon At Home shows yours.</p>",
+  "results": [
+    {
+      "_id": "nVTgSyCKkKHCSVP1",
+      "_key": "!tables.results!9y1fKFouP6wLPgx6.nVTgSyCKkKHCSVP1",
+      "type": "text",
+      "text": "A corp security sweep. DV15 Stealth to slip out with the haul; caught, it's confiscated or it's a firefight.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        1,
+        1
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "pA6jiTWXY6NdTnGA",
+      "_key": "!tables.results!9y1fKFouP6wLPgx6.pA6jiTWXY6NdTnGA",
+      "type": "text",
+      "text": "An NCPD cruiser makes a show of it: a 50eb \"fine\" or a night in a cell.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        2,
+        2
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "8bTO8z07QARLqT9N",
+      "_key": "!tables.results!9y1fKFouP6wLPgx6.8bTO8z07QARLqT9N",
+      "type": "text",
+      "text": "Maelstrom strays from next door want a cut: 20% of the haul, or trouble.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        3,
+        3
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "k5qEt5MGFGZMY9cO",
+      "_key": "!tables.results!9y1fKFouP6wLPgx6.k5qEt5MGFGZMY9cO",
+      "type": "text",
+      "text": "A yard crew foreman who'll look the other way for 50eb, and point you at a fresh drop (+2 to your roll).",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        4,
+        4
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "8JiAEeOJ63gAbvNg",
+      "_key": "!tables.results!9y1fKFouP6wLPgx6.8JiAEeOJ63gAbvNg",
+      "type": "text",
+      "text": "A chrome dump from a ripperdoc who went under: your haul can be Cyberware, whatever you were after.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        5,
+        5
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    },
+    {
+      "_id": "MD6RFvJMzr8QRbOY",
+      "_key": "!tables.results!9y1fKFouP6wLPgx6.MD6RFvJMzr8QRbOY",
+      "type": "text",
+      "text": "A reactor scrap pile that tests clean. Your haul is worth one row higher on the table, if you made at least 50eb.",
+      "img": "icons/svg/mystery-man.svg",
+      "range": [
+        6,
+        6
+      ],
+      "weight": 1,
+      "drawn": false,
+      "flags": {}
+    }
+  ],
+  "formula": "1d6",
+  "replacement": true,
+  "displayRoll": true,
+  "folder": null,
+  "sort": 800,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "salvage": "2070.scrapyards.who"
+    }
+  }
+}

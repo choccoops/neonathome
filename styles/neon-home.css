@@ -1590,3 +1590,7 @@
   .neon-home .nah-dive-rain, .neon-home .nah-dive-rain::after, .neon-home .nah-dive-links path, .neon-home .nah-dive-floor.is-here,
   .neon-home .nah-dive-floor.k-unknown > i, .neon-home .nah-dive-hud .is-burning b, .neon-home .nah-dive-jack-card > i { animation: none !important; }
 }
+
+/* ticks in a Downtime panel (the salvage crew) */
+.neon-home .nah-dt-checks { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.neon-home .nah-dt-checks label { display: flex; align-items: center; gap: 4px; color: var(--nah-text); font-size: 12px; text-transform: none; letter-spacing: 0; }
