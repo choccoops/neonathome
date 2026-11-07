@@ -1597,3 +1597,9 @@
 .neon-home .nah-bio-plan { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--nah-dim); }
 .neon-home .nah-bio-plan select { flex: 1; height: 26px; color: #fff; font-size: 12px; }
 .neon-home .nah-bio-plan button { width: auto; height: 26px; font-size: 11px; }
+.neon-home .nah-deck-narrative { margin-top: 8px; padding: 6px 10px; border: 1px solid var(--nah-line-2); background: rgba(13, 13, 21, 0.85); }
+.neon-home .nah-deck-narrative summary { cursor: pointer; color: var(--nah-cyan); font-family: var(--nah-display); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.neon-home .nah-deck-narrative-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 4px; }
+.neon-home .nah-deck-narrative-row input[type="text"] { flex: 2 1 180px; color: #fff; }
+.neon-home .nah-deck-narrative-row select { flex: 1 1 140px; color: #fff; }
+.neon-home .nah-deck-narrative-row button { width: auto; }

@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.10.0
+
+From a review of *Cyberpunk: The Unification Era*'s Core Rules against the rest of Neon At Home:
+
+- **Salvage (2070)**: the 2070 Salvage Worth table (Everyday at DV9 up to a Luxury haul at DV24; a specific category DV13 to DV29). **Who Turns Up**: the GM rolls each site's d6 of locals from the Salvage panel (also in the Salvage Tables compendium, editable). A **crew** salvages together: each rolls their own week, and they share one Perils roll and one Who Turns Up.
+- **The Hustle (2070)**: each Role's row and its pay by result (dry, low, good, great), **Gangers** hustle and Lawmen are gone. **Interesting Hustles**: a d100 alongside, and on a good enough roll a new contact, an opportunity, inside info or strings attached (two on a 01).
+- **New Downtime actions**: **Train a Skill** (Chapter 15: every teacher from self-study to a Master or a crewmate, Training Progress banked toward the next level and the level when it's reached, Skills ×2, Skill Chips, Elementary's +2, NCU enrollment and terms, Push Training, topping off with IP); **Source an item** (Fixers, Medias, Rockerboys, Netrunners and Nomads, by Rank, a week each, Media and Rockerboys at double on a passed Sourcing DV); **Make art** (an Artwork item worth Humanity a month on display); **Find a Night Market** (Streetwise or Trading; what's on the shelves, rolled from the book's tables; the Fixer's Night Market rolls them too, with their pick of a category); **Bodysculpting** for Medtechs.
+- **Healing (2070)**: rest at home, in a hospital bed or a cryotank (double healing, as with Enhanced Antibodies), paid by the day. **Health plans** on the Biomonitor (Cryobank to Trauma Team Executive), which cover tanks and beds, with a **Call them** button (and REO racing Trauma Team). **Therapy** at 2070's DVs and Biotechnica prices.
+- **Maximum Humanity (2070)**: the free Neuroport and an FBC's free chrome don't lower it, Linear Frame Ω takes 8, and Fresh Food adds 10, as an effect Cyberpunk RED adds to its own count. The Biomonitor shows the breakdown on Humanity's maximum.
+- **Repairs**: armor that's lost SP (or a shield its HP) waits for a repair back to full, at the Item Repair table with Basic Tech; vehicles get their SDP back by how bad it is (DV9 / 13 / 17); any of it, or a Destroyed item, can go to a **shop** for 2070's labor. Solos and **Gangers** count their lifestyle a tier higher for weapons and armor.
+- **Iconics**: an item's Home settings can mark it Iconic. It can't be Destroyed unless its owner agrees (it's Damaged instead), and it's fabricated only from its Iconic Blueprint. They can also mark an item's one Tech Upgrade as used (a TUp on its card).
+- **Maker**: an invented upgrade (a **TUp**) at its heat's DV, with its kit (Cost #2) bought or already in hand; **Hurry** (−4) or **Rush** (−8) a Maker job for a category's less time; a crewmate's **Complementary Check** gives +1 on the halfway roll.
+- **Loadout**: every armor upgrade or enhancement takes one upgrade slot; the AI Armor Interface is out of the compendium.
+- **Cyberdeck**: a **Narrative Quickhack** roll (Interface against the job's DV, with the area's Security or Utility Code and a watching Netrunner or Demon), and the **Vehicle ICE** in the Netrunning Gear compendium (Counterhack Protocol, as it's called now).
+- **Perks**: Cartophilist is gone with Elflines Online; Elementary's focus trains +2 a week.
+
 ## 1.9.0
 
 - **Deep Dive** (*Cyberpunk: The Unification Era*, Chapter 10, Part 2), a window of its own opened from the Cyberdeck tab (and, for the GM, a **Deep Dive** button in the Actors sidebar). A netrunner jacks in to a NET Architecture with a cooling rig (an Ice Bath safe for an hour, a Netrunning Chair for 8, an Immersion Cradle indefinitely with +1 to Interface Checks), loudly or as a Ghost (one more NET Action, Cloak against the Demon watching). The architecture draws as a map that lights up as they go: the floors they've been on, the door below, and what Pathfinder has mapped, linked by glowing lines, the rest unknown. A HUD shows their NET Actions this Turn (+1 for immersion), stealth, the rig's safe time and their HP.

@@ -135,6 +135,7 @@ Hooks.once("init", () => {
       if (id === "salvage") return SalvageOps.trip(actor, params);
       if (id === "strip") return SalvageOps.strip(actor, params.picks, params.tier, params.count);
       if (id === "synth") return DrugOps.cook(actor, params);
+      if (["train", "source", "art", "market", "bodysculpt"].includes(id)) return LifeOps[id](actor, params);
       return DowntimeOps.perform(actor, id, params);
     },
     /** A character's projects under way (Maker work, repairs): { id, kind, label, dv, minutes, done, check }. */

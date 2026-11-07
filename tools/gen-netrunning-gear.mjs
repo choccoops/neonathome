@@ -5,7 +5,7 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { QUICKHACKS, HARDWARE, DECKS, CYBERSUITES, quickhackItem, hardwareItem, deckItem, cybersuiteItem, exDiskItem } from "../scripts/data/netrun.js";
+import { QUICKHACKS, HARDWARE, DECKS, CYBERSUITES, VEHICLE_ICE, quickhackItem, hardwareItem, deckItem, cybersuiteItem, exDiskItem, vehicleIceItem } from "../scripts/data/netrun.js";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const dest = path.join(root, "packs", "_source", "netrunning-gear");
@@ -16,7 +16,7 @@ await rm(dest, { recursive: true, force: true });
 await mkdir(dest, { recursive: true });
 
 // folders: one per kind
-const FOLDERS = { quickhacks: "Quickhacks", vehicle: "Vehicle Quickhacks", hardware: "Hardware", decks: "Cyberdecks", cyberware: "Cybersuites & Cyberware" };
+const FOLDERS = { quickhacks: "Quickhacks", vehicle: "Vehicle Quickhacks", vehicleIce: "Vehicle ICE", hardware: "Hardware", decks: "Cyberdecks", cyberware: "Cybersuites & Cyberware" };
 const folderId = Object.fromEntries(Object.keys(FOLDERS).map((k) => [k, id(`netrunning-folder-${k}`)]));
 let fsort = 0;
 for (const [k, name] of Object.entries(FOLDERS)) {
@@ -37,4 +37,5 @@ for (const h of HARDWARE) await write(hardwareItem(h, MODULE_ID, id(`hardware-${
 for (const d of DECKS) await write(deckItem(d, MODULE_ID, id(`deck-${d.id}`)), "decks", d.id);
 for (const c of CYBERSUITES) await write(cybersuiteItem(c, MODULE_ID, id(`cybersuite-${c.id}`)), "cyberware", c.id);
 await write(exDiskItem(MODULE_ID, id("cyberware-exDisk")), "cyberware", "exDisk");
+for (const v of VEHICLE_ICE) await write(vehicleIceItem(v, MODULE_ID, id(`vehicle-ice-${v.id}`)), "vehicleIce", v.id);
 console.log(`wrote ${n} netrunning items`);

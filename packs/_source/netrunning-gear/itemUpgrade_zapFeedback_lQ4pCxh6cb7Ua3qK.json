@@ -1,0 +1,36 @@
+{
+  "_id": "lQ4pCxh6cb7Ua3qK",
+  "name": "Zap Feedback",
+  "type": "itemUpgrade",
+  "img": "icons/svg/padlock.svg",
+  "system": {
+    "type": "vehicle",
+    "size": 1,
+    "price": {
+      "market": 500
+    },
+    "description": {
+      "value": "<p><b>Vehicle ICE</b> · a vehicle upgrade</p><p>A failed Breach deals 2 straight to the Netrunner's HP.</p><p><em>500eb (Expensive).</em></p>"
+    },
+    "modifiers": {}
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "vehicleIce": {
+        "effect": "A failed Breach deals 2 straight to the Netrunner's HP."
+      }
+    }
+  },
+  "_key": "!items!lQ4pCxh6cb7Ua3qK",
+  "folder": "w3cNHr7WYicbYX2f",
+  "sort": 11000,
+  "effects": [],
+  "ownership": {
+    "default": 0
+  },
+  "_stats": {
+    "systemId": "cyberpunk-red-core",
+    "systemVersion": "0.92.4",
+    "coreVersion": "12.331"
+  }
+}

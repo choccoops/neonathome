@@ -389,7 +389,7 @@ export const LifeOps = {
   /** What's on the shelves: a card listing the two categories and their items. */
   async _stock(actor, pick = null) {
     // many small rolls (rerolling repeats): Foundry's dice randomizer, without a roll card each
-    const rand = () => (typeof CONFIG?.Dice?.randomUniform === "function" ? CONFIG.Dice.randomUniform() : Math.random());
+    const rand = () => (typeof globalThis.CONFIG?.Dice?.randomUniform === "function" ? globalThis.CONFIG.Dice.randomUniform() : Math.random());
     const die = (sides) => () => Math.max(1, Math.ceil(rand() * sides));
     const stock = stockMarket(die(6), die(10), pick);
     const body = stock.map((c) => `<p><b>${L(`NEONHOME.Market.Category.${c.category}`)}</b></p><ul>${c.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`).join("");

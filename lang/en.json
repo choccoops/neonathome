@@ -1826,7 +1826,27 @@
       "SuiteInstalled": "Cybersuite, installed in the Neuroport",
       "SuiteLoose": "Cybersuite, not installed",
       "SuiteBuiltIn": "Built-in quickhacks: {list}.",
-      "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time."
+      "SuiteHow": "Cybersuites are neuralware (Hospital, HL 7, one Neural Link slot): installed or swapped like any cyberware, from the character sheet, with its Humanity Loss. One holds the deck at a time.",
+      "Narrative": {
+        "Title": "Narrative Quickhack",
+        "WhatHint": "What you want it to do",
+        "JobLabel": "The job",
+        "CodeLabel": "The area's code",
+        "Job": {
+          "simple": "One simple command",
+          "brief": "Brief control",
+          "big": "One big command",
+          "lasting": "Lasting control"
+        },
+        "NoCode": "No code",
+        "Security": "Security Code {n}",
+        "Utility": "Utility Code {n}",
+        "Watched": "A Netrunner or Demon minds it (+2)",
+        "Roll": "Interface Check",
+        "Hint": "One networked machine you can see, in range to an architecture. Out of combat a few seconds; in combat your whole Turn (your Meat Action or all your NET Actions), one a Turn. A failure: nothing happens, and the same machine needs a better angle.",
+        "ok": "<b>{name}</b> quickhacks it: {what} ({total} vs DV{dv}).",
+        "fail": "<b>{name}</b>'s quickhack doesn't take: {what} ({total} vs DV{dv})."
+      }
     },
     "Dive": {
       "Title": "Deep Dive",

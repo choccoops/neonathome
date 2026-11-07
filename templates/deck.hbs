@@ -103,6 +103,18 @@
         </footer>
       </article>
       {{/with}}
+
+      <details class="nah-deck-narrative">
+        <summary><i class="fa-solid fa-wand-magic-sparkles"></i> {{localize "NEONHOME.Deck.Narrative.Title"}}</summary>
+        <div class="nah-deck-narrative-row">
+          <input type="text" name="nqWhat" placeholder="{{localize 'NEONHOME.Deck.Narrative.WhatHint'}}">
+          <select name="nqJob" aria-label="{{localize 'NEONHOME.Deck.Narrative.JobLabel'}}">{{#each narrative.jobs}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+          <select name="nqCode" aria-label="{{localize 'NEONHOME.Deck.Narrative.CodeLabel'}}">{{#each narrative.codes}}<option value="{{value}}">{{label}}</option>{{/each}}</select>
+          <label class="nah-check"><input type="checkbox" name="nqWatched"> {{localize "NEONHOME.Deck.Narrative.Watched"}}</label>
+          <button type="button" class="nah-primary" data-action="deckNarrative"><i class="fa-solid fa-dice-d10"></i> {{localize "NEONHOME.Deck.Narrative.Roll"}}</button>
+        </div>
+        <p class="nah-hint">{{localize "NEONHOME.Deck.Narrative.Hint"}}</p>
+      </details>
     </section>
 
     {{!-- ================= THE LIBRARY ================= --}}

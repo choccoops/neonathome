@@ -4,7 +4,7 @@ import { CPR } from "../cpr.js";
 import { HomeStore } from "../home/store.js";
 import { Downtime } from "../home/downtime.js";
 import { DeckOps, netActions } from "../home/deck-ops.js";
-import { LINKS, slotKind, slotSize, quickhackOf, deckBase, fits, cybersuiteOf } from "../data/netrun.js";
+import { LINKS, slotKind, slotSize, quickhackOf, deckBase, fits, cybersuiteOf, NARRATIVE_DV } from "../data/netrun.js";
 import { DnD } from "./home-app.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -97,6 +97,13 @@ export const Deck = {
     const base = rig.deck ? deckBase(rig.deck, MODULE_ID) : null;
     return {
       deck: {
+        // Narrative Quickhacks: the job, and the area's Security or Utility Code
+        narrative: {
+          jobs: Object.entries(NARRATIVE_DV).map(([k, dv]) => ({ value: k, label: `${game.i18n.localize(`NEONHOME.Deck.Narrative.Job.${k}`)} (DV${dv})` })),
+          codes: [{ value: "", label: game.i18n.localize("NEONHOME.Deck.Narrative.NoCode") },
+            ...Array.from({ length: 11 }, (_, n) => ({ value: `security:${n}`, label: game.i18n.format("NEONHOME.Deck.Narrative.Security", { n }) })),
+            ...Array.from({ length: 11 }, (_, n) => ({ value: `utility:${n}`, label: game.i18n.format("NEONHOME.Deck.Narrative.Utility", { n }) }))]
+        },
         isGM,
         hasDeck: !!rig.deck,
         deck: rig.deck ? {
@@ -140,6 +147,17 @@ export const Deck = {
   },
 
   actions: {
+    deckNarrative(event, target) {
+      const root = target.closest(".nah-deck-narrative");
+      const [by, code] = String(root?.querySelector("[name=nqCode]")?.value ?? "").split(":");
+      return this.act(() => DeckOps.narrative(this.actor, {
+        job: root?.querySelector("[name=nqJob]")?.value ?? "simple",
+        by: by || "security",
+        code: code ?? null,
+        watched: !!root?.querySelector("[name=nqWatched]")?.checked,
+        what: root?.querySelector("[name=nqWhat]")?.value ?? ""
+      }));
+    },
     deckDive() {
       // lazily: the Deep Dive window builds on this one's shell
       return import("./dive-app.js").then(({ DiveApp }) => DiveApp.open(this.actor));
