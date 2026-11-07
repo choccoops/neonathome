@@ -22,6 +22,11 @@ import { PerkOps } from "../home/perk-ops.js";
 import { DnD } from "./home-app.js";
 import { DrugOps, makerDomains, MAX_DOSES } from "../home/drug-ops.js";
 import { SYNTH, SYNTH_TIERS, MEDTECH_MAKER, synthJob, isCryoGear } from "../data/drugs.js";
+import { LifeOps } from "../home/life-ops.js";
+import {
+  TEACHERS, crewTeacher, trainingWeek, levelCost, ACADEMIC, NCU, SOURCING_DV, SOURCERS, canReach, ART, ART_SKILLS, artJob,
+  BODYSCULPT, BODYSCULPT_MINUTES, REST_PLACES, restDay, MARKET_FIND, MARKET_CATEGORIES
+} from "../data/living.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const eb = (n) => `${Number(n || 0).toLocaleString()}eb`;
@@ -33,7 +38,11 @@ const ACTIONS = {
     { id: "rest", icon: "fa-solid fa-bed", time: MIN.day },
     { id: "treat", icon: "fa-solid fa-kit-medical", time: TREATMENT_MINUTES },
     { id: "salvage", icon: "fa-solid fa-dumpster", time: SALVAGE_MINUTES },
+    { id: "train", icon: "fa-solid fa-graduation-cap", time: MIN.week },
     { id: "perkTraining", icon: "fa-solid fa-dumbbell", time: MIN.week },
+    { id: "art", icon: "fa-solid fa-palette" },
+    { id: "market", icon: "fa-solid fa-store", time: MIN.day },
+    { id: "source", icon: "fa-solid fa-truck-ramp-box", time: MIN.week },
     { id: "synth", icon: "fa-solid fa-flask" },
     { id: "workshop", icon: "fa-solid fa-screwdriver-wrench" },
     { id: "projects", icon: "fa-solid fa-diagram-project" }
@@ -46,7 +55,8 @@ const ACTIONS = {
   ],
   medtech: [
     { id: "pharma", icon: "fa-solid fa-syringe", time: MIN.hour },
-    { id: "therapy", icon: "fa-solid fa-couch", time: MIN.week }
+    { id: "therapy", icon: "fa-solid fa-couch", time: MIN.week },
+    { id: "bodysculpt", icon: "fa-solid fa-user-pen", time: BODYSCULPT_MINUTES }
   ],
   media: [
     { id: "rumor", icon: "fa-solid fa-user-secret" },
@@ -154,6 +164,8 @@ function panel(actor, id, p, { roles, state }) {
   let strip = null;
   let blueprintPiece = null;
   let whoTurnsUp = false;
+  let enroll = false;
+  let topOff = null;
   // Maker work as a Tech, or a Medtech's Specialty at 4+ (The Medtech as Maker)
   const domainPick = (kind) => {
     const list = makerDomains(actor, kind);
@@ -190,11 +202,18 @@ function panel(actor, id, p, { roles, state }) {
     }
     case "rest": {
       const days = Math.max(1, Math.floor(Number(p.days) || 1));
+      const place = REST_PLACES[p.place] ? p.place : "home";
       fields.push(field("days", "NEONHOME.Downtime.Field.days", { number: true, value: days, min: 1, max: 60 }));
+      fields.push(field("place", "NEONHOME.Rest.Field.place", { select: true, options: opt(Object.keys(REST_PLACES), place, (k) => L(`NEONHOME.Rest.Place.${k}`)) }));
       time = days * MIN.day;
-      const body = Number(foundry.utils.getProperty(actor, "system.stats.body.value")) || 0;
+      const plan = LifeOps.plan(actor);
+      const day = restDay(place, plan, { antibodies: DowntimeOps._antibodies(actor) });
+      const body = (Number(foundry.utils.getProperty(actor, "system.stats.body.value")) || 0) * day.rate;
       const hp = CPR.hp(actor);
       fact("NEONHOME.Downtime.Fact.heals", L("NEONHOME.Downtime.HealsHp", { n: Math.min(hp.max - hp.value, body * days), body }));
+      if (day.rate > 1) fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Rest.Double"));
+      if (place !== "home") fact("NEONHOME.Downtime.Fact.materials", day.eb ? L("NEONHOME.Rest.Cost", { each: eb(day.eb), total: eb(day.eb * days) }) : L("NEONHOME.Rest.Covered", { plan: L(`NEONHOME.Plan.Name.${plan}`) }));
+      if (day.eb * days > CPR.wealth(actor)) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(day.eb * days) });
       break;
     }
     case "treat": {
@@ -381,6 +400,133 @@ function panel(actor, id, p, { roles, state }) {
       if (CPR.wealth(actor) < t.eb) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(t.eb) });
       break;
     }
+    case "train": {
+      const skills = actor.items.filter((i) => i.type === "skill").sort((a, b) => a.name.localeCompare(b.name));
+      const skill = skills.find((i) => i.id === p.skill) ?? skills[0];
+      if (!skill) {
+        blocked = L("NEONHOME.Train.PickSkill");
+        break;
+      }
+      const lvl = Number(skill.system?.level) || 0;
+      const double = skill.system?.difficulty === "difficult";
+      const academic = ACADEMIC.includes(skill.system?.category);
+      const teacher = TEACHERS[p.teacher] ? p.teacher : "street";
+      fields.push(field("skill", "NEONHOME.Train.Field.skill", { select: true, options: skills.map((i) => ({ value: i.id, label: `${i.name} ${Number(i.system?.level) || 0}${i.system?.difficulty === "difficult" ? " (×2)" : ""}`, selected: i === skill })) }));
+      fields.push(field("teacher", "NEONHOME.Train.Field.teacher", { select: true, options: opt(Object.keys(TEACHERS), teacher, (k) => L(`NEONHOME.Train.Teacher.${k}`)) }));
+      let t = TEACHERS[teacher];
+      if (teacher === "crewmate") {
+        const mates = game.actors.filter((a) => a.type === "character" && a !== actor && (Number(CPR.skill(a, skill.name)?.system?.level) || 0) >= 6);
+        const mate = mates.find((a) => a.id === p.crewmate) ?? mates[0];
+        if (!mate) {
+          blocked = L("NEONHOME.Train.NoCrewmate", { skill: skill.name });
+          break;
+        }
+        fields.push(field("crewmate", "NEONHOME.Train.Field.crewmate", { select: true, options: mates.map((a) => ({ value: a.id, label: `${a.name} (${CPR.skill(a, skill.name)?.system?.level})`, selected: a === mate })) }));
+        t = crewTeacher(CPR.skill(mate, skill.name)?.system?.level);
+        p.crewmate = mate.id;
+      }
+      fields.push(field("chip", "NEONHOME.Train.Field.chip", { select: true, options: opt(["0", "1"], p.chip ? "1" : "0", (v) => L(v === "1" ? "NEONHOME.Train.Chip" : "NEONHOME.Train.NoChip")) }));
+      fields.push(field("push", "NEONHOME.Train.Field.push", { select: true, options: opt(["0", "1"], p.push ? "1" : "0", (v) => L(v === "1" ? "NEONHOME.Train.PushIt" : "NEONHOME.Train.NoPush")) }));
+      const hasElementary = PerkOps.record(actor).owned.some((o) => o.id === "elementary");
+      if (hasElementary && academic) fields.push(field("focus", "NEONHOME.Train.Field.focus", { select: true, options: opt(["0", "1"], p.focus ? "1" : "0", (v) => L(v === "1" ? "NEONHOME.Train.Focus" : "NEONHOME.Train.NoFocus")) }));
+      const chip = p.chip === "1" || p.chip === true;
+      const week = trainingWeek(t, { level: lvl, double, academic, chip, elementary: hasElementary && academic && (p.focus === "1" || p.focus === true) });
+      const banked = LifeOps.progress(actor)[skill.name] ?? 0;
+      const ncu = LifeOps.ncu(actor);
+      time = t.side ? null : MIN.week;
+      fact("NEONHOME.Train.Fact.progress", L("NEONHOME.Train.Progress", { have: banked, need: lvl < 10 ? levelCost(lvl + 1, double) : "—", level: lvl + 1 }));
+      fact("NEONHOME.Train.Fact.week", week.ok ? L("NEONHOME.Train.Week", { n: week.progress }) : "—");
+      const fee = teacher === "ncu" ? (ncu.weeks % NCU.termWeeks === 0 ? t.term : 0) : t.eb;
+      fact("NEONHOME.Downtime.Fact.materials", teacher === "ncu" ? L("NEONHOME.Train.Term", { eb: eb(t.term), weeks: ncu.weeks % NCU.termWeeks, due: eb(fee) }) : fee ? eb(fee) : L("NEONHOME.Train.Free"));
+      fact("NEONHOME.Train.Fact.max", String(t.max));
+      if (t.side) fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Train.SideNote"));
+      if (t.bd) fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Train.BdNote"));
+      if (p.push === "1" || p.push === true) fact("NEONHOME.Train.Fact.push", L("NEONHOME.Train.PushNote"));
+      if (!week.ok) blocked = L(`NEONHOME.Train.Why.${week.why}`, { skill: skill.name, max: t.max });
+      else if (teacher === "ncu" && !ncu.enrolled) {
+        blocked = L("NEONHOME.Train.NotEnrolled");
+        enroll = true;
+      } else if (fee > CPR.wealth(actor)) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(fee) });
+      if (lvl < 10) {
+        const gap = Math.max(0, levelCost(lvl + 1, double) - banked);
+        const ip = Number(foundry.utils.getProperty(actor, "system.improvementPoints.value")) || 0;
+        topOff = { skill: skill.id, n: gap, ip, short: gap > ip };
+      }
+      break;
+    }
+    case "source": {
+      const can = LifeOps.sourcers(actor);
+      if (!can.length) {
+        blocked = L("NEONHOME.Source.NoRole", { name: actor.name });
+        break;
+      }
+      const who = can.find((c) => c.role === p.role) ?? can[0];
+      if (can.length > 1) fields.push(field("role", "NEONHOME.Downtime.Field.role", { select: true, options: can.map((c) => ({ value: c.role, label: L(`NEONHOME.Downtime.Role.${c.role}`), selected: c === who })) }));
+      fields.push(field("item", "NEONHOME.Source.Field.item", { drop: true, value: p.itemInfo ?? null }));
+      time = MIN.week;
+      const s = SOURCERS[who.role];
+      fact("NEONHOME.Source.Fact.reach", ["expensive", "veryExpensive", "luxury", "superLuxury"].map((c, i) => `${L(`NEONHOME.Maint.Price.${c}`)} ${s.reach[i]}`).join(" · "));
+      fact("NEONHOME.Source.Fact.price", L(s.mult > 1 ? "NEONHOME.Source.Double" : "NEONHOME.Source.Market"));
+      if (s.goods) fact("NEONHOME.Downtime.Fact.note", L(`NEONHOME.Source.Goods.${who.role}`));
+      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Source.KnowIt"));
+      if (!p.itemInfo) {
+        blocked = L("NEONHOME.Downtime.DropItem");
+        break;
+      }
+      const cat = PRICE_CATEGORIES[Math.max(0, priceCategory(p.itemInfo.price))].key;
+      if (s.check && SOURCING_DV[cat]) fact("NEONHOME.Downtime.Fact.dv", `DV${SOURCING_DV[cat]}`);
+      fact("NEONHOME.Source.Fact.cost", eb(p.itemInfo.price * s.mult));
+      if (!SOURCING_DV[cat]) blocked = L("NEONHOME.Source.OffTheShelf", { item: p.itemInfo.name });
+      else if (!canReach(who.role, who.rank, cat)) blocked = L("NEONHOME.Source.OutOfReach", { name: actor.name, item: p.itemInfo.name, category: L(`NEONHOME.Maint.Price.${cat}`) });
+      else if (s.goods && !s.goods.includes(p.itemInfo.type)) blocked = L(`NEONHOME.Source.Goods.${who.role}`);
+      else if (p.itemInfo.price * s.mult > CPR.wealth(actor)) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(p.itemInfo.price * s.mult) });
+      break;
+    }
+    case "art": {
+      const quality = ART[p.quality] ? p.quality : "premium";
+      const skill = ART_SKILLS.includes(p.skill) ? p.skill : ART_SKILLS[0];
+      fields.push(field("title", "NEONHOME.Art.Field.title", { text: true, value: p.title ?? "" }));
+      fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(ART_SKILLS, skill, (s) => s) }));
+      fields.push(field("quality", "NEONHOME.Art.Field.quality", { select: true, options: opt(Object.keys(ART), quality, (q) => `${L(`NEONHOME.Maint.Price.${q}`)} (DV${ART[q].dv})`) }));
+      if (quality === "superLuxury") fields.push(field("value", "NEONHOME.Art.Field.value", { number: true, value: Math.floor(Number(p.value) || 10000), min: 10000, max: 1000000 }));
+      const job = artJob(quality, p.value);
+      time = job.minutes;
+      fact("NEONHOME.Downtime.Fact.dv", `DV${job.dv}`);
+      fact("NEONHOME.Downtime.Fact.materials", eb(job.eb));
+      fact("NEONHOME.Art.Fact.humanity", L("NEONHOME.Art.PerMonth", { n: job.humanity }));
+      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Art.Note"));
+      if (job.eb > CPR.wealth(actor)) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(job.eb) });
+      break;
+    }
+    case "market": {
+      const skill = MARKET_FIND[p.skill] ? p.skill : "Streetwise";
+      fields.push(field("skill", "NEONHOME.Downtime.Field.skill", { select: true, options: opt(Object.keys(MARKET_FIND), skill, (s) => `${s} (DV${MARKET_FIND[s]})`) }));
+      time = MIN.day;
+      fact("NEONHOME.Downtime.Fact.dv", `DV${MARKET_FIND[skill]}`);
+      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Market.Note"));
+      break;
+    }
+    case "bodysculpt": {
+      const list = patients(actor, { self: false });
+      const who = list.find((a) => a.id === p.patient) ?? list[0];
+      const kind = BODYSCULPT[p.kind] ? p.kind : "standard";
+      if (!who) {
+        blocked = L("NEONHOME.Downtime.PickPatient");
+        break;
+      }
+      fields.push(field("patient", "NEONHOME.Downtime.Field.patient", { select: true, options: list.map((a) => ({ value: a.id, label: a.name, selected: a === who })) }));
+      fields.push(field("kind", "NEONHOME.Sculpt.Field.kind", { select: true, options: opt(Object.keys(BODYSCULPT), kind, (k) => L(`NEONHOME.Sculpt.Kind.${k}`)) }));
+      fields.push(field("look", "NEONHOME.Sculpt.Field.look", { text: true, value: p.look ?? "" }));
+      time = BODYSCULPT_MINUTES;
+      fact("NEONHOME.Downtime.Fact.dv", `DV${BODYSCULPT[kind].dv}`);
+      fact("NEONHOME.Downtime.Fact.materials", eb(BODYSCULPT[kind].materials));
+      fact("NEONHOME.Downtime.Fact.roll", L("NEONHOME.Sculpt.Roll", { rank: CPR.abilityRank(actor, "Surgery Skill") }));
+      if (BODYSCULPT[kind].hl) fact("NEONHOME.Downtime.Fact.humanity", L("NEONHOME.Sculpt.Hl", { patient: who.name }));
+      fact("NEONHOME.Downtime.Fact.note", L("NEONHOME.Sculpt.Note"));
+      if (!CPR.abilityRank(actor, "Surgery Skill")) blocked = L("NEONHOME.Downtime.NeedsSurgery", { name: actor.name });
+      else if (BODYSCULPT[kind].materials > CPR.wealth(actor)) blocked = L("NEONHOME.Downtime.NoEb", { name: actor.name, eb: eb(BODYSCULPT[kind].materials) });
+      break;
+    }
     case "synth": {
       const list = DrugOps.recipes(actor);
       const r = list.find((x) => x.item.id === p.recipe) ?? list[0];
@@ -462,6 +608,8 @@ function panel(actor, id, p, { roles, state }) {
     }
     case "nightMarket": {
       time = MIN.day;
+      const pick = MARKET_CATEGORIES.includes(p.pick) ? p.pick : "";
+      fields.push(field("pick", "NEONHOME.Market.Field.pick", { select: true, options: [{ value: "", label: L("NEONHOME.Market.RollBoth"), selected: !pick }, ...MARKET_CATEGORIES.map((c) => ({ value: c, label: L(`NEONHOME.Market.Category.${c}`), selected: c === pick }))] }));
       const rank = roles.fixer ?? 0;
       fact("NEONHOME.Downtime.Fact.rank", L("NEONHOME.Downtime.OperatorRank", { n: rank }));
       if (rank < NIGHT_MARKET_RANK) blocked = L("NEONHOME.Downtime.NightMarketRank", { name: actor.name });
@@ -475,7 +623,7 @@ function panel(actor, id, p, { roles, state }) {
     ? ProjectOps.list(actor).filter((x) => x.kind === id).map((x) => ({ label: x.label, pct: meter(x).pct, stage: L(`NEONHOME.Project.Stage.${stage(x)}`, { left: formatMinutes(x.minutes - x.done) }) }))
     : [];
   // nothing to roll: just the time spent
-  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket", blueprintPiece, whoTurnsUp };
+  return { underway, fields, facts, time, blocked, table, maker: spread, strip, stripping: id === "strip", noRoll: id === "rest" || id === "nightMarket" || (id === "source" && !SOURCERS[(LifeOps.sourcers(actor).find((c) => c.role === p.role) ?? LifeOps.sourcers(actor)[0])?.role]?.check), blueprintPiece, whoTurnsUp, enroll, topOff };
 }
 
 export const DowntimeTab = {
@@ -603,6 +751,17 @@ export const DowntimeTab = {
       }
       if (id === "salvage") return this.act(() => SalvageOps.trip(this.actor, params, { event }));
       if (id === "synth") return this.act(() => DrugOps.cook(this.actor, params, { event }));
+      if (id === "train") return this.act(() => LifeOps.train(this.actor, { ...params, chip: params.chip === "1", push: params.push === "1", focus: params.focus === "1" }, { event }));
+      if (id === "source") return this.act(() => LifeOps.source(this.actor, params, { event }));
+      if (id === "art") return this.act(() => LifeOps.art(this.actor, params, { event }));
+      if (id === "market") return this.act(() => LifeOps.market(this.actor, params, { event }));
+      if (id === "bodysculpt") return this.act(() => LifeOps.bodysculpt(this.actor, params, { event }));
+      if (id === "nightMarket") {
+        return this.act(async () => {
+          const res = await DowntimeOps.perform(this.actor, id, params, { event });
+          if (res?.ok) await LifeOps._stock(this.actor, params.pick || null);
+        });
+      }
       if (id === "strip") {
         return this.act(async () => {
           const res = await SalvageOps.strip(this.actor, params.picks, params.tier ?? "costly", params.count ?? 1);
@@ -658,6 +817,12 @@ export const DowntimeTab = {
         });
         if (ok) await SalvageOps.leave(this.actor, id);
       });
+    },
+    dtEnroll(event, target) {
+      return this.act(() => LifeOps.enroll(this.actor, { donate: target.dataset.donate === "1" }, { event }));
+    },
+    dtTopOff(event, target) {
+      return this.act(() => LifeOps.topOff(this.actor, target.dataset.skill));
     },
     dtWhoTurnsUp() {
       const p = this.uiState.downtime?.params?.salvage ?? {};

@@ -15,6 +15,7 @@ import { DiveApp } from "./apps/dive-app.js";
 import { DiveOps, DIVE_FLAG } from "./home/dive-ops.js";
 import { generate as generateArch } from "./data/netarch.js";
 import { DrugOps } from "./home/drug-ops.js";
+import { LifeOps } from "./home/life-ops.js";
 import { DeckOps } from "./home/deck-ops.js";
 import { PerkOps, PERK_EFFECT } from "./home/perk-ops.js";
 import { registerFeature, features } from "./apps/features.js";
@@ -661,4 +662,28 @@ Hooks.on("updateCombat", (combat, changes) => {
   const actor = combat.combatant?.actor;
   if (!actor || !DiveOps.dive(actor)) return;
   DiveOps.newTurn(actor).catch((err) => console.warn(`${MODULE_ID} | a new NET Turn for ${actor.name} failed`, err));
+});
+
+/* ------------------------------------------ */
+/*  Maximum Humanity (2070)                   */
+/* ------------------------------------------ */
+
+// 2070's corrections to Maximum Humanity follow the chrome installed and the lifestyle
+const maxHumPending = new Map();
+const queueMaxHumanity = (actor) => {
+  if (!(actor instanceof Actor) || actor.type !== "character" || !actor.isOwner) return;
+  if (game.user.isGM && game.users.some((u) => u.active && !u.isGM && actor.testUserPermission(u, "OWNER"))) return;
+  clearTimeout(maxHumPending.get(actor.id));
+  maxHumPending.set(actor.id, setTimeout(() => {
+    maxHumPending.delete(actor.id);
+    LifeOps.syncMaxHumanity(actor).catch((err) => console.warn(`${MODULE_ID} | Maximum Humanity sync failed for ${actor.name}`, err));
+  }, 400));
+};
+for (const hook of ["createItem", "updateItem", "deleteItem"]) {
+  Hooks.on(hook, (item) => {
+    if (item.type === "cyberware" || item.flags?.[NEON_HUB_ID]?.lifestyle) queueMaxHumanity(item.parent);
+  });
+}
+Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
+  for (const a of game.actors.filter((x) => x.type === "character")) queueMaxHumanity(a);
 });

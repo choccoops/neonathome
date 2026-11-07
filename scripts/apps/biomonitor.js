@@ -6,6 +6,8 @@ import { HomeStore } from "../home/store.js";
 import { HomeOps } from "../home/ops.js";
 import { SYNDROMES, SEVERITIES, TIERS, psycheState } from "../data/syndromes.js";
 import { traumaMap, ANCHORS, SEVERED_SHAPES } from "../data/injuries.js";
+import { LifeOps } from "../home/life-ops.js";
+import { HEALTH_PLANS } from "../data/living.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -240,11 +242,25 @@ export const Biomonitor = {
         },
         humanity: {
           ...hum,
+          // 2070's Maximum Humanity, piece by piece
+          maxTip: (() => {
+            const m = LifeOps.maxHumanity(actor);
+            return [L("NEONHOME.MaxHumanity.Title", { n: m.max }), ...m.lines.map((l) => `${l.label === "base" ? L("NEONHOME.MaxHumanity.Base") : l.label === "freshFood" ? L("NEONHOME.MaxHumanity.FreshFood") : esc(l.label)}: ${l.n > 0 && l.label !== "base" ? "+" : ""}${l.n}`)].join("<br>");
+          })(),
           pct: pct(Math.max(0, hum.value), scale),
           markers: [30, 20, 10].filter((m) => m < scale).map((m) => ({ value: m, pct: pct(m, scale) }))
         },
         emp,
         syndromesOn: !!Settings.get("syndromes"),
+        plan: (() => {
+          const key = LifeOps.plan(actor);
+          return {
+            key,
+            name: key ? L(`NEONHOME.Plan.Name.${key}`) : L("NEONHOME.Plan.None"),
+            canCall: !!HEALTH_PLANS[key]?.arrives,
+            options: [{ value: "", label: L("NEONHOME.Plan.None"), selected: !key }, ...Object.keys(HEALTH_PLANS).map((k) => ({ value: k, label: `${L(`NEONHOME.Plan.Name.${k}`)}${HEALTH_PLANS[k].eb ? ` (${HEALTH_PLANS[k].eb}eb/mo)` : ""}`, selected: k === key }))]
+          };
+        })(),
         view: { vitals: view !== "cyber", cyber: view === "cyber" },
         cyber: cyberContext(actor, isGM)
       }
@@ -300,6 +316,9 @@ export const Biomonitor = {
   },
 
   actions: {
+    bioCallPlan() {
+      return this.act(() => LifeOps.callPlan(this.actor));
+    },
     async bioAddSyndrome() {
       const actor = this.actor;
       const state = psycheState(HomeStore.psyche(actor), CPR.humanity(actor).value);
@@ -388,5 +407,11 @@ export const Biomonitor = {
     bioOpenInjury(event, target) {
       this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId)?.sheet.render(true);
     }
+  },
+
+  onRender(app, root) {
+    // the health plan (Chapter 08), as the character's player or the GM keeps it
+    const plan = root.querySelector("[data-bio-plan]");
+    plan?.addEventListener("change", () => app.act(() => LifeOps.setPlan(app.actor, plan.value)));
   }
 };

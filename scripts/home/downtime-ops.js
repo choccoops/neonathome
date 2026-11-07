@@ -7,6 +7,7 @@ import { Downtime, formatMinutes } from "./downtime.js";
 import { KINDS, kindOf } from "../data/maintenance.js";
 import { TRAINING, PERK_BY_ID } from "../data/perks.js";
 import { PerkOps } from "./perk-ops.js";
+import { restDay, REST_PLACES } from "../data/living.js";
 import {
   MIN, hustle, HUSTLES, interesting, INTERESTING, INTERESTING_EXAMPLES, PHARMA, PHARMA_DV, PHARMA_MATERIALS, THERAPY, RUMORS, believability, TREATMENT_MINUTES, treatments,
   NIGHT_MARKET_RANK
@@ -135,19 +136,33 @@ export const DowntimeOps = {
     return { ...res, roll: roll.total, spent, interesting: developments };
   },
 
-  /** Rest (p.222): a full day of rest heals BODY HP. */
-  async _rest(actor, { days = 1 } = {}) {
+  /**
+   * Rest (p.222; 2070, Chapter 08): a full day of rest heals BODY HP; twice that in a cryotank or
+   * with Enhanced Antibodies. A hospital bed or tank costs by the day (the health plan may cover it).
+   * @param {object} p - { days, place: home|hospital|cryoHospital|cryoMedtech }
+   */
+  async _rest(actor, { days = 1, place = "home" } = {}) {
     const d = Math.max(1, Math.floor(Number(days) || 1));
-    await Downtime.spend(actor, d * MIN.day, { label: L("NEONHOME.Downtime.Action.rest"), data: { action: "rest", days: d } });
+    const where = REST_PLACES[place] ? place : "home";
+    const day = restDay(where, actor.getFlag(MODULE_ID, "healthPlan"), { antibodies: this._antibodies(actor) });
+    this._canAfford(actor, day.eb * d);
+    const label = L("NEONHOME.Downtime.Action.rest");
+    await Downtime.spend(actor, d * MIN.day, { label, data: { action: "rest", days: d, place: where } });
+    if (day.eb) await this._pay(actor, day.eb * d, L(`NEONHOME.Rest.Place.${where}`));
     const body = Number(foundry.utils.getProperty(actor, "system.stats.body.value")) || 0;
     const hp = CPR.hp(actor);
-    const healed = Math.min(hp.max - hp.value, body * d);
+    const healed = Math.min(hp.max - hp.value, body * day.rate * d);
     if (healed > 0) await actor.update({ "system.derivedStats.hp.value": hp.value + healed });
     await ChatMessage.create({
       content: HomeOps._card("fa-solid fa-bed", L("NEONHOME.Downtime.RestCard", { name: esc(actor.name), days: d, hp: healed })),
       speaker: ChatMessage.getSpeaker({ actor })
     });
     return { healed };
+  },
+
+  /** Enhanced Antibodies installed: healing at 2 × BODY a day. */
+  _antibodies(actor) {
+    return actor.items.some((i) => i.type === "cyberware" && /enhanced antibodies/i.test(i.name) && i.system?.isInstalled);
   },
 
   /**
@@ -410,6 +425,7 @@ export const DowntimeOps = {
       return 0;
     }
     if (op === "humanity") return CPR.changeHumanity(patient, Math.max(0, Math.floor(Number(amount) || 0)), reason);
+    if (op === "humanityLoss") return CPR.changeHumanity(patient, -Math.max(0, Math.floor(Number(amount) || 0)), reason);
     if (op === "repair") {
       const it = patient.items.get(item);
       if (!it) return 0;
@@ -436,7 +452,7 @@ export const DowntimeOps = {
     const patient = await fromUuid(patientUuid);
     if (!doctor || !patient) throw new Error(L("NEONHOME.Error.NotFound"));
     if (!doctor.testUserPermission(user, "OWNER")) throw new Error(L("NEONHOME.Error.NoPermission"));
-    if (!["deleteInjury", "humanity", "repair"].includes(change?.op)) throw new Error("Not allowed");
+    if (!["deleteInjury", "humanity", "humanityLoss", "repair"].includes(change?.op)) throw new Error("Not allowed");
     return this._applyPatient(patient, change);
   }
 };
