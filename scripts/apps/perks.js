@@ -150,7 +150,7 @@ function detail(perk, ctx) {
     none: !perk.req.length,
     hasDeed: hasDeed(perk),
     confirmed: !!ctx.record.deeds[perk.id],
-    sheet: fx.map((c) => L(`NEONHOME.Perks.Fx.${c.sit ? "sit" : "on"}`, { key: L(`NEONHOME.Perks.Key.${c.key.replace(/^bonuses\.|^system\.stats\.|\.value$/g, "")}`), value: c.value > 0 ? `+${c.value}` : c.value })),
+    sheet: fx.map((c) => PerkOps.changeLabel(c)),
     choose: choose && !owned ? L("NEONHOME.Perks.ChooseNote") : "",
     noFx: !perk.fx?.length,
     slot: perk.slot ? L(`NEONHOME.Perks.Slot.${perk.slot}`) : "",

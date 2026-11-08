@@ -29,6 +29,8 @@ function category(key) {
   if (key.startsWith("system.stats.")) return "stat";
   if (["bonuses.allActions", "bonuses.allActionsHands", "bonuses.allActionsSpeech"].includes(key)) return "misc";
   if (["bonuses.universalAttack", "bonuses.universalDamage", "bonuses.aimedShot", "bonuses.initiative", "bonuses.melee", "bonuses.ranged"].includes(key)) return "combat";
+  // Role Ability bonuses aren't in the skill list of CPR's effect sheet: shown as a custom key
+  if (["bonuses.fabricationExpertise", "bonuses.upgradeExpertise"].includes(key)) return "custom";
   return "skill";
 }
 
@@ -78,7 +80,9 @@ export const PerkOps = {
     const stats = {};
     for (const s of STATS) stats[s] = Number(src.stats?.[s]?.value) || 0;
     const hp = foundry.utils.getProperty(actor, "system.derivedStats.hp") ?? {};
-    return { stats, hp: { value: Number(hp.value) || 0, max: Number(hp.max) || 0 } };
+    const skills = [...(actor?.items ?? [])].filter((i) => i.type === "skill")
+      .map((i) => ({ name: i.name, stat: i.system?.stat ?? "", category: i.system?.category ?? "", type: i.system?.skillType ?? "" }));
+    return { stats, hp: { value: Number(hp.value) || 0, max: Number(hp.max) || 0 }, skills, roles: CPR.roles(actor) };
   },
 
   points(actor, record = this.record(actor)) {
@@ -170,6 +174,23 @@ export const PerkOps = {
   /*  On the sheet                            */
   /* ---------------------------------------- */
 
+  /** How a sheet change reads: "+1 Interrogation", with "(situational, in the roll dialog)". */
+  changeLabel(c) {
+    const key = c.label ?? L(`NEONHOME.Perks.Key.${c.key.replace(/^bonuses\.|^system\.stats\.|\.value$/g, "")}`);
+    return L(`NEONHOME.Perks.Fx.${c.sit ? "sit" : "on"}`, { key, value: c.value > 0 ? `+${c.value}` : c.value });
+  },
+
+  /**
+   * The effect's description on the sheet: the perk's text, what it puts on the sheet (and which of
+   * that waits in the roll dialog), and that the rest is played at the table.
+   */
+  describe(perk, changes) {
+    const lines = changes.map((c) => `<li>${esc(this.changeLabel(c))}</li>`).join("");
+    const sheet = lines ? `<p><strong>${esc(L("NEONHOME.Perks.OnTheSheet"))}</strong></p><ul>${lines}</ul>` : "";
+    const rest = `<p><em>${esc(L(lines ? "NEONHOME.Perks.FxRest" : "NEONHOME.Perks.FxNone"))}</em></p>`;
+    return `<p>${esc(perk.text)}</p>${sheet}${rest}`;
+  },
+
   /** Switch an owned perk's effect on or off (as the sheet's own toggle does). */
   async toggle(actor, id, on) {
     const e = this.effect(actor, id);
@@ -214,11 +235,12 @@ export const PerkOps = {
         situational: Object.fromEntries(changes.map((c, i) => [i, { isSituational: c.sit, onByDefault: false }]))
       };
       const e = this.effect(actor, id);
+      const description = this.describe(perk, changes);
       if (!e) {
         create.push({
           name: L("NEONHOME.Perks.EffectName", { perk: perk.name }),
           img: "icons/svg/upgrade.svg",
-          description: `<p>${esc(perk.text)}</p>`,
+          description,
           disabled: asleep,
           changes: data.changes,
           flags: { [MODULE_ID]: { [PERK_EFFECT]: id, ...(asleep ? { [PERK_DORMANT]: true } : {}) }, [SYSTEM_ID]: { changes: { cats: data.cats, situational: data.situational } } }
@@ -230,6 +252,7 @@ export const PerkOps = {
       if (now !== JSON.stringify(data.changes.map((c) => [c.key, Number(c.value)]))) {
         Object.assign(update, { changes: data.changes, [`flags.${SYSTEM_ID}.changes.cats`]: data.cats, [`flags.${SYSTEM_ID}.changes.situational`]: data.situational });
       }
+      if ((e.description ?? "") !== description) update.description = description;
       const ours = !!e.getFlag(MODULE_ID, PERK_DORMANT);
       if (asleep && !e.disabled) Object.assign(update, { disabled: true, [`flags.${MODULE_ID}.${PERK_DORMANT}`]: true });
       else if (!asleep && ours) Object.assign(update, { disabled: false, [`flags.${MODULE_ID}.-=${PERK_DORMANT}`]: null });

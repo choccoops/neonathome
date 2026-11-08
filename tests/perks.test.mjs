@@ -267,3 +267,49 @@ test("the Perk Tree renders: points, the active perks, branches, the tree and th
   }
   assert.deepEqual([...missingKeys].filter((k) => k.includes("Perks")), []);
 });
+
+test("perks by kind of Skill: each of the character's own matching Skills, by Cyberpunk RED's own keys", async () => {
+  assert.equal(data.cprSlug("Resist Torture/Drugs"), "resistTortureOrDrugs");
+  assert.equal(data.cprSlug("Electronics/Security Tech"), "electronicsAndSecurityTech");
+  assert.equal(data.cprSlug("Martial Arts (Karate)"), "martialArts(Karate)");
+  assert.equal(data.cprSlug("Language (Streetslang)"), "languageStreetslang");
+  const sk = (name, stat, category, type = "generic") => ({ name, stat, category, type });
+  const base = {
+    stats: {}, hp: { value: 10, max: 10 }, roles: { nomad: 4 },
+    skills: [sk("Brawling", "dex", "fightingSkills"), sk("Martial Arts (Karate)", "dex", "fightingSkills", "martialArt"), sk("Persuasion", "cool", "socialSkills"),
+      sk("Concentration", "will", "awarenessSkills"), sk("Human Perception", "emp", "socialSkills"), sk("Education", "int", "educationSkills"),
+      sk("Local Expert (Your Home)", "int", "educationSkills", "localExpert"), sk("Drive Land Vehicle", "ref", "controlSkills")]
+  };
+  const keys = (id) => data.perkChanges(data.PERK_BY_ID.get(id), {}, base).map((c) => `${c.key}:${c.value}:${c.sit}`);
+  assert.deepEqual(keys("familyMan"), ["bonuses.persuasion:1:true", "bonuses.concentration:1:true", "bonuses.humanPerception:1:true"]);
+  assert.deepEqual(keys("hiddenDragon"), ["bonuses.brawling:1:true", "bonuses.martialArts(Karate):1:true"]);
+  assert.deepEqual(keys("nightCitizen"), ["bonuses.localExpert(YourHome):2:true"], "every Local Expert, by its own key");
+  assert.deepEqual(keys("wellTravelled"), ["bonuses.education:4:true", "bonuses.localExpert(YourHome):4:true"], "the Moto rank");
+  assert.deepEqual(keys("wellTravelled").length && data.perkChanges(data.PERK_BY_ID.get("wellTravelled"), {}, { ...base, roles: {} }), [], "no Moto, nothing");
+  assert.deepEqual(keys("leadFoot"), ["bonuses.driveLandVehicle:1:true"]);
+  assert.deepEqual(keys("chromeDome"), ["bonuses.fabricationExpertise:2:true", "bonuses.upgradeExpertise:2:true"]);
+  assert.equal(data.perkChanges(data.PERK_BY_ID.get("familyMan"), {}, base)[0].label, "Persuasion");
+});
+
+test("a perk's effect describes itself on the sheet, and keeps up with the character's Skills", async () => {
+  const a = character("Selfdesc", {
+    stats: { cool: 8 },
+    items: [{ ...skill("Persuasion", 4, "socialSkills"), system: { level: 4, category: "socialSkills", skillType: "generic", stat: "cool" } }]
+  });
+  await PerkOps.award(a, 5, "test");
+  await PerkOps.buy(a, "familyMan", { force: true });
+  await PerkOps.buy(a, "corpseScrounger", { force: true });
+  await PerkOps.sync(a);
+  const fam = PerkOps.effect(a, "familyMan");
+  assert.deepEqual(fam.changes.map((c) => c.key), ["bonuses.persuasion"]);
+  assert.ok(fam.description.includes("Persuasion +1 (situational, in the roll dialog)"), fam.description);
+  assert.ok(fam.description.includes("played at the table"));
+  const corpse = PerkOps.effect(a, "corpseScrounger");
+  assert.equal(corpse.changes.length, 0);
+  assert.ok(corpse.description.includes("Searching a body") && corpse.description.includes("Nothing in it is a number"), corpse.description);
+  // a new COOL Skill joins the bonus, and the description with it
+  await a.createEmbeddedDocuments("Item", [{ name: "Streetwise", type: "skill", system: { level: 2, category: "socialSkills", skillType: "generic", stat: "cool" } }]);
+  await PerkOps.sync(a);
+  assert.deepEqual(PerkOps.effect(a, "familyMan").changes.map((c) => c.key), ["bonuses.persuasion", "bonuses.streetwise"]);
+  assert.ok(PerkOps.effect(a, "familyMan").description.includes("Streetwise +1"));
+});

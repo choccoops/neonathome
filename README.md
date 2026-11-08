@@ -614,13 +614,22 @@ Specialty and Free City.
   Lifepath entry) wait for the GM to confirm them. Creation-only perks can be bought while the GM
   keeps creation open. One Cyber and one Weapon specialty at a time; drop one for 1 Perk Point.
   **Perk Fiend** flips its coin by itself.
-- **On the sheet.** Each perk the character has is an Active Effect named *Perk: (name)* with the
-  perk's text, switched on and off with Cyberpunk RED's own toggle in the sheet's Effects (or
-  from the tree). Where a perk is a number, the effect carries it: STAT boosts within their caps
-  (+1 to a STAT the player picks for Savior, Main-Character and God Complex; Obsessively Healthy's
-  only at full HP), and Skill, attack and All Actions bonuses, the situational ones offered in the
-  roll dialog. A perk whose STAT, Skill or Lifestyle requirement stops being met switches off
-  until it's met again.
+- **On the sheet.** Each perk the character has is an Active Effect named *Perk: (name)*, switched
+  on and off with Cyberpunk RED's own toggle in the sheet's Effects (or from the tree). Its
+  description is the perk's text, then what it puts on the sheet, then a note that the rest is
+  played at the table. Where a perk is a number, the effect carries it:
+  - STAT boosts within their caps (+1 to a STAT the player picks for Savior, Main-Character and God
+    Complex; Obsessively Healthy's only at full HP);
+  - Skill, Role Ability, attack and All Actions bonuses, the situational ones offered in the roll
+    dialog;
+  - bonuses to every Skill of a kind the character has, kept up as their Skills change: Family Man
+    (+1 to COOL, EMP and WILL Skills), Rimbo, Who Loves Ya (Social Skills), Elementary and Watsonian
+    (Education Skills, for the focus), Hidden Dragon (Brawling and every Martial Art), Lead Foot
+    (Drive and Pilot), Night Citizen (every Local Expert), Well Travelled (the Moto rank to
+    Education and Local Expert), Chrome Dome (+2 Fabrication and Upgrade Expertise).
+
+  A perk whose STAT, Skill or Lifestyle requirement stops being met switches off until it's met
+  again.
 - **The GM** can award or take back points, confirm what's been done in play, open or close
   creation, recount Role ranks from now, grant a perk (with or without its points), and refund a
   perk, refund it for good, or take it away with its points.
