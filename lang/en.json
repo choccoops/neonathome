@@ -611,7 +611,15 @@
       "BenefitsHint": "Ignores half armor\n+2 Stealth while concealed",
       "Description": "Description",
       "Crafted": "{name} made. It's on the character, ready to attach.",
-      "NoCrafting": "Only the GM can make custom attachments."
+      "NoCrafting": "Only the GM can make custom attachments.",
+      "Rebuild": {
+        "ignoreBelowSP": "In a fight: ignores armor below SP{sp}.",
+        "pushBody": "In a fight: a target it hits with BODY under {body} is pushed {metres} m/yds away.",
+        "push": "In a fight: a target it hits is pushed {metres} m/yds away.",
+        "ricochet": "In a fight: {value} to ricochets (not Aimed Shots).",
+        "Tier": "Tier",
+        "ByHand": "(Neon Combat Manager does this automatically; without it, at the table.)"
+      }
     },
     "Config": {
       "Carry": "Carry slots & weight",

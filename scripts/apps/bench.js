@@ -1,4 +1,4 @@
-import { MODULE_ID, TEMPLATE_PATH } from "../constants.js";
+import { MODULE_ID, TEMPLATE_PATH, NCM_ID } from "../constants.js";
 import { Compat } from "../compat.js";
 import { CPR } from "../cpr.js";
 import { Settings } from "../settings.js";
@@ -7,6 +7,7 @@ import { HomeOps } from "../home/ops.js";
 import { Downtime } from "../home/downtime.js";
 import { effectiveWeapon, socketLayout, benefits, canAttach, canDetach } from "../data/attachments.js";
 import { excerpt } from "../data/util.js";
+import { rebuildInfo } from "../data/rebuilds.js";
 import { DnD } from "./home-app.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -40,9 +41,24 @@ const weaponTypeLabel = (t) => {
   return t ? L(`CPR.global.weaponType.${key}`) : "";
 };
 
+/** A Rebuild's effect in a fight, as benefit lines (Neon Combat Manager applies it; without it, the table does). */
+function rebuildLines(upgrade) {
+  const info = rebuildInfo(upgrade.name, upgrade.flags?.[MODULE_ID]?.rebuildTier);
+  if (!info) return [];
+  const byHand = game.modules.get(NCM_ID)?.active ? "" : ` ${L("NEONHOME.Bench.Rebuild.ByHand")}`;
+  return info.lines.map((l) => ({ text: `${L(`NEONHOME.Bench.Rebuild.${l.key}`, l.data)}${byHand}`, combat: true }));
+}
+
+/** The tiers to pick from, when a Rebuild's item covers several. */
+function tierChoice(upgrade) {
+  const info = rebuildInfo(upgrade.name, upgrade.flags?.[MODULE_ID]?.rebuildTier);
+  if (!info?.choose) return null;
+  return { tiers: info.tiers.map((t) => ({ value: t, selected: t === info.tier })) };
+}
+
 /** Benefit lines as text. */
 function benefitText(upgrade) {
-  return benefits(upgrade, MODULE_ID, { effects: effectLines(upgrade) }).map((b) => {
+  return [...benefits(upgrade, MODULE_ID, { effects: effectLines(upgrade) }).map((b) => {
     switch (b.kind) {
       case "modifier":
         return { text: L(`NEONHOME.Bench.Mod.${b.point}`, { value: signed(b.value) }), situational: b.situational };
@@ -55,7 +71,7 @@ function benefitText(upgrade) {
       default:
         return { text: b.text, custom: true };
     }
-  });
+  }), ...rebuildLines(upgrade)];
 }
 
 /** The form for a custom attachment. */
@@ -161,7 +177,7 @@ export const Bench = {
           sockets,
           attachments: upgrades.map((u) => ({
             id: u.id, name: u.name, img: u.img, size: Number(u.system.size ?? 1), benefits: benefitText(u),
-            canDetach: canDetach(u, MODULE_ID), description: excerpt(u.system.description?.value, 160)
+            canDetach: canDetach(u, MODULE_ID), description: excerpt(u.system.description?.value, 160), rebuild: tierChoice(u)
           }))
         }
       }
@@ -169,6 +185,10 @@ export const Bench = {
   },
 
   onRender(app, el) {
+    // A Rebuild's tier, when its item covers several (Neon Combat Manager reads it).
+    for (const sel of el.querySelectorAll("select[data-tier]")) {
+      sel.addEventListener("change", () => app.act(() => app.actor.items.get(sel.dataset.tier)?.setFlag(MODULE_ID, "rebuildTier", sel.value)));
+    }
     DnD.sources(el);
     DnD.targets(el, (data, target) => {
       if (!data.neonHome || !data.itemId) return;

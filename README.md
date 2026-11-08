@@ -317,6 +317,12 @@ custom lines. The drawer lists the attachments that fit, from the character and 
 (those are brought over when attached). Drag them onto the bench, or drag one off. Attachments
 marked **fixed** stay on.
 
+**Rebuilds in a fight.** A Rebuild that does something on every attack shows it under the
+attachment: Mono-edge Blading and the Monoblade Rebuild (armor below SP7, 11 or 13 is ignored),
+Propulsion Impact (the target is pushed 2 or 4 m/yds) and the Ricochet Compensator (+1 to
+ricochets). When one item covers every tier, pick its tier there. Neon Combat Manager (1.17+)
+applies them: this module hands it the list in its `registerRebuilds` hook.
+
 **Custom attachment** makes a new attachment item: name, slots, modifiers (added or set), and
 free-text benefits. Players can make their own if the GM allows it.
 
