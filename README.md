@@ -64,7 +64,7 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
 - **Macros**: the **Neon At Home: Macros** compendium has one for each window: Home, Loadout,
   Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor, Perk Tree, Spend IP and
   Deep Dive. Each opens for the selected token's character (or your own). Put them on the
-  hotbar, drop them on **Neon Combat Manager's Action HUD** (1.13+, its Macros group), or run
+  hotbar, drop them on **Neon Combat Manager's Action HUD** (1.15+, its Macros group), or run
   them from a Neon Hub page button or an active tile. Players run the copies they drag to their
   own hotbar; for copies the GM imports, give players Limited ownership.
 - The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons at the top of the Actors sidebar

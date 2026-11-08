@@ -1,11 +1,16 @@
 # Changelog
 
+## 1.11.1
+
+- Docs: the window macros go in Neon Combat Manager's Action HUD from its **1.15.0** (it shipped
+  there, not 1.13).
+
 ## 1.11.0
 
 - **Macros compendium** (*Neon At Home: Macros*): one macro for each window (Home, Loadout,
   Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor, Perk Tree, Spend IP,
   Deep Dive), each opening for the selected token's character or your own, with its own neon icon.
-  For the hotbar, Neon Combat Manager's Action HUD (1.13+), Neon Hub page buttons and active tiles.
+  For the hotbar, Neon Combat Manager's Action HUD (1.15+), Neon Hub page buttons and active tiles.
 - **The character sheet's header is left alone**: Neon At Home's buttons there are off by default,
   so the sheet's own (Close among them) have room. A setting brings back Home only, or all four.
 - The **Spend IP** button read "That takes {need} IP…": its label and a warning had the same
