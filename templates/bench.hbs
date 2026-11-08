@@ -1,6 +1,6 @@
 {{#*inline "nahBenefits"}}
 <ul class="nah-benefits">
-  {{#each benefits}}<li class="{{#if custom}}is-custom{{/if}} {{#if effect}}is-effect{{/if}}"><i class="fa-solid fa-angle-right"></i> {{text}}{{#if situational}} <em>({{localize "NEONHOME.Bench.Situational"}})</em>{{/if}}</li>{{else}}<li class="nah-hint">{{localize "NEONHOME.Bench.NoBenefits"}}</li>{{/each}}
+  {{#each benefits}}<li class="{{#if custom}}is-custom{{/if}} {{#if effect}}is-effect{{/if}} {{#if combat}}is-combat{{/if}}"><i class="fa-solid fa-angle-right"></i> {{text}}{{#if situational}} <em>({{localize "NEONHOME.Bench.Situational"}})</em>{{/if}}</li>{{else}}<li class="nah-hint">{{localize "NEONHOME.Bench.NoBenefits"}}</li>{{/each}}
 </ul>
 {{/inline}}
 
@@ -67,6 +67,7 @@
           {{else}}<span class="nah-chip" data-tooltip="{{localize 'NEONHOME.Bench.FixedTip'}}"><i class="fa-solid fa-lock"></i></span>{{/if}}
         </header>
         {{> nahBenefits}}
+        {{#if rebuild}}<label class="nah-tier">{{localize "NEONHOME.Bench.Rebuild.Tier"}} <select data-tier="{{id}}">{{#each rebuild.tiers}}<option value="{{value}}"{{#if selected}} selected{{/if}}>{{value}}</option>{{/each}}</select></label>{{/if}}
       </article>
       {{else}}
       <p class="nah-hint nah-dropzone">{{localize "NEONHOME.Bench.NoneAttached"}}</p>

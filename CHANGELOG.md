@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.0
+
+- **Weapon Rebuilds in a fight.** With Neon Combat Manager 1.17 (its Neon Arsenal), the Melee Rebuilds and the Ricochet Compensator work on every attack: **Mono-edge Blading** and the **Monoblade Rebuild** ignore armor below SP7, 11 or 13 by tier; **Propulsion Impact** pushes whoever it hits 2 m/yds (BODY under 13) or 4 m/yds, stopping at walls; the **Ricochet Compensator** makes a Power gun's ricochets −3 instead of −4. This module hands Neon Combat Manager the list (`cpr-neon-combat-manager.registerRebuilds`).
+- **The Weaponbench says what a Rebuild does in a fight** under the attachment, and when one item covers every tier ("Monoblade Rebuild (Basic / Perfected / Tuned)") lets you pick the tier it is.
+
 ## 1.12.0
 
 - **More perks work on the sheet.** Perks that add to a kind of Skill now put the bonus on each of the character's own Skills of that kind, in the roll dialog (situational, off until picked), and keep up as they learn new ones (their own Languages and Martial Arts too):

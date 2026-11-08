@@ -687,6 +687,9 @@
 .neon-home .nah-benefits li i { color: var(--nah-green); font-size: 10px; }
 .neon-home .nah-benefits li.is-custom i { color: var(--nah-yellow); }
 .neon-home .nah-benefits li.is-effect i { color: var(--nah-violet); }
+.neon-home .nah-benefits li.is-combat i { color: var(--nah-cyan, #05d9e8); }
+.neon-home .nah-tier { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; }
+.neon-home .nah-tier select { flex: 0 0 auto; width: auto; height: 22px; }
 .neon-home .nah-benefits em { color: var(--nah-dim); }
 .neon-home .nah-drawer { padding: 12px; border-left: 1px solid var(--nah-line); background: rgba(13, 13, 21, 0.45); }
 .neon-home .nah-desc { margin-top: 12px; }

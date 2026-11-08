@@ -38,6 +38,7 @@ import { RulesConfig } from "./apps/rules-config.js";
 import { isVasVehicle } from "./data/vehicles.js";
 import { psycheState } from "./data/syndromes.js";
 import { encumberedMove } from "./data/weight.js";
+import { REBUILDS } from "./data/rebuilds.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
 const esc = (s) => Handlebars.escapeExpression(String(s ?? ""));
@@ -60,6 +61,12 @@ Hooks.once("ready", () => CPR.fixActorCreate());
 // ids): in its Condition Lab and token HUD, and applied through it (see HomeOps.syncEncumbrance).
 Hooks.on(`${NCM_ID}.registerConditions`, (conditions) => {
   for (const level of ["half", "one"]) conditions.register(HomeOps.encumbranceCondition(level));
+});
+
+// Neon Combat Manager applies the Melee Rebuilds and the Ricochet Compensator on every attack
+// (its Neon Arsenal); the Weaponbench shows what each does and picks the tier (data/rebuilds.js).
+Hooks.on(`${NCM_ID}.registerRebuilds`, (arsenal) => {
+  for (const def of REBUILDS) arsenal.registerRebuild(def);
 });
 
 Hooks.once("init", () => {
