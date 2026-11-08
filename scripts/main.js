@@ -541,16 +541,26 @@ const selectedCharacter = () => {
 const homeForActor = (actor) => actor?.type === "character" && !isVasVehicle(actor) && HomeStore.canManage(actor);
 const configForItem = (item) => game.user.isGM && !["skill", "role", "criticalInjury", "netarch"].includes(item?.type);
 
+/**
+ * The character sheet's header buttons, by the "Character sheet buttons" setting: none (the
+ * default: each window is a macro in the Macros compendium instead), Home only, or all of them.
+ */
+function sheetButtons(actor) {
+  const mode = Settings.get("sheetButtons") ?? "none";
+  if (mode === "none") return [];
+  const list = [{ key: "Open", label: "NEONHOME.Short", cls: "neon-home-open", icon: "fa-solid fa-house-chimney-window", open: () => HomeApp.open(actor) }];
+  if (mode === "home") return list;
+  list.push({ key: "Bio", label: "NEONHOME.Bio.Short", cls: "neon-home-bio", icon: "fa-solid fa-heart-pulse", open: () => BiomonitorApp.open(actor) });
+  if (Settings.get("perks") !== false) list.push({ key: "Perks", label: "NEONHOME.Perks.Short", cls: "neon-home-perks", icon: "fa-solid fa-diagram-project", open: () => PerksApp.open(actor) });
+  if (Settings.get("spendIp") !== false) list.push({ key: "Ip", label: "NEONHOME.IP.Short", cls: "neon-home-ip", icon: "fa-solid fa-angles-up", open: () => SpendIPApp.open(actor) });
+  return list;
+}
+
 // CPR 0.92 sheets are Application V1.
 Hooks.on("getActorSheetHeaderButtons", (sheet, buttons) => {
   const actor = sheet.actor ?? sheet.document;
   if (!homeForActor(actor)) return;
-  buttons.unshift(
-    { label: "NEONHOME.Bio.Short", class: "neon-home-bio", icon: "fa-solid fa-heart-pulse", onclick: () => BiomonitorApp.open(actor) },
-    { label: "NEONHOME.Short", class: "neon-home-open", icon: "fa-solid fa-house-chimney-window", onclick: () => HomeApp.open(actor) }
-  );
-  if (Settings.get("perks") !== false) buttons.unshift({ label: "NEONHOME.Perks.Short", class: "neon-home-perks", icon: "fa-solid fa-diagram-project", onclick: () => PerksApp.open(actor) });
-  if (Settings.get("spendIp") !== false) buttons.unshift({ label: "NEONHOME.IP.Short", class: "neon-home-ip", icon: "fa-solid fa-angles-up", onclick: () => SpendIPApp.open(actor) });
+  buttons.unshift(...sheetButtons(actor).reverse().map((b) => ({ label: b.label, class: b.cls, icon: b.icon, onclick: b.open })));
 });
 Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
   const item = sheet.item ?? sheet.document;
@@ -560,12 +570,7 @@ Hooks.on("getItemSheetHeaderButtons", (sheet, buttons) => {
 // Application V2 sheets (a later CPR release on Foundry v13+).
 Hooks.on("getHeaderControlsActorSheetV2", (sheet, controls) => {
   if (!homeForActor(sheet.document)) return;
-  controls.unshift(
-    { label: "NEONHOME.Bio.Short", icon: "fa-solid fa-heart-pulse", action: "neonHomeBio", onClick: () => BiomonitorApp.open(sheet.document) },
-    { label: "NEONHOME.Short", icon: "fa-solid fa-house-chimney-window", action: "neonHomeOpen", onClick: () => HomeApp.open(sheet.document) }
-  );
-  if (Settings.get("perks") !== false) controls.unshift({ label: "NEONHOME.Perks.Short", icon: "fa-solid fa-diagram-project", action: "neonHomePerks", onClick: () => PerksApp.open(sheet.document) });
-  if (Settings.get("spendIp") !== false) controls.unshift({ label: "NEONHOME.IP.Short", icon: "fa-solid fa-angles-up", action: "neonHomeIp", onClick: () => SpendIPApp.open(sheet.document) });
+  controls.unshift(...sheetButtons(sheet.document).reverse().map((b) => ({ label: b.label, icon: b.icon, action: `neonHome${b.key}`, onClick: b.open })));
 });
 Hooks.on("getHeaderControlsItemSheetV2", (sheet, controls) => {
   if (!configForItem(sheet.document)) return;

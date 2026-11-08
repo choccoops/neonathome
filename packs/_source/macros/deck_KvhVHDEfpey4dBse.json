@@ -1,0 +1,19 @@
+{
+  "_id": "KvhVHDEfpey4dBse",
+  "_key": "!macros!KvhVHDEfpey4dBse",
+  "name": "Neon At Home: Cyberdeck",
+  "type": "script",
+  "scope": "global",
+  "img": "modules/cpr-neon-at-home/assets/macros/deck.svg",
+  "command": "// Neon At Home: open the Cyberdeck tab for the selected token's character (or your own).\n// Works from the hotbar, Neon Combat Manager's Action HUD, a Neon Hub page button or an active tile.\nconst home = game.modules.get(\"cpr-neon-at-home\")?.api;\nif (!home) return ui.notifications.warn(\"Neon At Home isn't active in this world.\");\nconst who = (typeof actor !== \"undefined\" && actor) || (typeof character !== \"undefined\" && character) || null;\nreturn home.open(who, \"deck\");\n",
+  "folder": null,
+  "sort": 300,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "macro": "deck"
+    }
+  }
+}

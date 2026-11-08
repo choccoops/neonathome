@@ -1,0 +1,19 @@
+{
+  "_id": "53z28DatAkwmlIKN",
+  "_key": "!macros!53z28DatAkwmlIKN",
+  "name": "Neon At Home: Biomonitor",
+  "type": "script",
+  "scope": "global",
+  "img": "modules/cpr-neon-at-home/assets/macros/biomonitor.svg",
+  "command": "// Neon At Home: open the Biomonitor for the selected token's character (or your own).\n// Works from the hotbar, Neon Combat Manager's Action HUD, a Neon Hub page button or an active tile.\nconst home = game.modules.get(\"cpr-neon-at-home\")?.api;\nif (!home) return ui.notifications.warn(\"Neon At Home isn't active in this world.\");\nconst who = (typeof actor !== \"undefined\" && actor) || (typeof character !== \"undefined\" && character) || null;\nreturn home.biomonitor(who);\n",
+  "folder": null,
+  "sort": 800,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "macro": "biomonitor"
+    }
+  }
+}

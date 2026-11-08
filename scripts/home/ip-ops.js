@@ -77,7 +77,7 @@ export const IPOps = {
     this._owner(actor);
     const plan = this.plan(actor, ids, "up");
     if (!plan.lines.length) throw new RuleBlock(L("NEONHOME.IP.PickSome"));
-    if (plan.total > this.ip(actor)) throw new RuleBlock(L("NEONHOME.IP.Short", { need: plan.total, have: this.ip(actor) }));
+    if (plan.total > this.ip(actor)) throw new RuleBlock(L("NEONHOME.IP.TooDear", { need: plan.total, have: this.ip(actor) }));
     await this._apply(actor, plan);
     await this._ledger(actor, -plan.total, `${L("NEONHOME.IP.Ledger.up")}: ${plan.lines.map((l) => l.item.name).join(", ")}`);
     this._sound("ipSoundUp");
@@ -169,7 +169,7 @@ export const IPOps = {
     const opts = this.roleOptions(actor);
     if (!role || !opts.roles.includes(role)) throw new RuleBlock(L("NEONHOME.IP.Role.Have"));
     if (!opts.open) throw new RuleBlock(L("NEONHOME.IP.Role.Locked", { low: opts.low.map((r) => `${r.name} (${r.rank})`).join(", ") }));
-    if (this.ip(actor) < NEW_ROLE_IP) throw new RuleBlock(L("NEONHOME.IP.Short", { need: NEW_ROLE_IP, have: this.ip(actor) }));
+    if (this.ip(actor) < NEW_ROLE_IP) throw new RuleBlock(L("NEONHOME.IP.TooDear", { need: NEW_ROLE_IP, have: this.ip(actor) }));
     const data = await this._roleSource(role);
     if (!data) throw new RuleBlock(L("NEONHOME.IP.Role.NotFound", { role: role.name }));
     delete data._id;
@@ -463,7 +463,7 @@ export const IPOps = {
   async confirm(actor, ids, mode) {
     const plan = this.plan(actor, ids, mode);
     if (!plan.lines.length) throw new RuleBlock(L(mode === "up" ? "NEONHOME.IP.PickSome" : "NEONHOME.IP.PickRefund"));
-    if (mode === "up" && plan.total > this.ip(actor)) throw new RuleBlock(L("NEONHOME.IP.Short", { need: plan.total, have: this.ip(actor) }));
+    if (mode === "up" && plan.total > this.ip(actor)) throw new RuleBlock(L("NEONHOME.IP.TooDear", { need: plan.total, have: this.ip(actor) }));
     const lines = plan.lines.map((l) => `<li><span>${esc(l.kind === "ability" ? abilityOf(l.item) : l.item.name)} <small>${l.kind === "ability" ? esc(L("NEONHOME.IP.RankN", { n: l.to })) : esc(L("NEONHOME.IP.LevelN", { n: l.to }))}</small></span><b>${mode === "up" ? "−" : "+"}${l.ip} IP</b></li>`).join("");
     const ok = await Compat.DialogV2.confirm({
       window: { title: L(`NEONHOME.IP.Confirm.${mode}`), icon: mode === "up" ? "fa-solid fa-angles-up" : "fa-solid fa-rotate-left" },
@@ -495,7 +495,7 @@ export const IPOps = {
     });
     if (!key) return null;
     const role = ROLES.find((r) => r.key === key);
-    if (this.ip(actor) < NEW_ROLE_IP) throw new RuleBlock(L("NEONHOME.IP.Short", { need: NEW_ROLE_IP, have: this.ip(actor) }));
+    if (this.ip(actor) < NEW_ROLE_IP) throw new RuleBlock(L("NEONHOME.IP.TooDear", { need: NEW_ROLE_IP, have: this.ip(actor) }));
     const ok = await Compat.DialogV2.confirm({
       window: { title: L("NEONHOME.IP.Role.ConfirmTitle"), icon: "fa-solid fa-user-plus" },
       content: `<p>${L("NEONHOME.IP.Role.ConfirmAsk", { role: esc(role.name), ability: esc(role.ability), n: NEW_ROLE_IP })}</p>`,

@@ -138,6 +138,13 @@
       "IpSoundRefund": {
         "Name": "Spend IP: refund sound",
         "Hint": "A sound to play when IP is refunded (leave empty for none)."
+      },
+      "SheetButtons": {
+        "Name": "Character sheet buttons",
+        "Hint": "Neon At Home's buttons in a character sheet's header. Each window is also a macro in the Neon At Home: Macros compendium, for the hotbar, Neon Combat Manager's Action HUD, a Neon Hub page button or an active tile.",
+        "none": "None (use the macros)",
+        "home": "Home only",
+        "all": "Home, Biomonitor, Perks and Spend IP"
       }
     },
     "State": {
@@ -2407,7 +2414,7 @@
     },
     "IP": {
       "Title": "Spend IP",
-      "Short": "That takes {need} IP; there's {have} IP to spend.",
+      "Short": "Spend IP",
       "Tagline": "Upgrade your systems. Burn the points, build your legend.",
       "Available": "IP available",
       "Level": "Character level",
@@ -2612,7 +2619,8 @@
           "expert": "<b>15–17:</b> + highest skill, ranked by levels bought",
           "perfect": "<b>18+:</b> everything, specialization too"
         }
-      }
+      },
+      "TooDear": "That takes {need} IP; there's {have} IP to spend."
     }
   }
 }
