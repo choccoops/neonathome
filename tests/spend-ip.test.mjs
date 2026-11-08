@@ -1,7 +1,8 @@
 /** Spend IP: costs, the character level and its read-outs, spending and refunding, Roles, sub-abilities, new Skills, sizing up the others. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeActor, chat, dialogs, asUser, loadTemplates, render, missingKeys } from "./helpers/foundry.mjs";
+import { makeActor, chat, dialogs, asUser, loadTemplates, render, missingKeys, callHook } from "./helpers/foundry.mjs";
+import { readdirSync, readFileSync, existsSync } from "node:fs";
 
 const M = "cpr-neon-at-home";
 const { Settings } = await import("../scripts/settings.js");
@@ -233,4 +234,53 @@ test("the Spend IP window renders the dossier, Roles, categories and new-skill c
   assert.equal(karate.cost, 120);
   assert.equal(karate.afford, false, "75 IP won't buy Level 3");
   assert.equal(win.id, "cpr-neon-at-home-spend-ip");
+});
+
+test("the sheet header: no buttons by default (they're macros), Home only, or all four", async () => {
+  const a = character("Header", [], 0);
+  const sheet = { actor: a };
+  const labels = () => {
+    const buttons = [{ label: "Close", class: "close" }];
+    callHook("getActorSheetHeaderButtons", sheet, buttons);
+    return buttons.map((b) => b.label);
+  };
+  assert.deepEqual(labels(), ["Close"]);
+  await game.settings.set(M, "sheetButtons", "home");
+  assert.deepEqual(labels(), ["NEONHOME.Short", "Close"]);
+  await game.settings.set(M, "sheetButtons", "all");
+  assert.deepEqual(labels(), ["NEONHOME.IP.Short", "NEONHOME.Perks.Short", "NEONHOME.Bio.Short", "NEONHOME.Short", "Close"]);
+  await game.settings.set(M, "sheetButtons", "none");
+  assert.equal(game.i18n.localize("NEONHOME.IP.Short"), "Spend IP", "the button's label, not the shortfall warning");
+});
+
+test("the Macros compendium: each macro opens its window for the token's character, its icon shipped", async () => {
+  const dir = new URL("../packs/_source/macros/", import.meta.url);
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  assert.equal(files.length, 11);
+  const calls = [];
+  const api = new Proxy({}, { get: (_, fn) => (...args) => calls.push([fn, args[0]?.name ?? null, args[1] ?? null]) });
+  const mod = game.modules.get(M);
+  const before = mod.api;
+  mod.api = api;
+  try {
+    for (const f of files) {
+      const doc = JSON.parse(readFileSync(new URL(f, dir), "utf8"));
+      assert.equal(doc.type, "script");
+      assert.equal(doc._key, `!macros!${doc._id}`);
+      assert.ok(existsSync(new URL(`../${doc.img.replace(`modules/${M}/`, "")}`, import.meta.url)), doc.img);
+      const run = new (Object.getPrototypeOf(async function () {}).constructor)("actor", "character", doc.command);
+      await run({ name: "Token Kid" }, { name: "Mine" });
+      await run(null, { name: "Mine" });
+    }
+  } finally {
+    mod.api = before;
+  }
+  const fns = new Set(calls.map((c) => c[0]));
+  for (const fn of ["open", "biomonitor", "perkTree", "spendIp", "deepDive"]) assert.ok(fns.has(fn), fn);
+  // each is in the API main.js sets up at init
+  const main = readFileSync(new URL("../scripts/main.js", import.meta.url), "utf8");
+  for (const fn of fns) assert.match(main, new RegExp(`\\n    ${fn}: \\(`), `api.${fn} exists`);
+  assert.ok(calls.some((c) => c[0] === "open" && c[2] === "downtime"));
+  assert.equal(calls.filter((c) => c[1] === "Token Kid").length, 11, "the selected token's character first");
+  assert.equal(calls.filter((c) => c[1] === "Mine").length, 11, "else the user's own");
 });

@@ -2,7 +2,7 @@
   "id": "cpr-neon-at-home",
   "title": "Neon At Home: Loadout, Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor, Perk Tree & Spend IP for Cyberpunk RED",
   "description": "A character's home suite for Cyberpunk RED - CORE: a Loadout with carry slots by armor class, armor upgrades, weight and a home stash; a Cyberdeck tab for the netrunner's quickhacks, Programs and Hardware (Unification Era); a Vehicle Bay with bays from the character's home; a Weaponbench for attachments; Maintenance from the Breaking Your Stuff DLC; Downtime actions from the core rulebook, spending Neon Hub's downtime; a Biomonitor for HP, injuries, cyberware, Humanity, Empathy tiers and Syndromes; a Perk Tree for the Unification Era Perk System, each perk an effect on the sheet; and Spend IP, for buying Skills, Role Abilities, Roles and new specialty Skills with Improvement Points.",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "authors": [
     {
       "name": "Neon At Home contributors"
@@ -134,6 +134,16 @@
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "macros",
+      "label": "Neon At Home: Macros",
+      "path": "packs/macros",
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
     }
   ],
   "packFolders": [
@@ -142,6 +152,7 @@
       "sorting": "m",
       "color": "#ff2a6d",
       "packs": [
+        "macros",
         "armor-upgrades",
         "carry-gear",
         "tech-materials",

@@ -61,13 +61,20 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
 
 ## Opening it
 
-- The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons in a character sheet's header (owners and the GM).
+- **Macros**: the **Neon At Home: Macros** compendium has one for each window: Home, Loadout,
+  Cyberdeck, Vehicle Bay, Weaponbench, Maintenance, Downtime, Biomonitor, Perk Tree, Spend IP and
+  Deep Dive. Each opens for the selected token's character (or your own). Put them on the
+  hotbar, drop them on **Neon Combat Manager's Action HUD** (1.13+, its Macros group), or run
+  them from a Neon Hub page button or an active tile. Players run the copies they drag to their
+  own hotbar; for copies the GM imports, give players Limited ownership.
 - The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons at the top of the Actors sidebar
   (Spend IP opens on the selected token's character, if it's yours).
 - The house button in the Token Controls toolbar.
 - **Go home** on the chat card players get when downtime starts.
-- A macro, or a Neon Hub page button running one: `game.modules.get("cpr-neon-at-home").api.open()`
-  (or `.biomonitor()`, `.perkTree()`, `.spendIp()`).
+- In a character sheet's header, if the GM turns them on (**Character sheet buttons**: Home only,
+  or all four). They're off by default, to leave the sheet's own buttons room.
+- From a script: `game.modules.get("cpr-neon-at-home").api.open()` (or `.biomonitor()`,
+  `.perkTree()`, `.spendIp()`).
 
 Players see their own characters; the GM can pick anyone from the list in the header.
 
@@ -664,6 +671,8 @@ Every item sheet has a **Home** button for the GM, with Neon At Home's settings 
 
 ## Module settings
 
+- **Character sheet buttons**: none (the default; use the macros), Home only, or Home,
+  Biomonitor, Perks and Spend IP.
 - **Carry & Weight Rules**: the carry slots per armor class, upgrade slots, slot costs, the weight
   limit and default weights, and your own Syndromes. Each table shows the spreadsheet's numbers
   and can be put back to them.

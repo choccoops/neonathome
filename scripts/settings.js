@@ -185,6 +185,15 @@ export const Settings = {
       default: true,
       onChange: changed
     });
+    reg("sheetButtons", {
+      name: "NEONHOME.Settings.SheetButtons.Name",
+      hint: "NEONHOME.Settings.SheetButtons.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      choices: { none: "NEONHOME.Settings.SheetButtons.none", home: "NEONHOME.Settings.SheetButtons.home", all: "NEONHOME.Settings.SheetButtons.all" },
+      default: "none"
+    });
     // Spend IP: the window, refunds, sizing up the others, and its sounds
     reg("spendIp", {
       name: "NEONHOME.Settings.SpendIp.Name",
