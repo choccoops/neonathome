@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.11.1
+
+- Docs: the window macros go in Neon Combat Manager's Action HUD from its **1.15.0** (it shipped
+  there, not 1.13).
+
 ## 1.11.0
 
 - **Macros compendium** (*Neon At Home: Macros*): one macro for each window (Home, Loadout,
