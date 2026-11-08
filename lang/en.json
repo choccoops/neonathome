@@ -1763,8 +1763,12 @@
         "luck": "LUCK",
         "move": "MOVE",
         "body": "BODY",
-        "emp": "EMP"
-      }
+        "emp": "EMP",
+        "fabricationExpertise": "Fabrication Expertise",
+        "upgradeExpertise": "Upgrade Expertise"
+      },
+      "FxRest": "Everything else in it is played at the table.",
+      "FxNone": "Nothing in it is a number the sheet can hold: it's played at the table."
     },
     "Deck": {
       "Title": "Cyberdeck",

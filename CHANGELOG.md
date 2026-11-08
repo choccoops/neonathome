@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.12.0
+
+- **More perks work on the sheet.** Perks that add to a kind of Skill now put the bonus on each of the character's own Skills of that kind, in the roll dialog (situational, off until picked), and keep up as they learn new ones (their own Languages and Martial Arts too):
+  - **Family Man**: +1 to Skills that run on COOL, EMP or WILL; **Rimbo**: COOL and EMP;
+  - **Who Loves Ya, Baby**: Social Skills; **Elementary** and **Watsonian**: Education Skills (for the focus);
+  - **Hidden Dragon**: Brawling and every Martial Art; **Lead Foot**: Drive Land Vehicle and Pilot Air/Sea Vehicle;
+  - **Well Travelled**: the Nomad's Moto rank to Education and Local Expert; **Chrome Dome**: +2 Fabrication and Upgrade Expertise.
+- **Fixed: Night Citizen's +2 Local Expert didn't reach the roll.** Cyberpunk RED keys a Local Expert's bonus by its full name ("Local Expert (Your Home)"); it now goes to every Local Expert the character has.
+- **A perk's effect describes itself.** Its description on the sheet is the perk's text, then what it puts on the sheet (with which of it waits in the roll dialog), then that the rest is played at the table, and it keeps up when that changes.
+
 ## 1.11.1
 
 - Docs: the window macros go in Neon Combat Manager's Action HUD from its **1.15.0** (it shipped

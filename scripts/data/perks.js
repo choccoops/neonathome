@@ -70,6 +70,12 @@ export const SKILL_KINDS = {
  * choose: the player picks the STAT when they buy it.
  */
 const B = (key, value, sit = true) => ({ bonus: key, value, sit });
+/**
+ * A bonus to each of the character's Skills that match: by STAT (stats), category, CPR skillType
+ * (type), name (names) or name start (prefix: "Local Expert" for every Local Expert). value may be
+ * { role } for that Role's rank (Well Travelled's Moto). Their own Languages and Martial Arts count.
+ */
+const KB = (match, value, sit = true) => ({ skills: match, value, sit });
 const ST = (stat, value, cap, opts = {}) => ({ stat, value, cap, ...opts });
 
 /* ------------------------------------------ */
@@ -98,7 +104,8 @@ export const PERKS = [
     text: "Not in a relationship: COOL and WILL −1. In one: +1 to all Actions while your partner is in sight, and once per session an act of love (words, time, a gift, a favor, a touch) restores 1 LUCK. If they leave you or die, take 4d6 Humanity Loss.",
     fx: [B("bonuses.allActions", 1)] },
   { id: "familyMan", name: "Family Man", branch: "general", cost: 1, req: [D("Living family, or family/friendship as motivation")],
-    text: "Name up to EMP characters as family. While any is in sight, +1 to COOL, EMP and WILL Checks (doesn't stack). Rework the list once a month. Family counts for Humanity gain from people and places (Chapter 09)." },
+    text: "Name up to EMP characters as family. While any is in sight, +1 to COOL, EMP and WILL Checks (doesn't stack). Rework the list once a month. Family counts for Humanity gain from people and places (Chapter 09).",
+    fx: [KB({ stats: ["cool", "emp", "will"] }, 1)] },
   { id: "honorBound", name: "Honor-Bound", branch: "general", cost: 1, req: [D("Honor, your word or honesty as motivation")],
     text: "Write a code with three or more tenets with the GM. Once a day, call on it for +2 to a fitting Check. Break a tenet: 2d6 Humanity Loss. You may change one tenet a month for 2d6 Humanity Loss.",
     fx: [B("bonuses.allActions", 2)] },
@@ -118,7 +125,7 @@ export const PERKS = [
     text: "You have a ward: a child, a pet, an apprentice. It works like an Exec's Team Member (Chapter 04). It loses 1 Loyalty each month your Lifestyle drops below Good PrePak, and each month it lives somewhere uncomfortable. A full day caring for it (500eb) gives it +1 Loyalty and you 1d6 Humanity. At 0 Loyalty it runs, or worse; take 4d6 Humanity Loss." },
   { id: "nightCitizen", name: "Night Citizen", branch: "general", cost: 2, req: [D("A Night City origin"), C],
     text: "+2 to Local Expert anywhere in Night City. Transit memberships cost half, and you get anywhere in town in half the time. Spend a week communing with the city and roll 1d10: under your EMP, pick one: Self Care (regain 1d6 Humanity), Training (gain 1d6/2 IP), Community Service (+1 Standing with the faction that holds that neighborhood), Word of Mouth (ask the GM one question about the city) or Connections (make a new friend).",
-    fx: [B("bonuses.localExpert", 2)] },
+    fx: [KB({ prefix: "Local Expert" }, 2)] },
   { id: "goodPerson", name: "Good Person", branch: "general", cost: 2, req: [D("A positive outlook on people (Lifepath) and a kill count under 20"), NP(["neutralPerson", "badPerson"])],
     text: "Once per session, after a genuinely good act (helping the helpless, standing up to a corp, walking away from a fight), regain 1d6/2 Humanity. If your outlook changes or your kill count reaches 20, this perk is refunded and gone for good.", refund: true },
   { id: "neutralPerson", name: "Neutral Person", branch: "general", cost: 2, req: [D("A neutral outlook (Lifepath) and a kill count under 100"), NP(["goodPerson", "badPerson"])],
@@ -156,7 +163,8 @@ export const PERKS = [
 
   // ---------------- Intelligence (pp.90-91) ----------------
   { id: "elementary", name: "Elementary", branch: "int", cost: 1, req: [ANY(S("int", 6), D("Knowledge as motivation (instead of the INT)")), K("Education", 6)],
-    text: "Once a day, spend an hour to make one Education-type Skill your focus: +1 to it until you sleep or switch, and raising it costs 10% less IP while it's your focus. Training in your focus earns +2 progress a week (Chapter 15)." },
+    text: "Once a day, spend an hour to make one Education-type Skill your focus: +1 to it until you sleep or switch, and raising it costs 10% less IP while it's your focus. Training in your focus earns +2 progress a week (Chapter 15).",
+    fx: [KB({ category: "educationSkills" }, 1)] },
   { id: "rulesLawyer", name: "Rules Lawyer", branch: "int", cost: 1, req: [S("int", 6), ANY(K("Bureaucracy", 6), D("Politely correct the GM on 3 rules"))],
     text: "+2 Bureaucracy. Once per session, when you politely catch an honest rules mistake, gain 1d6 IP and +2 to your next Action.",
     fx: [B("bonuses.bureaucracy", 2, false)] },
@@ -191,9 +199,11 @@ export const PERKS = [
 
   // ---------------- Cool (pp.91-92) ----------------
   { id: "rimbo", name: "Rimbo", branch: "cool", cost: 1, req: [S("cool", 6), P("darkAppetite")],
-    text: "Your bad habit becomes intimate encounters. For 12 hours after, you and your partner both get +1 to COOL and EMP Checks, and both take the indulgence benefit." },
+    text: "Your bad habit becomes intimate encounters. For 12 hours after, you and your partner both get +1 to COOL and EMP Checks, and both take the indulgence benefit.",
+    fx: [KB({ stats: ["cool", "emp"] }, 1)] },
   { id: "whoLovesYa", name: "Who Loves Ya, Baby", branch: "cool", cost: 1, req: [S("cool", 6), ANY(D("A catchphrase used naturally 25 times"), KA("language", 6))],
-    text: "Once an hour, drop your catchphrase in a conversation: Charming (+1 to your next opposed social Check against someone listening) or Annoying (−1 to everyone else's next social Check). Lasts a minute." },
+    text: "Once an hour, drop your catchphrase in a conversation: Charming (+1 to your next opposed social Check against someone listening) or Annoying (−1 to everyone else's next social Check). Lasts a minute.",
+    fx: [KB({ category: "socialSkills" }, 1)] },
   { id: "streetSmart", name: "Street Smart", branch: "cool", cost: 2, req: [S("cool", 6), K("Streetwise", 6)],
     text: "When the GM rolls a random city encounter, beat DV19 Streetwise to avoid it, or spend 1 LUCK to have the GM roll twice and pick from both. You know every Fixer of rank 2 or lower in the city." },
   { id: "foundFamily", name: "Found Family", branch: "cool", cost: 2, req: [S("cool", 6), P("familyMan")],
@@ -280,7 +290,8 @@ export const PERKS = [
   { id: "crouchingTiger", name: "Crouching Tiger", branch: "dex", cost: 2, req: [S("dex", 8), K("Stealth", 6)],
     text: "Fail a Stealth roll and choose one: reroll at −2, spend 3 LUCK to pass anyway, or spend 2 LUCK to have your takedown drop a Mook outright. And spend 1 LUCK to make a kill, takedown or grab from hiding silent, no roll." },
   { id: "hiddenDragon", name: "Hidden Dragon", branch: "dex", cost: 2, req: [S("dex", 8), KA("martial", 6)],
-    text: "Each Martial Arts or Brawling hit earns a flow point; miss or get hit and they're gone. Spend 2 for +1 to a Brawling or Martial Arts attack, 4 to automatically succeed at a Martial Arts technique's resolution, or 6 for one extra Brawling attack at the end of your next attack." },
+    text: "Each Martial Arts or Brawling hit earns a flow point; miss or get hit and they're gone. Spend 2 for +1 to a Brawling or Martial Arts attack, 4 to automatically succeed at a Martial Arts technique's resolution, or 6 for one extra Brawling attack at the end of your next attack.",
+    fx: [KB({ names: ["Brawling"], type: "martialArt", prefix: "Martial Arts" }, 1)] },
   { id: "meleeMaster", name: "Melee Master", branch: "dex", cost: 2, req: [S("dex", 8), K("Melee Weapon", 6)],
     text: "Melee crits add the BODY difference between you and a smaller target as bonus damage. With a melee weapon in hand you can parry at −4 instead of dodging: roll Melee Weapon, and a successful parry deals your BODY in damage to the attacker. Parrying a bullet needs REF 8+ and is at −8 against the range DV. Area attacks can't be parried." },
   { id: "necksnapper", name: "Necksnapper", branch: "dex", cost: 3, req: [S("dex", 8), D("Choke 10 targets")],
@@ -310,7 +321,8 @@ export const PERKS = [
   { id: "repairGuy", name: "Repair Guy", branch: "role", group: "tech", cost: 3, req: [R("tech", 5), P("iCanFixIt")],
     text: "Add your repair points for an item to Field Expertise, upgrade and fabrication rolls on it, not just repairs." },
   { id: "chromeDome", name: "Chrome Dome", branch: "role", group: "tech", cost: 3, req: [R("tech", 6), P("cybertechnician")],
-    text: "Aiming at identified cyberware is only the normal −8. Upgrading or fabricating cyberware you've identified gets +2 and costs 25% less." },
+    text: "Aiming at identified cyberware is only the normal −8. Upgrading or fabricating cyberware you've identified gets +2 and costs 25% less.",
+    fx: [B("bonuses.fabricationExpertise", 2), B("bonuses.upgradeExpertise", 2)] },
   { id: "upgradesPeople", name: "Upgrades, People!", branch: "role", group: "tech", cost: 3, req: [R("tech", 5)],
     text: "Pay double to give an upgraded item one more Tech upgrade. It's unstable: lose all its SP or SDP, and every upgrade and attachment is destroyed. Reinforce it to make it stable: a fabrication Check at −4, double time and materials." },
   { id: "pharmaFiend", name: "Pharma Fiend", branch: "role", group: "medtech", cost: 3, req: [R("medtech", 5), P("blackBlood")],
@@ -320,7 +332,8 @@ export const PERKS = [
   { id: "hippocraticHypocrite", name: "Hippocratic Hypocrite", branch: "role", group: "medtech", cost: 3, req: [R("medtech", 5)],
     text: "As an Action, make a Deduction Check on a meat target to find a weak spot. Aim at it: roll damage twice, keep the higher (it isn't doubled for location). They then roll 1d10 under BODY or choose: +1 to their Death Save penalty, or lose their next Turn to the pain." },
   { id: "watsonian", name: "Watsonian", branch: "role", group: "media", cost: 3, req: [R("media", 5), P("elementary")],
-    text: "Your Elementary focus is +2. Take −4 on an investigation Check to reconstruct what happened: the GM tells you true and in order. A failure gives you a confident, wrong version." },
+    text: "Your Elementary focus is +2. Take −4 on an investigation Check to reconstruct what happened: the GM tells you true and in order. A failure gives you a confident, wrong version.",
+    fx: [KB({ category: "educationSkills" }, 1)] },
   { id: "doylist", name: "Doylist", branch: "role", group: "media", cost: 3, req: [R("media", 6), P("soulReader")],
     text: "You can spend LUCK when you publish (Second Chance only). Or publish harder: lower your Believe chance by 2 in 10 (min 1) and treat your Impact as one rank higher." },
   { id: "paparazzi", name: "Paparazzi", branch: "role", group: "media", cost: 3, req: [R("media", 5)],
@@ -349,7 +362,8 @@ export const PERKS = [
     text: "Driving in combat, on a critical success or failure you may roll 1d6 instead (spend 2 LUCK to roll twice and pick): 1 a ramp for a big jump, 2 a blockage (coin flip: their path or yours), 3 a tanker of something flammable, 4 civilians ahead (plowing through costs 2d6 Humanity Loss), 5 a hazard every driver must beat (losers take 6d6 to their vehicle), 6 an escape route. Also +1 to Aimed Shots while driving.",
     fx: [B("bonuses.aimedShot", 1)] },
   { id: "wellTravelled", name: "Well Travelled", branch: "role", group: "nomad", cost: 3, req: [R("nomad", 5)],
-    text: "Spend 1 LUCK to add your Moto rank to a Local Expert or Education Check. Pick one more non-difficult Education Skill you can do the same with." },
+    text: "Spend 1 LUCK to add your Moto rank to a Local Expert or Education Check. Pick one more non-difficult Education Skill you can do the same with.",
+    fx: [KB({ category: "educationSkills" }, { role: "nomad" })] },
 
   // ---------------- Specialty perks (p.96): one Cyber and one Weapon at a time ----------------
   { id: "cyberopticsSpecialist", name: "Cyberoptics Specialist", branch: "specialty", group: "cyber", slot: "cyber", cost: 2, req: [CW(["cyberEye"], 2, { options: true })],
@@ -418,7 +432,8 @@ export const PERKS = [
   { id: "steadyChrome", name: "Steady Chrome", branch: "freeCity", group: "chrome", cost: 2, req: [S("will", 6), CW(null, 4)],
     text: "Once a month, ignore one loss die on the Monthly Humanity Check (Chapter 13)." },
   { id: "leadFoot", name: "Lead Foot", branch: "freeCity", group: "wheels", cost: 2, req: [S("ref", 6), KA("control", 6)],
-    text: "+1 to Positioning Checks in a Chase (Chapter 11). Once per chase, Pull Ahead is DV15 for you, not 17." },
+    text: "+1 to Positioning Checks in a Chase (Chapter 11). Once per chase, Pull Ahead is DV15 for you, not 17.",
+    fx: [KB({ names: ["Drive Land Vehicle", "Pilot Air Vehicle", "Pilot Sea Vehicle"] }, 1)] },
   { id: "quietProfessional", name: "Quiet Professional", branch: "freeCity", group: "wheels", cost: 1, req: [K("Stealth", 4), D("Ten kills with a silenced weapon")],
     text: "The Silencer DV to hear your shots is +2 (Chapter 06)." },
   { id: "patientShadow", name: "Patient Shadow", branch: "freeCity", group: "wheels", cost: 2, req: [S("dex", 6), K("Stealth", 6), D("A whole sneak without a failed roll")],
@@ -590,11 +605,39 @@ export function blockers(perk, sheet, record, roles, { inCombat = false } = {}) 
  * @param {object} base - { stats: STAT values without effects, hp: {value, max} }
  * @returns {{key, value, sit}[]}
  */
+/** Cyberpunk RED's own name for a Skill's bonus key ("Resist Torture/Drugs" → resistTortureOrDrugs). */
+export function cprSlug(name) {
+  const slug = String(name);
+  const joined = slug.split(" ").join("");
+  if (["Conceal/Reveal Object", "Paint/Draw/Sculpt", "Resist Torture/Drugs"].includes(slug)) {
+    const or = joined.split("/").join("Or");
+    return or.charAt(0).toLowerCase() + or.slice(1);
+  }
+  if (slug === "Language (Streetslang)") {
+    const p = joined.split("(").join("").split(")").join("");
+    return p.charAt(0).toLowerCase() + p.slice(1);
+  }
+  const and = joined.split("/").join("And").split("&").join("And");
+  return and.charAt(0).toLowerCase() + and.slice(1);
+}
+
+/** The character's Skills a KB() match picks. */
+export function matchSkills(match, skills = []) {
+  return skills.filter((s) => (match.stats?.includes(s.stat)) || (match.category && s.category === match.category)
+    || (match.type && s.type === match.type) || match.names?.includes(s.name) || (match.prefix && s.name.startsWith(match.prefix)));
+}
+
 export function perkChanges(perk, owned, base) {
   const out = [];
   for (const fx of perk.fx ?? []) {
     if (fx.bonus) {
       out.push({ key: fx.bonus, value: fx.value, sit: !!fx.sit });
+      continue;
+    }
+    if (fx.skills) {
+      const value = typeof fx.value === "object" ? int(base.roles?.[fx.value.role]) : fx.value;
+      if (!value) continue;
+      for (const s of matchSkills(fx.skills, base.skills)) out.push({ key: `bonuses.${cprSlug(s.name)}`, value, sit: !!fx.sit, label: s.name });
       continue;
     }
     const stat = fx.choose ? owned?.stat : fx.stat;
