@@ -323,6 +323,11 @@ Propulsion Impact (the target is pushed 2 or 4 m/yds) and the Ricochet Compensat
 ricochets). When one item covers every tier, pick its tier there. Neon Combat Manager (1.17+)
 applies them: this module hands it the list in its `registerRebuilds` hook.
 
+**Range Table Modifications.** Neon Hub's barrels, chokes, limbs and tubes (Neon Hub 1.23+) move
+the weapon to another range table when they go in, and back when they come out. The bench asks
+Neon Hub first, so one that doesn't fit the weapon, or a second one, is refused with the reason
+before anything is brought over from the stash.
+
 **Custom attachment** makes a new attachment item: name, slots, modifiers (added or set), and
 free-text benefits. Players can make their own if the GM allows it.
 
