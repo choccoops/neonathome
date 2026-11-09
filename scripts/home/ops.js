@@ -1,4 +1,4 @@
-import { MODULE_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, NCM_ID, SYSTEM_ID, CHECKED } from "../constants.js";
+import { MODULE_ID, NEON_HUB_ID, HOME_FLAG, PSYCHE_FLAG, STASH_FLAG, EFFECT_FLAG, ENCUMBRANCE_FLAG, ENCUMBRANCE_STATUS, CLT_ID, NCM_ID, SYSTEM_ID, CHECKED } from "../constants.js";
 import { Compat } from "../compat.js";
 import { HomeSocket } from "../socket.js";
 import { CPR } from "../cpr.js";
@@ -782,6 +782,10 @@ export const HomeOps = {
     const free = typeof weapon.availableInstallSlots === "function" ? weapon.availableInstallSlots() : 0;
     const check = canAttach(weapon, upgrade, { free, installedElsewhere: upgrade.parent === actor && CPR.isInstalled(upgrade) });
     if (!check.ok) throw new RuleBlock(L(`NEONHOME.Bench.Reason.${check.reason}`, { name: upgrade.name }));
+    // Neon Hub's Range Table Modifications: one at a time, only in a weapon they fit. Asked before anything moves.
+    const hub = game.modules.get(NEON_HUB_ID);
+    const misfit = hub?.active ? hub.api?.items?.rangeMods?.check?.(weapon, upgrade) : null;
+    if (misfit) throw new RuleBlock(misfit);
     if (upgrade.parent !== actor) {
       const newId = await this.transfer(actor, fromUuid, upgradeId, actor.uuid, { amount: 1, check: false });
       upgrade = actor.items.get(newId);

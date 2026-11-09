@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.13.1
+
+- **Range Table Modifications on the Weaponbench.** With Neon Hub 1.23.0, a barrel, choke, limbs
+  or tube moves the weapon to its new range table when it goes in, and back when it comes out.
+  The bench asks Neon Hub before attaching one, so a modification that doesn't fit the weapon,
+  or a second one, is refused with the reason and nothing is brought over from the stash.
+
 ## 1.13.0
 
 - **Weapon Rebuilds in a fight.** With Neon Combat Manager 1.17 (its Neon Arsenal), the Melee Rebuilds and the Ricochet Compensator work on every attack: **Mono-edge Blading** and the **Monoblade Rebuild** ignore armor below SP7, 11 or 13 by tier; **Propulsion Impact** pushes whoever it hits 2 m/yds (BODY under 13) or 4 m/yds, stopping at walls; the **Ricochet Compensator** makes a Power gun's ricochets −3 instead of −4. This module hands Neon Combat Manager the list (`cpr-neon-combat-manager.registerRebuilds`).

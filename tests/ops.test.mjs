@@ -358,6 +358,21 @@ test("attachments go on, fixed ones stay on, and slots are checked", async () =>
   await assert.rejects(() => HomeOps.attach(actor, "pistol00000000aa", "fixed00000000aaa"), /attached to something else/);
 });
 
+test("the Weaponbench asks Neon Hub before a Range Table Modification goes in", async () => {
+  const { actor } = setup();
+  const asked = [];
+  game.modules.set("cpr-neon-hub", { active: true, api: { items: { rangeMods: { check: (w, u) => (asked.push([w.id, u.id]), u.id === "scope00000000aaa" ? "Scope doesn't fit." : null) } } } });
+  try {
+    await assert.rejects(() => HomeOps.attach(actor, "rifle000000000aa", "scope00000000aaa"), (err) => err instanceof RuleBlock && /doesn't fit/.test(err.message));
+    assert.deepEqual(actor.items.get("rifle000000000aa").system.installedItems.list, [], "nothing went in");
+    await HomeOps.attach(actor, "rifle000000000aa", "fixed00000000aaa");
+    assert.deepEqual(actor.items.get("rifle000000000aa").system.installedItems.list, ["fixed00000000aaa"]);
+    assert.deepEqual(asked, [["rifle000000000aa", "scope00000000aaa"], ["rifle000000000aa", "fixed00000000aaa"]]);
+  } finally {
+    game.modules.delete("cpr-neon-hub");
+  }
+});
+
 test("vehicles: add, park, swap and pick a ride", async () => {
   const { actor } = setup();
   const a = makeActor({ name: "Car A", type: "character", flags: { "mmutons-cyberpunk-red-vas": { positions: [] } } });
