@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.14.0
+
+- **An Operating System can make its chrome Borgware.** The 2070 Maximum Humanity already took
+  −4 for a piece that *counts as Borgware* (Core Rules Ch09), but only when the piece was flagged
+  by hand. Now a piece counts when an Operating System or Enhancement installed in it says so
+  (the Falcon OS in a Sandevistan, the Baldur OS in a Berserk, Endo-Lace Bracing, Firewall Port,
+  Painducer), or when its own entry does (the Apogee): Neon Hub 1.25.0's `countsAsBorgware`
+  flag, or the words *counts as Borgware* in an older copy's description, so chrome already on a
+  sheet needs nothing done to it. The maximum follows as the upgrade goes in or comes out, through
+  the same *Maximum Humanity (2070)* effect, and its line names the upgrade.
+
 ## 1.13.1
 
 - **Range Table Modifications on the Weaponbench.** With Neon Hub 1.23.0, a barrel, choke, limbs

@@ -204,6 +204,34 @@ test("Maximum Humanity (2070): the free Neuroport, an FBC's free chrome, Linear 
   assert.equal(fbc.max, 60 - 4 - 2, "the Biosystem and the Mantis Blades; the limbs are free");
 });
 
+test("an Operating System or Enhancement that says so makes its piece count as Borgware: −4 in place of −2", async () => {
+  const HUB = "cpr-neon-hub";
+  // Pure: a hand flag, the piece's own entry, Neon Hub's flag on what's installed in it, or the words in an older copy.
+  assert.equal(living.borgwareBy({ flag: true }), "flag");
+  assert.equal(living.borgwareBy({ text: "One more Neuralware slot; counts as Borgware for your Maximum Humanity" }), "self");
+  assert.equal(living.borgwareBy({}, [{ name: "Militech ‘Falcon’ OS", hub: true }]), "Militech ‘Falcon’ OS");
+  assert.equal(living.borgwareBy({}, [{ name: "Old Falcon", text: "<p>The Sandevistan counts as Borgware for your Maximum Humanity.</p>" }]), "Old Falcon");
+  assert.equal(living.borgwareBy({ text: "+3 Initiative" }, [{ name: "Qiant ‘Warp Dancer’ OS", text: "Runs: Sandevistan" }]), null);
+  assert.equal(living.borgwareBy({ text: "Counts as 2 Borgware for therapy" }), null, "Linear Frame Ω has its own rule");
+
+  // On a sheet: a Sandevistan (−2) with the Falcon OS installed in it is −4; the OS out again, −2.
+  const sande = { _id: "sande", name: "Sandevistan", type: "cyberware", system: { type: "neuralWare", isInstalled: true, humanityLoss: { static: 14 }, installedItems: { allowed: true, allowedTypes: ["itemUpgrade"], list: [] } } };
+  const falcon = { _id: "falcon", name: "Militech ‘Falcon’ OS", type: "itemUpgrade", system: { type: "cyberware", size: 0 }, flags: { [HUB]: { countsAsBorgware: true } } };
+  const dancer = { _id: "dancer", name: "Qiant ‘Warp Dancer’ OS", type: "itemUpgrade", system: { type: "cyberware", size: 0, description: { value: "<p>Runs: Sandevistan</p>" } } };
+  const fury = character("Fury", [["Solo", 4]], [sande, falcon, dancer], { installedItems: { list: ["sande"] } });
+  assert.equal(LifeOps.maxHumanity(fury).max, 58, "carried, not installed: the Sandevistan is ordinary chrome");
+  assert.equal(LifeOps.maxHumanity(fury).adjust, 0);
+  fury.items.get("sande").system.installedItems.list = ["dancer"];
+  assert.equal(LifeOps.maxHumanity(fury).max, 58, "an Operating System that doesn't say so changes nothing");
+  fury.items.get("sande").system.installedItems.list = ["falcon"];
+  const m = LifeOps.maxHumanity(fury);
+  assert.equal(m.max, 56);
+  assert.equal(m.adjust, -2, "Cyberpunk RED counts −2; 2070 takes 2 more");
+  assert.deepEqual(m.lines.at(-1), { label: "Sandevistan + Militech ‘Falcon’ OS", n: -4 });
+  fury.items.get("sande").system.installedItems.list = [];
+  assert.equal(LifeOps.maxHumanity(fury).adjust, 0);
+});
+
 /* ------------------------------------------ */
 /*  Repairs                                   */
 /* ------------------------------------------ */

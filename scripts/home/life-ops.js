@@ -1,4 +1,4 @@
-import { MODULE_ID, SYSTEM_ID } from "../constants.js";
+import { MODULE_ID, SYSTEM_ID, NEON_HUB_ID } from "../constants.js";
 import { CPR } from "../cpr.js";
 import { HomeOps, RuleBlock } from "./ops.js";
 import { Downtime } from "./downtime.js";
@@ -10,7 +10,7 @@ import { PRICE_CATEGORIES, priceCategory } from "../data/maintenance.js";
 import {
   TEACHERS, crewTeacher, trainingWeek, applyProgress, levelCost, PHYSICAL, ACADEMIC, NCU, PUSH_DV,
   SOURCING_DV, SOURCERS, canReach, ART, artJob, BODYSCULPT, BODYSCULPT_MINUTES, BODYSCULPT_FAIL_MINUTES,
-  HEALTH_PLANS, MARKET_FIND, stockMarket, maxHumanity
+  HEALTH_PLANS, MARKET_FIND, stockMarket, maxHumanity, borgwareBy
 } from "../data/living.js";
 
 const L = (k, d) => (d ? game.i18n.format(k, d) : game.i18n.localize(k));
@@ -350,12 +350,19 @@ export const LifeOps = {
 
   /** 2070's Maximum Humanity for a character: { max, cpr, adjust, lines }. */
   maxHumanity(actor) {
-    const chrome = actor.items.filter((i) => i.type === "cyberware" && (i.system?.isInstalledInActor ?? i.system?.isInstalled)).map((i) => ({
-      name: i.name,
-      borgware: i.system?.type === "borgware",
-      hl: Number.parseInt(i.system?.humanityLoss?.static, 10) || 0,
-      countsAsBorgware: !!i.getFlag?.(MODULE_ID, "countsAsBorgware")
-    }));
+    const read = (i) => ({ name: i.name, hub: !!i.flags?.[NEON_HUB_ID]?.countsAsBorgware, text: String(i.system?.description?.value ?? "") });
+    const chrome = actor.items.filter((i) => i.type === "cyberware" && (i.system?.isInstalledInActor ?? i.system?.isInstalled)).map((i) => {
+      // What's installed in the piece: an Operating System or Enhancement can make it count as Borgware.
+      const upgrades = (i.system?.installedItems?.list ?? []).map((id) => actor.items.get(id)).filter((u) => u?.type === "itemUpgrade").map(read);
+      const by = borgwareBy({ ...read(i), flag: !!i.getFlag?.(MODULE_ID, "countsAsBorgware") }, upgrades);
+      return {
+        name: i.name,
+        borgware: i.system?.type === "borgware",
+        hl: Number.parseInt(i.system?.humanityLoss?.static, 10) || 0,
+        countsAsBorgware: !!by,
+        borgwareBy: by
+      };
+    });
     const emp = Number(foundry.utils.getProperty(actor, "system.stats.emp.max")) || 0;
     return maxHumanity(chrome, { emp, freshFood: MaintOps.lifestyle(actor).tier >= 4 });
   },
