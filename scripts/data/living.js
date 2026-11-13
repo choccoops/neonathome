@@ -242,12 +242,31 @@ export function stockMarket(d6, d10, pick = null) {
 /** The chrome an FBC carries free (no HL, no lower maximum). */
 const FBC_FREE = /^(cyberarm|cyberleg|cybereye|cyberaudio suite|cyberskull|internal linear frame|neural link|neuroport)/i;
 
+/** An entry that says its piece counts as Borgware (Item Compendium: the Falcon and Baldur Operating Systems, Endo-Lace Bracing...). */
+export const BORGWARE_TEXT = /counts as Borgware/i;
+
+/**
+ * Does a piece of chrome count as Borgware for Maximum Humanity (Core Rules Ch09: −4 in place of
+ * its −2)? When it's flagged so by hand, or when it, or an Operating System or Enhancement
+ * installed in it, says so: Neon Hub's `countsAsBorgware` flag, or the words in an older copy.
+ * @param {{flag?: boolean, hub?: boolean, text?: string}} piece
+ * @param {{name?: string, hub?: boolean, text?: string}[]} upgrades - what's installed in it
+ * @returns {string|null} why: "flag", "self", or the upgrade's name
+ */
+export function borgwareBy(piece = {}, upgrades = []) {
+  if (piece.flag) return "flag";
+  if (piece.hub || BORGWARE_TEXT.test(piece.text ?? "")) return "self";
+  const u = upgrades.find((x) => x && (x.hub || BORGWARE_TEXT.test(x.text ?? "")));
+  return u ? (u.name ?? "upgrade") : null;
+}
+
 /**
  * Maximum Humanity in 2070: original EMP × 10, −2 a piece of chrome with Humanity Loss, −4 a
  * Borgware (or a piece that counts as one), −8 for Linear Frame Ω; nothing for the free Neuroport,
  * an FBC's free chrome or 0-HL pieces; +10 on Fresh Food. Cyberpunk RED counts the −2s and −4s
  * itself; `adjust` is what 2070 changes on top.
- * @param {{name: string, borgware: boolean, hl: number, countsAsBorgware?: boolean}[]} chrome - installed cyberware
+ * @param {{name: string, borgware: boolean, hl: number, countsAsBorgware?: boolean, borgwareBy?: string}[]} chrome - installed cyberware
+ *   (borgwareBy: the Operating System or Enhancement that makes it count as Borgware, for its line)
  * @param {object} o - { emp: original EMP, freshFood }
  * @returns {{max: number, cpr: number, adjust: number, lines: {label: string, n: number}[]}}
  */
@@ -269,7 +288,7 @@ export function maxHumanity(chrome, { emp = 0, freshFood = false } = {}) {
       ours = 0;
     } else if (fbc && !c.borgware && FBC_FREE.test(c.name)) ours = 0;
     max -= ours;
-    if (ours) lines.push({ label: c.name, n: -ours });
+    if (ours) lines.push({ label: c.countsAsBorgware && c.borgwareBy && !["flag", "self"].includes(c.borgwareBy) ? `${c.name} + ${c.borgwareBy}` : c.name, n: -ours });
   }
   if (freshFood) {
     max += 10;

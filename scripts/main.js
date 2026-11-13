@@ -718,7 +718,8 @@ const queueMaxHumanity = (actor) => {
 };
 for (const hook of ["createItem", "updateItem", "deleteItem"]) {
   Hooks.on(hook, (item) => {
-    if (item.type === "cyberware" || item.flags?.[NEON_HUB_ID]?.lifestyle) queueMaxHumanity(item.parent);
+    // An Operating System or Enhancement going in or out changes its piece too (it can count as Borgware).
+    if (item.type === "cyberware" || (item.type === "itemUpgrade" && item.system?.type === "cyberware") || item.flags?.[NEON_HUB_ID]?.lifestyle) queueMaxHumanity(item.parent);
   });
 }
 Hooks.on(`${NEON_HUB_ID}.lifestyleChanged`, () => {
