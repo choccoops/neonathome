@@ -928,6 +928,22 @@ export const HomeOps = {
     });
   },
 
+  /** GM: give (or with a negative number, take back) Inspiration for each character, in one chat card. */
+  async giveInspiration(actors, n = 1) {
+    if (!game.user.isGM) throw new RuleBlock(L("NEONHOME.Bio.GiveGM"));
+    const who = [...new Set((Array.isArray(actors) ? actors : [actors]).filter((a) => a?.type === "character"))];
+    if (!who.length) throw new RuleBlock(L("NEONHOME.Bio.GiveNone"));
+    const lines = [];
+    for (const actor of who) {
+      await this.updatePsyche(actor, (p) => {
+        p.inspiration = Math.max(0, (Number(p.inspiration) || 0) + n);
+      });
+      lines.push(L(n < 0 ? "NEONHOME.Bio.TakeCard" : "NEONHOME.Bio.GiveCard", { name: esc(actor.name), n: Math.abs(n), total: HomeStore.psyche(actor).inspiration }));
+    }
+    await ChatMessage.create({ content: this._card("fa-solid fa-star", lines.join("<br>")) });
+    return who;
+  },
+
   _card(icon, html) {
     return `<div class="neon-home-chat"><header><i class="${icon}"></i> ${L("NEONHOME.Title")}</header><p>${html}</p></div>`;
   },

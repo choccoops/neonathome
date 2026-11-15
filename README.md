@@ -66,7 +66,8 @@ Enable **Neon At Home** in your world. Updates come through Foundry's module upd
   Deep Dive. Each opens for the selected token's character (or your own). Put them on the
   hotbar, drop them on **Neon Combat Manager's Action HUD** (1.15+, its Macros group), or run
   them from a Neon Hub page button or an active tile. Players run the copies they drag to their
-  own hotbar; for copies the GM imports, give players Limited ownership.
+  own hotbar; for copies the GM imports, give players Limited ownership. One more is the GM's:
+  **Give Inspiration** gives 1 Inspiration to each selected token's character and says so in chat.
 - The **Home**, **Biomonitor**, **Perks** and **Spend IP** buttons at the top of the Actors sidebar
   (Spend IP opens on the selected token's character, if it's yours).
 - The house button in the Token Controls toolbar.
@@ -750,6 +751,8 @@ home.measure(actor);                // { carry, weight }
 home.bays(actor);                   // { slots, source, homeName }
 home.psyche(actor);                 // tier, Syndromes, Catharsis...
 home.awardInspiration(actor, 1);    // GM
+home.giveInspiration();             // GM: 1 to each selected token's character, with a chat card
+home.giveInspiration([actor], 2);   // GM: or to the Actors given; a negative number takes it back
 home.maintenance(actor);            // gear, what it needs, where it stands
 home.malfunction(actor, itemId);    // roll a malfunction (optionally: , "weapon")
 home.setCondition(actor, itemId, "damaged"); // GM: "", "damaged", "destroyed", "dbr"

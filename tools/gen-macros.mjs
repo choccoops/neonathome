@@ -1,6 +1,6 @@
 // Write the Neon At Home Macros compendium (packs/_source/macros) and its icons (assets/macros):
 // one script macro per window, opening it for the selected token's character (or the user's
-// own). For the hotbar, Neon Combat Manager's Action HUD, Neon Hub page buttons and active tiles.
+// own), and the GM's Give Inspiration. For the hotbar, Neon Combat Manager's Action HUD, Neon Hub page buttons and active tiles.
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -23,6 +23,7 @@ const GLYPHS = {
   biomonitor: `<path d="M256 384 132 262a72 72 0 0 1 124-82 72 72 0 0 1 124 82L256 384zM112 262h86l26-46 40 92 26-46h110"/>`,
   perks: `<circle cx="256" cy="140" r="34"/><circle cx="160" cy="372" r="34"/><circle cx="352" cy="372" r="34"/><path d="M240 170l-66 172M272 170l66 172M194 372h124"/>`,
   spendIp: `<path d="M148 268l108-100 108 100M148 364l108-100 108 100"/>`,
+  inspire: `<path d="M256 112l42 92 100 12-74 68 20 98-88-50-88 50 20-98-74-68 100-12z"/>`,
   dive: `<circle cx="256" cy="128" r="26"/><circle cx="186" cy="256" r="26"/><circle cx="326" cy="256" r="26"/><circle cx="256" cy="384" r="26"/><path d="M242 150l-42 82M270 150l42 82M200 280l42 82M312 280l-42 82"/>`
 };
 
@@ -47,10 +48,16 @@ const MACROS = [
   { key: "biomonitor", name: "Biomonitor", call: "home.biomonitor(who)", what: "the Biomonitor" },
   { key: "perks", name: "Perk Tree", call: "home.perkTree(who)", what: "the Perk Tree" },
   { key: "spendIp", name: "Spend IP", call: "home.spendIp(who)", what: "Spend IP" },
-  { key: "dive", name: "Deep Dive", call: "home.deepDive(who)", what: "the Deep Dive" }
+  { key: "dive", name: "Deep Dive", call: "home.deepDive(who)", what: "the Deep Dive" },
+  { key: "inspire", name: "Give Inspiration", call: "home.giveInspiration()", gm: "give 1 Inspiration to each selected token's character, announced in chat" }
 ];
 
-const command = (m) => `// Neon At Home: open ${m.what} for the selected token's character (or your own).
+const command = (m) => m.gm ? `// Neon At Home (GM): ${m.gm}.
+// For more, or to take one back: home.giveInspiration(null, 2) or home.giveInspiration(null, -1).
+const home = game.modules.get("${MODULE_ID}")?.api;
+if (!home) return ui.notifications.warn("Neon At Home isn't active in this world.");
+return ${m.call};
+` : `// Neon At Home: open ${m.what} for the selected token's character (or your own).
 // Works from the hotbar, Neon Combat Manager's Action HUD, a Neon Hub page button or an active tile.
 const home = game.modules.get("${MODULE_ID}")?.api;
 if (!home) return ui.notifications.warn("Neon At Home isn't active in this world.");

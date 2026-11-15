@@ -253,10 +253,10 @@ test("the sheet header: no buttons by default (they're macros), Home only, or al
   assert.equal(game.i18n.localize("NEONHOME.IP.Short"), "Spend IP", "the button's label, not the shortfall warning");
 });
 
-test("the Macros compendium: each macro opens its window for the token's character, its icon shipped", async () => {
+test("the Macros compendium: each window macro opens for the token's character, Give Inspiration for the selection, icons shipped", async () => {
   const dir = new URL("../packs/_source/macros/", import.meta.url);
   const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
-  assert.equal(files.length, 11);
+  assert.equal(files.length, 12);
   const calls = [];
   const api = new Proxy({}, { get: (_, fn) => (...args) => calls.push([fn, args[0]?.name ?? null, args[1] ?? null]) });
   const mod = game.modules.get(M);
@@ -276,7 +276,7 @@ test("the Macros compendium: each macro opens its window for the token's charact
     mod.api = before;
   }
   const fns = new Set(calls.map((c) => c[0]));
-  for (const fn of ["open", "biomonitor", "perkTree", "spendIp", "deepDive"]) assert.ok(fns.has(fn), fn);
+  for (const fn of ["open", "biomonitor", "perkTree", "spendIp", "deepDive", "giveInspiration"]) assert.ok(fns.has(fn), fn);
   // each is in the API main.js sets up at init
   const main = readFileSync(new URL("../scripts/main.js", import.meta.url), "utf8");
   for (const fn of fns) assert.match(main, new RegExp(`\\n    ${fn}: \\(`), `api.${fn} exists`);
