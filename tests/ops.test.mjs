@@ -427,6 +427,26 @@ test("Inspiration: spending one restores 2 LUCK", async () => {
   await assert.rejects(() => HomeOps.spendInspiration(actor, "luck"), RuleBlock);
 });
 
+test("Give Inspiration: the GM gives each character one, in one chat card; nobody selected is a RuleBlock", async () => {
+  const { actor } = setup();
+  const wasGM = game.user.isGM;
+  game.user.isGM = true;
+  try {
+    const who = await HomeOps.giveInspiration([actor, actor, { type: "mook" }]);
+    assert.equal(who.length, 1, "characters only, each once");
+    assert.equal(HomeStore.psyche(actor).inspiration, 1);
+    await HomeOps.giveInspiration(actor, 2);
+    assert.equal(HomeStore.psyche(actor).inspiration, 3);
+    await HomeOps.giveInspiration(actor, -5);
+    assert.equal(HomeStore.psyche(actor).inspiration, 0, "never below zero");
+    await assert.rejects(() => HomeOps.giveInspiration([]), RuleBlock);
+    game.user.isGM = false;
+    await assert.rejects(() => HomeOps.giveInspiration(actor), RuleBlock);
+  } finally {
+    game.user.isGM = wasGM;
+  }
+});
+
 test("the token-HUD status carries CPR's change flags, and broken effects from 1.2.0-1.3.0 are repaired", async () => {
   const status = HomeOps.encumbranceStatus("half");
   assert.deepEqual(status.flags["cyberpunk-red-core"].changes.cats, { 0: "stat" });

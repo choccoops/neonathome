@@ -1,0 +1,19 @@
+{
+  "_id": "WZ3N2fwVUy16U2sz",
+  "_key": "!macros!WZ3N2fwVUy16U2sz",
+  "name": "Neon At Home: Give Inspiration",
+  "type": "script",
+  "scope": "global",
+  "img": "modules/cpr-neon-at-home/assets/macros/inspire.svg",
+  "command": "// Neon At Home (GM): give 1 Inspiration to each selected token's character, announced in chat.\n// For more, or to take one back: home.giveInspiration(null, 2) or home.giveInspiration(null, -1).\nconst home = game.modules.get(\"cpr-neon-at-home\")?.api;\nif (!home) return ui.notifications.warn(\"Neon At Home isn't active in this world.\");\nreturn home.giveInspiration();\n",
+  "folder": null,
+  "sort": 1200,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "cpr-neon-at-home": {
+      "macro": "inspire"
+    }
+  }
+}

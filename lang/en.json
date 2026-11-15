@@ -437,6 +437,10 @@
       "TierCard": "<b>{name}</b> has fallen into <b>{tier}</b>. Catharsis +{gain}. Pick the tier's Syndromes in the Biomonitor.",
       "Inspiration": "Inspiration",
       "NoInspiration": "No Inspiration to spend.",
+      "GiveGM": "Only the GM can give Inspiration.",
+      "GiveNone": "Select a character's token first.",
+      "GiveCard": "<b>{name}</b> gains {n} Inspiration (now {total}).",
+      "TakeCard": "<b>{name}</b> loses {n} Inspiration (now {total}).",
       "Spend": {
         "reroll": "Reroll",
         "luck": "+2 LUCK",

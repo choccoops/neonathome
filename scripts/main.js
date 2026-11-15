@@ -5,6 +5,7 @@ import { Settings } from "./settings.js";
 import { CPR } from "./cpr.js";
 import { HomeStore } from "./home/store.js";
 import { HomeOps } from "./home/ops.js";
+import { RuleBlock } from "./home/rule-block.js";
 import { HomeApp } from "./apps/home-app.js";
 import { BiomonitorApp } from "./apps/biomonitor-app.js";
 import { PerksApp } from "./apps/perks-app.js";
@@ -137,6 +138,8 @@ Hooks.once("init", () => {
     awardInspiration: (actor, n = 1) => HomeOps.updatePsyche(actor, (p) => {
       p.inspiration = Math.max(0, (Number(p.inspiration) || 0) + n);
     }),
+    /** GM: give Inspiration to the selected tokens' characters (or the Actors given), announced in chat. */
+    giveInspiration: (actors = null, n = 1) => guarded(() => HomeOps.giveInspiration(actors ?? selectedCharacters(), n)),
     /** Add a sub-feature tab to the suite (see scripts/apps/features.js). */
     registerFeature,
     features: () => features().map((f) => f.id),
@@ -544,6 +547,17 @@ Hooks.on("renderChatMessageHTML", (message, html) => bindMalfunctionCard(message
 const selectedCharacter = () => {
   const actor = globalThis.canvas?.tokens?.controlled?.[0]?.actor;
   return actor?.type === "character" && HomeStore.canManage(actor) ? actor.baseActor ?? actor : null;
+};
+const selectedCharacters = () => (globalThis.canvas?.tokens?.controlled ?? []).map((t) => t.actor).filter((a) => a?.type === "character").map((a) => a.baseActor ?? a);
+/** Run an API call; a rule that stops it becomes a warning instead of an error in the console. */
+const guarded = async (fn) => {
+  try {
+    return await fn();
+  } catch (err) {
+    if (!(err instanceof RuleBlock)) throw err;
+    ui.notifications.warn(err.message);
+    return null;
+  }
 };
 const homeForActor = (actor) => actor?.type === "character" && !isVasVehicle(actor) && HomeStore.canManage(actor);
 const configForItem = (item) => game.user.isGM && !["skill", "role", "criticalInjury", "netarch"].includes(item?.type);

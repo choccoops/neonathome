@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.15.0
+
+- **Give Inspiration macro.** The *Neon At Home: Macros* compendium has a GM macro, with its own
+  icon, that gives 1 Inspiration to each selected token's character and posts one chat card with
+  their new totals. Behind it is `home.giveInspiration(actors, n)`: with no Actors it takes the
+  selected tokens' characters, and a negative number takes Inspiration back.
+
 ## 1.14.0
 
 - **An Operating System can make its chrome Borgware.** The 2070 Maximum Humanity already took
